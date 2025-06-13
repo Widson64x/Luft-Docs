@@ -1,0 +1,86 @@
+{
+  "modulos": [
+    {
+      "id": "coordenacao",
+      "nome": "Coordenação",
+      "descricao": "Abertura e controle de processos de transporte.",
+      "icone": "bi-diagram-3",
+      "palavras_chave": [
+        "crm",
+        "transferência",
+        "reversa",
+        "torre de controle"
+      ],
+      "relacionados": [
+        "coleta",
+        "telas-informa"
+      ],
+      "status": "aprovado",
+      "ultima_edicao": {
+        "user": "widson.araujo",
+        "data": "2025-06-09T16:24:38.481797"
+      }
+    },
+    {
+      "id": "telas-informa",
+      "nome": "Telas Informa",
+      "descricao": "Algumas telas do Luft Informa",
+      "icone": "bi bi-window-fullscreen",
+      "palavras_chave": [
+        "coleta",
+        "agendamento",
+        "transferencia",
+        "coordenacao"
+      ],
+      "relacionados": [
+        "coleta",
+        "agendamento",
+        "transferencia",
+        "coordenacao"
+      ],
+      "status": "aprovado",
+      "ultima_edicao": {
+        "user": "cleyton.silva",
+        "data": "2025-06-12T17:51:09.834395"
+      }
+    },
+    {
+      "id": "agendamento",
+      "nome": "Agendamento",
+      "descricao": "Controle de agendamentos de NFs, visualização de pendências e gestão de entregas.",
+      "icone": "bi-calendar-check",
+      "palavras_chave": [
+        "agendar",
+        "nfs"
+      ],
+      "relacionados": [
+        "coordenacao",
+        "telas-informa"
+      ],
+      "status": "aprovado",
+      "ultima_edicao": {
+        "user": "widson.araujo",
+        "data": "2025-06-10T17:24:07.092695"
+      }
+    },
+    {
+      "id": "testando",
+      "nome": "testando",
+      "descricao": "testandotestandotestandotestandotestandotestandotestando",
+      "icone": "bi-printer",
+      "palavras_chave": [],
+      "relacionados": [],
+      "status": "aprovado",
+      "ultima_edicao": {
+        "user": "widson.araujo",
+        "data": "2025-06-11T15:25:36.816480"
+      }
+    }
+  ],
+  "palavras_globais": {
+    "CRM": "Customer Relationship Management, área responsável pelo relacionamento com o cliente.",
+    "Reversa": "Logística reversa: devolução do produto ao remetente.",
+    "Transferência": "Movimentação de itens entre filiais/bases.",
+    "Slot": "Horário reservado para uma operação logística."
+  }
+}

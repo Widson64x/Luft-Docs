@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acesso via Luft Informa — LuftDocs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .info-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 450px;
+      width: 90%;
+      padding: 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .info-container::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 200px;
+      height: 200px;
+      background: rgba(0, 123, 255, 0.15);
+      border-radius: 50%;
+      transform: rotate(45deg);
+      z-index: -1;
+    }
+    .info-icon {
+      font-size: 4rem;
+      color: #0d6efd;
+      margin-bottom: 1rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .info-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #212529;
+    }
+    .info-text {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      color: #555;
+      line-height: 1.5;
+    }
+    .info-footer {
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="info-container">
+    <i class="bi bi-info-circle-fill info-icon"></i>
+    <h2 class="info-title">Acesso Restrito</h2>
+    <p class="info-text">
+      Este sistema só pode ser acessado através do Luft Informa.<br>
+      Por favor, abra o aplicativo Luft Informa para navegar nos módulos do LuftDocs.
+    </p>
+    <div class="info-footer">
+      &copy; 2025 LuftDocs — Feito por Widson
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

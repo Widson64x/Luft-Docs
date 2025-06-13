@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}LuftDocs - Início{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    {% if pode_acessar_editor %}
+    <div class="mb-3 text-end">
+        <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-warning">
+            <i class="bi bi-pencil-square"></i> Acessar editor de conteúdos
+        </a>
+    </div>
+    {% endif %}
+    <h1 class="mb-4">Módulos do LuftDocs</h1>
+    <div class="row g-4">
+        {% for m in modulos %}
+        <div class="col-12 col-sm-6 col-md-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body text-center">
+                    <i class="bi {{ m['icone'] }} display-4 text-primary mb-3"></i>
+                    <h5 class="card-title">{{ m['nome'] }}</h5>
+                    <p class="card-text">{{ m['descricao'] }}</p>
+
+                    <a class="btn btn-outline-primary mt-2"
+                       href="{{ url_for('index.index',
+                                        token=request.args.get('token'),
+                                        modulo=m['id']) }}">
+                        <i class="bi bi-search"></i> Ver módulo
+                    </a>
+
+                    {% if pode_acessar_editor %}
+                    <a class="btn btn-outline-secondary mt-2"
+                       href="{{ url_for('index.index',
+                                        token=request.args.get('token'),
+                                        modulo_tecnico=m['id']) }}">
+                        <i class="bi bi-tools"></i> Ver Módulo Técnico
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

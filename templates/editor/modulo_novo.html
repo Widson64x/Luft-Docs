@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block title %}Criar Novo Módulo{% endblock %}
+{% block content %}
+<style>
+  .icon-modal-search {
+    margin-bottom: 1rem;
+  }
+  #iconGrid .icon-btn {
+    transition: box-shadow 0.2s;
+  }
+  #iconGrid .icon-btn.border-primary {
+    box-shadow: 0 0 0 2px #0d6efd;
+    background: #e7f1ff;
+  }
+  #iconePreview {
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    background: #f8f9fa;
+    transition: border-color 0.2s;
+  }
+  #iconePreview:hover {
+    border-color: #0d6efd;
+    background: #e7f1ff;
+  }
+  .form-section-card {
+    background: #f8fafd;
+    border-radius: 12px;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .tui-editor-defaultUI, .toastui-editor-defaultUI {
+    border-radius: 12px !important;
+    border: 2px solid #0d6efd !important;
+    box-shadow: 0 4px 24px rgba(13,110,253,0.08);
+    background: #fff;
+    min-height: 700px !important;
+    margin-bottom: 2rem;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .editor-toolbar-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .editor-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0d6efd;
+    margin-bottom: 0.3rem;
+    margin-top: 1.2rem;
+  }
+  .input-group-text {
+    font-size: 1.7rem;
+    min-width: 3.2rem;
+    justify-content: center;
+  }
+  .header-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: inherit;
+    margin-bottom: 2.5rem;
+  }
+  .header-form-row .form-section-card {
+    margin-bottom: 0;
+    min-width: 320px;
+    max-width: 540px;
+    flex: 1 1 340px;
+  }
+  @media (max-width: 1200px) {
+    .header-form-row {
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .header-form-row .form-section-card {
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
+</style>
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h2 class="mb-4 text-primary"><i class="bi bi-plus-circle me-2"></i>Criar Novo Módulo</h2>
+          <form method="post" id="editor_form">
+            <input type="hidden" name="token" value="{{ token }}">
+            <!-- Header horizontal com metadados -->
+            <div class="header-form-row">
+              <div class="form-section-card">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="inputId" name="id" placeholder="ID do Módulo" required>
+                  <label for="inputId">ID do Módulo</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="inputNome" name="nome" placeholder="Nome do Módulo" required>
+                  <label for="inputNome">Nome do Módulo</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <textarea class="form-control" id="inputDescricao" name="descricao" placeholder="Descrição" style="height: 80px;"></textarea>
+                  <label for="inputDescricao">Descrição</label>
+                </div>
+              </div>
+              <div class="form-section-card">
+                <div class="mb-3">
+                  <label for="inputIcone" class="form-label">Ícone do Módulo</label>
+                  <div class="input-group align-items-center">
+                    <span class="input-group-text" id="iconePreview" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal">
+                      <i class="bi bi-app"></i>
+                    </span>
+                    <input type="text" class="form-control" id="inputIcone" name="icone" placeholder="Selecione um ícone" readonly style="background:#f9f9f9; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal">
+                  </div>
+                </div>
+                <!-- Modal de seleção de ícones -->
+                <div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="iconModalLabel">Escolha um ícone</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                      </div>
+                      <div class="modal-body">
+                        <input type="text" class="form-control icon-modal-search" id="iconSearch" placeholder="Buscar ícone...">
+                        <div id="iconGrid" class="row row-cols-8 g-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="inputPalavras" class="form-label">Palavras-chave</label>
+                  <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" placeholder="Separe por vírgula">
+                  <small class="form-text text-muted">Ex: cadastro, usuário, permissão</small>
+                </div>
+                <div class="mb-3">
+                  <label for="inputRelacionados" class="form-label">Módulos Relacionados</label>
+                  <input type="text" class="form-control" id="inputRelacionados" name="relacionados" placeholder="IDs separados por vírgula">
+                  <small class="form-text text-muted">Ex: mod1, mod2</small>
+                </div>
+              </div>
+            </div>
+            <!-- Editores ocupando toda a largura -->
+            <div class="form-section-card mt-4" style="max-width:100%;">
+              <input type="hidden" name="doc_content" id="doc_content_input">
+              <input type="hidden" name="tech_content" id="tech_content_input">
+              <div class="mb-4">
+                <label class="editor-label">Conteúdo Markdown (Usuário)</label>
+                <div class="editor-toolbar-btns" id="doc_toolbar"></div>
+                <div id="doc_editor" class="border rounded"></div>
+              </div>
+              <div class="mb-4">
+                <label class="editor-label">Documentação Técnica</label>
+                <div class="editor-toolbar-btns" id="tech_toolbar"></div>
+                <div id="tech_editor" class="border rounded"></div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex gap-2 justify-content-end">
+              <button type="submit" class="btn btn-success btn-lg px-4">
+                <i class="bi bi-check-circle me-1"></i> Criar Módulo
+              </button>
+              <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const token = '{{ token }}';
+    let allIcons = [];
+    fetch(`/editor/options?token=${token}`)
+      .then(r => r.json())
+      .then(data => {
+        allIcons = data.icons || [];
+      });
+
+    // ToastUI Editor
+    const docEditor = new toastui.Editor({
+      el: document.querySelector('#doc_editor'),
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: '700px',
+      initialValue: '# Novo módulo',
+      hooks: { addImageBlobHook: (blob, callback) => {
+        const fd = new FormData(); fd.append('file', blob);
+        fetch(`{{ url_for('editor.upload_image', modulo_id='__NEWID__') }}?token=${token}`, {
+          method: 'POST', body: fd
+        })
+        .then(res => res.json()).then(data => callback(data.url,data.url))
+        .catch(() => alert('Erro ao enviar imagem!'));
+        return false;
+      }}
+    });
+    const techEditor = new toastui.Editor({
+      el: document.querySelector('#tech_editor'),
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: '700px',
+      initialValue: '# Documentação técnica inicial',
+      hooks: { addImageBlobHook: (blob, callback) => {
+        const fd = new FormData(); fd.append('file', blob);
+        fetch(`{{ url_for('editor.upload_image', modulo_id='__NEWID__') }}?token=${token}`, {
+          method: 'POST', body: fd
+        })
+        .then(res => res.json()).then(data => callback(data.url,data.url))
+        .catch(() => alert('Erro ao enviar imagem!'));
+        return false;
+      }}
+    });
+
+    // Upload de anexos
+    function uploadAttachment(editor) {
+      const inp = document.createElement('input'); inp.type = 'file';
+      inp.onchange = () => {
+        const file = inp.files[0]; const fd = new FormData(); fd.append('file', file);
+        fetch(`/editor/upload_anexo?token=${token}`, { method:'POST', body:fd })
+        .then(res=>res.json()).then(data=>{
+          const url = data.url + `&token=${token}`;
+          editor.insertText(`[${file.name}](${url})`);
+        }).catch(()=>alert('Erro ao enviar anexo!'));
+      };
+      inp.click();
+    }
+
+    // Upload de vídeos
+    function uploadVideo(editor) {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*';
+      inp.onchange = () => {
+        const file = inp.files[0]; const fd = new FormData(); fd.append('file', file);
+        const moduloId = document.getElementById('inputId').value.trim() || '__NEWID__';
+        fetch(`/editor/upload_video/${moduloId}?token=${token}`, { method:'POST', body:fd })
+        .then(res=>res.json()).then(data=>{
+          if(data.url){
+            const videoTag = `<video width="640" height="360" controls>\n  <source src="${data.url}" type="${data.type}">\n  Seu navegador não suporta a tag de vídeo.\n</video>\n`;
+            editor.insertText(videoTag);
+          }else{
+            alert(data.error || 'Erro ao enviar vídeo!');
+          }
+        }).catch(()=>alert('Erro ao enviar vídeo!'));
+      };
+      inp.click();
+    }
+
+    // Botões anexar e vídeo
+    [
+      {editor: docEditor, toolbar: 'doc_toolbar'},
+      {editor: techEditor, toolbar: 'tech_toolbar'}
+    ].forEach(({editor, toolbar}) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-outline-secondary btn-sm';
+      btn.innerText = 'Anexar arquivo';
+      btn.onclick = () => uploadAttachment(editor);
+      const btnVideo = document.createElement('button');
+      btnVideo.type = 'button';
+      btnVideo.className = 'btn btn-outline-primary btn-sm';
+      btnVideo.innerHTML = '<i class="bi bi-camera-video"></i> Inserir vídeo';
+      btnVideo.onclick = () => uploadVideo(editor);
+      document.getElementById(toolbar).appendChild(btn);
+      document.getElementById(toolbar).appendChild(btnVideo);
+    });
+
+    // Seleção de ícones via modal com busca
+    function renderIconGrid(selectedIcon) {
+      const grid = document.getElementById('iconGrid');
+      const searchInput = document.getElementById('iconSearch');
+      function showIcons(filter = '') {
+        grid.innerHTML = '';
+        (allIcons || []).filter(ic => ic.includes(filter)).forEach(ic => {
+          const col = document.createElement('div');
+          col.className = 'col text-center';
+          col.innerHTML = `<button type="button" class="btn btn-light border icon-btn${ic===selectedIcon?' border-primary':''}" data-icon="${ic}" style="font-size:1.5rem;">
+            <i class="bi ${ic}"></i>
+          </button>`;
+          grid.appendChild(col);
+        });
+        grid.querySelectorAll('.icon-btn').forEach(btn => {
+          btn.onclick = function() {
+            const ic = this.getAttribute('data-icon');
+            document.getElementById('inputIcone').value = ic;
+            document.querySelector('#iconePreview i').className = 'bi ' + ic;
+            bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
+          };
+        });
+      }
+      showIcons();
+      searchInput.value = '';
+      searchInput.oninput = () => showIcons(searchInput.value.trim());
+    }
+    document.getElementById('iconePreview').addEventListener('click', () => {
+      renderIconGrid(document.getElementById('inputIcone').value);
+    });
+    document.getElementById('inputIcone').addEventListener('click', () => {
+      renderIconGrid(document.getElementById('inputIcone').value);
+    });
+
+    // Preview do ícone ao editar
+    const iconInput = document.getElementById('inputIcone');
+    const iconPreviewEl = document.querySelector('#iconePreview i');
+    if(iconInput) {
+      iconInput.addEventListener('input', () => {
+        const val = iconInput.value.trim();
+        iconPreviewEl.className = val ? 'bi ' + val : 'bi bi-app';
+      });
+    }
+
+    // Captura conteúdo no submit
+    document.getElementById('editor_form').addEventListener('submit', ()=>{
+      document.getElementById('doc_content_input').value = docEditor.getMarkdown();
+      document.getElementById('tech_content_input').value = techEditor.getMarkdown();
+    });
+  });
+</script>
+{% endblock %}

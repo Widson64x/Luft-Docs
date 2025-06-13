@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% block title %}Editor de Módulos{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+  body {
+    background: #f4f7fb;
+  }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2.2rem;
+  }
+  .module-card {
+    border: none;
+    border-radius: 1.5rem;
+    box-shadow: 0 6px 32px rgba(13,110,253,0.09), 0 1.5px 4px rgba(0,0,0,0.03);
+    background: #fff;
+    min-height: 340px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .module-card:hover {
+    box-shadow: 0 12px 40px rgba(13,110,253,0.17), 0 2px 8px rgba(0,0,0,0.07);
+    transform: translateY(-4px) scale(1.018);
+  }
+  .module-card .corner-bg {
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle at 60% 40%, #0d6efd18 60%, transparent 100%);
+    z-index: 0;
+  }
+  .module-card .card-body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 2.2rem 1.7rem 1.5rem 1.7rem;
+  }
+  .module-icon {
+    font-size: 3.1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #0d6efd 60%, #1976d2 100%);
+    border-radius: 1.1rem;
+    padding: 0.9rem 1.2rem;
+    margin-right: 1.2rem;
+    box-shadow: 0 2px 12px #0d6efd22;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .module-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.15rem;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .module-id-badge {
+    background: #e3e6f0;
+    color: #0d6efd;
+    font-size: 0.97em;
+    border-radius: 0.5rem;
+    padding: 0.13em 0.8em;
+    font-weight: 500;
+  }
+  .module-status-badge {
+    background: linear-gradient(90deg, #ffe082 80%, #fffde7 100%);
+    color: #795548;
+    font-size: 0.97em;
+    border-radius: 0.5rem;
+    padding: 0.13em 0.8em;
+    font-weight: 500;
+    margin-left: 0.3rem;
+  }
+  .module-desc {
+    color: #495057;
+    font-size: 1.08rem;
+    margin-bottom: 1.5rem;
+    min-height: 56px;
+    margin-top: 0.5rem;
+    line-height: 1.5;
+  }
+  .module-actions {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: auto;
+    flex-wrap: wrap;
+  }
+  .module-actions .btn {
+    border-radius: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 4px #0d6efd11;
+    min-width: 0;
+    flex: 1 1 0;
+    white-space: nowrap;
+  }
+  .module-actions .btn-primary {
+    background: linear-gradient(90deg, #0d6efd 80%, #1976d2 100%);
+    border: none;
+    color: #fff;
+  }
+  .module-actions .btn-primary:hover {
+    background: #1976d2;
+    color: #fff;
+  }
+  .module-actions .btn-outline-info {
+    border: 1.5px solid #0d6efd;
+    color: #0d6efd;
+    background: #f8fafc;
+  }
+  .module-actions .btn-outline-info:hover {
+    background: #e3e6f0;
+    color: #1976d2;
+  }
+  .module-actions .btn-danger {
+    background: linear-gradient(90deg, #e53935 80%, #b71c1c 100%);
+    border: none;
+    color: #fff;
+  }
+  .module-actions .btn-danger:hover {
+    background: #b71c1c;
+    color: #fff;
+  }
+  .module-empty {
+    background: #f8fafc;
+    border: 2px dashed #b0bec5;
+    border-radius: 1.2rem;
+    padding: 3.5rem 1rem;
+    color: #78909c;
+    font-size: 1.22rem;
+    text-align: center;
+    margin-top: 2.5rem;
+    box-shadow: 0 2px 12px #b0bec522;
+  }
+  .module-empty .bi {
+    color: #b0bec5;
+  }
+  .module-header-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem;
+    margin-bottom: 2.2rem;
+  }
+  .module-header-bar .actions {
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  .module-header-bar h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #0d47a1;
+    letter-spacing: 0.01em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .modulo-filtro-box {
+    margin-bottom: 2rem;
+    max-width: 420px;
+    margin-left: 0;
+  }
+  .modulo-filtro-box input {
+    font-size: 1.15rem;
+    border-radius: 0.7rem;
+    border: 1.5px solid #b0bec5;
+    padding: 0.7rem 1.2rem;
+    box-shadow: 0 1px 4px #0d6efd11;
+    transition: border 0.15s;
+  }
+  .modulo-filtro-box input:focus {
+    border: 1.5px solid #0d6efd;
+    outline: none;
+    box-shadow: 0 2px 8px #0d6efd22;
+  }
+  @media (max-width: 991px) {
+    .module-grid {
+      grid-template-columns: 1fr;
+    }
+    .module-header-bar h1 {
+      font-size: 1.5rem;
+    }
+  }
+  @media (max-width: 767px) {
+    .module-card {
+      min-height: 0;
+      padding: 0;
+    }
+    .module-title {
+      font-size: 1.08rem;
+    }
+    .module-desc {
+      font-size: 0.98rem;
+    }
+    .module-header-bar h1 {
+      font-size: 1.1rem;
+    }
+    .modulo-filtro-box input {
+      font-size: 1rem;
+      padding: 0.5rem 0.8rem;
+    }
+  }
+</style>
+
+<div class="container py-4">
+  <div class="module-header-bar">
+    <h1>
+      <i class="bi bi-journal-code text-primary"></i>
+      Editor de Módulos
+    </h1>
+    <div class="actions">
+      {% if can(menus, 'seguranca') %}
+      <a href="{{ url_for('editor.pendentes', token=token) }}" class="btn btn-danger shadow-sm">
+        <i class="bi bi-hourglass-split"></i> Pendências
+      </a>
+      {% endif %}
+      <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="btn btn-success shadow-sm">
+        <i class="bi bi-plus-circle"></i> Novo módulo
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtro de busca -->
+  <div class="modulo-filtro-box">
+    <input type="text" id="moduloFiltro" class="form-control" placeholder="Buscar módulo por nome, ID ou descrição...">
+  </div>
+
+  <div class="module-grid" id="moduloGrid">
+    {% for m in modulos %}
+    <div class="modulo-item" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
+      <div class="module-card">
+        <div class="corner-bg"></div>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <span class="module-icon">
+              <i class="bi {{ m.icone }}"></i>
+            </span>
+            <div>
+              <div class="module-title">
+                {{ m.nome }}
+                <span class="module-id-badge">ID: {{ m.id }}</span>
+                {% if m.status == 'pendente' %}
+                <span class="module-status-badge">pendente aprovação</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="module-desc">{{ m.descricao }}</div>
+          <div class="module-actions mt-auto">
+            <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-pencil-square"></i> Editar
+            </a>
+            {% if can(menus, 'seguranca') %}
+            <a href="{{ url_for('editor.historico_modulo', mid=m.id, token=token) }}" class="btn btn-outline-info btn-sm">
+              <i class="bi bi-clock-history"></i> Versões
+            </a>
+            <form method="post"
+                  action="{{ url_for('editor.delete_modulo', mid=m.id, token=token) }}"
+                  style="display:inline;"
+                  onsubmit="return confirm('Deseja realmente deletar o módulo {{ m.nome }}, um módulo desse tem centenas de Informações que dermoram horas para o preenchimento?');">
+              <button type="submit" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i> Deletar
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="module-empty">
+        <i class="bi bi-emoji-frown fs-2 mb-2 d-block"></i>
+        Nenhum módulo disponível.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  // Filtro simples de módulos
+  document.getElementById('moduloFiltro').addEventListener('input', function() {
+    const termo = this.value.trim().toLowerCase();
+    document.querySelectorAll('.modulo-item').forEach(function(item) {
+      const nome = item.getAttribute('data-nome');
+      const id = item.getAttribute('data-id');
+      const desc = item.getAttribute('data-desc');
+      if (
+        termo === '' ||
+        nome.includes(termo) ||
+        id.includes(termo) ||
+        desc.includes(termo)
+      ) {
+        item.style.display = '';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+</script>
+{% endblock %}

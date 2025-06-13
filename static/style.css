@@ -1,0 +1,157 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f9f9fb;
+    margin: 0;
+}
+
+.sidebar {
+    width: 220px;
+    background: #23263b;
+    padding: 20px 0;
+    height: 100vh;
+    position: fixed;
+    box-shadow: 2px 0 8px #0001;
+    color: #fff;
+}
+
+.sidebar h2 {
+    color: #fff;
+    font-size: 1.3rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0 20px;
+}
+
+.sidebar li {
+    margin-bottom: 22px;
+}
+
+.sidebar img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 12px;
+}
+
+.sidebar a {
+    color: #eee;
+    text-decoration: none;
+    font-size: 1.08rem;
+    transition: color 0.15s;
+    border-radius: 6px;
+    padding: 6px 6px 6px 2px;
+    display: flex;
+    align-items: center;
+}
+.sidebar a.active, .sidebar a:hover {
+    color: #00B4D8;
+    background: #2c304a;
+}
+
+.main {
+    margin-left: 240px;
+    padding: 40px 6vw 40px 6vw;
+    min-height: 100vh;
+    max-width: 1200px;
+}
+
+form.busca-global {
+    margin-bottom: 30px;
+    margin-left: 0;
+}
+
+form.busca-global input[type="text"] {
+    width: 60%;
+    padding: 10px 14px;
+    font-size: 1.1rem;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+form.busca-global button {
+    padding: 10px 28px;
+    background: #00B4D8;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    border-radius: 6px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+form.busca-global button:hover {
+    background: #48CAE4;
+}
+
+/* Cards dos módulos */
+.modulos-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+    margin-top: 22px;
+}
+
+.modulo-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 34px 24px 30px 24px;
+    box-shadow: 0 6px 32px #0002, 0 1.5px 5px #0001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.18s, transform 0.15s;
+    min-height: 230px;
+}
+
+.modulo-card:hover {
+    box-shadow: 0 12px 36px #00b4d810, 0 2px 8px #0002;
+    transform: translateY(-4px) scale(1.025);
+}
+
+.modulo-icone {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+}
+
+.modulo-card h2 {
+    margin: 0;
+    font-size: 1.21rem;
+    color: #23263b;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.modulo-descricao {
+    color: #65677a;
+    font-size: 1.02rem;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.botao-ver {
+    background: #00B4D8;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 26px;
+    text-decoration: none;
+    font-size: 1.01rem;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+.botao-ver:hover {
+    background: #48CAE4;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .main { padding: 24px 2vw 24px 2vw; }
+    .sidebar { width: 100vw; height: auto; position: static; box-shadow: none; }
+    .main { margin-left: 0; }
+    .modulos-cards { grid-template-columns: 1fr; }
+}

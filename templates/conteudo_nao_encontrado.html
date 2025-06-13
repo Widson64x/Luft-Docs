@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Conteúdo não encontrado{% endblock %}
+
+{% block content %}
+  <div class="text-center py-5">
+    <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+    <h2 class="mt-4">Conteúdo não encontrado</h2>
+    <p class="lead">
+      Desculpe, mas não encontramos o material solicitado.
+    </p>
+    <a href="{{ url_for('index.index', user_name=session.user_name, id=session.user_id) }}" class="btn btn-primary mt-3">
+      <i class="bi bi-arrow-clockwise me-2"></i> Voltar ao Início
+    </a>
+  </div>
+{% endblock %}

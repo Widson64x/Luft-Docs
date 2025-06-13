@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Busca - LuftDocs{% endblock %}
+{% block content %}
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- CAMPO DE BUSCA -->
+            <form id="search-form"
+                  action="{{ url_for('index.index') }}"
+                  method="get"
+                  class="mb-4 d-flex align-items-center gap-2">
+                <input type="hidden" name="token" value="{{ request.args.get('token') }}">
+                <input type="hidden" name="busca" value="1">
+                <input id="busca-input" type="text" name="q"
+                       value="{{ query or '' }}"
+                       placeholder="O que você deseja saber..." autofocus
+                       class="form-control form-control-lg shadow-sm"
+                       style="max-width: 440px;">
+                <button class="btn btn-primary btn-lg" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <!-- PESQUISAS RECENTES DINÂMICAS -->
+            <div id="recentes-panel" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3 text-primary">
+                                <i class="bi bi-clock-history"></i> Pesquisas Recentes
+                            </h6>
+                            <ul id="recentes-list" class="list-group list-group-flush mb-0">
+                                {% for r in recentes[:8] %}
+                                    <li class="list-group-item p-2" data-busca="{{ r|lower }}">
+                                        <a href="{{ url_for('index.index',
+                                                            token=request.args.get('token'),
+                                                            busca=1,
+                                                            q=r) }}"
+                                           class="text-decoration-none">
+                                            <i class="bi bi-clock me-1"></i> {{ r }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="list-group-item p-2 text-muted">Nenhuma pesquisa recente.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTADOS DETALHADOS (quando há filtro/query) -->
+            {% if query %}
+                <h3 class="mb-4 fs-5 mt-5">Resultados detalhados</h3>
+                {% if resultados %}
+                    <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
+                        {% for r in resultados %}
+                            <a href="{{ url_for('index.index',
+                                                token=request.args.get('token'),
+                                                modulo=r['modulo_id']) }}"
+                               class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-search text-primary fs-5"></i>
+                                    <span class="fw-semibold fs-5">{{ r['modulo_nome'] }}</span>
+                                </div>
+                                <div class="text-muted small" style="line-height:1.6;">
+                                    ...{{ r['trecho']|safe }}...
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning mt-5 shadow-sm rounded-3 d-flex align-items-center gap-3" style="font-size:1.08rem;">
+                        <i class="bi bi-emoji-frown fs-2"></i>
+                        <div>
+                            Nenhum resultado encontrado.
+                            <div class="mt-1 text-secondary" style="font-size:0.97rem;">
+                                Tente outros termos ou palavras-chave!
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- MÓDULOS MAIS ACESSADOS (quando NÃO há filtro/query) -->
+            {% if not query %}
+                <h3 class="mb-4 fs-5 mt-5">Módulos mais acessados</h3>
+                <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
+                    {% for m, count, tendencia in mais_acessados[:8] %}
+                        <a href="{{ url_for('index.index',
+                                            token=request.args.get('token'),
+                                            modulo=m['id']) }}"
+                           class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi {{ m['icone'] }} text-success fs-5"></i>
+                                <span class="fw-semibold fs-5">{{ m['nome'] }}</span>
+                                <span class="badge rounded-pill bg-success ms-2">{{ count }} acessos</span>
+                                {% if tendencia == 1 %}
+                                    <span class="ms-2" title="Subindo">
+                                        <i class="bi bi-arrow-up-circle-fill fs-4" style="color: #198754;"></i>
+                                    </span>
+                                {% elif tendencia == -1 %}
+                                    <span class="ms-2" title="Caindo">
+                                        <i class="bi bi-arrow-down-circle-fill fs-4" style="color: #dc3545;"></i>
+                                    </span>
+                                {% else %}
+                                    <span class="ms-2" title="Estável">
+                                        <i class="bi bi-dash-circle-fill fs-4" style="color: #6c757d;"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small" style="line-height:1.6;">
+                                {{ m['descricao'] or '' }}
+                            </div>
+                        </a>
+                    {% else %}
+                        <div class="list-group-item p-2 text-muted">Nenhum acesso ainda.</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('busca-input');
+    const recentesPanel = document.getElementById('recentes-panel');
+    const recentesList = document.getElementById('recentes-list');
+    if (!recentesList) return;
+
+    const allItems = Array.from(recentesList.children);
+    let noResultItem = document.createElement('li');
+    noResultItem.className = 'list-group-item p-2 text-muted';
+    noResultItem.textContent = 'Nenhuma pesquisa recente.';
+
+    input.addEventListener('input', function() {
+        const valor = input.value.trim().toLowerCase();
+        if (valor.length > 0) {
+            recentesPanel.style.display = '';
+            let encontrou = false;
+            allItems.forEach(li => {
+                const texto = (li.getAttribute('data-busca') || '').toLowerCase();
+                if (texto.includes(valor)) {
+                    li.style.display = '';
+                    encontrou = true;
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+            if (!encontrou) {
+                if (!recentesList.contains(noResultItem)) {
+                    recentesList.appendChild(noResultItem);
+                }
+            } else {
+                if (recentesList.contains(noResultItem)) {
+                    recentesList.removeChild(noResultItem);
+                }
+            }
+        } else {
+            recentesPanel.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !recentesPanel.contains(e.target)) {
+            recentesPanel.style.display = 'none';
+        }
+    });
+
+    document.getElementById('search-form').addEventListener('submit', function() {
+        recentesPanel.style.display = 'none';
+    });
+
+    recentesPanel.style.display = 'none';
+});
+</script>
+{% endblock %}

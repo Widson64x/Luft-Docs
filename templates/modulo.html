@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ modulo['nome'] }} - LuftDocs{% endblock %}
+{% block content %}
+    {# Formulário de busca dentro do módulo, preservando token e módulo #}
+    <form class="busca-global mb-4" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get">
+        <input type="hidden" name="token" value="{{ request.args.get('token') }}">
+        <input type="hidden" name="modulo" value="{{ modulo['id'] }}">
+        <input type="text" name="q" value="{{ query or '' }}"
+               placeholder="Buscar neste módulo..."
+               class="form-control d-inline-block"
+               style="width: 70%; max-width: 400px;">
+        <button type="submit" class="btn btn-primary ms-2">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+    </form>
+
+    <h1 class="mb-1">{{ modulo['nome'] }}</h1>
+    <p class="mb-1"><i>{{ modulo['descricao'] }}</i></p>
+    <hr>
+
+    {% if resultado_highlight %}
+        <div class="alert alert-info">
+            Mostrando resultados para: <b>{{ query }}</b>
+        </div>
+    {% endif %}
+
+    <div class="modulo-conteudo" id="imagem-viewer">
+        {# 1) Pega o HTML bruto, que contém "__TOKEN_PLACEHOLDER__" #}
+        {% set html_bruto = conteudo %}
+
+        {# 2) Substitui o marcador pelo token real #}
+        {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+
+        {#
+           3) Corrige links que apontam originalmente para "/downloads/docs/arquivo"
+             de modo que passem a chamar:
+               /?token=<TOKEN>&download=<arquivo>
+        #}
+        {% set prefix = '/downloads/docs/' %}
+        {% set replace_prefix = '/?token=' ~ request.args.get('token', '') ~ '&download=' %}
+        {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
+
+        {# 4) Renderiza o HTML final #}
+        {{ conteudo_final | safe }}
+    </div>
+
+    <hr>
+    <h3 class="mb-3">Módulos Relacionados</h3>
+    <div class="relacionados mb-4">
+        {% for rel in relacionados %}
+            <a class="btn btn-outline-primary btn-sm me-1 mb-1"
+               href="{{ url_for('submodulo.ver_submodulo_pela_raiz',
+                                **{'token': request.args.get('token'),
+                                   'modulo': rel['id']}) }}">
+                <i class="bi {{ rel['icone'] }}"></i> {{ rel['nome'] }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Modal de visualização de imagem (permanece igual) -->
+    <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-0">
+                <div class="modal-body text-center p-0">
+                    <img id="imagemExpandida" src="" alt="Imagem ampliada"
+                         style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      function abrirVideoModal(url) {
+        const videoSource = document.getElementById('videoSource');
+        const videoPlayer = document.getElementById('videoPlayer');
+        videoSource.src = url;
+        videoPlayer.load();
+        var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+        videoModal.show();
+
+        const modalEl = document.getElementById('videoModal');
+        modalEl.addEventListener('hidden.bs.modal', function () {
+          videoPlayer.pause();
+          videoSource.src = "";
+        }, { once: true });
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.video-link').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            abrirVideoModal(el.getAttribute('data-video-url'));
+          });
+        });
+      });
+    </script>
+{% endblock %}
