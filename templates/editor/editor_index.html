@@ -228,7 +228,7 @@
       Editor de Módulos
     </h1>
     <div class="actions">
-      {% if can(menus, 'seguranca') %}
+      {% if can_module_control %}
       <a href="{{ url_for('editor.pendentes', token=token) }}" class="btn btn-danger shadow-sm">
         <i class="bi bi-hourglass-split"></i> Pendências
       </a>
@@ -269,19 +269,22 @@
             <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-primary btn-sm">
               <i class="bi bi-pencil-square"></i> Editar
             </a>
-            {% if can(menus, 'seguranca') %}
+            {% if can_versioning_modules %}         
             <a href="{{ url_for('editor.historico_modulo', mid=m.id, token=token) }}" class="btn btn-outline-info btn-sm">
               <i class="bi bi-clock-history"></i> Versões
             </a>
+            {% endif %}
             <form method="post"
                   action="{{ url_for('editor.delete_modulo', mid=m.id, token=token) }}"
                   style="display:inline;"
                   onsubmit="return confirm('Deseja realmente deletar o módulo {{ m.nome }}, um módulo desse tem centenas de Informações que dermoram horas para o preenchimento?');">
+              {% if can_delete_modules %}         
               <button type="submit" class="btn btn-danger btn-sm">
                 <i class="bi bi-trash"></i> Deletar
               </button>
+              {% endif %}
             </form>
-            {% endif %}
+
           </div>
         </div>
       </div>

@@ -2,37 +2,104 @@
 {% block title %}LuftDocs - Início{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    {% if pode_acessar_editor %}
-    <div class="mb-3 text-end">
-        <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-warning">
-            <i class="bi bi-pencil-square"></i> Acessar editor de conteúdos
+<style>
+    .modern-card {
+        min-height: 370px;
+        max-height: 370px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 1.25rem;
+        transition: box-shadow 0.2s, border-color 0.2s;
+        border: 1.5px solid #e3e6ed;
+        background: #fff;
+    }
+    .modern-card:hover {
+        box-shadow: 0 8px 32px rgba(80, 120, 200, 0.12);
+        border-color: #0d6efd;
+    }
+    .modern-card .card-body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .modern-card .card-title {
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: #1a237e;
+    }
+    .modern-card .card-text {
+        color: #5c6f8c;
+        font-size: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    .modern-btn {
+        min-width: 140px;
+        margin: 0 0.25rem;
+        font-weight: 500;
+        border-radius: 2rem;
+        transition: background 0.15s, color 0.15s;
+    }
+    .modern-btn i {
+        margin-right: 0.4em;
+    }
+    @media (max-width: 575px) {
+        .modern-card {
+            min-height: 320px;
+            max-height: 320px;
+        }
+    }
+</style>
+<div class="container my-5">
+
+    <div class="mb-4 text-end d-flex justify-content-end gap-2">
+        {% if can_access_editor %}
+        <a href="/editor/?token={{ request.args.get('token') }}"
+            class="btn btn-warning modern-btn">
+            <i class="bi bi-pencil-square"></i>
+            Acessar editor de conteúdos
         </a>
+        {% endif %}
+        {% if can_access_permissions_menu %}
+        <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}"
+        class="btn btn-outline-dark modern-btn">
+            <i class="bi bi-shield-lock"></i> Gerenciar permissões
+        </a>
+        {% endif %}
     </div>
-    {% endif %}
-    <h1 class="mb-4">Módulos do LuftDocs</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h1 class="mb-5 fw-bold text-primary-emphasis">Módulos do LuftDocs</h1>
     <div class="row g-4">
         {% for m in modulos %}
-        <div class="col-12 col-sm-6 col-md-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body text-center">
+        <div class="col-12 col-sm-6 col-md-4 d-flex">
+            <div class="card modern-card w-100 shadow-sm border-0">
+                <div class="card-body">
                     <i class="bi {{ m['icone'] }} display-4 text-primary mb-3"></i>
                     <h5 class="card-title">{{ m['nome'] }}</h5>
                     <p class="card-text">{{ m['descricao'] }}</p>
-
-                    <a class="btn btn-outline-primary mt-2"
-                       href="{{ url_for('index.index',
-                                        token=request.args.get('token'),
-                                        modulo=m['id']) }}">
+                </div>
+                <div class="pb-3 text-center">
+                    <a class="btn btn-outline-primary modern-btn me-2"
+                       href="{{ url_for('index.index', token=request.args.get('token'), modulo=m['id']) }}">
                         <i class="bi bi-search"></i> Ver módulo
                     </a>
-
-                    {% if pode_acessar_editor %}
-                    <a class="btn btn-outline-secondary mt-2"
-                       href="{{ url_for('index.index',
-                                        token=request.args.get('token'),
-                                        modulo_tecnico=m['id']) }}">
-                        <i class="bi bi-tools"></i> Ver Módulo Técnico
+                    {% if can_view_tecnico %}
+                    <a class="btn btn-outline-secondary modern-btn"
+                       href="{{ url_for('index.index', token=request.args.get('token'), modulo_tecnico=m['id']) }}">
+                        <i class="bi bi-tools"></i> Módulo Técnico
                     </a>
                     {% endif %}
                 </div>

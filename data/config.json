@@ -59,21 +59,8 @@
       ],
       "status": "aprovado",
       "ultima_edicao": {
-        "user": "widson.araujo",
-        "data": "2025-06-10T17:24:07.092695"
-      }
-    },
-    {
-      "id": "testando",
-      "nome": "testando",
-      "descricao": "testandotestandotestandotestandotestandotestandotestando",
-      "icone": "bi-printer",
-      "palavras_chave": [],
-      "relacionados": [],
-      "status": "aprovado",
-      "ultima_edicao": {
-        "user": "widson.araujo",
-        "data": "2025-06-11T15:25:36.816480"
+        "user": "cleyton.silva",
+        "data": "2025-06-17T16:57:48.157644"
       }
     }
   ],

@@ -1,76 +1,95 @@
+# utils/auth/auth_utils.py
+
 from functools import wraps
-from flask import session, request, redirect, url_for, abort, render_template, current_app
+from flask import session, request, redirect, url_for, render_template, current_app
+import requests
+
 from utils.auth.user_provider import get_user_by_credentials, get_user_by_token
 from config import USER_API_URL
-import requests
 from utils.auth.user_field_map import USER_FIELD_MAP
-from utils.auth.menu_map import MENU_MAP
 
-def map_user_fields(usuario):
-    """Mapeia os campos do usuário da API para os nomes internos."""
-    return {USER_FIELD_MAP.get(k, k): v for k, v in usuario.items()}
+# -----------------------------------------
+# Autenticação e Sessão de Usuário
+# -----------------------------------------
 
-def map_menus(menus_api):
-    """Mapeia os menus da API para nomes internos."""
-    return [MENU_MAP.get(menu.get("Codigo_Menu")) for menu in menus_api if menu.get("Codigo_Menu") in MENU_MAP]
+def map_user_fields(user_api):
+    """Mapeia os campos do usuário da API para os nomes internos da aplicação."""
+    return {USER_FIELD_MAP.get(k, k): v for k, v in user_api.items()}
 
 
-def validar_usuario_por_credenciais():
+def _populate_user_session(user_data_api):
+    """
+    Valida dados da API e popula sessão com usuário, grupo e permissões.
+    """
+    if not user_data_api or 'usuario' not in user_data_api:
+        return False
+
+    # --- Dados do Usuário ---
+    user_api = user_data_api['usuario']
+    user = map_user_fields(user_api)
+    session['user_name'] = user.get('name')
+    session['user_id'] = user.get('id')
+    session['email'] = user.get('email')
+    session['full_name'] = user.get('full_name')
+
+    # --- Dados do Grupo ---
+    group_api = user_data_api.get('grupo', {})
+    session['user_group'] = {
+        'group_code': group_api.get('codigo_usuariogrupo'),
+        'acronym': group_api.get('Sigla_UsuarioGrupo'),
+        'description': group_api.get('Descricao_UsuarioGrupo'),
+    }
+
+    # --- Permissões ---
+    from routes.permissions import load_permissions
+    perms_def = load_permissions()
+    grupo = session['user_group']['acronym']
+    usuario = session['user_name']
+    session['permissions'] = {}
+    for perm_name, info in perms_def.items():
+        session['permissions'][perm_name] = (
+            grupo in info.get('groups', []) or
+            usuario in info.get('users', [])
+        )
+
+    # --- Token & Validade ---
+    session['token'] = user_data_api.get('token')
+    session['token_expiry'] = user_data_api.get('token_expira_em')
+    session.permanent = False
+
+    # DEBUG: imprime todo o conteúdo da sessão no console
+    print("DEBUG SESSION ->", dict(session))
+
+    return True
+
+
+def validate_user_by_credentials():
     user_name = request.args.get('user_name', '').strip()
     if not user_name:
         return False
-    user = get_user_by_credentials(user_name)
-    print("DEBUG user:", user)
-    if not user or 'usuario' not in user:
-        return False
-    usuario_api = user['usuario']
-    usuario = map_user_fields(usuario_api)
-    session['user_name'] = usuario.get('name')
-    session['user_id']   = usuario.get('id')
-    session['email']     = usuario.get('email')
-    session['full_name'] = usuario.get('full_name')
-    session['token']     = user.get('token')
-    session['token_expira_em'] = user.get('token_expira_em')
-    session['menus'] = map_menus(user.get('menus', []))
-    session.permanent = False
-    return True
+    user_data = get_user_by_credentials(user_name)
+    return _populate_user_session(user_data)
 
-def validar_usuario_por_token():
+
+def validate_user_by_token():
     token_raw = request.args.get('token', '').strip()
     if not token_raw:
         return False
-    user = get_user_by_token(token_raw)
-    print("DEBUG user by token:", user)
-    if not user or 'usuario' not in user:
-        return False
-    usuario_api = user['usuario']
-    usuario = map_user_fields(usuario_api)
-    session['user_name'] = usuario.get('name')
-    session['user_id']   = usuario.get('id')
-    session['email']     = usuario.get('email')
-    session['full_name'] = usuario.get('full_name')
-    session['token']     = user.get('token')
-    session['token_expira_em'] = user.get('token_expira_em')
-    session['menus'] = map_menus(user.get('menus', []))
-    session.permanent = False
-    return True
+    user_data = get_user_by_token(token_raw)
+    return _populate_user_session(user_data)
 
 
-def autenticar_request_inicial():
-    """
-    Tenta autenticar o usuário em duas etapas:
-      1) Via token (se ?token= for fornecido)
-      2) Via credenciais (se ?user_name= for fornecido)
-    Se autenticar por credenciais, redireciona para URL com token.
-    """
-    if validar_usuario_por_token():
+def authenticate_initial_request():
+    # Tenta token primeiro
+    if validate_user_by_token():
         return True
-    if validar_usuario_por_credenciais():
+    # Depois credenciais
+    if validate_user_by_credentials():
         token = session.get('token')
         if token:
             return redirect(f"/?token={token}")
         return True
-    # Se falhar, retorna página de acesso restrito
+    # Falha
     return render_template("info_login.html"), 403
 
 
@@ -83,33 +102,14 @@ def login_required(f):
     return wrapped
 
 
-def requires_permission(*cargos_permitidos):
-    def decorator(f):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            cargo = session.get('permission')
-            # Permite aceitar nomes internos ou usar a função can()
-            if not cargo or cargo not in cargos_permitidos:
-                return abort(403)
-            return f(*args, **kwargs)
-        return wrapped
-    return decorator
-
-
 def logout_user():
-    """
-    Revoga o token da API e limpa a sessão do usuário.
-    """
     token = session.get('token')
     if token:
         try:
             url = f"{USER_API_URL}/logout_token"
-            # current_app.logger.debug(f"Revocando token em {url}")
-            resp = requests.post(url, json={"token": token}, timeout=2)
+            resp = requests.post(url, json={"token": token}, timeout=3)
             resp.raise_for_status()
-            print("DEBUG: Token revogado com sucesso.")
-            print("URL DE LOGOUT:", url)
         except requests.RequestException as e:
-            current_app.logger.error(f"Falha ao revogar token: {e}")
+            current_app.logger.error(f"Falha ao revogar token na API: {e}")
     session.clear()
     return True

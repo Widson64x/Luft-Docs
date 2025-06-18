@@ -166,6 +166,7 @@
   .toastui-editor-contents, .toastui-editor-md-preview, .toastui-editor-md-container {
     scrollbar-width: thin;
     scrollbar-color: #b6d0fa #f7fafd;
+    
   }
   .toastui-editor-contents::-webkit-scrollbar, .toastui-editor-md-preview::-webkit-scrollbar, .toastui-editor-md-container::-webkit-scrollbar {
     width: 8px;
@@ -174,6 +175,9 @@
   .toastui-editor-contents::-webkit-scrollbar-thumb, .toastui-editor-md-preview::-webkit-scrollbar-thumb, .toastui-editor-md-container::-webkit-scrollbar-thumb {
     background: #b6d0fa;
     border-radius: 8px;
+  }
+  .toastui-editor-contents {
+    white-space: pre-wrap !important;
   }
 </style>
 <div class="wikidocs-main-card">
@@ -279,7 +283,16 @@
     previewStyle: 'vertical',
     height: '700px',
     initialValue: docInitial,
+    usageStatistics: false,    // desativa estatísticas
+    markdown: {
+      breaks: true,            // respeita quebra simples de linha
+      linkify: true,           // converte URLs em links
+      html: true               // permite HTML se desejado
+    },
     hooks: {
+      beforePreviewRender: markdown => {
+        return markdown.replace(/\r?\n/g, '  \n');
+      },
       addImageBlobHook: (blob, callback) => {
         const formData = new FormData();
         formData.append('file', blob);
@@ -301,6 +314,12 @@
     previewStyle: 'vertical',
     height: '700px',
     initialValue: techInitial,
+    usageStatistics: false,
+    markdown: {
+      breaks: true,
+      linkify: true,
+      html: true
+    },
     hooks: {
       addImageBlobHook: (blob, callback) => {
         const formData = new FormData();
@@ -350,7 +369,7 @@
         if(data.url){
           const videoTag = `<video width="640" height="360" controls>\n  <source src="${data.url}" type="${data.type}">\n  Seu navegador não suporta a tag de vídeo.\n</video>\n`;
           editor.insertText(videoTag);
-        }else{
+        } else {
           alert(data.error || 'Erro ao enviar vídeo!');
         }
       }).catch(() => alert('Erro ao enviar vídeo!'));

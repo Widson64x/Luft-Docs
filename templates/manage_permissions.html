@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block title %}Gestão de Permissões{% endblock %}
+
+{% block content %}
+<style>
+body {
+    background: #f6f8fb;
+}
+.permission-dashboard {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.permission-header {
+    background: rgba(25, 118, 210, 0.95);
+    color: #fff;
+    border-radius: 2rem 2rem 0 0;
+    padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 8px 32px 0 rgba(25,118,210,0.10);
+}
+.permission-header h1 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin: 0;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+.permission-header .btn {
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 2em;
+    padding: 0.8em 2em;
+    box-shadow: 0 2px 12px 0 rgba(25,118,210,0.13);
+    background: #fff;
+    color: #1976d2;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+}
+.permission-header .btn:hover {
+    background: #1976d2;
+    color: #fff;
+}
+.search-bar {
+    margin: 2.5rem 0 2.5rem 0;
+    display: flex;
+    justify-content: flex-end;
+}
+.search-bar input {
+    border-radius: 2em;
+    border: 1.5px solid #e3e3e3;
+    padding: 1em 1.5em;
+    width: 340px;
+    font-size: 1.1em;
+    background: #f7fafc;
+    box-shadow: 0 2px 8px 0 rgba(60,72,100,0.06);
+    transition: border 0.2s;
+}
+.search-bar input:focus {
+    border: 2px solid #1976d2;
+    outline: none;
+    background: #fff;
+}
+#permissions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+}
+.permission-card {
+    border: none;
+    border-radius: 2rem;
+    box-shadow: 0 4px 32px 0 rgba(60,72,100,0.10);
+    background: rgba(255,255,255,0.95);
+    padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
+    transition: box-shadow 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+}
+.permission-card:hover {
+    box-shadow: 0 8px 48px 0 rgba(25,118,210,0.18);
+    transform: translateY(-4px) scale(1.01);
+}
+.permission-icon {
+    font-size: 3.2rem;
+    color: #1976d2;
+    background: linear-gradient(135deg, #e3f2fd 60%, #fffde7 100%);
+    border-radius: 1.2rem;
+    padding: 0.7rem 1.2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px 0 rgba(25,118,210,0.07);
+    display: inline-block;
+}
+.permission-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: #222;
+    letter-spacing: -0.5px;
+}
+.permission-desc {
+    color: #5a5a5a;
+    font-size: 1.05rem;
+    margin-bottom: 1.2rem;
+    min-height: 2.2em;
+}
+.permission-meta {
+    margin-bottom: 1.1rem;
+}
+.permission-meta-label {
+    font-size: 0.98em;
+    color: #888;
+    font-weight: 500;
+    margin-right: 0.5em;
+}
+.permission-badge {
+    font-size: 1em;
+    margin: 0 0.25em 0.25em 0;
+    padding: 0.45em 1.1em;
+    border-radius: 1.2em;
+    background: linear-gradient(90deg, #e3f2fd 0%, #fce4ec 100%);
+    color: #1976d2;
+    font-weight: 600;
+    box-shadow: 0 1px 4px 0 rgba(25,118,210,0.06);
+    display: inline-block;
+}
+.permission-badge.user {
+    background: linear-gradient(90deg,#e1f5fe,#fffde7);
+    color: #8e24aa;
+}
+.permission-actions {
+    display: flex;
+    gap: 0.7em;
+    margin-top: auto;
+    justify-content: flex-end;
+}
+.permission-actions .btn {
+    border-radius: 2em;
+    font-size: 1.05em;
+    font-weight: 500;
+    padding: 0.5em 1.3em;
+    border: none;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 1px 4px 0 rgba(25,118,210,0.06);
+}
+.permission-actions .btn-outline-primary {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+.permission-actions .btn-outline-primary:hover {
+    background: #1976d2;
+    color: #fff;
+}
+.permission-actions .btn-outline-danger {
+    background: #ffebee;
+    color: #c62828;
+}
+.permission-actions .btn-outline-danger:hover {
+    background: #c62828;
+    color: #fff;
+}
+@media (max-width: 900px) {
+    .permission-dashboard {
+        padding: 0 0.5rem;
+    }
+    #permissions-list {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 600px) {
+    .permission-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.2rem 1rem 1rem 1rem;
+        border-radius: 1.2rem 1.2rem 0 0;
+    }
+    .search-bar {
+        justify-content: stretch;
+    }
+    .permission-card {
+        padding: 1.2rem 1rem 1rem 1rem;
+        border-radius: 1.2rem;
+    }
+}
+</style>
+
+<div class="permission-dashboard mt-4">
+    <div class="permission-header mb-4">
+        <h1><i class="bi bi-shield-lock-fill"></i> Gestão de Permissões</h1>
+        <button class="btn" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
+            <i class="bi bi-plus-circle me-2"></i>Nova Permissão
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, msg in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="search-bar">
+        <input type="text" id="searchPerm" placeholder="Buscar permissão..." onkeyup="filterPermissions()">
+    </div>
+
+    <div id="permissions-list">
+        {% for perm, info in permissions.items() %}
+        <div class="permission-card" data-perm="{{ perm|lower }} {{ info.description|lower }}">
+            <span class="permission-icon"><i class="bi bi-key-fill"></i></span>
+            <div class="permission-title">{{ perm }}</div>
+            <div class="permission-desc">{{ info.description or 'Sem descrição' }}</div>
+            <div class="permission-meta mb-2">
+                <span class="permission-meta-label">Grupos:</span>
+                {% for group in info.groups %}
+                    <span class="permission-badge">{{ group }}</span>
+                {% else %}
+                    <span class="badge bg-light text-dark">Nenhum</span>
+                {% endfor %}
+            </div>
+            <div class="permission-meta mb-3">
+                <span class="permission-meta-label">Usuários:</span>
+                {% for user in info.users %}
+                    <span class="permission-badge user">{{ user }}</span>
+                {% else %}
+                    <span class="badge bg-light text-dark">Nenhum</span>
+                {% endfor %}
+            </div>
+            <div class="permission-actions">
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPermissionModal-{{ loop.index }}">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </button>
+                <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover esta permissão?');">
+                    <input type="hidden" name="action" value="delete_perm">
+                    <input type="hidden" name="delete_perm" value="{{ perm }}">
+                    <button class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash3"></i> Remover
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5" style="grid-column: 1/-1;">
+            <i class="bi bi-emoji-frown" style="font-size:2.5rem;"></i>
+            <div class="mt-2">Nenhuma permissão cadastrada.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal: Nova Permissão -->
+<div class="modal fade" id="addPermissionModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title" id="addModalLabel"><i class="bi bi-plus-circle me-2"></i>Nova Permissão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <input type="hidden" name="action" value="add_perm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new_perm_name" class="form-label">Nome da Permissão</label>
+                        <input type="text" name="new_perm_name" class="form-control" id="new_perm_name" required placeholder="ex: pode_editar_post">
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_perm_desc" class="form-label">Descrição</label>
+                        <textarea name="new_perm_desc" class="form-control" id="new_perm_desc" rows="2" placeholder="O que essa permissão faz?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modais de edição -->
+{% for perm, info in permissions.items() %}
+<div class="modal fade" id="editPermissionModal-{{ loop.index }}" tabindex="-1" aria-labelledby="editModalLabel-{{ loop.index }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header bg-info text-white rounded-top-4">
+                <h5 class="modal-title" id="editModalLabel-{{ loop.index }}"><i class="bi bi-pencil-square me-2"></i>Editando: {{ perm }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <input type="hidden" name="action" value="update_perm">
+                <input type="hidden" name="perm_name" value="{{ perm }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="description-{{ loop.index }}" class="form-label">Descrição</label>
+                        <textarea name="description" class="form-control" id="description-{{ loop.index }}" rows="2">{{ info.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="groups-{{ loop.index }}" class="form-label">Grupos (separados por vírgula)</label>
+                        <input type="text" name="groups" class="form-control" id="groups-{{ loop.index }}" value="{{ info.groups | join(', ') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="users-{{ loop.index }}" class="form-label">Usuários (separados por vírgula)</label>
+                        <input type="text" name="users" class="form-control" id="users-{{ loop.index }}" value="{{ info.users | join(', ') }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i>Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function filterPermissions() {
+    const input = document.getElementById('searchPerm');
+    const filter = input.value.toLowerCase();
+    const cards = document.querySelectorAll('#permissions-list .permission-card');
+    cards.forEach(card => {
+        if (card.getAttribute('data-perm').includes(filter)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

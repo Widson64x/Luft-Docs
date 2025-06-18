@@ -1,6 +1,4 @@
-# routes/module.py
-
-from flask import Blueprint, render_template, request, abort, session
+from flask import Blueprint, render_template, request, abort
 from utils.data.module_utils import (
     carregar_modulos,
     get_modulo_by_id,
@@ -20,23 +18,17 @@ filtro = None
 @login_required
 def ver_modulo_pela_raiz():
     """
-    Agora, todo acesso a módulo ou submódulo ocorrerá via query string, por exemplo:
-      - /?token=<TOKEN>&modulo=coordenacao
-      - /?token=<TOKEN>&modulo/submodulo=CRM
-
-    1) Primeiro, verificamos se veio parâmetro 'modulo/submodulo'; se sim, carregamos o submódulo.
-    2) Caso contrário, tentamos obter 'modulo'; se vier, carregamos o módulo.
-    3) Se nenhum dos dois parâmetros existir, devolvemos None para que outro handler (index) trate.
+    Acessa módulo ou submódulo via query string:
+      - /?token=<TOKEN>&modulo=submodulo
+      - /?token=<TOKEN>&modulo_tecnico=agendamento
     """
-
-    # 1) Tratamento de submódulo (prioritário sobre módulo)
+    # 1) Submódulo (prioritário)
     chave_sub = request.args.get('modulo/submodulo', '').strip()
     if chave_sub:
         modulos, palavras_globais = carregar_modulos()
         md_content = carregar_markdown_submodulo(chave_sub)
         if not md_content:
             return "<h2>Submódulo não encontrado.</h2>", 404
-
         register_access(chave_sub)
         conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
         return render_template(
@@ -46,41 +38,41 @@ def ver_modulo_pela_raiz():
             modulos=modulos
         )
 
-    # 2) Tratamento de módulo
-    modulo_id = request.args.get('modulo', '').strip()
-    if not modulo_id:
-        # Se não vier nem 'modulo/submodulo' nem 'modulo', deixamos passar para outro handler (index)
+    # 2) Módulo normal ou técnico
+    param_mod = request.args.get('modulo', '').strip()
+    param_tech = request.args.get('modulo_tecnico', '').strip()
+    if not param_mod and not param_tech:
+        # Sem parâmetro, delega para outro handler (index)
         return None
 
-    # Carregar lista de módulos e palavras globais
+    is_tech = bool(param_tech)
+    modulo_id = param_tech if is_tech else param_mod
+
+    # Carregar módulos e inicializar filtro
     modulos, palavras_globais = carregar_modulos()
     global filtro
     if filtro is None:
         filtro = FiltroAvancado(palavras_globais)
 
-    # Verificar se o módulo existe
+    # Verificar existência do módulo
     modulo = get_modulo_by_id(modulos, modulo_id)
     if not modulo:
         abort(404)
 
-    # Registrar acesso e carregar o markdown correspondente
+    # Registrar acesso
     register_access(modulo_id)
 
-    # **AQUI**: seleção entre usuário comum e ADM
-    nivel = session.get('permission', None)
-    if nivel == 'ADM':
-        # Apenas administradores carregam a documentação técnica
+    # Carregar conteúdo markdown conforme tipo
+    if is_tech:
         md_content = carregar_markdown_tecnico(modulo_id)
         if not md_content:
-            # Opcional: retornar 404 ou página específica caso não exista versão técnica
-            return render_template('conteudo_nao_encontrado.html'), 404
+            return "<h2>Módulo técnico não encontrado.</h2>", 404
     else:
-        # Usuários não-ADM carregam a documentação geral
         md_content = carregar_markdown(modulo_id)
         if not md_content:
-            return render_template('conteudo_nao_encontrado.html'), 404
+            return "<h2>Módulo não encontrado.</h2>", 404
 
-    # Se houver pesquisa interna (query 'q'), faz filtro em md_content
+    # Busca interna (filtro)
     query = request.args.get('q', '').strip()
     if query:
         resultados = filtro.busca_avancada(md_content, query)
@@ -95,10 +87,10 @@ def ver_modulo_pela_raiz():
         conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
         resultado_highlight = False
 
-    # Identificar módulos relacionados
+    # Módulos relacionados
     relacionados = [m for m in modulos if m['id'] in modulo.get('relacionados', [])]
 
-    # Renderiza o template de módulo
+    # Renderizar template de módulo
     return render_template(
         'modulo.html',
         modulo=modulo,

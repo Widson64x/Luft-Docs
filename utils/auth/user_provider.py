@@ -15,7 +15,7 @@ def get_user_by_credentials(*args):
             timeout=5
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # A API deve retornar tanto os dados do usuário quanto do grupo (com permissões)
     except (requests.RequestException, ValueError) as e:
         print(f"Erro ao acessar API: {str(e)}")
         return None
@@ -29,7 +29,7 @@ def get_user_by_token(token_value):
             timeout=5
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()  # A API deve retornar os dados completos (usuário, grupo e permissões)
     except (requests.RequestException, ValueError) as e:
         print(f"Erro ao validar token: {str(e)}")
         return None
