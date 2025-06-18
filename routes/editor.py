@@ -1,4 +1,3 @@
-
 # routes/editor.py
 
 from flask import Blueprint, render_template, request, redirect, url_for, abort, session, flash, jsonify
@@ -10,6 +9,8 @@ from config import DATA_DIR, CONFIG_FILE, BASE_DIR
 import os
 import re
 import json
+import markdown
+import diff_match_patch as dmp_module
 import shutil
 from datetime import datetime
 
@@ -107,10 +108,6 @@ def salvar_edicao_modulo_com_tecnico(modulo, novo_conteudo, novo_conteudo_tech, 
     with open(CONFIG_FILE, "w", encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
-# REMOVIDO: As funções de verificação de permissão não são mais necessárias.
-# def adm_required(func): ...
-# def master_required(func): ...
-
 @editor_bp.route('/')
 def editor_index():
     # 2. Carrega flags de permissão vindas da sessão
@@ -187,7 +184,6 @@ def upload_video(modulo_id):
     })
 
 @editor_bp.route('/upload_anexo', methods=['POST'])
-
 def upload_anexo():
     if 'file' not in request.files:
         return jsonify({'error': 'Nenhum arquivo enviado'}), 400
@@ -259,7 +255,7 @@ def editar_modulo(mid):
         )
 
         # 4) Feedback
-        flash("Alteração aprovada e publicada!", "success")
+        # flash("Alteração aprovada e publicada!", "success")
         return redirect(url_for('.editor_index', token=token))
 
     return render_template(
@@ -309,7 +305,7 @@ def criar_modulo():
         # Salva arquivos com backup
         salvar_edicao_modulo_com_tecnico(novo_modulo, doc_content, tech_content, user_name)
 
-        flash("Módulo criado e publicado!", "success")
+        # flash("Módulo criado e publicado!", "success")
         return redirect(url_for('.editor_index', token=token))
 
     return render_template('editor/modulo_novo.html', token=token)
@@ -370,50 +366,119 @@ def delete_modulo(mid):
         if os.path.isdir(img_path):
             shutil.rmtree(img_path)
 
-        flash(f"Módulo {mid} deletado com sucesso!", "success")
+        # flash(f"Módulo {mid} deletado com sucesso!", "success")
 
     return redirect(url_for('.editor_index', token=token))
 
 
 # Lista de pendências (agora visível para todos, mas provavelmente estará sempre vazia)
 @editor_bp.route('/pendentes')
-
 def pendentes():
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
-    pendentes_list = []
+    pendentes = []
     for m in modulos:
-        if m.get('status') == 'pendente':
-            # ... (a lógica interna permanece, caso algum arquivo pendente exista por algum motivo)
-            pendentes_list.append(m)
-    return render_template('editor/pendentes.html', pendentes=pendentes_list, token=token)
+        mod_id = m['id']
+        path_mod = os.path.join(DATA_DIR, mod_id)
+        pend_doc = os.path.join(path_mod, "pending_documentation.md")
+        pend_tech = os.path.join(path_mod, "pending_technical_documentation.md")
+        pendente_normal = os.path.exists(pend_doc)
+        pendente_tecnico = os.path.exists(pend_tech)
+        if pendente_normal or pendente_tecnico:
+            pendentes.append({
+                "modulo": m,
+                "pendente_normal": pendente_normal,
+                "pendente_tecnico": pendente_tecnico
+            })
+    return render_template(
+        'editor/pendentes.html',
+        pendentes=pendentes,
+        token=token
+    )
+
+def render_diff_html(old, new):
+    dmp = dmp_module.diff_match_patch()
+    diffs = dmp.diff_main(old, new)
+    dmp.diff_cleanupSemantic(diffs)
+    html = ""
+    for (op, data) in diffs:
+        safe = markdown.markdown(data) if data.strip() else ""
+        if op == dmp.DIFF_INSERT:
+            html += f'<mark style="background:#d4fcbc">{safe}</mark>'
+        elif op == dmp.DIFF_DELETE:
+            html += f'<mark style="background:#ffe6e6;text-decoration:line-through;">{safe}</mark>'
+        else:
+            html += safe
+    return html
+
+@editor_bp.route('/diff_pendente')
+def diff_pendente():
+    mid = request.args.get('mid')
+    path_mod = os.path.join(DATA_DIR, mid)
+    doc_path = os.path.join(path_mod, "documentation.md")
+    pend_doc_path = os.path.join(path_mod, "pending_documentation.md")
+    tech_path = os.path.join(path_mod, "technical_documentation.md")
+    pend_tech_path = os.path.join(path_mod, "pending_technical_documentation.md")
+
+    def get_text(path):
+        if os.path.exists(path):
+            with open(path, encoding='utf-8') as f:
+                return f.read()
+        return ""
+
+    doc = get_text(doc_path)
+    pend_doc = get_text(pend_doc_path)
+    tech = get_text(tech_path)
+    pend_tech = get_text(pend_tech_path)
+
+    # Sempre mostra os dois lados, com destaque nas diferenças
+    doc_html_left = render_diff_html(doc, pend_doc) if doc or pend_doc else "<em>Não disponível</em>"
+    doc_html_right = render_diff_html(pend_doc, doc) if doc or pend_doc else "<em>Não disponível</em>"
+    tech_html_left = render_diff_html(tech, pend_tech) if tech or pend_tech else "<em>Não disponível</em>"
+    tech_html_right = render_diff_html(pend_tech, tech) if tech or pend_tech else "<em>Não disponível</em>"
+
+    return jsonify({
+        "doc_html_left": doc_html_left,
+        "doc_html_right": doc_html_right,
+        "tech_html_left": tech_html_left,
+        "tech_html_right": tech_html_right
+    })
 
 # Aprovar pendência (agora visível para todos)
 @editor_bp.route('/aprovar/<mid>', methods=['POST'])
-
 def aprovar(mid):
-    # Esta rota ainda funciona para "limpar" um estado pendente, se ocorrer.
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
     path_mod = os.path.join(DATA_DIR, mid)
     pending_path = os.path.join(path_mod, "pending_documentation.md")
     official_path = os.path.join(path_mod, "documentation.md")
-    user_name = session.get("user_name", "Anônimo") # Usar Anônimo como fallback
-    
+    tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
+    tech_official_path = os.path.join(path_mod, "technical_documentation.md")
+    user_name = session.get("user_name", "Anônimo")
+
+    # Backup dos vigentes
+    history_dir = os.path.join(path_mod, "history")
+    os.makedirs(history_dir, exist_ok=True)
+    data = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     if os.path.exists(official_path):
-        history_dir = os.path.join(path_mod, "history")
-        os.makedirs(history_dir, exist_ok=True)
-        backup_name = datetime.now().strftime("%Y-%m-%dT%H-%M-%S") + f"_{user_name}.md"
+        backup_name = f"{data}_{user_name}_documentation.md"
         backup_path = os.path.join(history_dir, backup_name)
         shutil.copyfile(official_path, backup_path)
-        
+    if os.path.exists(tech_official_path):
+        backup_name_tech = f"{data}_{user_name}_technical.md"
+        backup_path_tech = os.path.join(history_dir, backup_name_tech)
+        shutil.copyfile(tech_official_path, backup_path_tech)
+
+    # Aprova ambos se existirem
     if os.path.exists(pending_path):
         shutil.move(pending_path, official_path)
-        
+    if os.path.exists(tech_pending_path):
+        shutil.move(tech_pending_path, tech_official_path)
+
     modulo['status'] = 'aprovado'
     modulo['ultima_edicao'] = {"user": user_name, "data": datetime.now().isoformat()}
-    
+
     with open(CONFIG_FILE, "r", encoding='utf-8') as f:
         config = json.load(f)
     for idx, m in enumerate(config['modulos']):
@@ -422,24 +487,26 @@ def aprovar(mid):
             break
     with open(CONFIG_FILE, "w", encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
-        
-    flash("Aprovação concluída!")
+
+    # flash("Aprovação concluída!")
     return redirect(url_for('editor.pendentes', token=token))
 
 # Rejeitar pendência (agora visível para todos)
 @editor_bp.route('/rejeitar/<mid>', methods=['POST'])
-
 def rejeitar(mid):
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
     path_mod = os.path.join(DATA_DIR, mid)
     pending_path = os.path.join(path_mod, "pending_documentation.md")
-    
+    tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
+
+    # Remove ambos se existirem
     if os.path.exists(pending_path):
         os.remove(pending_path)
-        
-    # Muda o status de volta para 'aprovado' no JSON, limpando o estado de pendência.
+    if os.path.exists(tech_pending_path):
+        os.remove(tech_pending_path)
+
     modulo['status'] = 'aprovado'
     with open(CONFIG_FILE, "r", encoding='utf-8') as f:
         config = json.load(f)
@@ -449,8 +516,8 @@ def rejeitar(mid):
             break
     with open(CONFIG_FILE, "w", encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
-        
-    flash("Pendência rejeitada.")
+
+    # flash("Pendência rejeitada.")
     return redirect(url_for('editor.pendentes', token=token))
 
 @editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
@@ -498,7 +565,7 @@ def historico_modulo(mid):
                 shutil.copyfile(vigente_path, backup_path)
             # Troca vigente
             shutil.copyfile(versao_path, vigente_path)
-            flash(f'Versão selecionada agora é a vigente!', 'success')
+            #flash(f'Versão selecionada agora é a vigente!', 'success')
         else:
             flash('Arquivo de versão não encontrado.', 'danger')
         return redirect(url_for('editor.historico_modulo', mid=mid, token=token))

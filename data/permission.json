@@ -19,7 +19,8 @@
     "description": "Acessar o menu de permissões",
     "groups": [],
     "users": [
-      "cleyton.silva"
+      "cleyton.silva",
+      "francisco.miranda"
     ]
   },
   "can_edit_modules": {
@@ -33,21 +34,24 @@
     "description": "Excluir módulos do sistema",
     "groups": [],
     "users": [
-      "cleyton.silva"
+      "cleyton.silva",
+      "francisco.miranda"
     ]
   },
   "can_versioning_modules": {
     "description": "Gerenciar versionamento de módulos",
     "groups": [],
     "users": [
-      "cleyton.silva"
+      "cleyton.silva",
+      "francisco.miranda"
     ]
   },
   "can_module_control": {
     "description": "Controlar módulos do sistema",
     "groups": [],
     "users": [
-      "cleyton.silva"
+      "cleyton.silva",
+      "francisco.miranda"
     ]
   }
 }

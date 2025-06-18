@@ -67,8 +67,6 @@ Toda Coordenação é aberta para uma Filial ou uma Base.
 
 No Portal de Transportes existe a opção das bases abrirem estas coordenações.
 
-
-
 #### Tela com Menu de Seleção
 
 ![Tela com Menu de Seleção](/data/img/coordenação/img1.png)
@@ -84,7 +82,6 @@ No Portal de Transportes existe a opção das bases abrirem estas coordenações
 #### Tela de Cadastro
 
 ![Tela de Cadastro](/data/img/coordenação/img3.png)
-
 
 #### Funcionamento das Coordenações
 
@@ -137,7 +134,6 @@ Para incluir dados de uma coordenação, existem 7 abas com dados obrigatórios 
 - **Imprimir** — Imprime dados da coordenação.
 - **Filtrar** — Filtra conforme seleção nos campos superiores. Sem seleção, filtra por data de criação.
 - **Sair** — Sai da tela.
-
 
 ## Anexos
 

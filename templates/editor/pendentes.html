@@ -1,72 +1,72 @@
 {% extends "base.html" %}
 {% block title %}Pendências para Aprovação{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+
 <div class="container py-4">
   <h1 class="mb-4"><i class="bi bi-hourglass-split me-2"></i>Pendências para Aprovação</h1>
+
   {% if pendentes %}
     <div class="row g-4">
-      {% for m in pendentes %}
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h5 class="card-title mb-1">{{ m.nome }} <span class="badge bg-secondary">{{ m.id }}</span></h5>
-            <div class="mb-2 text-muted small">
-              <i class="bi bi-person"></i> {{ m.ultima_edicao.user }}<br>
-              <i class="bi bi-clock"></i> {{ m.ultima_edicao.data }}
-            </div>
-            <div class="d-flex gap-2 mb-3">
-              <form method="post" action="{{ url_for('editor.aprovar', mid=m.id, token=token) }}">
-                <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-circle"></i> Aprovar</button>
-              </form>
-              <form method="post" action="{{ url_for('editor.rejeitar', mid=m.id, token=token) }}">
-                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-x-circle"></i> Rejeitar</button>
-              </form>
-            </div>
-            <div class="accordion" id="accordion-{{ m.id }}">
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading1-{{ m.id }}">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1-{{ m.id }}">
-                    Edição pendente
-                  </button>
-                </h2>
-                <div id="collapse1-{{ m.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ m.id }}">
-                  <div class="accordion-body"><pre class="mb-0">{{ m.pending_content }}</pre></div>
-                </div>
+      {% for item in pendentes %}
+        {% set m = item.modulo %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body d-flex flex-column">
+
+              <!-- Título -->
+              <h5 class="card-title">
+                {{ m.nome }}
+                <span class="badge bg-secondary">{{ m.id }}</span>
+              </h5>
+
+              <!-- Badges de pendência -->
+              <div class="mb-3">
+                {% if item.pendente_normal %}
+                  <span class="badge bg-warning text-dark me-1">
+                    <i class="bi bi-file-text"></i> Doc. Pendente
+                  </span>
+                {% endif %}
+                {% if item.pendente_tecnico %}
+                  <span class="badge bg-warning text-dark">
+                    <i class="bi bi-tools"></i> Tec. Pendente
+                  </span>
+                {% endif %}
               </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading2-{{ m.id }}">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2-{{ m.id }}">
-                    Versão oficial
-                  </button>
-                </h2>
-                <div id="collapse2-{{ m.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ m.id }}">
-                  <div class="accordion-body"><pre class="mb-0">{{ m.official_content }}</pre></div>
-                </div>
+
+              <!-- Última edição -->
+              {% if m.ultima_edicao %}
+              <div class="text-muted small mb-3">
+                <i class="bi bi-person"></i> {{ m.ultima_edicao.user }}<br>
+                <i class="bi bi-clock"></i> {{ m.ultima_edicao.data }}
               </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading3-{{ m.id }}">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3-{{ m.id }}">
-                    Edição técnica pendente
+              {% endif %}
+
+              <!-- Botões de ação -->
+              <div class="mt-auto d-flex gap-2 flex-wrap">
+                <form method="post" action="{{ url_for('editor.aprovar', mid=m.id, token=token) }}">
+                  <button type="submit" class="btn btn-success btn-sm w-100">
+                    <i class="bi bi-check-circle"></i> Aprovar
                   </button>
-                </h2>
-                <div id="collapse3-{{ m.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ m.id }}">
-                  <div class="accordion-body"><pre class="mb-0">{{ m.pending_tech_content }}</pre></div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading4-{{ m.id }}">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4-{{ m.id }}">
-                    Versão técnica oficial
+                </form>
+                <form method="post" action="{{ url_for('editor.rejeitar', mid=m.id, token=token) }}">
+                  <button type="submit" class="btn btn-danger btn-sm w-100">
+                    <i class="bi bi-x-circle"></i> Rejeitar
                   </button>
-                </h2>
-                <div id="collapse4-{{ m.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ m.id }}">
-                  <div class="accordion-body"><pre class="mb-0">{{ m.official_tech_content }}</pre></div>
-                </div>
+                </form>
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#diffModal"
+                        data-mid="{{ m.id }}">
+                  <i class="bi bi-arrow-left-right"></i> Comparar
+                </button>
               </div>
+
             </div>
           </div>
         </div>
-      </div>
       {% endfor %}
     </div>
   {% else %}
@@ -74,8 +74,132 @@
       <i class="bi bi-emoji-smile"></i> Não há pendências!
     </div>
   {% endif %}
+
   <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-secondary mt-4">
     <i class="bi bi-arrow-left"></i> Voltar
   </a>
 </div>
+
+<!-- Modal para exibir a comparação lado a lado -->
+<div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xxl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="diffModalLabel">
+          <i class="bi bi-arrow-left-right"></i> Comparação de Pendência
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body container-fluid">
+        <div class="row mb-3">
+          <div class="col">
+            <span class="badge bg-success" style="background:#d4fcbc;color:#222;">Inserção</span>
+            <span class="badge bg-danger" style="background:#ffe6e6;color:#222;">Remoção</span>
+            <span class="ms-2 text-muted small">Destaques: <mark style="background:#d4fcbc">adicionado</mark>, <mark style="background:#ffe6e6;text-decoration:line-through;">removido</mark></span>
+          </div>
+        </div>
+        <!-- Documentação Normal -->
+        <div class="row mb-5">
+          <div class="col-12">
+            <h5 class="mb-3"><i class="bi bi-file-text"></i> Documentação</h5>
+          </div>
+          <div class="col-lg-6 mb-3 mb-lg-0">
+            <div class="panel-header">Vigente</div>
+            <div class="comparison-panel" id="doc-vigente"></div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel-header">Pendente</div>
+            <div class="comparison-panel" id="doc-pendente"></div>
+          </div>
+        </div>
+        <!-- Documentação Técnica -->
+        <div class="row">
+          <div class="col-12">
+            <h5 class="mb-3"><i class="bi bi-tools"></i> Documentação Técnica</h5>
+          </div>
+          <div class="col-lg-6 mb-3 mb-lg-0">
+            <div class="panel-header">Vigente</div>
+            <div class="comparison-panel" id="tech-vigente"></div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel-header">Pendente</div>
+            <div class="comparison-panel" id="tech-pendente"></div>
+          </div>
+        </div>
+        <div id="diffLoader" class="text-center my-4" style="display:none;">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div>Carregando comparação...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.modal-xxl { max-width: 98vw; }
+.panel-header {
+  font-weight: 500;
+  background: #f1f3f4;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0.5rem 1rem;
+  margin-bottom: -1px;
+  border-bottom: 1px solid #dee2e6;
+}
+.comparison-panel {
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  min-height: 350px;
+  max-height: 65vh;
+  overflow: auto;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.comparison-panel mark {
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+}
+.comparison-panel del, .comparison-panel mark[style*="line-through"] {
+  background: #ffe6e6;
+  text-decoration: line-through;
+}
+@media (max-width: 991px) {
+  .comparison-panel { min-height: 180px; }
+  .panel-header { font-size: 1rem; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var diffModal = document.getElementById('diffModal');
+  diffModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var mid = button.getAttribute('data-mid');
+    var docVig = document.getElementById('doc-vigente');
+    var docPen = document.getElementById('doc-pendente');
+    var techVig = document.getElementById('tech-vigente');
+    var techPen = document.getElementById('tech-pendente');
+    var diffLoader = document.getElementById('diffLoader');
+    // Limpa antes de carregar
+    docVig.innerHTML = docPen.innerHTML = techVig.innerHTML = techPen.innerHTML = '';
+    diffLoader.style.display = 'block';
+    fetch('{{ url_for("editor.diff_pendente") }}?mid=' + encodeURIComponent(mid) + '&token={{ token }}')
+      .then(response => response.json())
+      .then(data => {
+        diffLoader.style.display = 'none';
+        docVig.innerHTML = data.doc_html_left || "<em>Não disponível</em>";
+        docPen.innerHTML = data.doc_html_right || "<em>Não disponível</em>";
+        techVig.innerHTML = data.tech_html_left || "<em>Não disponível</em>";
+        techPen.innerHTML = data.tech_html_right || "<em>Não disponível</em>";
+      })
+      .catch(() => {
+        diffLoader.style.display = 'none';
+        docVig.innerHTML = docPen.innerHTML = techVig.innerHTML = techPen.innerHTML =
+          '<div class="alert alert-danger">Erro ao carregar comparação.</div>';
+      });
+  });
+});
+</script>
 {% endblock %}
