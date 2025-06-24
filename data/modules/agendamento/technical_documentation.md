@@ -37,44 +37,27 @@
     * Nessa tabela, armazenamos todos os contatos dos destinatário, e um pouco da esquemática de como trabalhar com esse destinatário
 
 3. **`dbo.tb_NotFisMirror`**
-    * Tabela de espelhamento de notas fiscais que centraliza dados relevantes ao agendamento e rastreamento de entregas.
-    * Utilizada para análise de fluxo logístico, acompanhamento de status e definição de responsabilidades de agendamento.
-    * Campos principais:
-        * `ID_NotFisMirror` (PK)
-        * `DS_Rem_Cgc` (varchar(14))
-        * `NU_NFE` (numeric)
-        * `DS_Serie` (varchar)
-        * `DS_Dest_Cgc` (varchar)
-        * `FL_CTC` (bit)
-        * `DS_FilialCTC` (varchar)
-        * `MN_AgendamentoID` (int)
-        * `MN_Status` (int)
-        * `DT_CTC` (smalldatetime)
-        * `HR_CTC` (varchar)
-        * `DT_Ag_Sugerida` (smalldatetime)
-        * `DT_Ag_Efetivada` (smalldatetime)
-        * `HR_Ag_Efetivada` (varchar)
-        * `ID_Distr_Transp` (int)
-        * `DS_Chave_Acesso` (varchar)
-        * `DS_User_C` (varchar(50))
-        * `DT_Creation` (smalldatetime)
-        * `DS_User_E` (varchar(50))
-        * `DT_Edition` (smalldatetime)
-        * `DS_Natureza` (varchar(30))
-        * `DT_Solicitacao` (smalldatetime)
-        * `DT_Retorno_Sol` (smalldatetime)
-        * `FL_Cli_Agenda` (bit)
-        * `FL_Const_Ativo` (bit)
-        * `DT_Ag_Historico` (datetime)
-        * `DT_Rel_Agendamento` (datetime)
-        * `Num_Pedido` (varchar(30))
-        * `DT_Reag_Luft` (datetime)
-        * `Qtd_Unidade` (int)
-        * `Qtd_Caixas` (int)
-        * `Qtd_SKUs` (int)
-        * `CTC_REE` (int)
-        * `ExisteVoucher` (bit)
-    * Observação especial:
-        * A flag `FL_Cli_Agenda` define a responsabilidade pelo agendamento:
-            * Quando `FL_Cli_Agenda = 1`, significa que **o cliente é responsável por realizar o agendamento**.
-            * Quando `FL_Cli_Agenda = 0`, o **time Luft realiza o agendamento diretamente**.
+    * Tabela de espelhamento de notas fiscais que centraliza dados cruciais para o agendamento e rastreamento de entregas.
+
+    **Finalidade:** Análise de fluxo, acompanhamento de status e definição de responsabilidades de agendamento.
+
+    * Campos Principais:
+        * `ID_NotFisMirror` (PK): Identificador único do registro.
+        * `DS_Chave_Acesso`: A chave de acesso da Nota Fiscal Eletrônica (NFe), essencial para identificação unívoca do documento.
+        * `NU_NFE`: Número da nota fiscal.
+        * `DS_Serie`: Série da nota fiscal.
+        * `Num_Pedido`: Número do pedido de compra associado.
+        * `DS_Rem_Cgc`: CNPJ do remetente.
+        * `DS_Dest_Cgc`: CNPJ do destinatário.
+        * `MN_Status`: Código que representa o status atual da entrega (ex: pendente, agendado, em trânsito, entregue).
+        * `FL_Cli_Agenda`: Flag que define o responsável pelo agendamento da entrega.
+        * `DT_Ag_Sugerida`: Data sugerida para a realização da entrega.
+        * `DT_Ag_Efetivada`: Data em que a entrega foi efetivamente agendada.
+        * `ID_Distr_Transp`: Identificador da transportadora responsável.
+        * `Qtd_Caixas`: Quantidade de caixas na expedição.
+        * `Qtd_Unidade`: Quantidade de unidades de produto.
+
+    **Observação Especial:**
+    * A flag `FL_Cli_Agenda` é fundamental para a operação:
+        * Quando `FL_Cli_Agenda = 1`, o **cliente é responsável por realizar o agendamento**.
+        * Quando `FL_Cli_Agenda = 0`, o **time Luft (ou a transportadora) realiza o agendamento**.

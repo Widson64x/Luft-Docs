@@ -30,11 +30,11 @@ def verifica_sessao_global():
     # Permitir index.index (página de login / token)
     if request.endpoint == 'index.index':
         return None
-
+    
     # Permitir arquivos estáticos (css, js, imagens)
     if request.endpoint and request.endpoint.startswith('static'):
         return None
-
+    
     # Se não tiver session válida, volta para o login
     if 'user_name' not in session or 'user_id' not in session:
         return redirect(url_for('index.index'))

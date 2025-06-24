@@ -132,7 +132,7 @@ def index():
 
         recentes = get_recent_searches()
         return render_template(
-            'busca.html', resultados=resultados, query=query,
+            'search.html', resultados=resultados, query=query,
             modulos=modulos, recentes=recentes,
             mais_acessados=mais_acessados, menus=[]
         )
@@ -146,14 +146,14 @@ def index():
             return '<h2>Submódulo não encontrado.</h2>', 404
         register_access(nome)
         html = parser_wikilinks(md, modulos, palavras_globais)
-        return render_template('submodulo.html', nome=nome, conteudo=html, modulos=modulos, menus=[])
+        return render_template('submodule.html', nome=nome, conteudo=html, modulos=modulos, menus=[])
 
     # Módulo técnico
     if action_modulo_tecnico:
         perms = load_permissions().get('can_view_tecnico', {})
         allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
         if not allowed:
-            return render_template('acesso_negado.html'), 403
+            return render_template('access_denied.html'), 403
 
         modulos, palavras_globais = carregar_modulos_aprovados()
         if filtro_global is None:
@@ -185,7 +185,7 @@ def index():
 
         relacionados = [m for m in modulos if m['id'] in modulo.get('relacionados', [])]
         return render_template(
-            'modulo.html', modulo=modulo, conteudo=conteudo_html,
+            'module.html', modulo=modulo, conteudo=conteudo_html,
             relacionados=relacionados, modulos=modulos,
             modulo_atual=modulo, query=query,
             resultado_highlight=resultado_highlight, menus=[]
@@ -223,7 +223,7 @@ def index():
 
         relacionados = [m for m in modulos if m['id'] in modulo.get('relacionados', [])]
         return render_template(
-            'modulo.html', modulo=modulo, conteudo=conteudo_html,
+            'module.html', modulo=modulo, conteudo=conteudo_html,
             relacionados=relacionados, modulos=modulos,
             modulo_atual=modulo, query=query,
             resultado_highlight=resultado_highlight, menus=[]

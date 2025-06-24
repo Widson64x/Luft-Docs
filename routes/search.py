@@ -61,7 +61,7 @@ def busca_pela_raiz():
 
     recentes = get_recent_searches()
     return render_template(
-        'busca.html',
+        'search.html',
         resultados=resultados,
         query=query,
         modulos=modulos,

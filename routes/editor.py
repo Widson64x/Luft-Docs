@@ -273,7 +273,7 @@ def editar_modulo(mid):
         return redirect(url_for('.editor_index', token=token))
 
     return render_template(
-        'editor/modulo_edit.html',
+        'editor/module_edit.html',
         modulo=modulo,
         doc_content=doc_content,
         tech_content=tech_content,
@@ -322,7 +322,7 @@ def criar_modulo():
         # flash("Módulo criado e publicado!", "success")
         return redirect(url_for('.editor_index', token=token))
 
-    return render_template('editor/modulo_novo.html', token=token)
+    return render_template('editor/module_new.html', token=token)
 
 @editor_bp.route('/options', methods=['GET'])
 def editor_options():
@@ -384,7 +384,6 @@ def delete_modulo(mid):
 
     return redirect(url_for('.editor_index', token=token))
 
-
 # Lista de pendências (agora visível para todos, mas provavelmente estará sempre vazia)
 @editor_bp.route('/pendentes')
 def pendentes():
@@ -405,7 +404,7 @@ def pendentes():
                 "pendente_tecnico": pendente_tecnico
             })
     return render_template(
-        'editor/pendentes.html',
+        'editor/pending.html',
         pendentes=pendentes,
         token=token
     )
@@ -535,7 +534,6 @@ def rejeitar(mid):
     return redirect(url_for('editor.pendentes', token=token))
 
 @editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
-
 def historico_modulo(mid):
     # A lógica desta rota permanece a mesma, mas agora está acessível a todos.
     token = request.args.get('token', '')
@@ -588,7 +586,7 @@ def historico_modulo(mid):
     vigente_tech = open(tech_official_path, encoding='utf-8').read() if os.path.exists(tech_official_path) else ""
 
     return render_template(
-        'editor/historico_modulo.html',
+        'editor/historical_module.html',
         mid=mid,
         historicos=historicos,
         historicos_tech=historicos_tech,

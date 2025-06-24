@@ -34,7 +34,7 @@ def ver_submodulo_pela_raiz():
     conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
 
     return render_template(
-        'submodulo.html',
+        'submodule.html',
         nome=nome,
         conteudo=conteudo_html,
         modulos=modulos

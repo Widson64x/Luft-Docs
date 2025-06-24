@@ -32,7 +32,7 @@ def ver_modulo_pela_raiz():
         register_access(chave_sub)
         conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
         return render_template(
-            'submodulo.html',
+            'submodule.html',
             nome=chave_sub,
             conteudo=conteudo_html,
             modulos=modulos
@@ -92,7 +92,7 @@ def ver_modulo_pela_raiz():
 
     # Renderizar template de módulo
     return render_template(
-        'modulo.html',
+        'module.html',
         modulo=modulo,
         conteudo=conteudo_html,
         relacionados=relacionados,
