@@ -25,16 +25,13 @@
         align-items: center;
         justify-content: center;
     }
-    .modern-card .card-title {
-        font-weight: 600;
-        font-size: 1.2rem;
-        color: #1a237e;
-    }
-    .modern-card .card-text {
-        color: #5c6f8c;
+
+    .modern-card .card-text .Title .card-title{
+        color: var(--primary-accent-color); 
         font-size: 1rem;
         margin-bottom: 1.2rem;
     }
+
     .modern-btn {
         min-width: 140px;
         margin: 0 0.25rem;
@@ -45,6 +42,7 @@
     .modern-btn i {
         margin-right: 0.4em;
     }
+
     @media (max-width: 575px) {
         .modern-card {
             min-height: 320px;
@@ -81,7 +79,7 @@
         {% endif %}
     {% endwith %}
 
-    <h1 class="mb-5 fw-bold text-primary-emphasis">Módulos do LuftDocs</h1>
+    <h1 class="Title">Módulos do LuftDocs</h1>
     <div class="row g-4">
         {% for m in modulos %}
         <div class="col-12 col-sm-6 col-md-4 d-flex">

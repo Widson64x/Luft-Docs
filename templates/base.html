@@ -21,140 +21,186 @@
 
 
   <style>
-    :root {
-      --font-small: 0.45rem;
-      --font-medium: 1rem;
-      --font-large: 1.5rem;
-      --font-xlarge: 2rem;
-      --card-bg: #fff;
-      --card-color: #212529;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f9f9fb;
-      font-size: var(--font-medium);
-      transition: background 0.3s, color 0.3s, font-size 0.3s;
-    }
-    body.theme-dark {
-      background: #1e1e1e;
-      color: #e7eaf1;
-      --card-bg: #2b2b3a;
-      --card-color: #e7eaf1;
-    }
-    /* Navbar clara */
-    .navbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #f8f9fa; /* cor clara */
-      padding: 18px 6vw;
-      color: #23263b;
-      box-shadow: 0 2px 12px #0001;
-    }
-    .logo-wiki {
-      text-decoration: none;
-      color: #23263b;
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      transition: color 0.13s;
-    }
-    .logo-wiki:hover {
-      color: #0d6efd;
-    }
-    .main {
-      padding: 36px 6vw;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    /* Footer clara */
-    .footer-LuftDocs {
-      width: 100%;
-      background: #f8f9fa; /* cor clara */
-      color: #23263b;
-      margin-top: 48px;
-      padding: 28px 0 20px 0;
-      text-align: center;
-      box-shadow: 0 -2px 10px #0001;
-    }
-    .modulo-conteudo img,
-    .modulo-conteudo video {
-      max-width: 440px;
-      width: 100%;
-      height: auto;
-      display: block;
-      margin: 24px auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #0001;
-      transition: box-shadow 0.18s, filter 0.16s;
-      cursor: pointer;
-    }
-    .modulo-conteudo img:hover,
-    .modulo-conteudo video:hover {
-      box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0002;
-      filter: brightness(1.04);
-    }
-    .card {
-      background-color: var(--card-bg) !important;
-      color: var(--card-color)  !important;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    /* nova regra para o utilitário text-body */
-    body.theme-dark .text-body {
-      color: var(--card-color) !important;
-    }
-    
-    /* ---------- Modal Configurações (tema escuro) ---------- */
-    body.theme-dark .modal-content {
-      background-color: var(--card-bg) !important;
-      color: var(--card-color) !important;
-    }
-    body.theme-dark .modal-header,
-    body.theme-dark .modal-body,
-    body.theme-dark .modal-footer {
-      background-color: var(--card-bg) !important;
-      color: var(--card-color) !important;
-    }
+      :root {
+        --font-small: 0.45rem;
+        --font-medium: 1rem;
+        --font-large: 1.5rem;
+        --font-xlarge: 2rem;
+        --card-bg: #fff;
+        --card-color: #212529;
+        --primary-accent-color: #1a237e;
+        /* NOVO: Variáveis para superfícies como navbar e footer */
+        --surface-bg: #f8f9fa;
+        --surface-color: #23263b;
+      }
 
-    /* Nav-tabs escuros */
-    body.theme-dark .nav-tabs .nav-link {
-      background-color: #2b2b3a !important;
-      color: var(--card-color) !important;
-      border-color: #444 !important;
-    }
-    body.theme-dark .nav-tabs .nav-link.active {
-      background-color: #3a3a4a !important;
-    }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f9f9fb;
+        font-size: var(--font-medium);
+        transition: background 0.3s, color 0.3s, font-size 0.3s;
+      }
 
-    /* Form controls */
-    body.theme-dark .form-select,
-    body.theme-dark .form-check-input {
-      background-color: #1e1e1e !important;
-      color: #e7eaf1 !important;
-      border: 1px solid #444 !important;
-    }
-    body.theme-dark .form-check-label {
-      color: var(--card-color) !important;
-    }
+      body.theme-dark {
+        background: #1e1e1e;
+        color: #e7eaf1;
+        --card-bg: #2b2b3a;
+        --card-color: #e7eaf1;
+        --primary-accent-color: #f5f5f5;
+        /* NOVO: Versões escuras das variáveis de superfície */
+        --surface-bg: #212529;
+        --surface-color: #f8f9fa;
+      }
 
-    /* Botões */
-    body.theme-dark .btn-primary {
-      background-color: #0056b3 !important;
-      border-color: #004a99 !important;
-    }
-    body.theme-dark .btn-secondary {
-      background-color: #444 !important;
-      border-color: #555 !important;
-    }
+      /* Navbar */
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface-bg);      /* MODIFICADO */
+        padding: 18px 6vw;
+        color: var(--surface-color);         /* MODIFICADO */
+        box-shadow: 0 2px 12px #0001;
+        transition: background 0.3s, color 0.3s; /* ADICIONADO */
+      }
 
-    @media (max-width: 900px) {
-      .navbar { flex-direction: column; align-items: stretch; gap: 14px; padding: 14px 2vw; }
-      .main   { padding: 18px 2vw; }
-    }
-    @media (max-width: 700px) {
-      .main { padding: 18px 2vw; }
-    }
+      .logo-wiki {
+        text-decoration: none;
+        color: var(--surface-color);        /* MODIFICADO */
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        transition: color 0.13s;
+      }
+
+      .logo-wiki:hover {
+        color: #0d6efd;
+      }
+
+      .main {
+        padding: 36px 6vw;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Footer */
+      .footer-LuftDocs {
+        width: 100%;
+        background: var(--surface-bg);      /* MODIFICADO */
+        color: var(--surface-color);         /* MODIFICADO */
+        margin-top: 48px;
+        padding: 28px 0 20px 0;
+        text-align: center;
+        box-shadow: 0 -2px 10px #0001;
+        transition: background 0.3s, color 0.3s; /* ADICIONADO */
+      }
+
+      .modulo-conteudo img,
+      .modulo-conteudo video {
+        max-width: 440px;
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 24px auto;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px #0001;
+        transition: box-shadow 0.18s, filter 0.16s;
+        cursor: pointer;
+      }
+
+      .modulo-conteudo img:hover,
+      .modulo-conteudo video:hover {
+        box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0002;
+        filter: brightness(1.04);
+      }
+
+      .card {
+        background-color: var(--card-bg) !important;
+        color: var(--card-color)  !important;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      /* --- REGRAS DE OVERRIDE PARA TEMA ESCURO --- */
+      body.theme-dark .text-body {
+        color: var(--card-color) !important;
+      }
+
+      body.theme-dark .text-primary {
+        color: var(--primary-accent-color) !important;
+      }
+      
+      /* NOVO: Regras para corrigir botões e textos na navbar/footer no tema escuro */
+      body.theme-dark .btn-outline-dark {
+        color: var(--surface-color);
+        border-color: var(--surface-color);
+      }
+
+      body.theme-dark .btn-outline-dark:hover {
+        color: var(--surface-bg);
+        background-color: var(--surface-color);
+      }
+
+      body.theme-dark .text-dark {
+        color: var(--surface-color) !important;
+      }
+      
+      /* ---------- Modal Configurações (tema escuro) ---------- */
+      body.theme-dark .modal-content {
+        background-color: var(--card-bg) !important;
+        color: var(--card-color) !important;
+      }
+      
+      body.theme-dark .modal-header,
+      body.theme-dark .modal-body,
+      body.theme-dark .modal-footer {
+        background-color: var(--card-bg) !important;
+        color: var(--card-color) !important;
+      }
+
+      /* Nav-tabs escuros */
+      body.theme-dark .nav-tabs .nav-link {
+        background-color: #2b2b3a !important;
+        color: var(--card-color) !important;
+        border-color: #444 !important;
+      }
+
+      body.theme-dark .nav-tabs .nav-link.active {
+        background-color: #3a3a4a !important;
+      }
+
+      /* Form controls */
+      body.theme-dark .form-select,
+      body.theme-dark .form-check-input {
+        background-color: #1e1e1e !important;
+        color: #e7eaf1 !important;
+        border: 1px solid #444 !important;
+      }
+
+      body.theme-dark .form-check-label {
+        color: var(--card-color) !important;
+      }
+
+      /* Botões */
+      body.theme-dark .btn-primary {
+        background-color: #0056b3 !important;
+        border-color: #004a99 !important;
+      }
+
+      body.theme-dark .btn-secondary {
+        background-color: #444 !important;
+        border-color: #555 !important;
+      }
+
+      /* --- MEDIA QUERIES --- */
+      @media (max-width: 900px) {
+        .navbar { flex-direction: column; align-items: stretch; gap: 14px; padding: 14px 2vw; }
+        .main   { padding: 18px 2vw; }
+      }
+      
+      @media (max-width: 700px) {
+        .main { padding: 18px 2vw; }
+      }
   </style>
 
   <script>

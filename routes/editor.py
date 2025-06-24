@@ -32,19 +32,28 @@ def processar_e_salvar_imagens(markdown, modulo_id, token):
     Ajusta os links no markdown para o novo caminho.
     Retorna o markdown ajustado.
     """
-    # Regex que captura todas as imagens do tmp deste token/modulo
-    padrao = re.compile(r'\!\[.*?\]\(/data/tmp_img_uploads/' + re.escape(token) + '/' + re.escape(modulo_id) + r'/([^)]+)\)')
+    padrao = re.compile(
+        r'\!\[.*?\]\(/data/tmp_img_uploads/' + re.escape(token) + '/' + re.escape(modulo_id) + r'/([^)]+)\)'
+    )
     img_dir = os.path.join(BASE_DIR, 'data', 'img', modulo_id)
     os.makedirs(img_dir, exist_ok=True)
 
     def mover(match):
         nome_arquivo = match.group(1)
         origem = os.path.join(BASE_DIR, 'data', 'tmp_img_uploads', token, modulo_id, nome_arquivo)
+        base, ext = os.path.splitext(nome_arquivo)
         destino = os.path.join(img_dir, nome_arquivo)
+        nome_final = nome_arquivo
         if os.path.exists(origem):
+            # Se já existe, incrementa o sufixo numérico
+            i = 1
+            while os.path.exists(destino):
+                nome_final = f"{base}_{i}{ext}"
+                destino = os.path.join(img_dir, nome_final)
+                i += 1
             shutil.move(origem, destino)
         # Retorna o novo link
-        return f'![{nome_arquivo}](\/data\/img\/{modulo_id}\/{nome_arquivo})'
+        return f'![{nome_final}](\/data\/img\/{modulo_id}\/{nome_final})'
 
     markdown_novo = padrao.sub(mover, markdown)
     return markdown_novo
@@ -133,7 +142,6 @@ def editor_index():
 @editor_bp.route('/upload_image/<modulo_id>', methods=['POST'])
 def upload_image(modulo_id):
     token = request.args.get('token', '')
-    # A verificação de token pode ser mantida se for usada para outra finalidade, como CSRF.
     if not token:
         return jsonify({'error': 'Token obrigatório'}), 400
 
@@ -143,16 +151,22 @@ def upload_image(modulo_id):
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']:
         return jsonify({'error': 'Formato não suportado'}), 400
-    
+
     dest_dir = os.path.join(BASE_DIR, 'data', 'img', modulo_id)
     os.makedirs(dest_dir, exist_ok=True)
-    
-    filename = f"img{ext}"
-    safe_name = secure_filename(filename)
-    file_path = os.path.join(dest_dir, safe_name)
-    
+
+    # Gera nome sequencial: img1.png, img2.png, etc.
+    i = 1
+    while True:
+        filename = f"img{i}{ext}"
+        safe_name = secure_filename(filename)
+        file_path = os.path.join(dest_dir, safe_name)
+        if not os.path.exists(file_path):
+            break
+        i += 1
+
     file.save(file_path)
-    
+
     return jsonify({
         'url': f'/data/img/{modulo_id}/{safe_name}'
     })
