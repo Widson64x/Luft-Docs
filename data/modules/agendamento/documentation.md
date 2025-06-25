@@ -4,145 +4,135 @@
 
 ## Etapas do Processo para Lançar Agenda
 
-O processo de agendamento ocorre após a emissão do CTe (Conhecimento de Transporte Eletrônico). Sabemos que a nota é de agendamento a partir do momento em que um destinatário é cadastrado no Luft Informa. A partir desse ponto, as notas fiscais desses destinatários entram na fila de agendamento (AG), sendo visíveis no sistema para análise e ação pelo time responsável.
+O agendamento é a etapa iniciada após a emissão do CTe (Conhecimento de Transporte Eletrônico) para destinatários ou laboratórios que exigem agendamento prévio. As notas fiscais (NFs) para esses parceiros entram automaticamente em uma fila de pendências, com o status inicial de NP (Nota Pendente).
 
-Esse processo tem algumas variáveis:
+O processo se divide em duas ocorrências principais:
 
-* A agenda pode ser realizada pelo time Luft na "Torre de Controle".
-* O cliente também pode realizar seu próprio agendamento.
+* `B2` → **(Agendamento Distribuidores)**: A solicitação de agendamento é de responsabilidade da equipe interna "Torre de Controle", Exemplos de distribuidores que incluem são [[Profarma]] e [[Raia]].
 
-### Tipos de Processo
+* `B3` → **(Agendamento Cliente)**: A solicitação é feita diretamente pelo laboratório, que é o responsável também por confirmar o agendamento. Um exemplo é a [[GSK]].
 
-* `B2` → Operadores Luft realizam a agenda das notas.
-* `B3` → Destinatário realiza o agendamento (via portal ou e-mail).
+### Particularidades da ocorrência B2
 
-> No portal, o destinatário insere as notas que deseja agendar. Por e-mail, o cliente envia as notas à Luft, e o operador agenda conforme o processo B3.
+A execução do agendamento B2 se divide em duas particularidades, dependendo do nível de integração com o distribuidor:
+
+#### 1. Agendamento Automático (B2 Auto)
+Esta modalidade é utilizada para distribuidores cujos sistemas estão integrados.
+
+* **Como funciona**: O sistema realiza o processo de forma autônoma em horários fixos (6:00 e 15:00) para as solicitações cadastradas como automáticas.
+* **Fluxo**:
+  1. Diariamente, às **6:00** ou **15:00**, o sistema processa automaticamente as notas com status **NP** (Notas Pendentes) e que precisam do agenadamento.
+  2. Um e-mail é enviado ao **distribuidor** solicitando a confirmação do agendamento.
+  3. Após o envio:
+     - O status da nota muda de **NP** para **AR** (Aguardando Retorno).
+     - Isso indica que estamos aguardando a confirmação da agenda por parte do distribuidor.
+  4. No e-mail recebido, o distribuidor tem acesso a um botão de **Confirmação**.
+     - Ao clicar nesse botão, o agendamento é automaticamente realizado.
+     - O status da nota é atualizado para **AG** (Agendado) no sistema.
+
+*Exemplo*: A distribuidora **Profarma** utiliza este fluxo.
+
+#### 2. Agendamento Manual (B2 Manual)
+É necessária quando o distribuidor não tem integração direta com o sistema, exigindo interação humana para usar plataformas.
+
+* **Como funciona**: A solicitação é feita manualmente via luft informa e portal, conforme exigência do distribuidor.
+* **Fluxo**: 
+  1. O operador acessa a tela de **Notas Pendentes** e seleciona as notas com status **NP**.
+  2. Com as notas selecionadas, clica no botão **Contato de E-mail**, o que abre a tela de **Agendamento**.
+  3. Na tela de Agendamento:
+     - Seleciona-se a **agenda desejada**.
+     - Informa-se o **e-mail do destinatário**.
+     - Solicita-se o agendamento clicando em **Sol. Ag. (B2)**.
+  4. Após a solicitação:
+     - O status da nota muda de **NP** para **AR**.
+     - Um e-mail é enviado ao distribuidor.
+     - Uma cópia é enviada ao operador.
+  5. O operador aguarda o **e-mail de confirmação** do agendamento.
+  6. Após o recebimento da confirmação:
+     - Acessa novamente a tela de **Notas Pendentes**, agora selecionando as notas com status **AR**.
+     - Entra novamente na tela de **Agendamento**.
+     - Informa o **dia e horário confirmados** no e-mail.
+     - Clica no botão **Conf. Ag. (B2)** (em vez de **Sol. Ag. (B2)**).
+  7. Com a confirmação:
+     - O status da nota muda para **AG**.
+     - O agendamento está concluído.
+
+*Exemplo*: A distribuidora **Raia** utiliza este fluxo.
 
 ***
 
-## Confirmação de Agenda
+## Ciclo de vida no processo de agendamento
 
-Após a agenda ser realizada na tela "Notas para Agendamento":
+Independentemente da modalidade, as notas seguem um ciclo de status claro:
 
-1. O status da nota muda para `AR` (Aguardando Retorno).
-2. Após confirmação via e-mail, o operador lança o código `91`.
-3. Isso permite gerar um relatório com as notas agendadas para o dia.
-4. O status da nota então muda para `AG` (Agendada).
+1.  **`NP` (Nota Pendente)**: Status inicial, no qual a nota fiscal aguarda a primeira ação, informando que necessita de agenda.
+2.  **`AR` (Aguardando Retorno)**: O status muda para `AR` após a solicitação ser enviada (manual ou automaticamente).
+3.  **`AG` (Agendada)**: Após a confirmação do distribuidor ou laboratório, o operador/sistema finaliza o processo no sistema (subindo a ocorrência 91), e o status é atualizado para `AG`.
 
 ***
 
 ## Tipos / Siglas de Agendamento
 
 | Sigla | Significado | Descrição |
-| ----- | ----------- | --------- |
-| `B2 Manual` | Agendamento pela Luft | Cliente solicita, Luft executa via plataforma |
-| `B2 Auto` | Agendamento automatizado | Integrações realizam agendamento; Luft atua apenas em exceções |
-| `B3` | Via e-mail | Cliente envia e-mail, operador interpreta e agenda manualmente |
-| `RV` | Recusado | Agendamento recusado por falha externa à Luft |
-| `NP` | Nota Pendente | Ainda não foi realizada nenhuma tentativa de agendamento |
-| `AG` | Agendada | Agendamento finalizado |
-| `RE` | Retorno Esperado | Aguarda confirmação do cliente após solicitação de agendamento |
+| :--- | :--- | :--- |
+| `B2` | Agendamento via Luft | A Luft é responsável pela solicitação e atualização do agendamento. |
+| `B3` | Agendamento via Cliente | O Cliente é responsável pelo agendamento. |
+| `RV` | Agendamento Recusado | Determina que o agendamento foi recusado por uma falha não atribuível à Luft. |
+| `LV` | Agendamento Recusado | Determina que o agendamento foi recusado por uma falha atribuída a Luft. |
+| `NP` | Notas Pendente | São todas as notas que ainda necessitam que o agendamento seja realizado. |
+| `AR` | Aguardando Retorno | Determina as notas estão esperando confirmação de agenda. |
+| `AG` | Nota Agendada | Determina as notas que já estão agendadas. |
 
 ***
 
 ## Telas no Sistema Luft Informa
 
-### Tela Cadastro de Distribuidores
+### Tela de Cadastro de Contatos Clientes e Distribuidores
 
-![/data/img/agendamento/img1.png](/data/img/agendamento/img1.png)
+![Cadastro de Contatos Clientes e Distribuidores](data/img/agendamento/img2.png)
 
-Nesta tela, são definidos todos os destinatários que participam de processos com agendamento. Permite:
-
-* Cadastrar novos distribuidores
-* Marcar se exigem ou não agendamento
-* Relacionar com regiões ou clientes específicos
+Nessa tela é possível definir as formas de contato tanto com o cliente quanto com os Distribuidores.
 
 ***
 
-### Tela de Cadastro de Contatos de Clientes e Distribuidores
+### Tela Cadastro de Distribuidores
 
-![/data/img/agendamento/img2.png](/data/img/agendamento/img2.png)
+![Cadastro de Distribuidores](data/img/agendamento/img1.png)
 
-Permite cadastrar e editar:
-
-* E-mail de contato do cliente
-* Telefone
-* Métodos preferenciais de comunicação
-
-Essas informações são fundamentais para automatizar ou facilitar a comunicação nas etapas de agendamento e confirmação.
+Nessa tela é possível definir todos os destinatários que são de agenda.
 
 ***
 
 ### Tela de Assinatura de E-mail
 
-![/data/img/agendamento/img3.png](/data/img/agendamento/img3.png)
+![Assinatura de Email](data/img/agendamento/img3.png)
 
-Permite configurar uma **assinatura personalizada** para os e-mails automáticos de confirmação de agendamento. Pode conter:
-
-* Email do Operador
-* Assinatura personalizada para enviar.
+Essa tela permite adicionar uma assinatura personalizada (telefones, etc.) ao e-mail padrão enviado para o Destinatário após a conclusão da agenda.
 
 ***
 
 ### Tela de Notas Pendentes de Agendamento
 
-![/data/img/agendamento/img4.png](/data/img/agendamento/img4.png)
+![Notas pendentes de Agendamento](data/img/agendamento/img4.png)
 
-Tela de monitoramento de todas as notas em estado `NP` (pendente). Possui:
-
-* Lista detalhada de notas
-* Filtros por cliente, data, unidade e etc...
-* Botão **"Contato E-mail"** no canto inferior esquerdo, que leva diretamente à Tela de Agendamento
+É uma tela de acompanhamento para ver todas as notas de agendamento e seus status. Ao selecionar uma nota e clicar no botão ‘Contato E-mail’ (canto inferior esquerdo), o operador é direcionado para a Tela de Agendamento para iniciar o processo.
 
 ***
 
 ### Tela de Agendamento
 
-![/data/img/agendamento/img5.png](/data/img/agendamento/img5.png)
+![Tela de Agendamento](data/img/agendamento/img5.png)
 
-Tela principal de operação de agendamento. Permite ao operador:
-
-* Confirmar agendamento
-* Anexar notas ou vouchers
+Nesta tela, o operador da Luft consegue realizar a agenda da nota, anexar arquivos e fazer confirmações, entre outras operações.
 
 ***
 
-## Finalidade das Telas
-
-Todas essas telas são projetadas para integrar e agilizar o fluxo operacional de agendamento. Elas permitem:
-
-* Visualizar status atual das NFs
-* Atuar diretamente sobre pendências
-* Manter registros centralizados de contatos e confirmações
-* Padronizar comunicação
-
-***
-
-## Particularidades por Região ou Cliente
-
-### Horário de Corte
-
-* Agendamentos devem ser feitos até as 16:00 do dia anterior
-* As bases geram relatórios às 16:15, considerando possíveis confirmações finais
-
-### Regiões
-
-Descrever particularidades regionais específicas conforme aplicável
-
-### Destinatários
-
-Exemplo: RAIA exige agendamento até 09:00.Outros podem solicitar:
-
-* Faixas de horário fixas
-
-***
-
-### Voucher
-
-Alguns destinatários só aceitam entregas mediante apresentação de **voucher de notas** emitido pelo cliente
-
-***
+## Particularidades e Regras de Negócio
+* **Alta Customização**: O processo é altamente customizado, pois cada distribuidor tem sua própria forma de solicitar o agendamento.
+* **Horário de Corte**: Os agendamentos devem ser finalizados, idealmente, até as 16:00 do dia anterior.
+* **Exemplo ([[RAIA]])**: Essa distribuidora exige que a solicitação de agendamento seja feita através de seu portal, um dia antes da entrega, com prazo máximo até as 09:00.
+* **Voucher**: Alguns destinatários específicos só aceitam as entregas mediante a apresentação de um "voucher" de notas emitido pelo cliente.
 
 ## Anexos e Recursos
 
-* [Documentação Original de Agendamento (Docx)](/download?token=__TOKEN_PLACEHOLDER__&download=Agendamento_Em_Producao.docx&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzIjoiZnJhbmNpc2NvLm1pcmFuZGEiLCJlIjoxNzUwNzA5NTY4fQ.qq5cstM4q_h4LHGZEv4jhQOd5y-fqSAkvN9hDNxKSd4)
+* [Documento de Agendamento.docx](/download?token=__TOKEN_PLACEHOLDER__&download=Agendamento_Em_Producao.docx&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzIjoiZnJhbmNpc2NvLm1pcmFuZGEiLCJlIjoxNzUwNzk1MzYwfQ.4nYnhcIENumi5m3hpt3JeiVnyj_0exVEpBMzzbb-xFo)

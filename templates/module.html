@@ -1,17 +1,47 @@
 {% extends "base.html" %}
 {% block title %}{{ modulo['nome'] }} - LuftDocs{% endblock %}
 {% block content %}
+    <style>
+    mark {
+        background-color: #b6fcb6 !important;
+        color: #1a3d1a !important;
+    }
+    /* Autocomplete styles */
+    .autocomplete-list {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        z-index: 1000;
+        width: 70%;
+        max-width: 400px;
+        margin-top: 2px;
+        padding: 0;
+        list-style: none;
+        display: none;
+    }
+    .autocomplete-list li {
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .autocomplete-list li:hover, .autocomplete-list li.active {
+        background: #e6f7ff;
+    }
+    </style>
     {# Formulário de busca dentro do módulo, preservando token e módulo #}
-    <form class="busca-global mb-4" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get">
+    <form class="busca-global mb-4 position-relative" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get" autocomplete="off">
         <input type="hidden" name="token" value="{{ request.args.get('token') }}">
         <input type="hidden" name="modulo" value="{{ modulo['id'] }}">
-        <input type="text" name="q" value="{{ query or '' }}"
+        <input id="busca-input" type="text" name="q" value="{{ query or '' }}"
                placeholder="Buscar neste módulo..."
                class="form-control d-inline-block"
-               style="width: 70%; max-width: 400px;">
+               style="width: 70%; max-width: 400px;" autocomplete="off">
         <button type="submit" class="btn btn-primary ms-2">
             <i class="bi bi-search"></i> Buscar
         </button>
+        <ul id="autocomplete-list" class="autocomplete-list"></ul>
     </form>
 
     <h1 class="mb-1">{{ modulo['nome'] }}</h1>
@@ -70,6 +100,76 @@
     </div>
 
     <script>
+      // Autocomplete para busca
+      const buscaInput = document.getElementById('busca-input');
+      const autocompleteList = document.getElementById('autocomplete-list');
+      let currentFocus = -1;
+
+      buscaInput.addEventListener('input', function() {
+        const val = this.value;
+        if (val.length < 2) {
+          autocompleteList.style.display = 'none';
+          return;
+        }
+        fetch(`/busca/autocomplete?q=${encodeURIComponent(val)}`)
+          .then(r => r.json())
+          .then(sugestoes => {
+            autocompleteList.innerHTML = '';
+            if (sugestoes.length === 0) {
+              autocompleteList.style.display = 'none';
+              return;
+            }
+            sugestoes.forEach((s, idx) => {
+              const li = document.createElement('li');
+              li.textContent = s;
+              li.onclick = () => {
+                buscaInput.value = s;
+                autocompleteList.style.display = 'none';
+                buscaInput.form.submit();
+              };
+              autocompleteList.appendChild(li);
+            });
+            autocompleteList.style.display = 'block';
+            currentFocus = -1;
+          });
+      });
+
+      buscaInput.addEventListener('keydown', function(e) {
+        let items = autocompleteList.getElementsByTagName('li');
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') {
+          currentFocus++;
+          addActive(items);
+        } else if (e.key === 'ArrowUp') {
+          currentFocus--;
+          addActive(items);
+        } else if (e.key === 'Enter') {
+          if (currentFocus > -1) {
+            e.preventDefault();
+            items[currentFocus].click();
+          }
+        }
+      });
+
+      function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        items[currentFocus].classList.add('active');
+      }
+      function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+          items[i].classList.remove('active');
+        }
+      }
+      document.addEventListener('click', function(e) {
+        if (!autocompleteList.contains(e.target) && e.target !== buscaInput) {
+          autocompleteList.style.display = 'none';
+        }
+      });
+
+      // Modal vídeo (já existente)
       function abrirVideoModal(url) {
         const videoSource = document.getElementById('videoSource');
         const videoPlayer = document.getElementById('videoPlayer');

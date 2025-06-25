@@ -126,7 +126,10 @@ def editor_index():
     can_delete_modules              = user_perms.get('can_delete_modules', False)
     can_versioning_modules   = user_perms.get('can_versioning_modules', False)
     can_module_control = user_perms.get('can_module_control', False)
-    
+
+    # FUNÇÃO E OBTÉM A CONTAGEM DE PENDENCIAS
+    num_pendencias = get_pending_count()
+
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     return render_template(
@@ -137,6 +140,7 @@ def editor_index():
         can_delete_modules=can_delete_modules,
         can_versioning_modules=can_versioning_modules,
         can_module_control=can_module_control,
+        num_pendencias=num_pendencias,
     )
 
 @editor_bp.route('/upload_image/<modulo_id>', methods=['POST'])
@@ -383,6 +387,19 @@ def delete_modulo(mid):
         # flash(f"Módulo {mid} deletado com sucesso!", "success")
 
     return redirect(url_for('.editor_index', token=token))
+
+def get_pending_count():
+    """Conta e retorna o número de módulos com pendências."""
+    modulos, _ = carregar_modulos()
+    count = 0
+    for m in modulos:
+        mod_id = m['id']
+        path_mod = os.path.join(DATA_DIR, mod_id)
+        # Verifica se existe um arquivo de pendência normal OU técnico
+        if os.path.exists(os.path.join(path_mod, "pending_documentation.md")) or \
+           os.path.exists(os.path.join(path_mod, "pending_technical_documentation.md")):
+            count += 1
+    return count
 
 # Lista de pendências (agora visível para todos, mas provavelmente estará sempre vazia)
 @editor_bp.route('/pendentes')

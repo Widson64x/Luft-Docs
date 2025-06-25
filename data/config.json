@@ -26,22 +26,12 @@
       "nome": "Telas Informa",
       "descricao": "Algumas telas do Luft Informa",
       "icone": "bi bi-window-fullscreen",
-      "palavras_chave": [
-        "coleta",
-        "agendamento",
-        "transferencia",
-        "coordenacao"
-      ],
-      "relacionados": [
-        "coleta",
-        "agendamento",
-        "transferencia",
-        "coordenacao"
-      ],
+      "palavras_chave": [],
+      "relacionados": [],
       "status": "aprovado",
       "ultima_edicao": {
-        "user": "cleyton.silva",
-        "data": "2025-06-12T17:51:09.834395"
+        "user": "francisco.miranda",
+        "data": "2025-06-25T15:14:34.387021"
       }
     },
     {
@@ -60,7 +50,7 @@
       "status": "aprovado",
       "ultima_edicao": {
         "user": "francisco.miranda",
-        "data": "2025-06-23T14:07:14.852259"
+        "data": "2025-06-24T12:57:08.648506"
       }
     }
   ],

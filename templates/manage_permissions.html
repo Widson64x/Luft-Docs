@@ -3,335 +3,532 @@
 
 {% block content %}
 <style>
-body {
-    background: #f6f8fb;
-}
+/* ================================================
+  ESTILOS BASE (USANDO VARIÁVEIS DE TEMA)
+  - Estes estilos funcionam para os temas claro e escuro.
+  - As cores são herdadas das variáveis do base.html 
+    (--card-bg, --card-color, --surface-bg, etc.).
+  ================================================
+*/
+
 .permission-dashboard {
-    max-width: 1100px;
-    margin: 0 auto;
+  max-width: 1100px;
+  margin: 2rem auto 0 auto; /* Ajustado margin */
 }
+
+/* --- Cabeçalho --- */
 .permission-header {
-    background: rgba(25, 118, 210, 0.95);
-    color: #fff;
-    border-radius: 2rem 2rem 0 0;
-    padding: 2.2rem 2.5rem 1.5rem 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 8px 32px 0 rgba(25,118,210,0.10);
+  background: var(--surface-bg);
+  color: var(--surface-color);
+  border-radius: 1.5rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 24px #0001;
+  border: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  transition: background .3s, color .3s;
 }
+
 .permission-header h1 {
-    font-weight: 800;
-    font-size: 2.5rem;
-    margin: 0;
-    letter-spacing: -1px;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
-.permission-header .btn {
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-radius: 2em;
-    padding: 0.8em 2em;
-    box-shadow: 0 2px 12px 0 rgba(25,118,210,0.13);
-    background: #fff;
-    color: #1976d2;
-    border: none;
-    transition: background 0.2s, color 0.2s;
-}
-.permission-header .btn:hover {
-    background: #1976d2;
-    color: #fff;
-}
+
+/* --- Barra de Busca --- */
 .search-bar {
-    margin: 2.5rem 0 2.5rem 0;
-    display: flex;
-    justify-content: flex-end;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: flex-end;
 }
+
 .search-bar input {
-    border-radius: 2em;
-    border: 1.5px solid #e3e3e3;
-    padding: 1em 1.5em;
-    width: 340px;
-    font-size: 1.1em;
-    background: #f7fafc;
-    box-shadow: 0 2px 8px 0 rgba(60,72,100,0.06);
-    transition: border 0.2s;
+  border-radius: 2em;
+  border: 1px solid #dcdcdc;
+  padding: 0.8em 1.5em;
+  width: 340px;
+  font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--card-color);
+  box-shadow: 0 2px 8px #0001;
+  transition: all 0.3s;
 }
+
 .search-bar input:focus {
-    border: 2px solid #1976d2;
-    outline: none;
-    background: #fff;
+  border-color: #0d6efd;
+  outline: none;
+  box-shadow: 0 2px 8px #0d6efd30;
 }
+
+/* --- Lista e Cards de Permissão --- */
 #permissions-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
-    gap: 2.5rem;
-    margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.8rem;
 }
+
 .permission-card {
-    border: none;
-    border-radius: 2rem;
-    box-shadow: 0 4px 32px 0 rgba(60,72,100,0.10);
-    background: rgba(255,255,255,0.95);
-    padding: 2.2rem 2.2rem 1.5rem 2.2rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 260px;
-    transition: box-shadow 0.2s, transform 0.15s;
-    position: relative;
-    overflow: hidden;
+  background: var(--card-bg);
+  color: var(--card-color);
+  border: none;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 24px #0001;
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  transition: all 0.3s;
+  overflow: hidden;
+  transform: translateY(0px);
 }
+
 .permission-card:hover {
-    box-shadow: 0 8px 48px 0 rgba(25,118,210,0.18);
-    transform: translateY(-4px) scale(1.01);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 32px #0d6efd25;
 }
+
 .permission-icon {
-    font-size: 3.2rem;
-    color: #1976d2;
-    background: linear-gradient(135deg, #e3f2fd 60%, #fffde7 100%);
-    border-radius: 1.2rem;
-    padding: 0.7rem 1.2rem;
-    margin-bottom: 1.2rem;
-    box-shadow: 0 2px 8px 0 rgba(25,118,210,0.07);
-    display: inline-block;
+  font-size: 2.5rem;
+  color: #0d6efd;
+  background-color: #0d6efd15;
+  border-radius: 1rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1.2rem;
+  display: inline-block;
+  transition: background-color .3s, color .3s;
 }
+
 .permission-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-    color: #222;
-    letter-spacing: -0.5px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--card-color);
 }
+
 .permission-desc {
-    color: #5a5a5a;
-    font-size: 1.05rem;
-    margin-bottom: 1.2rem;
-    min-height: 2.2em;
+  color: var(--card-color);
+  opacity: 0.7; /* Para diferenciar do título */
+  font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+  flex-grow: 1; /* Faz a descrição crescer para empurrar as ações para baixo */
 }
-.permission-meta {
-    margin-bottom: 1.1rem;
-}
+
 .permission-meta-label {
-    font-size: 0.98em;
-    color: #888;
-    font-weight: 500;
-    margin-right: 0.5em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--card-color);
+  opacity: 0.5;
+  margin-right: 0.5em;
 }
+
 .permission-badge {
-    font-size: 1em;
-    margin: 0 0.25em 0.25em 0;
-    padding: 0.45em 1.1em;
-    border-radius: 1.2em;
-    background: linear-gradient(90deg, #e3f2fd 0%, #fce4ec 100%);
-    color: #1976d2;
-    font-weight: 600;
-    box-shadow: 0 1px 4px 0 rgba(25,118,210,0.06);
-    display: inline-block;
+  font-size: 0.85em;
+  margin: 0 0.25em 0.25em 0;
+  padding: 0.4em 1em;
+  border-radius: 1.2em;
+  background-color: #0d6efd10;
+  color: #0d6efd;
+  font-weight: 500;
+  display: inline-block;
+  transition: background-color .3s, color .3s;
 }
+
 .permission-badge.user {
-    background: linear-gradient(90deg,#e1f5fe,#fffde7);
-    color: #8e24aa;
+  background-color: #6f42c115;
+  color: #6f42c1;
 }
+
 .permission-actions {
-    display: flex;
-    gap: 0.7em;
-    margin-top: auto;
-    justify-content: flex-end;
+  display: flex;
+  gap: 0.7em;
+  margin-top: 1rem;
+  justify-content: flex-end;
 }
-.permission-actions .btn {
-    border-radius: 2em;
-    font-size: 1.05em;
-    font-weight: 500;
-    padding: 0.5em 1.3em;
-    border: none;
-    transition: background 0.18s, color 0.18s;
-    box-shadow: 0 1px 4px 0 rgba(25,118,210,0.06);
+
+/* ===========================================
+  REGRAS ESPECÍFICAS PARA TEMA ESCURO
+  - Apenas o necessário é alterado aqui.
+  - A maioria dos estilos já funciona
+    graças ao uso das variáveis.
+  ===========================================
+*/
+
+body.theme-dark .permission-header {
+  border-color: #ffffff15;
 }
-.permission-actions .btn-outline-primary {
-    background: #e3f2fd;
-    color: #1976d2;
+
+
+body.theme-dark .search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.5); /* Branco com 50% de opacidade */
 }
-.permission-actions .btn-outline-primary:hover {
-    background: #1976d2;
-    color: #fff;
+
+body.theme-dark .search-bar input {
+  border-color: #444;
 }
-.permission-actions .btn-outline-danger {
-    background: #ffebee;
-    color: #c62828;
+
+body.theme-dark .permission-card:hover {
+  box-shadow: 0 8px 32px #8ab4f830;
 }
-.permission-actions .btn-outline-danger:hover {
-    background: #c62828;
-    color: #fff;
+
+body.theme-dark .permission-icon {
+  color: #8ab4f8;
+  background-color: #8ab4f820;
 }
+
+body.theme-dark .permission-badge {
+  background-color: #8ab4f820;
+  color: #8ab4f8;
+}
+
+body.theme-dark .permission-badge.user {
+  background-color: #d1c4e930;
+  color: #d1c4e9;
+}
+
+    /* --- Ícones decorativos flutuantes (CSS CORRIGIDO) --- */
+    .bg-icons {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    /* A animação agora é aplicada diretamente na classe principal .bg-icon */
+    .bg-icons .bg-icon {
+        position: absolute;
+        color: rgba(13,110,253,0.13);
+        bottom: -2rem; /* Posição inicial para a animação clássica */
+        
+        /* Propriedades da animação clássica */
+        animation-name: iconRise;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
+
+    body.theme-dark .bg-icons .bg-icon {
+        color: rgba(255,255,255,0.13);
+    }
+    
+    @keyframes iconRise {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-50vh) rotate(180deg);
+            opacity: 0.7;
+        }
+        100% {
+            transform: translateY(-100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+/* ===========================================
+  REGRAS DE RESPONSIVIDADE
+  ===========================================
+*/
 @media (max-width: 900px) {
-    .permission-dashboard {
-        padding: 0 0.5rem;
-    }
-    #permissions-list {
-        grid-template-columns: 1fr;
-    }
+  .permission-dashboard {
+    padding: 0 1rem;
+  }
+  #permissions-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
+
 @media (max-width: 600px) {
-    .permission-header {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1.2rem 1rem 1rem 1rem;
-        border-radius: 1.2rem 1.2rem 0 0;
-    }
-    .search-bar {
-        justify-content: stretch;
-    }
-    .permission-card {
-        padding: 1.2rem 1rem 1rem 1rem;
-        border-radius: 1.2rem;
-    }
+  .permission-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .search-bar {
+    justify-content: stretch;
+  }
+  .search-bar input {
+      width: 100%;
+  }
 }
 </style>
 
-<div class="permission-dashboard mt-4">
-    <div class="permission-header mb-4">
-        <h1><i class="bi bi-shield-lock-fill"></i> Gestão de Permissões</h1>
-        <button class="btn" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
-            <i class="bi bi-plus-circle me-2"></i>Nova Permissão
-        </button>
-    </div>
+<div class="bg-icons"></div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, msg in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ msg }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endwith %}
+<div class="permission-dashboard">
+  <div class="permission-header">
+    <h1><i class="bi bi-shield-lock-fill"></i> Gestão de Permissões</h1>
+    <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
+      <i class="bi bi-plus-circle me-1"></i> Nova Permissão
+    </button>
+  </div>
 
-    <div class="search-bar">
-        <input type="text" id="searchPerm" placeholder="Buscar permissão..." onkeyup="filterPermissions()">
-    </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, msg in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
 
-    <div id="permissions-list">
-        {% for perm, info in permissions.items() %}
-        <div class="permission-card" data-perm="{{ perm|lower }} {{ info.description|lower }}">
-            <span class="permission-icon"><i class="bi bi-key-fill"></i></span>
-            <div class="permission-title">{{ perm }}</div>
-            <div class="permission-desc">{{ info.description or 'Sem descrição' }}</div>
-            <div class="permission-meta mb-2">
-                <span class="permission-meta-label">Grupos:</span>
-                {% for group in info.groups %}
-                    <span class="permission-badge">{{ group }}</span>
-                {% else %}
-                    <span class="badge bg-light text-dark">Nenhum</span>
-                {% endfor %}
-            </div>
-            <div class="permission-meta mb-3">
-                <span class="permission-meta-label">Usuários:</span>
-                {% for user in info.users %}
-                    <span class="permission-badge user">{{ user }}</span>
-                {% else %}
-                    <span class="badge bg-light text-dark">Nenhum</span>
-                {% endfor %}
-            </div>
-            <div class="permission-actions">
-                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPermissionModal-{{ loop.index }}">
-                    <i class="bi bi-pencil-square"></i> Editar
-                </button>
-                <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover esta permissão?');">
-                    <input type="hidden" name="action" value="delete_perm">
-                    <input type="hidden" name="delete_perm" value="{{ perm }}">
-                    <button class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-trash3"></i> Remover
-                    </button>
-                </form>
-            </div>
+  <div class="search-bar">
+    <input type="text" id="searchPerm" class="form-control" placeholder="Buscar por nome ou descrição..." onkeyup="filterPermissions()">
+  </div>
+
+  <div id="permissions-list">
+    {% for perm, info in permissions.items() %}
+    <div class="permission-card" data-perm="{{ perm|lower }} {{ info.description|lower }}">
+      <span class="permission-icon"><i class="bi bi-key-fill"></i></span>
+      <div>
+        <div class="permission-title">{{ perm }}</div>
+        <div class="permission-desc">{{ info.description or 'Sem descrição' }}</div>
+      </div>
+      
+      <div class="mt-auto"> <div class="permission-meta mb-2">
+          <span class="permission-meta-label">GRUPOS:</span>
+          {% for group in info.groups %}
+            <span class="permission-badge">{{ group }}</span>
+          {% else %}
+            <span class="badge bg-secondary bg-opacity-10 text-secondary-emphasis rounded-pill">Nenhum</span>
+          {% endfor %}
         </div>
-        {% else %}
-        <div class="text-center text-muted py-5" style="grid-column: 1/-1;">
-            <i class="bi bi-emoji-frown" style="font-size:2.5rem;"></i>
-            <div class="mt-2">Nenhuma permissão cadastrada.</div>
+        <div class="permission-meta mb-3">
+          <span class="permission-meta-label">USUÁRIOS:</span>
+          {% for user in info.users %}
+            <span class="permission-badge user">{{ user }}</span>
+          {% else %}
+            <span class="badge bg-secondary bg-opacity-10 text-secondary-emphasis rounded-pill">Nenhum</span>
+          {% endfor %}
         </div>
-        {% endfor %}
+        <div class="permission-actions">
+          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editPermissionModal-{{ loop.index }}">
+            <i class="bi bi-pencil-square"></i> Editar
+          </button>
+          <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover esta permissão?');">
+            <input type="hidden" name="action" value="delete_perm">
+            <input type="hidden" name="delete_perm" value="{{ perm }}">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash3"></i> Remover
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+    {% else %}
+    <div class="text-center text-muted py-5" style="grid-column: 1/-1;">
+      <i class="bi bi-emoji-frown" style="font-size:2.5rem;"></i>
+      <div class="mt-2">Nenhuma permissão cadastrada.</div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 
-<!-- Modal: Nova Permissão -->
 <div class="modal fade" id="addPermissionModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content rounded-4">
-            <div class="modal-header bg-primary text-white rounded-top-4">
-                <h5 class="modal-title" id="addModalLabel"><i class="bi bi-plus-circle me-2"></i>Nova Permissão</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post">
-                <input type="hidden" name="action" value="add_perm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="new_perm_name" class="form-label">Nome da Permissão</label>
-                        <input type="text" name="new_perm_name" class="form-control" id="new_perm_name" required placeholder="ex: pode_editar_post">
-                    </div>
-                    <div class="mb-3">
-                        <label for="new_perm_desc" class="form-label">Descrição</label>
-                        <textarea name="new_perm_desc" class="form-control" id="new_perm_desc" rows="2" placeholder="O que essa permissão faz?"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Salvar</button>
-                </div>
-            </form>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel"><i class="bi bi-plus-circle me-2"></i>Nova Permissão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post">
+        <input type="hidden" name="action" value="add_perm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="new_perm_name" class="form-label">Nome da Permissão</label>
+            <input type="text" name="new_perm_name" class="form-control" id="new_perm_name" required placeholder="ex: can_editar_post">
+          </div>
+          <div class="mb-3">
+            <label for="new_perm_desc" class="form-label">Descrição</label>
+            <textarea name="new_perm_desc" class="form-control" id="new_perm_desc" rows="2" placeholder="O que essa permissão faz?"></textarea>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Salvar</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
-<!-- Modais de edição -->
 {% for perm, info in permissions.items() %}
 <div class="modal fade" id="editPermissionModal-{{ loop.index }}" tabindex="-1" aria-labelledby="editModalLabel-{{ loop.index }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content rounded-4">
-            <div class="modal-header bg-info text-white rounded-top-4">
-                <h5 class="modal-title" id="editModalLabel-{{ loop.index }}"><i class="bi bi-pencil-square me-2"></i>Editando: {{ perm }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post">
-                <input type="hidden" name="action" value="update_perm">
-                <input type="hidden" name="perm_name" value="{{ perm }}">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="description-{{ loop.index }}" class="form-label">Descrição</label>
-                        <textarea name="description" class="form-control" id="description-{{ loop.index }}" rows="2">{{ info.description }}</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="groups-{{ loop.index }}" class="form-label">Grupos (separados por vírgula)</label>
-                        <input type="text" name="groups" class="form-control" id="groups-{{ loop.index }}" value="{{ info.groups | join(', ') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="users-{{ loop.index }}" class="form-label">Usuários (separados por vírgula)</label>
-                        <input type="text" name="users" class="form-control" id="users-{{ loop.index }}" value="{{ info.users | join(', ') }}">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i>Salvar Alterações</button>
-                </div>
-            </form>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel-{{ loop.index }}"><i class="bi bi-pencil-square me-2"></i>Editando: {{ perm }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post">
+        <input type="hidden" name="action" value="update_perm">
+        <input type="hidden" name="perm_name" value="{{ perm }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="description-{{ loop.index }}" class="form-label">Descrição</label>
+            <textarea name="description" class="form-control" id="description-{{ loop.index }}" rows="2">{{ info.description }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="groups-{{ loop.index }}" class="form-label">Grupos (separados por vírgula)</label>
+            <input type="text" name="groups" class="form-control" id="groups-{{ loop.index }}" value="{{ info.groups | join(', ') }}">
+          </div>
+          <div class="mb-3">
+            <label for="users-{{ loop.index }}" class="form-label">Usuários (separados por vírgula)</label>
+            <input type="text" name="users" class="form-control" id="users-{{ loop.index }}" value="{{ info.users | join(', ') }}">
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Salvar Alterações</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 {% endfor %}
 
 <script>
 function filterPermissions() {
-    const input = document.getElementById('searchPerm');
-    const filter = input.value.toLowerCase();
-    const cards = document.querySelectorAll('#permissions-list .permission-card');
-    cards.forEach(card => {
-        if (card.getAttribute('data-perm').includes(filter)) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+  const input = document.getElementById('searchPerm');
+  const filter = input.value.toLowerCase();
+  const cards = document.querySelectorAll('#permissions-list .permission-card');
+  cards.forEach(card => {
+    if (card.getAttribute('data-perm').includes(filter)) {
+      card.style.display = 'flex'; // Usar 'flex' para corresponder ao display do card
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.bg-icons');
+    let animationFrameId = null;
+
+    // =========================================================================
+    // MODIFICADO: Lendo todos os parâmetros de animação do localStorage
+    // =========================================================================
+    function getAnimationParameters() {
+        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
+        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
+        // Aleatoriedade pode ser derivada da velocidade ou ser um parâmetro próprio.
+        // Aqui, usaremos a velocidade para influenciar a variação.
+        const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
+        return { quantity, speedFactor, randomnessFactor };
+    }
+
+    // --- LÓGICA DA ANIMAÇÃO Nº 1: ÍCONES COM COLISÃO (MODIFICADA) ---
+    function iniciarAnimacaoComColisao() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        const iconsData = [];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(availableIcons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const el = document.createElement('i');
+                    // A aleatoriedade influencia o tamanho
+                    const size = (Math.random() * 32 * randomnessFactor + 16);
+                    
+                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
+                    el.style.fontSize = `${size}px`;
+                    el.style.animation = 'none';
+                    el.style.bottom = 'auto';
+                    
+                    container.appendChild(el);
+
+                    iconsData.push({
+                        element: el,
+                        x: Math.random() * (screenWidth - size),
+                        y: Math.random() * (screenHeight - size),
+                        // A velocidade e aleatoriedade influenciam o movimento
+                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        size: size
+                    });
+                }
+                animate();
+            })
+            .catch(console.error);
+
+        function animate() {
+            // ... a função animate interna continua exatamente a mesma ...
+            iconsData.forEach((icon, index) => {
+                icon.x += icon.dx;
+                icon.y += icon.dy;
+                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
+                if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+                for (let i = index + 1; i < iconsData.length; i++) {
+                    const otherIcon = iconsData[i];
+                    const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
+                    const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
+                    const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+                    const minDistance = (icon.size / 2) + (otherIcon.size / 2);
+                    if (distance < minDistance) {
+                        [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
+                        [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
+                    }
+                }
+                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+    }
+
+    // --- LÓGICA DA ANIMAÇÃO Nº 2: ÍCONES SUBINDO (MODIFICADA) ---
+    function iniciarAnimacaoOriginal() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(icons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const cls = icons[Math.floor(Math.random() * icons.length)];
+                    const el = document.createElement('i');
+                    el.className = `bi ${cls} bg-icon`;
+                    
+                    // A aleatoriedade influencia a faixa de tamanhos
+                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
+                    
+                    // A velocidade influencia a duração (menor duração = mais rápido)
+                    const baseDuration = 10 + Math.random() * 10;
+                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
+                    
+                    container.appendChild(el);
+                }
+            })
+            .catch(console.error);
+    }
+
+    // --- FUNÇÃO CONTROLADORA (permanece a mesma) ---
+    window.mudarAnimacao = function(modo) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        container.innerHTML = '';
+
+        if (modo === 'original') {
+            iniciarAnimacaoOriginal();
+        } else {
+            iniciarAnimacaoComColisao();
+        }
+    }
+
+    // --- INICIA A ANIMAÇÃO (permanece a mesma) ---
+    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
+    mudarAnimacao(savedAnimation);
+});
 </script>
 {% endblock %}

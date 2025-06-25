@@ -1,301 +1,413 @@
 {% extends "base.html" %}
 {% block title %}Editor de Módulos{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
 <style>
-  body {
-    background: #f4f7fb;
-  }
-  .module-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 2.2rem;
-  }
-  .module-card {
-    border: none;
-    border-radius: 1.5rem;
-    box-shadow: 0 6px 32px rgba(13,110,253,0.09), 0 1.5px 4px rgba(0,0,0,0.03);
-    background: #fff;
-    min-height: 340px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 0.2s, transform 0.15s;
-    cursor: pointer;
-  }
-  .module-card:hover {
-    box-shadow: 0 12px 40px rgba(13,110,253,0.17), 0 2px 8px rgba(0,0,0,0.07);
-    transform: translateY(-4px) scale(1.018);
-  }
-  .module-card .corner-bg {
-    position: absolute;
-    right: -50px;
-    top: -50px;
-    width: 140px;
-    height: 140px;
-    background: radial-gradient(circle at 60% 40%, #0d6efd18 60%, transparent 100%);
-    z-index: 0;
-  }
-  .module-card .card-body {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 2.2rem 1.7rem 1.5rem 1.7rem;
-  }
-  .module-icon {
-    font-size: 3.1rem;
-    color: #fff;
-    background: linear-gradient(135deg, #0d6efd 60%, #1976d2 100%);
-    border-radius: 1.1rem;
-    padding: 0.9rem 1.2rem;
-    margin-right: 1.2rem;
-    box-shadow: 0 2px 12px #0d6efd22;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .module-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #1a237e;
-    margin-bottom: 0.15rem;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .module-id-badge {
-    background: #e3e6f0;
-    color: #0d6efd;
-    font-size: 0.97em;
-    border-radius: 0.5rem;
-    padding: 0.13em 0.8em;
-    font-weight: 500;
-  }
-  .module-status-badge {
-    background: linear-gradient(90deg, #ffe082 80%, #fffde7 100%);
-    color: #795548;
-    font-size: 0.97em;
-    border-radius: 0.5rem;
-    padding: 0.13em 0.8em;
-    font-weight: 500;
-    margin-left: 0.3rem;
-  }
-  .module-desc {
-    color: #495057;
-    font-size: 1.08rem;
-    margin-bottom: 1.5rem;
-    min-height: 56px;
-    margin-top: 0.5rem;
-    line-height: 1.5;
-  }
-  .module-actions {
-    display: flex;
-    gap: 0.7rem;
-    margin-top: auto;
-    flex-wrap: wrap;
-  }
-  .module-actions .btn {
-    border-radius: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-    box-shadow: 0 1px 4px #0d6efd11;
-    min-width: 0;
-    flex: 1 1 0;
-    white-space: nowrap;
-  }
-  .module-actions .btn-primary {
-    background: linear-gradient(90deg, #0d6efd 80%, #1976d2 100%);
-    border: none;
-    color: #fff;
-  }
-  .module-actions .btn-primary:hover {
-    background: #1976d2;
-    color: #fff;
-  }
-  .module-actions .btn-outline-info {
-    border: 1.5px solid #0d6efd;
-    color: #0d6efd;
-    background: #f8fafc;
-  }
-  .module-actions .btn-outline-info:hover {
-    background: #e3e6f0;
-    color: #1976d2;
-  }
-  .module-actions .btn-danger {
-    background: linear-gradient(90deg, #e53935 80%, #b71c1c 100%);
-    border: none;
-    color: #fff;
-  }
-  .module-actions .btn-danger:hover {
-    background: #b71c1c;
-    color: #fff;
-  }
-  .module-empty {
-    background: #f8fafc;
-    border: 2px dashed #b0bec5;
-    border-radius: 1.2rem;
-    padding: 3.5rem 1rem;
-    color: #78909c;
-    font-size: 1.22rem;
-    text-align: center;
-    margin-top: 2.5rem;
-    box-shadow: 0 2px 12px #b0bec522;
-  }
-  .module-empty .bi {
-    color: #b0bec5;
-  }
-  .module-header-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.2rem;
-    margin-bottom: 2.2rem;
-  }
-  .module-header-bar .actions {
-    display: flex;
-    gap: 0.7rem;
-    flex-wrap: wrap;
-  }
-  .module-header-bar h1 {
-    font-size: 2.1rem;
-    font-weight: 800;
-    color: #0d47a1;
-    letter-spacing: 0.01em;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-  }
-  .modulo-filtro-box {
-    margin-bottom: 2rem;
-    max-width: 420px;
-    margin-left: 0;
-  }
-  .modulo-filtro-box input {
-    font-size: 1.15rem;
-    border-radius: 0.7rem;
-    border: 1.5px solid #b0bec5;
-    padding: 0.7rem 1.2rem;
-    box-shadow: 0 1px 4px #0d6efd11;
-    transition: border 0.15s;
-  }
-  .modulo-filtro-box input:focus {
-    border: 1.5px solid #0d6efd;
-    outline: none;
-    box-shadow: 0 2px 8px #0d6efd22;
-  }
-  @media (max-width: 991px) {
-    .module-grid {
-      grid-template-columns: 1fr;
-    }
-    .module-header-bar h1 {
-      font-size: 1.5rem;
-    }
-  }
-  @media (max-width: 767px) {
-    .module-card {
-      min-height: 0;
-      padding: 0;
-    }
-    .module-title {
-      font-size: 1.08rem;
-    }
-    .module-desc {
-      font-size: 0.98rem;
-    }
-    .module-header-bar h1 {
-      font-size: 1.1rem;
-    }
-    .modulo-filtro-box input {
-      font-size: 1rem;
-      padding: 0.5rem 0.8rem;
-    }
-  }
-</style>
+/* ===================================================================
+   EDITOR DE MÓDULOS - DESIGN MODERNO COM FUNDO PADRÃO
+   - Fundo "Aurora" e efeito "Glass" removidos.
+   - Cards agora usam fundo sólido padrão do tema.
+   =================================================================== */
 
-<div class="container py-4">
+/* --- Variáveis de Tema para esta Página --- */
+:root {
+  /* Cores Base (Tema Claro) */
+  --text-primary: #0d47a1;
+  --text-secondary: #5a6a85;
+  --shadow-color: rgba(60, 92, 148, 0.15);
+  --accent-glow: #0d6efd;
+}
+
+body.theme-dark {
+  /* Cores Base (Tema Escuro) */
+  --text-primary: #cdd9ee;
+  --text-secondary: #8a99b4;
+  --shadow-color: rgba(0, 0, 0, 0.25);
+  --accent-glow: #6ab6ff;
+}
+
+/* --- Animação de Entrada dos Cards --- */
+@keyframes fadeIn-scaleUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+
+    /* Fundo animado com gradiente */
+    body {
+        background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
+        background-size: 200% 200%;
+        animation: bgMove 12s ease-in-out infinite;
+    }
+    @keyframes bgMove {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    body.theme-dark {
+        background: linear-gradient(120deg, #23263b 0%, #1e1e2f 100%);
+        background-size: 200% 200%;
+        animation: bgMove 12s ease-in-out infinite;
+    }
+
+/* --- Estrutura da Página --- */
+.module-editor-container {
+  padding: 2rem 0;
+}
+
+.module-header-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.module-header-bar h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  /* A cor do título agora vem diretamente do base.html */
+  color: var(--card-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.modulo-filtro-box .form-control {
+  /* O filtro agora usa o fundo sólido dos cards */
+  background-color: var(--card-bg);
+  color: var(--card-color);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.2s;
+}
+
+body.theme-dark .modulo-filtro-box .form-control {
+    border-color: #444;
+}
+
+.modulo-filtro-box .form-control::placeholder {
+  color: var(--text-secondary);
+}
+.modulo-filtro-box .form-control:focus {
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  border-color: var(--accent-glow);
+}
+
+/* --- GRID de Módulos --- */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.75rem;
+}
+
+.module-item {
+  opacity: 0;
+  animation: fadeIn-scaleUp 0.5s ease-out forwards;
+  animation-delay: calc(var(--delay) * 60ms);
+}
+
+/* --- CARD DO MÓDULO (com fundo sólido) --- */
+.module-card {
+  /* O fundo agora é o padrão do tema, vindo do base.html */
+  background: var(--card-bg);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+body.theme-dark .module-card {
+    border-color: #444;
+}
+
+
+/* Efeito "Shine" ao passar o mouse (mantido) */
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%);
+  transform: skewX(-25deg);
+  transition: left 0.5s ease-in-out;
+  z-index: 2;
+}
+body.theme-dark .module-card::before {
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.05) 50%, transparent 80%);
+}
+
+.module-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 48px var(--shadow-color);
+  border-color: var(--accent-glow);
+}
+.module-card:hover::before {
+  left: 150%;
+}
+
+.module-card .card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  z-index: 1; /* Abaixo do efeito shine */
+}
+
+.module-icon {
+  font-size: 2.25rem;
+  background: linear-gradient(135deg, var(--accent-glow), var(--bs-primary));
+  color: #fff;
+  border-radius: 0.85rem;
+  padding: 0.75rem;
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+  margin-bottom: 1rem;
+  display: inline-flex;
+}
+
+.module-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--card-color); /* Usa a cor de texto padrão do card */
+  margin-bottom: 0.5rem;
+}
+
+.module-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.module-badge {
+  font-size: 0.8rem;
+  padding: 0.25em 0.75em;
+  border-radius: 2em;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.module-id-badge {
+  color: var(--bs-secondary);
+  background: var(--bs-secondary-bg-subtle);
+  border-color: var(--bs-secondary-border-subtle);
+}
+.module-status-badge {
+  color: var(--bs-warning);
+  background: var(--bs-warning-bg-subtle);
+  border-color: var(--bs-warning-border-subtle);
+}
+
+.module-actions {
+  border-top: 1px solid var(--border-color, #dee2e6);
+  padding-top: 1rem;
+}
+body.theme-dark .module-actions {
+    border-top-color: #444;
+}
+
+/* --- Card de "Adicionar Novo" --- */
+.add-new-card {
+  background: transparent;
+  border: 2px dashed var(--border-color, #ced4da);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+  min-height: 320px;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+.add-new-card:hover {
+  border-color: var(--accent-glow);
+  color: var(--accent-glow);
+  background: var(--accent-glow-subtle, rgba(13, 110, 253, 0.05));
+  box-shadow: 0 8px 32px var(--shadow-color);
+  transform: translateY(-8px) scale(1.02);
+}
+.add-new-card .icon { font-size: 3rem; }
+.add-new-card .text { font-size: 1.1rem; font-weight: 500; }
+
+/* --- BOTÃO DE PENDÊNCIAS --- */
+.pending-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+body.theme-dark .pending-button {
+    border-color: #444;
+}
+
+.pending-button:hover {
+  color: var(--accent-glow);
+  border-color: var(--accent-glow);
+  box-shadow: 0 0 16px var(--accent-glow-subtle, rgba(13, 110, 253, 0.2));
+}
+
+.pending-button .notification-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 20px; 
+  height: 20px;
+  width: auto; 
+  padding: 0 6px;
+  background-color: var(--bs-danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 10px;
+  /* A borda agora usa a variável do fundo do body do base.html */
+  border: 2px solid var(--bs-body-bg); 
+  animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+  box-shadow: 0 0 0 rgba(220, 53, 69, 0.4);
+}
+
+@keyframes pulse {
+  to {
+    box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+  }
+}
+
+    /* --- Ícones decorativos flutuantes (CSS CORRIGIDO) --- */
+    .bg-icons {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    /* A animação agora é aplicada diretamente na classe principal .bg-icon */
+    .bg-icons .bg-icon {
+        position: absolute;
+        color: rgba(13,110,253,0.13);
+        bottom: -2rem; /* Posição inicial para a animação clássica */
+        
+        /* Propriedades da animação clássica */
+        animation-name: iconRise;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
+
+    body.theme-dark .bg-icons .bg-icon {
+        color: rgba(255,255,255,0.13);
+    }
+    
+    @keyframes iconRise {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-50vh) rotate(180deg);
+            opacity: 0.7;
+        }
+        100% {
+            transform: translateY(-100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+</style>
+<div class="bg-icons"></div>
+<div class="container module-editor-container">
   <div class="module-header-bar">
-    <h1>
-      <i class="bi bi-journal-code text-primary"></i>
-      Editor de Módulos
-    </h1>
-    <div class="actions">
-      {% if can_module_control %}
-      <a href="{{ url_for('editor.pendentes', token=token) }}" class="btn btn-danger shadow-sm">
-        <i class="bi bi-hourglass-split"></i> Pendências
+    <h1 class="me-auto"><i class="bi bi-stars" style="color: var(--accent-glow);"></i> Editor de Módulos</h1>
+    {% if can_module_control %}
+      <a href="{{ url_for('editor.pendentes', token=token) }}" 
+         class="pending-button" 
+         title="Ver pendências ({{ num_pendencias }})">
+        <i class="bi bi-hourglass-split"></i>
+        {% if num_pendencias > 0 %}
+          <span class="notification-dot 
+                       {% if num_pendencias > 1 %}with-count{% endif %}">
+            {% if num_pendencias > 1 %}
+              {{ '99+' if num_pendencias > 99 else num_pendencias }}
+            {% endif %}
+          </span>
+        {% endif %}
       </a>
-      {% endif %}
-      <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="btn btn-success shadow-sm">
-        <i class="bi bi-plus-circle"></i> Novo módulo
-      </a>
-    </div>
+    {% endif %}
   </div>
 
-  <!-- Filtro de busca -->
-  <div class="modulo-filtro-box">
-    <input type="text" id="moduloFiltro" class="form-control" placeholder="Buscar módulo por nome, ID ou descrição...">
+  <div class="modulo-filtro-box mb-4">
+    <input type="text" id="moduloFiltro" class="form-control" placeholder="Filtrar módulos...">
   </div>
 
   <div class="module-grid" id="moduloGrid">
+    <div class="module-item" style="--delay: 0;">
+      <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="module-card add-new-card text-decoration-none">
+        <div class="icon"><i class="bi bi-plus-circle-dotted"></i></div>
+        <div class="text mt-3">Criar Novo Módulo</div>
+      </a>
+    </div>
+    
     {% for m in modulos %}
-    <div class="modulo-item" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
+    <div class="module-item" style="--delay: {{ loop.index }};" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
       <div class="module-card">
-        <div class="corner-bg"></div>
         <div class="card-body">
-          <div class="d-flex align-items-center mb-2">
-            <span class="module-icon">
-              <i class="bi {{ m.icone }}"></i>
-            </span>
-            <div>
-              <div class="module-title">
-                {{ m.nome }}
-                <span class="module-id-badge">ID: {{ m.id }}</span>
-                {% if m.status == 'pendente' %}
-                <span class="module-status-badge">pendente aprovação</span>
-                {% endif %}
-              </div>
-            </div>
+          <div class="module-icon">
+            <i class="bi {{ m.icone }}"></i>
           </div>
-          <div class="module-desc">{{ m.descricao }}</div>
-          <div class="module-actions mt-auto">
-            <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-primary btn-sm">
+          <h5 class="module-title">{{ m.nome }}</h5>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="module-badge module-id-badge">ID: {{ m.id }}</span>
+            {% if m.status == 'pendente' %}
+              <span class="module-badge module-status-badge">Pendente</span>
+            {% endif %}
+          </div>
+          <p class="module-desc">{{ m.descricao }}</p>
+          <div class="module-actions d-flex justify-content-end gap-2 mt-auto">
+            <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-sm btn-primary">
               <i class="bi bi-pencil-square"></i> Editar
             </a>
-            {% if can_versioning_modules %}         
-            <a href="{{ url_for('editor.historico_modulo', mid=m.id, token=token) }}" class="btn btn-outline-info btn-sm">
-              <i class="bi bi-clock-history"></i> Versões
-            </a>
+            {% if can_versioning_modules %}
+              <a href="{{ url_for('editor.historico_modulo', mid=m.id, token=token) }}" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-clock-history"></i> Versões
+              </a>
             {% endif %}
-            <form method="post"
-                  action="{{ url_for('editor.delete_modulo', mid=m.id, token=token) }}"
-                  style="display:inline;"
-                  onsubmit="return confirm('Deseja realmente deletar o módulo {{ m.nome }}, um módulo desse tem centenas de Informações que dermoram horas para o preenchimento?');">
-              {% if can_delete_modules %}         
-              <button type="submit" class="btn btn-danger btn-sm">
-                <i class="bi bi-trash"></i> Deletar
-              </button>
-              {% endif %}
-            </form>
-
+            {% if can_delete_modules %}
+              <form method="post" action="{{ url_for('editor.delete_modulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
     {% else %}
-    <div class="col-12">
-      <div class="module-empty">
-        <i class="bi bi-emoji-frown fs-2 mb-2 d-block"></i>
-        Nenhum módulo disponível.
-      </div>
-    </div>
+      {% if loop.length == 1 %} 
+        <div class="text-center text-muted py-5 col-12">
+          <i class="bi bi-journal-x" style="font-size:3rem; color: var(--text-secondary);"></i>
+          <h4 class="mt-3" style="color: var(--text-primary);">Nenhum módulo encontrado</h4>
+          <p style="color: var(--text-secondary);">Comece criando seu primeiro módulo!</p>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
 </div>
@@ -303,21 +415,143 @@
   // Filtro simples de módulos
   document.getElementById('moduloFiltro').addEventListener('input', function() {
     const termo = this.value.trim().toLowerCase();
-    document.querySelectorAll('.modulo-item').forEach(function(item) {
-      const nome = item.getAttribute('data-nome');
-      const id = item.getAttribute('data-id');
-      const desc = item.getAttribute('data-desc');
-      if (
-        termo === '' ||
-        nome.includes(termo) ||
-        id.includes(termo) ||
-        desc.includes(termo)
-      ) {
-        item.style.display = '';
+    document.querySelectorAll('.module-grid .module-item').forEach(function(item) {
+      if (item.querySelector('.add-new-card')) {
+        item.style.display = 'block';
+        return;
+      }
+      const nome = item.getAttribute('data-nome') || '';
+      const id = item.getAttribute('data-id') || '';
+      const desc = item.getAttribute('data-desc') || '';
+      
+      if (nome.includes(termo) || id.includes(termo) || desc.includes(termo)) {
+        item.style.display = 'block';
       } else {
         item.style.display = 'none';
       }
     });
   });
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.bg-icons');
+    let animationFrameId = null;
+
+    // =========================================================================
+    // MODIFICADO: Lendo todos os parâmetros de animação do localStorage
+    // =========================================================================
+    function getAnimationParameters() {
+        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
+        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
+        // Aleatoriedade pode ser derivada da velocidade ou ser um parâmetro próprio.
+        // Aqui, usaremos a velocidade para influenciar a variação.
+        const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
+        return { quantity, speedFactor, randomnessFactor };
+    }
+
+    // --- LÓGICA DA ANIMAÇÃO Nº 1: ÍCONES COM COLISÃO (MODIFICADA) ---
+    function iniciarAnimacaoComColisao() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        const iconsData = [];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(availableIcons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const el = document.createElement('i');
+                    // A aleatoriedade influencia o tamanho
+                    const size = (Math.random() * 32 * randomnessFactor + 16);
+                    
+                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
+                    el.style.fontSize = `${size}px`;
+                    el.style.animation = 'none';
+                    el.style.bottom = 'auto';
+                    
+                    container.appendChild(el);
+
+                    iconsData.push({
+                        element: el,
+                        x: Math.random() * (screenWidth - size),
+                        y: Math.random() * (screenHeight - size),
+                        // A velocidade e aleatoriedade influenciam o movimento
+                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        size: size
+                    });
+                }
+                animate();
+            })
+            .catch(console.error);
+
+        function animate() {
+            // ... a função animate interna continua exatamente a mesma ...
+            iconsData.forEach((icon, index) => {
+                icon.x += icon.dx;
+                icon.y += icon.dy;
+                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
+                if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+                for (let i = index + 1; i < iconsData.length; i++) {
+                    const otherIcon = iconsData[i];
+                    const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
+                    const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
+                    const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+                    const minDistance = (icon.size / 2) + (otherIcon.size / 2);
+                    if (distance < minDistance) {
+                        [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
+                        [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
+                    }
+                }
+                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+    }
+
+    // --- LÓGICA DA ANIMAÇÃO Nº 2: ÍCONES SUBINDO (MODIFICADA) ---
+    function iniciarAnimacaoOriginal() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(icons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const cls = icons[Math.floor(Math.random() * icons.length)];
+                    const el = document.createElement('i');
+                    el.className = `bi ${cls} bg-icon`;
+                    
+                    // A aleatoriedade influencia a faixa de tamanhos
+                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
+                    
+                    // A velocidade influencia a duração (menor duração = mais rápido)
+                    const baseDuration = 10 + Math.random() * 10;
+                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
+                    
+                    container.appendChild(el);
+                }
+            })
+            .catch(console.error);
+    }
+
+    // --- FUNÇÃO CONTROLADORA (permanece a mesma) ---
+    window.mudarAnimacao = function(modo) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        container.innerHTML = '';
+
+        if (modo === 'original') {
+            iniciarAnimacaoOriginal();
+        } else {
+            iniciarAnimacaoComColisao();
+        }
+    }
+
+    // --- INICIA A ANIMAÇÃO (permanece a mesma) ---
+    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
+    mudarAnimacao(savedAnimation);
+});
 </script>
 {% endblock %}

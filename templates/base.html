@@ -203,258 +203,284 @@
       }
   </style>
 
-  <script>
-    function applyTheme(theme) {
-      document.body.classList.remove('theme-dark');
-      if (theme === 'dark') {
-        document.body.classList.add('theme-dark');
-      } else if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('theme-dark');
-      }
-    }
-    function applyFontSize(size) {
-      document.body.classList.remove('font-small','font-medium','font-large','font-xlarge');
-      document.body.classList.add(`font-${size}`);
-    }
-    function applyCompactMode(enabled) {
-      document.body.classList.toggle('compact-mode', enabled);
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-      const theme    = localStorage.getItem('ld_theme')    || 'light';
-      const fontSize = localStorage.getItem('ld_fontSize') || 'medium';
-      const compact  = localStorage.getItem('ld_compact')  === 'true';
-      applyTheme(theme);
-      applyFontSize(fontSize);
-      applyCompactMode(compact);
-    });
-  </script>
+    <script>
+        // Funções para aplicar configurações salvas
+        function applyTheme(theme) {
+            document.body.classList.remove('theme-dark');
+            if (theme === 'dark') {
+                document.body.classList.add('theme-dark');
+            } else if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('theme-dark');
+            }
+        }
+        function applyFontSize(size) {
+            document.body.classList.remove('font-small','font-medium','font-large','font-xlarge');
+            document.body.classList.add(`font-${size}`);
+        }
+        function applyCompactMode(enabled) {
+            document.body.classList.toggle('compact-mode', enabled);
+        }
+
+        // Função para aplicar a animação de fundo
+        function applyBgAnimation(mode) {
+            // Verifica se a função de troca de animação existe na página atual para evitar erros.
+            if (typeof window.mudarAnimacao === 'function') {
+                window.mudarAnimacao(mode);
+            }
+        }
+
+        // Aplica todas as configurações do localStorage ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme       = localStorage.getItem('ld_theme')       || 'light';
+            const fontSize    = localStorage.getItem('ld_fontSize')    || 'medium';
+            const compact     = localStorage.getItem('ld_compact')     === 'true';
+            const bgAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao'; // Padrão é 'colisao'
+
+            applyTheme(theme);
+            applyFontSize(fontSize);
+            applyCompactMode(compact);
+            applyBgAnimation(bgAnimation); // Tenta aplicar a animação
+        });
+    </script>
 </head>
 <body>
 
-  <nav class="navbar">
-      <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-wiki d-flex align-items-center">
-        <img src="{{ url_for('static', filename='assets/icon2.png') }}"
-            alt="LuftDocs"
-            width="64"
-            height="64"
-            class="me-2">
-        <span>LuftDocs</span>
-      </a>
-    <div class="d-flex align-items-center">
-      <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1) }}"
-         class="btn btn-outline-dark fw-bold me-3">
-        <i class="bi bi-search"></i> Buscar
-      </a>
-      <div class="dropdown">
-        <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button"
-           id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-person-circle" style="font-size: 1.7rem;"></i>
+    <nav class="navbar">
+        <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-wiki d-flex align-items-center">
+            <img src="{{ url_for('static', filename='assets/icon2.png') }}" alt="LuftDocs" width="64" height="64" class="me-2">
+            <span>LuftDocs</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-          <li>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalMinhaConta">
-              Minha Conta
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1) }}" class="btn btn-outline-dark fw-bold me-3">
+                <i class="bi bi-search"></i> Buscar
             </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracoes">
-              Configurações
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" href="{{ url_for('index.logout') }}">
-              🔓 Logout
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Modal Minha Conta -->
-  <div class="modal fade" id="modalMinhaConta" tabindex="-1" aria-labelledby="modalMinhaContaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalMinhaContaLabel">Informações da Conta</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>Nome de Usuário:</strong> {{ session['user_name'] }}</li>
-            <li class="list-group-item"><strong>Email:</strong> {{ session['email'] }}</li>
-            <li class="list-group-item"><strong>Grupo:</strong> {{ session['user_group']['acronym'] }}</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Configurações -->
-  <div class="modal fade" id="modalConfiguracoes" tabindex="-1" aria-labelledby="modalConfigLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-
-        <div class="modal-header border-0">
-          <h5 class="modal-title" id="modalConfigLabel">
-            <i class="bi bi-gear-fill"></i> Configurações
-          </h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <ul class="nav nav-tabs mb-3" id="configTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visuais" type="button">
-                Visuais
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#operacoes" type="button">
-                Operações
-              </button>
-            </li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane fade show active" id="visuais">
-              <form id="formVisuais" class="row g-3">
-                <div class="col-md-6">
-                  <label for="selectTema" class="form-label">Tema</label>
-                  <select id="selectTema" class="form-select">
-                    <option value="light">Claro</option>
-                    <option value="dark">Escuro</option>
-                    <option value="auto">Automático</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label for="fontSize" class="form-label">Tamanho da Fonte</label>
-                  <select id="fontSize" class="form-select">
-                    <option value="small">Pequena</option>
-                    <option value="medium">Média</option>
-                    <option value="large">Grande</option>
-                    <option value="xlarge">Extra Grande</option>
-                  </select>
-                </div>
-                <div class="col-12">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="switchCompactMode">
-                    <label class="form-check-label" for="switchCompactMode">Modo Compacto</label>
-                  </div>
-                </div>
-              </form>
+            <div class="dropdown">
+                <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle" style="font-size: 1.7rem;"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalMinhaConta">Minha Conta</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracoes">Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('index.logout') }}">🔓 Logout</a></li>
+                </ul>
             </div>
-            <div class="tab-pane fade" id="operacoes">
-              <form id="formOperacoes" class="row g-3">
-                <div class="col-12 form-check">
-                  <input class="form-check-input" type="checkbox" id="notifEmail">
-                  <label class="form-check-label">Notificações por e-mail</label>
+        </div>
+    </nav>
+
+    <div class="modal fade" id="modalMinhaConta" tabindex="-1" aria-labelledby="modalMinhaContaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalMinhaContaLabel">Informações da Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="col-12 form-check">
-                  <input class="form-check-input" type="checkbox" id="autoSave">
-                  <label class="form-check-label">Auto-salvar buscas</label>
+                <div class="modal-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Nome de Usuário:</strong> {{ session['user_name'] }}</li>
+                        <li class="list-group-item"><strong>Email:</strong> {{ session['email'] }}</li>
+                        <li class="list-group-item"><strong>Grupo:</strong> {{ session['user_group']['acronym'] }}</li>
+                    </ul>
                 </div>
-                <div class="col-12">
-                  <label for="futureFeatures" class="form-label">Recursos Futuro (Beta)</label>
-                  <textarea id="futureFeatures" class="form-control" rows="2" placeholder="Sugestões..."></textarea>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
-              </form>
             </div>
-          </div>
         </div>
+    </div>
 
-        <div class="modal-footer border-0">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-primary" id="btnSalvarConfigs">
-            <i class="bi bi-save-fill"></i> Salvar
-          </button>
+    <div class="modal fade" id="modalConfiguracoes" tabindex="-1" aria-labelledby="modalConfigLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="modalConfigLabel"><i class="bi bi-gear-fill"></i> Configurações</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3" id="configTabs" role="tablist">
+                        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visuais" type="button">Visuais</button></li>
+                        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#operacoes" type="button">Operações</button></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="visuais">
+                            <form id="formVisuais" class="row g-4">
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="selectTema" class="form-label">Tema</label>
+                                    <select id="selectTema" class="form-select">
+                                        <option value="light">Claro</option>
+                                        <option value="dark">Escuro</option>
+                                        <option value="auto">Automático</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="fontSize" class="form-label">Tamanho da Fonte</label>
+                                    <select id="fontSize" class="form-select">
+                                        <option value="small">Pequena</option>
+                                        <option value="medium">Média</option>
+                                        <option value="large">Grande</option>
+                                        <option value="xlarge">Extra Grande</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="selectAnimacao" class="form-label">Animação de Fundo</label>
+                                    <select id="selectAnimacao" class="form-select">
+                                        <option value="colisao">Nova Animação</option>
+                                        <option value="original">Clássica</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="rangeQuantidade" class="form-label">(BETA) Quantidade de Ícones: <span id="labelQuantidade">50</span></label>
+                                    <input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="rangeVelocidade" class="form-label">(BETA) Velocidade da Animação: <span id="labelVelocidade">1.0x</span></label>
+                                    <input type="range" class="form-range" min="0.2" max="3.0" step="0.1" id="rangeVelocidade">
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="switchCompactMode">
+                                        <label class="form-check-label" for="switchCompactMode">Modo Compacto</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="operacoes">
+                            <form id="formOperacoes" class="row g-3">
+                                <div class="col-12 form-check">
+                                    <input class="form-check-input" type="checkbox" id="notifEmail">
+                                    <label class="form-check-label">Notificações por e-mail</label>
+                                </div>
+                                <div class="col-12 form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoSave">
+                                    <label class="form-check-label">Auto-salvar buscas</label>
+                                </div>
+                                <div class="col-12">
+                                    <label for="futureFeatures" class="form-label">Recursos Futuro (Beta)</label>
+                                    <textarea id="futureFeatures" class="form-control" rows="2" placeholder="Sugestões..."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" id="btnSalvarConfigs"><i class="bi bi-save-fill"></i> Salvar</button>
+                </div>
+            </div>
         </div>
-
-      </div>
     </div>
-  </div>
 
-  <!-- Modal Em Desenvolvimento -->
-  <div class="modal fade" id="modalDev" tabindex="-1" aria-labelledby="modalDevLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-center p-4">
-        <i class="bi bi-tools fs-1 text-warning mb-3"></i>
-        <h5 id="modalDevLabel">Ferramenta em Desenvolvimento</h5>
-        <p>Em breve estará disponível!</p>
-        <button class="btn btn-primary mt-2" data-bs-dismiss="modal">Ok</button>
-      </div>
+    <div class="modal fade" id="modalDev" tabindex="-1" aria-labelledby="modalDevLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <i class="bi bi-tools fs-1 text-warning mb-3"></i>
+                <h5 id="modalDevLabel">Ferramenta em Desenvolvimento</h5>
+                <p>Em breve estará disponível!</p>
+                <button class="btn btn-primary mt-2" data-bs-dismiss="modal">Ok</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="main">
-    {% block content %}{% endblock %}
-  </div>
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
 
-  <footer class="footer-LuftDocs">
-    LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
-  </footer>
+    <footer class="footer-LuftDocs">
+        LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
+    </footer>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
-  <script>
-    // Preenche controles com valores salvos
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('selectTema').value       = localStorage.getItem('ld_theme')    || 'light';
-      document.getElementById('fontSize').value         = localStorage.getItem('ld_fontSize') || 'medium';
-      document.getElementById('switchCompactMode').checked = localStorage.getItem('ld_compact') === 'true';
-    });
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
+    <script>
+        // Preenche os controles do modal com os valores salvos no localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('selectTema').value = localStorage.getItem('ld_theme') || 'light';
+            document.getElementById('fontSize').value = localStorage.getItem('ld_fontSize') || 'medium';
+            document.getElementById('switchCompactMode').checked = localStorage.getItem('ld_compact') === 'true';
+            document.getElementById('selectAnimacao').value = localStorage.getItem('ld_bgAnimation') || 'colisao';
+            
+            const quantidade = localStorage.getItem('ld_bg_quantity') || '50';
+            const velocidade = localStorage.getItem('ld_bg_speed') || '1.0';
+            document.getElementById('rangeQuantidade').value = quantidade;
+            document.getElementById('labelQuantidade').textContent = quantidade;
+            document.getElementById('rangeVelocidade').value = velocidade;
+            document.getElementById('labelVelocidade').textContent = `${velocidade}x`;
 
-    // Salvar e aplicar configurações
-    document.getElementById('btnSalvarConfigs').addEventListener('click', () => {
-      const theme   = document.getElementById('selectTema').value;
-      const fontSz  = document.getElementById('fontSize').value;
-      const compact = document.getElementById('switchCompactMode').checked;
-      localStorage.setItem('ld_theme', theme);
-      localStorage.setItem('ld_fontSize', fontSz);
-      localStorage.setItem('ld_compact', compact);
-      applyTheme(theme);
-      applyFontSize(fontSz);
-      applyCompactMode(compact);
-
-      const toast = document.createElement('div');
-      toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
-      toast.style.bottom = '1rem'; toast.style.right = '1rem';
-      toast.setAttribute('role','alert');
-      toast.setAttribute('aria-live','assertive');
-      toast.setAttribute('aria-atomic','true');
-      toast.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">Configurações salvas! ✅</div>
-          <button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>`;
-      document.body.append(toast);
-      new bootstrap.Toast(toast, { delay: 2000 }).show();
-      bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
-    });
-
-    // Bloquear operações em DEV
-    document.querySelectorAll('#formOperacoes input, #formOperacoes textarea').forEach(el => {
-      el.addEventListener('focus', () => {
-        new bootstrap.Modal(document.getElementById('modalDev')).show();
-        el.blur();
-      });
-    });
-
-    // Viewer.js
-    document.addEventListener('DOMContentLoaded', () => {
-      const viewerEl = document.getElementById('imagem-viewer');
-      if (viewerEl) {
-        new Viewer(viewerEl, {
-          toolbar: true, navbar: false, title: false,
-          movable: true, zoomable: true, scalable: false,
-          rotatable: false, transition: true, fullscreen: true
+            document.getElementById('rangeQuantidade').addEventListener('input', (e) => {
+                document.getElementById('labelQuantidade').textContent = e.target.value;
+            });
+            document.getElementById('rangeVelocidade').addEventListener('input', (e) => {
+                document.getElementById('labelVelocidade').textContent = `${e.target.value}x`;
+            });
         });
-      }
-    });
-  </script>
+
+        // Salva e aplica as configurações quando o botão é clicado
+        document.getElementById('btnSalvarConfigs').addEventListener('click', () => {
+            // Coleta os valores dos inputs do formulário
+            const theme       = document.getElementById('selectTema').value;
+            const fontSz      = document.getElementById('fontSize').value;
+            const compact     = document.getElementById('switchCompactMode').checked;
+            const bgAnimation = document.getElementById('selectAnimacao').value;
+            const bgQuantity  = document.getElementById('rangeQuantidade').value;
+            const bgSpeed     = document.getElementById('rangeVelocidade').value;
+            
+            // Salva os valores no localStorage
+            localStorage.setItem('ld_theme', theme);
+            localStorage.setItem('ld_fontSize', fontSz);
+            localStorage.setItem('ld_compact', compact);
+            localStorage.setItem('ld_bgAnimation', bgAnimation);
+            localStorage.setItem('ld_bg_quantity', bgQuantity);
+            localStorage.setItem('ld_bg_speed', bgSpeed);
+
+            // Aplica as configurações em tempo real
+            applyTheme(theme);
+            applyFontSize(fontSz);
+            applyCompactMode(compact);
+            applyBgAnimation(bgAnimation);
+
+            // Mostra confirmação (toast)
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
+            toastEl.style.bottom = '1rem'; toastEl.style.right = '1rem';
+            toastEl.setAttribute('role','alert');
+            toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">Configurações salvas! ✅</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+            document.body.append(toastEl);
+            new bootstrap.Toast(toastEl, { delay: 2000 }).show();
+            
+            // Fecha o modal
+            bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
+        });
+
+        // Bloqueia a aba "Operações" (em desenvolvimento)
+        document.querySelectorAll('#formOperacoes input, #formOperacoes textarea').forEach(el => {
+            el.addEventListener('focus', () => {
+                new bootstrap.Modal(document.getElementById('modalDev')).show();
+                el.blur();
+            });
+        });
+
+        // Exibe aviso de "em desenvolvimento" ao ativar Modo Compacto
+        document.getElementById('switchCompactMode').addEventListener('change', (e) => {
+            // Mostra o modal sempre que o usuário tentar ativar o modo compacto
+            if (e.target.checked) {
+                new bootstrap.Modal(document.getElementById('modalDev')).show();
+                e.target.checked = false; // opcional: desfaz a seleção
+            }
+        });
+
+        // Inicializa o Viewer.js para imagens se o elemento existir
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewerEl = document.getElementById('imagem-viewer');
+            if (viewerEl) {
+                new Viewer(viewerEl, {
+                    toolbar: true, navbar: false, title: false,
+                    movable: true, zoomable: true, scalable: false,
+                    rotatable: false, transition: true, fullscreen: true
+                });
+            }
+        });
+    </script>
 </body>
 </html>

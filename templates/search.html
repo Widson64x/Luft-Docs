@@ -1,178 +1,381 @@
 {% extends "base.html" %}
 {% block title %}Busca - LuftDocs{% endblock %}
+
 {% block content %}
-<div class="container mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <!-- CAMPO DE BUSCA -->
-            <form id="search-form"
-                  action="{{ url_for('index.index') }}"
-                  method="get"
-                  class="mb-4 d-flex align-items-center gap-2">
-                <input type="hidden" name="token" value="{{ request.args.get('token') }}">
-                <input type="hidden" name="busca" value="1">
-                <input id="busca-input" type="text" name="q"
-                       value="{{ query or '' }}"
-                       placeholder="O que você deseja saber..." autofocus
-                       class="form-control form-control-lg shadow-sm"
-                       style="max-width: 440px;">
-                <button class="btn btn-primary btn-lg" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
+<style>
+  /* Fundo animado com gradiente */
+  body {
+    background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+  }
+  @keyframes bgMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  body.theme-dark {
+    background: linear-gradient(120deg, #23263b 0%, #1e1e2f 100%);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+  }
 
-            <!-- PESQUISAS RECENTES DINÂMICAS -->
-            <div id="recentes-panel" class="row mb-4" style="display: none;">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h6 class="card-title mb-3 text-primary">
-                                <i class="bi bi-clock-history"></i> Pesquisas Recentes
-                            </h6>
-                            <ul id="recentes-list" class="list-group list-group-flush mb-0">
-                                {% for r in recentes[:8] %}
-                                    <li class="list-group-item p-2" data-busca="{{ r|lower }}">
-                                        <a href="{{ url_for('index.index',
-                                                            token=request.args.get('token'),
-                                                            busca=1,
-                                                            q=r) }}"
-                                           class="text-decoration-none">
-                                            <i class="bi bi-clock me-1"></i> {{ r }}
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li class="list-group-item p-2 text-muted">Nenhuma pesquisa recente.</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    /* --- Ícones decorativos flutuantes (CSS CORRIGIDO) --- */
+    .bg-icons {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
 
-            <!-- RESULTADOS DETALHADOS (quando há filtro/query) -->
-            {% if query %}
-                <h3 class="mb-4 fs-5 mt-5">Resultados detalhados</h3>
-                {% if resultados %}
-                    <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
-                        {% for r in resultados %}
-                            <a href="{{ url_for('index.index',
-                                                token=request.args.get('token'),
-                                                modulo=r['modulo_id']) }}"
-                               class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <i class="bi bi-search text-primary fs-5"></i>
-                                    <span class="fw-semibold fs-5">{{ r['modulo_nome'] }}</span>
-                                </div>
-                                <div class="text-muted small" style="line-height:1.6;">
-                                    ...{{ r['trecho']|safe }}...
-                                </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-warning mt-5 shadow-sm rounded-3 d-flex align-items-center gap-3" style="font-size:1.08rem;">
-                        <i class="bi bi-emoji-frown fs-2"></i>
-                        <div>
-                            Nenhum resultado encontrado.
-                            <div class="mt-1 text-secondary" style="font-size:0.97rem;">
-                                Tente outros termos ou palavras-chave!
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endif %}
+    /* A animação agora é aplicada diretamente na classe principal .bg-icon */
+    .bg-icons .bg-icon {
+        position: absolute;
+        color: rgba(13,110,253,0.13);
+        bottom: -2rem; /* Posição inicial para a animação clássica */
+        
+        /* Propriedades da animação clássica */
+        animation-name: iconRise;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
 
-            <!-- MÓDULOS MAIS ACESSADOS (quando NÃO há filtro/query) -->
-            {% if not query %}
-                <h3 class="mb-4 fs-5 mt-5">Módulos mais acessados</h3>
-                <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
-                    {% for m, count, tendencia in mais_acessados[:8] %}
-                        <a href="{{ url_for('index.index',
-                                            token=request.args.get('token'),
-                                            modulo=m['id']) }}"
-                           class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <i class="bi {{ m['icone'] }} text-success fs-5"></i>
-                                <span class="fw-semibold fs-5">{{ m['nome'] }}</span>
-                                <span class="badge rounded-pill bg-success ms-2">{{ count }} acessos</span>
-                                {% if tendencia == 1 %}
-                                    <span class="ms-2" title="Subindo">
-                                        <i class="bi bi-arrow-up-circle-fill fs-4" style="color: #198754;"></i>
-                                    </span>
-                                {% elif tendencia == -1 %}
-                                    <span class="ms-2" title="Caindo">
-                                        <i class="bi bi-arrow-down-circle-fill fs-4" style="color: #dc3545;"></i>
-                                    </span>
-                                {% else %}
-                                    <span class="ms-2" title="Estável">
-                                        <i class="bi bi-dash-circle-fill fs-4" style="color: #6c757d;"></i>
-                                    </span>
-                                {% endif %}
-                            </div>
-                            <div class="text-muted small" style="line-height:1.6;">
-                                {{ m['descricao'] or '' }}
-                            </div>
-                        </a>
-                    {% else %}
-                        <div class="list-group-item p-2 text-muted">Nenhum acesso ainda.</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+    body.theme-dark .bg-icons .bg-icon {
+        color: rgba(255,255,255,0.13);
+    }
+    
+    @keyframes iconRise {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-50vh) rotate(180deg);
+            opacity: 0.7;
+        }
+        100% {
+            transform: translateY(-100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+  /* Animações suaves */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in-up { animation: fadeInUp 0.6s ease-out both; }
+
+  /* Hover nos itens */
+  .list-group-item {
+    transition: transform 0.2s, box-shadow 0.6s;
+  }
+  .list-group-item:hover {
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  /* Painel de recentes */
+  #recentes-panel {
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    overflow: hidden;
+  }
+  #recentes-panel.collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* Dark Mode adjustments */
+  body.theme-dark .list-group-item {
+    background-color: var(--card-bg) !important;
+    color: var(--card-color) !important;
+  }
+  body.theme-dark .text-muted {
+    background-color: var(--card-bg) !important;
+    color: var(--card-color) !important;
+  }
+  body.theme-dark .list-group {
+    background-color: transparent !important;
+  }
+  body.theme-dark .alert-warning {
+    background-color: var(--surface-bg) !important;
+    color: var(--surface-color) !important;
+    border-color: var(--card-color) !important;
+  }
+</style>
+
+<!-- Ícones flutuantes -->
+<div class="bg-icons"></div>
+
+<div class="container py-5 fade-in-up" style="position: relative; z-index: 2;">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Campo de Busca Modernizado -->
+      <form id="search-form" action="{{ url_for('index.index') }}" method="get" 
+            class="position-relative mb-4 d-flex">
+        <input type="hidden" name="token" value="{{ request.args.get('token') }}">
+        <input type="hidden" name="busca" value="1">
+        <input id="busca-input" type="text" name="q" value="{{ query or '' }}"
+               placeholder="O que você deseja saber..." autofocus
+               class="form-control form-control-lg rounded-pill shadow-lg px-4 me-2"
+               style="border: none;" autocomplete="off">
+        <button class="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+                type="submit" style="width:56px; height:56px;">
+          <i class="bi bi-search fs-4"></i>
+        </button>
+      </form>
+
+      <!-- Pesquisas Recentes -->
+      <div id="recentes-panel" class="card border-0 shadow-sm mb-4 collapsed">
+        <div class="card-body">
+          <h6 class="text-primary mb-3">
+            <i class="bi bi-clock-history me-1"></i> Pesquisas Recentes
+          </h6>
+          <ul id="recentes-list" class="list-group list-group-flush">
+            {% for r in recentes[:8] %}
+            <li class="list-group-item d-flex align-items-center py-2" data-busca="{{ r|lower }}">
+              <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1, q=r) }}" 
+                 class="flex-grow-1 text-decoration-none">
+                <i class="bi bi-clock me-2"></i>{{ r }}
+              </a>
+            </li>
+            {% else %}
+            <li class="list-group-item text-muted py-2">Nenhuma pesquisa recente.</li>
+            {% endfor %}
+          </ul>
         </div>
+      </div>
+
+      <!-- Resultados Detalhados -->
+      {% if query %}
+      <section class="fade-in-up">
+        <h3 class="fs-5 mb-4 mt-5">Resultados Detalhados</h3>
+        {% if resultados %}
+        <div class="list-group shadow-sm rounded-4 overflow-hidden">
+          {% for r in resultados %}
+          <a href="{{ url_for('index.index', token=request.args.get('token'), modulo=r['modulo_id']) }}"
+             class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-search text-primary fs-5"></i>
+              <span class="fw-semibold fs-5">{{ r['modulo_nome'] }}</span>
+            </div>
+            <p class="text-muted" style="line-height:1.6;">...{{ r['trecho']|safe }}...</p>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning mt-5 shadow-sm rounded-3 d-flex align-items-center gap-3">
+          <i class="bi bi-emoji-frown fs-2"></i>
+          <div>
+            Nenhum resultado encontrado.
+            <small class="d-block mt-1 text-secondary">Tente outros termos ou palavras-chave!</small>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      <!-- Módulos Mais Acessados -->
+      {% if not query %}
+      <section class="fade-in-up">
+        <h3 class="fs-5 mb-4 mt-5">Módulos Mais Acessados</h3>
+        <div class="list-group shadow-sm rounded-4 overflow-hidden">
+          {% for m, count, tendencia in mais_acessados[:8] %}
+          <a href="{{ url_for('index.index', token=request.args.get('token'), modulo=m['id']) }}"
+             class="list-group-item list-group-item-action py-4 px-4 d-flex flex-column gap-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi {{ m['icone'] }} text-success fs-5"></i>
+              <span class="fw-semibold fs-5">{{ m['nome'] }}</span>
+              <span class="badge rounded-pill bg-success ms-2">{{ count }} acessos</span>
+              {% if tendencia == 1 %}
+              <i class="bi bi-arrow-up-circle-fill fs-4 text-success ms-2"></i>
+              {% elif tendencia == -1 %}
+              <i class="bi bi-arrow-down-circle-fill fs-4 text-danger ms-2"></i>
+              {% else %}
+              <i class="bi bi-dash-circle-fill fs-4 text-secondary ms-2"></i>
+              {% endif %}
+            </div>
+            <p class="text-muted small mb-0" style="line-height:1.6;">{{ m['descricao'] or '' }}</p>
+          </a>
+          {% else %}
+          <div class="list-group-item text-muted py-2">Nenhum acesso ainda.</div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
     </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('busca-input');
-    const recentesPanel = document.getElementById('recentes-panel');
-    const recentesList = document.getElementById('recentes-list');
-    if (!recentesList) return;
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('busca-input');
+  const panel = document.getElementById('recentes-panel');
+  const list = document.getElementById('recentes-list');
+  if (!list) return;
 
-    const allItems = Array.from(recentesList.children);
-    let noResultItem = document.createElement('li');
-    noResultItem.className = 'list-group-item p-2 text-muted';
-    noResultItem.textContent = 'Nenhuma pesquisa recente.';
+  const items = Array.from(list.children);
+  const noItem = document.createElement('li');
+  noItem.className = 'list-group-item text-muted py-2';
+  noItem.textContent = 'Nenhuma pesquisa recente.';
 
-    input.addEventListener('input', function() {
-        const valor = input.value.trim().toLowerCase();
-        if (valor.length > 0) {
-            recentesPanel.style.display = '';
-            let encontrou = false;
-            allItems.forEach(li => {
-                const texto = (li.getAttribute('data-busca') || '').toLowerCase();
-                if (texto.includes(valor)) {
-                    li.style.display = '';
-                    encontrou = true;
-                } else {
-                    li.style.display = 'none';
-                }
-            });
-            if (!encontrou) {
-                if (!recentesList.contains(noResultItem)) {
-                    recentesList.appendChild(noResultItem);
-                }
-            } else {
-                if (recentesList.contains(noResultItem)) {
-                    recentesList.removeChild(noResultItem);
-                }
-            }
+  input.addEventListener('input', () => {
+    const term = input.value.trim().toLowerCase();
+    if (term) {
+      panel.classList.remove('collapsed');
+      let found = false;
+      items.forEach(li => {
+        const text = (li.dataset.busca || '').toLowerCase();
+        if (text.includes(term)) {
+          li.style.display = '';
+          found = true;
         } else {
-            recentesPanel.style.display = 'none';
+          li.style.display = 'none';
         }
-    });
+      });
+      if (!found && !list.contains(noItem)) list.appendChild(noItem);
+      if (found && list.contains(noItem)) list.removeChild(noItem);
+    } else {
+      panel.classList.add('collapsed');
+    }
+  });
 
-    document.addEventListener('click', function(e) {
-        if (!input.contains(e.target) && !recentesPanel.contains(e.target)) {
-            recentesPanel.style.display = 'none';
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !panel.contains(e.target)) {
+      panel.classList.add('collapsed');
+    }
+  });
+
+  document.getElementById('search-form').addEventListener('submit', () => {
+    panel.classList.add('collapsed');
+  });
+  
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.bg-icons');
+    let animationFrameId = null;
+
+    // =========================================================================
+    // MODIFICADO: Lendo todos os parâmetros de animação do localStorage
+    // =========================================================================
+    function getAnimationParameters() {
+        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
+        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
+        // Aleatoriedade pode ser derivada da velocidade ou ser um parâmetro próprio.
+        // Aqui, usaremos a velocidade para influenciar a variação.
+        const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
+        return { quantity, speedFactor, randomnessFactor };
+    }
+
+    // --- LÓGICA DA ANIMAÇÃO Nº 1: ÍCONES COM COLISÃO (MODIFICADA) ---
+    function iniciarAnimacaoComColisao() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        const iconsData = [];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(availableIcons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const el = document.createElement('i');
+                    // A aleatoriedade influencia o tamanho
+                    const size = (Math.random() * 32 * randomnessFactor + 16);
+                    
+                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
+                    el.style.fontSize = `${size}px`;
+                    el.style.animation = 'none';
+                    el.style.bottom = 'auto';
+                    
+                    container.appendChild(el);
+
+                    iconsData.push({
+                        element: el,
+                        x: Math.random() * (screenWidth - size),
+                        y: Math.random() * (screenHeight - size),
+                        // A velocidade e aleatoriedade influenciam o movimento
+                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        size: size
+                    });
+                }
+                animate();
+            })
+            .catch(console.error);
+
+        function animate() {
+            // ... a função animate interna continua exatamente a mesma ...
+            iconsData.forEach((icon, index) => {
+                icon.x += icon.dx;
+                icon.y += icon.dy;
+                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
+                if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+                for (let i = index + 1; i < iconsData.length; i++) {
+                    const otherIcon = iconsData[i];
+                    const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
+                    const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
+                    const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+                    const minDistance = (icon.size / 2) + (otherIcon.size / 2);
+                    if (distance < minDistance) {
+                        [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
+                        [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
+                    }
+                }
+                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
+            });
+            animationFrameId = requestAnimationFrame(animate);
         }
-    });
+    }
 
-    document.getElementById('search-form').addEventListener('submit', function() {
-        recentesPanel.style.display = 'none';
-    });
+    // --- LÓGICA DA ANIMAÇÃO Nº 2: ÍCONES SUBINDO (MODIFICADA) ---
+    function iniciarAnimacaoOriginal() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(icons => {
+                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                    const cls = icons[Math.floor(Math.random() * icons.length)];
+                    const el = document.createElement('i');
+                    el.className = `bi ${cls} bg-icon`;
+                    
+                    // A aleatoriedade influencia a faixa de tamanhos
+                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
+                    
+                    // A velocidade influencia a duração (menor duração = mais rápido)
+                    const baseDuration = 10 + Math.random() * 10;
+                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
+                    
+                    container.appendChild(el);
+                }
+            })
+            .catch(console.error);
+    }
 
-    recentesPanel.style.display = 'none';
+    // --- FUNÇÃO CONTROLADORA (permanece a mesma) ---
+    window.mudarAnimacao = function(modo) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        container.innerHTML = '';
+
+        if (modo === 'original') {
+            iniciarAnimacaoOriginal();
+        } else {
+            iniciarAnimacaoComColisao();
+        }
+    }
+
+    // --- INICIA A ANIMAÇÃO (permanece a mesma) ---
+    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
+    mudarAnimacao(savedAnimation);
 });
 </script>
+
 {% endblock %}

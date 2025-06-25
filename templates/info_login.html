@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acesso via Luft Informa — LuftDocs</title>
-  <!-- Favicon padrão -->
+  <!-- Ícones e Bootstrap -->
   <link rel="shortcut icon" href="{{ url_for('static', filename='assets/icon2.png') }}" type="image/png">
   <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,72 +17,218 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
     .info-container {
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      max-width: 450px;
-      width: 90%;
-      padding: 2.5rem;
+      border-radius: 18px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.13);
+      max-width: 430px;
+      width: 92%;
+      padding: 2.7rem 2rem 2.2rem 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
+      z-index: 2;
+      animation: floatIn 1.1s cubic-bezier(.68,-0.55,.27,1.55);
     }
-    .info-container::before {
-      content: '';
+    @keyframes floatIn {
+      0% { transform: translateY(60px) scale(0.95); opacity: 0; }
+      80% { transform: translateY(-8px) scale(1.03); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .info-bubble {
       position: absolute;
-      top: -60px;
-      right: -60px;
-      width: 200px;
-      height: 200px;
-      background: rgba(0, 123, 255, 0.15);
       border-radius: 50%;
-      transform: rotate(45deg);
-      z-index: -1;
+      opacity: 0.18;
+      z-index: 1;
+      animation: bubbleMove 8s infinite linear alternate;
+    }
+    .bubble1 {
+      width: 180px; height: 180px;
+      background: #0d6efd;
+      top: -60px; left: -60px;
+      animation-delay: 0s;
+    }
+    .bubble2 {
+      width: 120px; height: 120px;
+      background: #00c9a7;
+      bottom: -40px; right: -40px;
+      animation-delay: 2s;
+    }
+    .bubble3 {
+      width: 70px; height: 70px;
+      background: #ffc107;
+      top: 30px; right: -30px;
+      animation-delay: 4s;
+    }
+    @keyframes bubbleMove {
+      0% { transform: scale(1) translateY(0);}
+      100% { transform: scale(2.08) translateY(18px);}
     }
     .info-icon {
-      font-size: 4rem;
+      font-size: 4.5rem;
       color: #0d6efd;
-      margin-bottom: 1rem;
+      margin-bottom: 1.1rem;
       animation: pulse 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px #b6e0fe);
+      transition: color 0.3s;
+    }
+    .info-icon:hover {
+      color: #00c9a7;
+      filter: drop-shadow(0 0 16px #00c9a7);
     }
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      0%, 100% { transform: scale(1);}
+      50% { transform: scale(1.13);}
     }
     .info-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 1.1rem;
       color: #212529;
+      letter-spacing: 0.5px;
+      animation: fadeInDown 1.2s;
+    }
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-30px);}
+      100% { opacity: 1; transform: translateY(0);}
     }
     .info-text {
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.08rem;
+      margin-bottom: 1.7rem;
       color: #555;
-      line-height: 1.5;
+      line-height: 1.6;
+      animation: fadeInUp 1.2s;
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px);}
+      100% { opacity: 1; transform: translateY(0);}
     }
     .info-footer {
-      margin-top: 2rem;
-      font-size: 0.875rem;
+      margin-top: 2.2rem;
+      font-size: 0.93rem;
       color: #999;
+      letter-spacing: 0.2px;
+      animation: fadeIn 2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0;}
+      to { opacity: 1;}
+    }
+    .app-btn {
+      display: inline-block;
+      margin-top: 1.2rem;
+      padding: 0.7rem 1.6rem;
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(90deg, #0d6efd 60%, #00c9a7 100%);
+      border: none;
+      border-radius: 2rem;
+      box-shadow: 0 4px 16px rgba(13,110,253,0.13);
+      transition: background 0.3s, transform 0.2s;
+      cursor: pointer;
+      animation: fadeInUp 1.3s 0.3s backwards;
+    }
+    .app-btn:hover {
+      background: linear-gradient(90deg, #00c9a7 60%, #0d6efd 100%);
+      transform: scale(1.06);
+    }
+    /* Área de animação logística */
+    .logistics-animation {
+      margin: 0 auto 1.2rem auto;
+      width: 90px;
+      height: 70px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+    .logistics-svg {
+      position: absolute;
+      opacity: 0.92;
+      filter: drop-shadow(0 2px 8px #0d6efd22);
+      animation-timing-function: cubic-bezier(.4,2,.3,1);
+    }
+    .truck-anim {
+      left: 0; top: 18px; width: 54px; height: 32px;
+      animation: truckMove 2.8s infinite alternate;
+    }
+    .forklift-anim {
+      right: 0; top: 30px; width: 36px; height: 28px;
+      animation: forkliftMove 2.2s infinite alternate;
+      animation-delay: 0.7s;
+    }
+    .box-anim {
+      left: 28px; top: 0; width: 28px; height: 28px;
+      animation: boxMove 2.4s infinite alternate;
+      animation-delay: 1.1s;
+    }
+    @keyframes truckMove {
+      0% { transform: translateX(0) scale(1);}
+      100% { transform: translateX(10px) scale(1.07);}
+    }
+    @keyframes forkliftMove {
+      0% { transform: translateY(0) scale(1);}
+      100% { transform: translateY(-8px) scale(1.08);}
+    }
+    @keyframes boxMove {
+      0% { transform: translateY(0) rotate(-6deg);}
+      100% { transform: translateY(8px) rotate(8deg);}
     }
   </style>
 </head>
 <body>
+  <!-- Bolhas decorativas animadas -->
+  <div class="info-bubble bubble1"></div>
+  <div class="info-bubble bubble2"></div>
+  <div class="info-bubble bubble3"></div>
   <div class="info-container">
+    <!-- Animação logística -->
+    <div class="logistics-animation">
+      <!-- Caminhão -->
+      <svg class="logistics-svg truck-anim" viewBox="0 0 54 32" fill="none">
+        <rect x="2" y="10" width="28" height="14" rx="3" fill="#0d6efd"/>
+        <rect x="30" y="16" width="14" height="8" rx="2" fill="#ffc107"/>
+        <circle cx="10" cy="26" r="4" fill="#23263b"/>
+        <circle cx="34" cy="26" r="4" fill="#23263b"/>
+        <rect x="6" y="14" width="8" height="6" rx="1" fill="#fff"/>
+      </svg>
+      <!-- Empilhadeira -->
+      <svg class="logistics-svg forklift-anim" viewBox="0 0 36 28" fill="none">
+        <rect x="4" y="12" width="16" height="8" rx="2" fill="#00c9a7"/>
+        <rect x="20" y="16" width="8" height="4" rx="1" fill="#adb5bd"/>
+        <circle cx="10" cy="22" r="3" fill="#23263b"/>
+        <circle cx="22" cy="22" r="3" fill="#23263b"/>
+        <rect x="28" y="18" width="4" height="2" fill="#ffc107"/>
+      </svg>
+      <!-- Caixa -->
+      <svg class="logistics-svg box-anim" viewBox="0 0 28 28" fill="none">
+        <rect x="4" y="6" width="20" height="14" rx="3" fill="#ffc107"/>
+        <rect x="8" y="10" width="12" height="6" rx="2" fill="#fff3cd"/>
+        <rect x="12" y="6" width="4" height="14" fill="#ffecb3"/>
+      </svg>
+    </div>
+    <!-- Ícone de informação -->
     <i class="bi bi-info-circle-fill info-icon"></i>
+    <!-- Título -->
     <h2 class="info-title">Acesso Restrito</h2>
+    <!-- Texto explicativo -->
     <p class="info-text">
-      Este sistema só pode ser acessado através do Luft Informa.<br>
+      Este sistema só pode ser acessado através do <b>Luft Informa</b>.<br>
       Por favor, abra o aplicativo Luft Informa para navegar nos módulos do LuftDocs.
     </p>
+    <!-- Botão para baixar o app -->
+    <button class="app-btn" onclick="window.open('https://luftexpress.com.br/atual/', '_blank')">
+      <i class="bi bi-download"></i> Baixar Luft Informa
+    </button>
+    <!-- Rodapé -->
     <div class="info-footer">
-      &copy; 2025 LuftDocs — Feito por Widson
+      &copy; 2025 LuftDocs
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
