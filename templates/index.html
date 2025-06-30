@@ -220,6 +220,7 @@
             max-height: 320px;
         }
     }
+
 </style>
 
 <div class="bg-icons"></div>
@@ -227,15 +228,12 @@
 <div class="container my-5 position-relative" style="z-index:2;">
     <div class="mb-4 text-end d-flex justify-content-end gap-2">
         {% if can_access_editor %}
-            <a href="/editor/?token={{ request.args.get('token') }}"
-               class="btn btn-outline-dark modern-btn">
-                <i class="bi bi-pencil-square"></i>
-                Acessar editor de conteúdos
+            <a href="/editor/?token={{ request.args.get('token') }}" class="btn btn-outline-dark modern-btn">
+                <i class="bi bi-pencil-square"></i> Acessar editor de conteúdos
             </a>
         {% endif %}
         {% if can_access_permissions_menu %}
-            <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}"
-               class="btn btn-outline-dark modern-btn">
+            <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
                 <i class="bi bi-shield-lock"></i> Gerenciar permissões
             </a>
         {% endif %}
@@ -251,15 +249,18 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="Title mb-0">Módulos do LuftDocs</h1>
-        <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1) }}" class="btn btn-outline-dark fw-bold">
-            <i class="bi bi-search"></i>
-        </a>
+        <div class="position-relative" style="min-width: 250px;">
+            <input type="text" id="filterInput" class="form-control ps-4" placeholder="Filtrar módulos...">
+            <i class="bi bi-search position-absolute top-50 translate-middle-y" style="left: 5px; color: #6c757d;"></i>
+        </div>
     </div>
-    <div class="row g-4">
+
+    <div class="row g-4" id="modules-row">
         {% for m in modulos %}
-            <div class="col-12 col-sm-6 col-md-4 d-flex">
+            <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
                 <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: {{ loop.index0 }}">
                     <div class="card-body">
                         <i class="bi {{ m['icone'] }} display-4 text-primary mb-3"></i>
@@ -267,13 +268,11 @@
                         <p class="card-text">{{ m['descricao'] }}</p>
                     </div>
                     <div class="pb-3 text-center">
-                        <a class="btn btn-outline-primary modern-btn me-2"
-                           href="{{ url_for('index.index', token=request.args.get('token'), modulo=m['id']) }}">
+                        <a class="btn btn-outline-primary modern-btn me-2" href="{{ url_for('index.index', token=request.args.get('token'), modulo=m['id']) }}">
                             <i class="bi bi-search"></i> Ver módulo
                         </a>
                         {% if can_view_tecnico %}
-                            <a class="btn btn-outline-secondary modern-btn ms-2"
-                               href="{{ url_for('index.index', token=request.args.get('token'), modulo_tecnico=m['id']) }}">
+                            <a class="btn btn-outline-secondary modern-btn ms-2" href="{{ url_for('index.index', token=request.args.get('token'), modulo_tecnico=m['id']) }}">
                                 <i class="bi bi-tools"></i> Módulo Técnico
                             </a>
                         {% endif %}
@@ -281,131 +280,183 @@
                 </div>
             </div>
         {% endfor %}
+        <div id="no-results-message" class="col-12 text-center py-5" style="display: none;">
+            <i class="bi bi-emoji-frown fs-1 text-muted"></i>
+            <h4 class="mt-3">Nenhum módulo encontrado</h4>
+            <p class="text-muted">Tente ajustar os termos da sua busca.</p>
+        </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const container = document.querySelector('.bg-icons');
-    let animationFrameId = null;
+    const filterInput = document.getElementById('filterInput');
+    const modulesRow = document.getElementById('modules-row');
+    const moduleCards = Array.from(document.querySelectorAll('.module-card-wrapper')); // Convert NodeList to Array
+    const noResultsMessage = document.getElementById('no-results-message');
 
-    // =========================================================================
-    // MODIFICADO: Lendo todos os parâmetros de animação do localStorage
-    // =========================================================================
-    function getAnimationParameters() {
-        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
-        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
-        // Aleatoriedade pode ser derivada da velocidade ou ser um parâmetro próprio.
-        // Aqui, usaremos a velocidade para influenciar a variação.
-        const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
-        return { quantity, speedFactor, randomnessFactor };
-    }
+    filterInput.addEventListener('input', () => {
+        const filterText = filterInput.value.toLowerCase().trim();
+        let visibleCardsCount = 0;
+        const similarCards = [];
+        const matchingCards = [];
+        const otherCards = [];
 
-    // --- LÓGICA DA ANIMAÇÃO Nº 1: ÍCONES COM COLISÃO (MODIFICADA) ---
-    function iniciarAnimacaoComColisao() {
-        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
-        const iconsData = [];
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
+        moduleCards.forEach(cardWrapper => {
+            const titleElement = cardWrapper.querySelector('.card-title');
+            const descriptionElement = cardWrapper.querySelector('.card-text');
 
-        fetch('{{ url_for("static", filename="data/icons.json") }}')
-            .then(res => res.json())
-            .then(availableIcons => {
-                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
-                    const el = document.createElement('i');
-                    // A aleatoriedade influencia o tamanho
-                    const size = (Math.random() * 32 * randomnessFactor + 16);
-                    
-                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
-                    el.style.fontSize = `${size}px`;
-                    el.style.animation = 'none';
-                    el.style.bottom = 'auto';
-                    
-                    container.appendChild(el);
+            if (titleElement && descriptionElement) {
+                const title = titleElement.textContent.toLowerCase();
+                const description = descriptionElement.textContent.toLowerCase();
+                const fullText = `${title} ${description}`;
 
-                    iconsData.push({
-                        element: el,
-                        x: Math.random() * (screenWidth - size),
-                        y: Math.random() * (screenHeight - size),
-                        // A velocidade e aleatoriedade influenciam o movimento
-                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
-                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
-                        size: size
-                    });
+                cardWrapper.style.display = 'none'; // Initially hide all cards
+                cardWrapper.style.visibility = 'hidden';
+
+                if (filterText === "") {
+                    otherCards.push(cardWrapper);
+                    visibleCardsCount++;
+                } else if (fullText.includes(filterText)) {
+                    matchingCards.push(cardWrapper);
+                    visibleCardsCount++;
+                } else if (fullText.split(" ").some(word => filterText.split(" ").includes(word) && word.length > 2)) { // Check for similar words (longer than 2 letters)
+                    similarCards.push(cardWrapper);
+                    visibleCardsCount++;
+                } else {
+                    otherCards.push(cardWrapper);
                 }
-                animate();
-            })
-            .catch(console.error);
+            }
+        });
 
-        function animate() {
-            // ... a função animate interna continua exatamente a mesma ...
-            iconsData.forEach((icon, index) => {
-                icon.x += icon.dx;
-                icon.y += icon.dy;
-                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
-                if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
-                for (let i = index + 1; i < iconsData.length; i++) {
-                    const otherIcon = iconsData[i];
-                    const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
-                    const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
-                    const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
-                    const minDistance = (icon.size / 2) + (otherIcon.size / 2);
-                    if (distance < minDistance) {
-                        [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
-                        [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
-                    }
-                }
-                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
-            });
-            animationFrameId = requestAnimationFrame(animate);
-        }
-    }
+        // Clear the current order
+        modulesRow.innerHTML = '';
 
-    // --- LÓGICA DA ANIMAÇÃO Nº 2: ÍCONES SUBINDO (MODIFICADA) ---
-    function iniciarAnimacaoOriginal() {
-        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
-        
-        fetch('{{ url_for("static", filename="data/icons.json") }}')
-            .then(res => res.json())
-            .then(icons => {
-                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
-                    const cls = icons[Math.floor(Math.random() * icons.length)];
-                    const el = document.createElement('i');
-                    el.className = `bi ${cls} bg-icon`;
-                    
-                    // A aleatoriedade influencia a faixa de tamanhos
-                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
-                    el.style.left = `${Math.random() * 100}%`;
-                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
-                    
-                    // A velocidade influencia a duração (menor duração = mais rápido)
-                    const baseDuration = 10 + Math.random() * 10;
-                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
-                    
-                    container.appendChild(el);
-                }
-            })
-            .catch(console.error);
-    }
+        // Append similar cards, then matching cards, then the rest
+        [...similarCards, ...matchingCards, ...otherCards].forEach(card => {
+            modulesRow.appendChild(card);
+            if (filterText === "" || similarCards.includes(card) || matchingCards.includes(card)) {
+                card.style.display = 'flex';
+                card.style.visibility = 'visible';
+            }
+        });
 
-    // --- FUNÇÃO CONTROLADORA (permanece a mesma) ---
-    window.mudarAnimacao = function(modo) {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-        container.innerHTML = '';
-
-        if (modo === 'original') {
-            iniciarAnimacaoOriginal();
+        if (visibleCardsCount === 0 && filterText !== "") {
+            noResultsMessage.style.display = 'block';
         } else {
-            iniciarAnimacaoComColisao();
+            noResultsMessage.style.display = 'none';
         }
-    }
-
-    // --- INICIA A ANIMAÇÃO (permanece a mesma) ---
-    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
-    mudarAnimacao(savedAnimation);
+    });
 });
+
+// =========================================================================
+// LÓGICA ORIGINAL DA ANIMAÇÃO DE FUNDO (não modificada)
+// =========================================================================
+const container = document.querySelector('.bg-icons');
+let animationFrameId = null;
+
+function getAnimationParameters() {
+    const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
+    const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
+    const randomnessFactor = 1 + (speedFactor - 1) * 0.5;
+    return { quantity, speedFactor, randomnessFactor };
+}
+
+function iniciarAnimacaoComColisao() {
+    const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+    const iconsData = [];
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    fetch('{{ url_for("static", filename="data/icons.json") }}')
+        .then(res => res.json())
+        .then(availableIcons => {
+            for (let i = 0; i < quantity; i++) {
+                const el = document.createElement('i');
+                const size = (Math.random() * 32 * randomnessFactor + 16);
+
+                el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
+                el.style.fontSize = `${size}px`;
+                el.style.animation = 'none';
+                el.style.bottom = 'auto';
+
+                container.appendChild(el);
+
+                iconsData.push({
+                    element: el,
+                    x: Math.random() * (screenWidth - size),
+                    y: Math.random() * (screenHeight - size),
+                    dx: (Math.random() - 0.5) * 1.5 * speedFactor,
+                    dy: (Math.random() - 0.5) * 1.5 * speedFactor,
+                    size: size
+                });
+            }
+            animate();
+        })
+        .catch(console.error);
+
+    function animate() {
+        iconsData.forEach((icon, index) => {
+            icon.x += icon.dx;
+            icon.y += icon.dy;
+            if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
+            if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+            for (let i = index + 1; i < iconsData.length; i++) {
+                const otherIcon = iconsData[i];
+                const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
+                const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
+                const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+                const minDistance = (icon.size / 2) + (otherIcon.size / 2);
+                if (distance < minDistance) {
+                    [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
+                    [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
+                }
+            }
+            icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
+        });
+        animationFrameId = requestAnimationFrame(animate);
+    }
+}
+
+function iniciarAnimacaoOriginal() {
+    const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+
+    fetch('{{ url_for("static", filename="data/icons.json") }}')
+        .then(res => res.json())
+        .then(icons => {
+            for (let i = 0; i < quantity; i++) {
+                const cls = icons[Math.floor(Math.random() * icons.length)];
+                const el = document.createElement('i');
+                el.className = `bi ${cls} bg-icon`;
+
+                el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
+                el.style.left = `${Math.random() * 100}%`;
+                el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
+
+                const baseDuration = 10 + Math.random() * 10;
+                el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
+
+                container.appendChild(el);
+            }
+        })
+        .catch(console.error);
+}
+
+window.mudarAnimacao = function(modo) {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    container.innerHTML = '';
+
+    if (modo === 'original') {
+        iniciarAnimacaoOriginal();
+    } else {
+        iniciarAnimacaoComColisao();
+    }
+}
+
+const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
+mudarAnimacao(savedAnimation);
 </script>
 {% endblock %}

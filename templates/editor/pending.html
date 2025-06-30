@@ -7,14 +7,14 @@
 
 <style>
 /* ===================================================================
-   PENDING.HTML - DESIGN "DASHBOARD DE TRIAGEM" (NOVO)
-   + MODAL DE COMPARAÇÃO (ORIGINAL RESTAURADO E TEMÁTICO)
-   =================================================================== */
+    PENDING.HTML - DESIGN "DASHBOARD DE TRIAGEM" (NOVO)
+    + MODAL DE COMPARAÇÃO (ORIGINAL RESTAURADO E TEMÁTICO)
+    =================================================================== */
 
 /* --- Variáveis de Tema para esta Página --- */
 :root {
   --page-bg: #f3f6fc;
-  --text-primary: #1e293b;
+  --text-primary: #64748b;
   --text-secondary: #64748b;
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
@@ -25,6 +25,22 @@
   --panel-bg: #f8f9fa;
   --panel-header-bg: #f1f3f4;
 }
+
+/* Dark Mode Variables */
+body[data-bs-theme="dark"] {
+  --page-bg: #1a202c; /* Darker background */
+  --text-primary: #f8f9fa; /* White text for primary elements */
+  --text-secondary: #a0aec0; /* Lighter gray for secondary text */
+  --card-bg: #2d3748; /* Darker card background */
+  --border-color: #4a5568; /* Darker border */
+  --shadow-color: rgba(0, 0, 0, 0.3); /* Darker shadow */
+  --accent-color: #0d6efd; /* Keep accent color same or adjust if needed */
+
+  /* Cores do Modal Original - Tema Escuro */
+  --panel-bg: #2d3748;
+  --panel-header-bg: #4a5568;
+}
+
 
 body { background-color: var(--page-bg); transition: background-color 0.3s; }
 
@@ -41,7 +57,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 }
 
 .pending-header h1 {
-  color: var(--text-primary);
+  color: var(--text-primary); /* Uses text-primary variable */
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -92,7 +108,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 }
 
 .item-info .module-name {
-  color: var(--text-primary);
+  color: var(--text-primary); /* Uses text-primary variable */
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -116,11 +132,13 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 /* --- MODAL DE COMPARAÇÃO (ESTILO ORIGINAL RESTAURADO + TEMA) --- */
 .modal-xxl { max-width: 95vw; }
 
-#diffModal .modal-content {
+#diffModal .modal-content .pending-header{
   background-color: var(--card-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
+
+
 #diffModal .modal-header {
   background-color: var(--panel-header-bg);
   border-bottom: 1px solid var(--border-color);
@@ -214,7 +232,6 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   {% endif %}
 </div>
 
-<!-- Modal para exibir a comparação lado a lado -->
 <div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xxl modal-dialog-scrollable">
     <div class="modal-content">
@@ -232,7 +249,6 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
             <span class="ms-2 text-muted small">Destaques: <mark style="background:#d4fcbc">adicionado</mark>, <mark style="background:#ffe6e6;text-decoration:line-through;">removido</mark></span>
           </div>
         </div>
-        <!-- Documentação Normal -->
         <div class="row mb-5">
           <div class="col-12">
             <h5 class="mb-3"><i class="bi bi-file-text"></i> Documentação</h5>
@@ -246,7 +262,6 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
             <div class="comparison-panel" id="doc-pendente"></div>
           </div>
         </div>
-        <!-- Documentação Técnica -->
         <div class="row">
           <div class="col-12">
             <h5 class="mb-3"><i class="bi bi-tools"></i> Documentação Técnica</h5>
@@ -270,6 +285,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 </div>
 
 <style>
+/* This style block is duplicated and should be removed or merged */
 .modal-xxl { max-width: 98vw; }
 .panel-header {
   font-weight: 500;

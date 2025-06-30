@@ -1,456 +1,584 @@
 {% extends "base.html" %}
 {% block title %}Editar Módulo: {{ modulo.nome }}{% endblock %}
+
 {% block content %}
 <style>
-  body {
-    background: linear-gradient(120deg, #e9f0fa 0%, #f7fafd 100%);
-  }
-  .wikidocs-main-card {
-    background: #fff;
-    border-radius: 22px;
-    box-shadow: 0 6px 36px rgba(13,110,253,0.10);
-    padding: 2.5rem 3.5rem 2.5rem 3.5rem;
-    margin-bottom: 2.5rem;
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1.5px solid #e3eaf7;
-  }
-  .wikidocs-header-row {
-    display: flex;
-    gap: 2.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 2.5rem;
-    align-items: flex-start;
-  }
-  .wikidocs-header-row .form-section-card {
-    flex: 1 1 420px;
-    min-width: 370px;
-    max-width: 600px;
-    background: #f8fafd;
-    border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(13,110,253,0.04);
-    padding: 2rem 2rem 1.5rem 2rem;
-    border: 1.5px solid #e3eaf7;
-  }
-  .wikidocs-editor-row {
-    display: flex;
-    gap: 2.5rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-  }
-  .wikidocs-editor-row .form-section-card {
-    flex: 1 1 700px;
-    min-width: 500px;
-    max-width: 100%;
-    background: #f8fafd;
-    border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(13,110,253,0.04);
-    padding: 2rem 2rem 1.5rem 2rem;
-    border: 1.5px solid #e3eaf7;
-  }
-  @media (max-width: 1400px) {
-    .wikidocs-main-card { padding: 1.2rem 0.5rem; }
-    .wikidocs-header-row, .wikidocs-editor-row { flex-direction: column; gap: 1.2rem; }
-    .wikidocs-header-row .form-section-card, .wikidocs-editor-row .form-section-card { min-width: 0; }
-  }
-  .form-floating > .form-control, .form-floating > .form-select, .form-control {
-    border-radius: 12px;
-    border: 1.5px solid #d0d7e2;
-    background: #f7fafd;
-    font-size: 1.13rem;
-    box-shadow: none;
-    transition: border-color 0.2s, background 0.2s;
-    padding: 1.1rem 1.1rem 0.6rem 1.1rem;
-  }
-  .form-floating > .form-control:focus, .form-control:focus {
-    border-color: #0d6efd;
-    background: #fff;
-  }
-  .form-label, .editor-label {
-    font-weight: 700;
-    color: #0d6efd;
-    margin-bottom: 0.5rem;
-    font-size: 1.15rem;
-    letter-spacing: 0.01em;
-  }
-  .input-group-text {
-    font-size: 2.2rem;
-    min-width: 3.2rem;
-    background: #f7fafd;
-    border: 1.5px solid #d0d7e2;
-    border-radius: 12px 0 0 12px;
-    transition: border-color 0.2s;
-    padding: 0.4rem 1rem;
-  }
-  #iconePreview {
-    border-radius: 12px;
-    border: 1.5px solid #d0d7e2;
-    background: #f7fafd;
-    transition: border-color 0.2s, background 0.2s;
-    font-size: 2.2rem;
-    padding: 0.3rem 0.9rem;
-  }
-  #iconePreview:hover {
-    border-color: #0d6efd;
-    background: #e7f1ff;
-  }
-  .editor-toolbar-btns {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .tui-editor-defaultUI, .toastui-editor-defaultUI {
-    border-radius: 18px !important;
-    border: 2px solid #0d6efd !important;
-    box-shadow: 0 4px 24px rgba(13,110,253,0.10);
-    background: #fff;
-    min-height: 700px !important;
-    margin-bottom: 2rem;
-    width: 100% !important;
-    max-width: 100% !important;
-    font-size: 1.13rem;
-  }
-  .modal-content {
-    border-radius: 18px;
-    box-shadow: 0 8px 40px rgba(13,110,253,0.13);
-    border: 1.5px solid #e3eaf7;
-  }
-  .icon-modal-search {
-    margin-bottom: 1.2rem;
-    border-radius: 10px;
-    border: 1.5px solid #d0d7e2;
-    background: #f7fafd;
-    font-size: 1.13rem;
-    padding: 0.7rem 1.1rem;
-  }
-  #iconGrid .icon-btn {
-    transition: box-shadow 0.2s, border-color 0.2s;
-    border-radius: 10px;
-    font-size: 2rem;
-    padding: 0.5rem 0.9rem;
-  }
-  #iconGrid .icon-btn.border-primary {
-    box-shadow: 0 0 0 2px #0d6efd;
-    background: #e7f1ff;
-    border-color: #0d6efd !important;
-  }
-  .btn-lg, .btn {
-    border-radius: 12px;
-    font-size: 1.18rem;
-    padding: 0.85rem 2.5rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    transition: box-shadow 0.2s, background 0.2s;
-  }
-  .btn-primary, .btn-success {
-    box-shadow: 0 2px 12px rgba(13,110,253,0.13);
-  }
-  .btn-outline-secondary {
-    background: #f7fafd;
-    border: 1.5px solid #d0d7e2;
-    color: #0d6efd;
-  }
-  .btn-outline-secondary:hover {
-    background: #e7f1ff;
-    color: #0d6efd;
-    border-color: #0d6efd;
-  }
-  .form-text.text-muted {
-    font-size: 1.01rem;
-    color: #7a8ca3 !important;
-  }
-  /* Modern scrollbar for editors */
-  .toastui-editor-contents, .toastui-editor-md-preview, .toastui-editor-md-container {
-    scrollbar-width: thin;
-    scrollbar-color: #b6d0fa #f7fafd;
-    
-  }
-  .toastui-editor-contents::-webkit-scrollbar, .toastui-editor-md-preview::-webkit-scrollbar, .toastui-editor-md-container::-webkit-scrollbar {
-    width: 8px;
-    background: #f7fafd;
-  }
-  .toastui-editor-contents::-webkit-scrollbar-thumb, .toastui-editor-md-preview::-webkit-scrollbar-thumb, .toastui-editor-md-container::-webkit-scrollbar-thumb {
-    background: #b6d0fa;
-    border-radius: 8px;
-  }
-  .toastui-editor-contents {
-    white-space: pre-wrap !important;
-  }
+    /*
+     * Estilos específicos para layout e responsividade.
+     * Cores e fundos serão gerenciados pelas variáveis CSS do base.html.
+     */
+
+    /* Contêiner principal da página de edição */
+    .wikidocs-main-card {
+        border-radius: 22px;
+        /* Usamos RGBA para sombras para que a opacidade funcione bem em temas claros/escuros */
+        box-shadow: 0 6px 36px rgba(var(--shadow-rgb, 13, 110, 253), 0.10);
+        padding: 2.5rem 3.5rem;
+        margin-bottom: 2.5rem;
+        max-width: 1600px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1.5px solid var(--bs-border-color); /* Usa a variável de borda do Bootstrap */
+    }
+
+    /* Linha do cabeçalho com metadados do módulo */
+    .wikidocs-header-row {
+        display: flex;
+        gap: 2.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+        align-items: flex-start;
+    }
+
+    /* Cartões dentro da linha do cabeçalho */
+    .wikidocs-header-row .form-section-card {
+        flex: 1 1 420px;
+        min-width: 370px;
+        max-width: 600px;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(var(--shadow-rgb, 13, 110, 253), 0.04);
+        padding: 2rem 2rem 1.5rem 2rem;
+        border: 1.5px solid var(--bs-border-color);
+    }
+
+    /* Linha dos editores de conteúdo */
+    .wikidocs-editor-row {
+        display: flex;
+        gap: 2.5rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    /* Cartões dentro da linha dos editores */
+    .wikidocs-editor-row .form-section-card {
+        flex: 1 1 700px;
+        min-width: 500px;
+        max-width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(var(--shadow-rgb, 13, 110, 253), 0.04);
+        padding: 2rem 2rem 1.5rem 2rem;
+        border: 1.5px solid var(--bs-border-color);
+    }
+
+    /* Media queries para responsividade */
+    @media (max-width: 1400px) {
+        .wikidocs-main-card { padding: 1.2rem 0.5rem; }
+        .wikidocs-header-row, .wikidocs-editor-row { flex-direction: column; gap: 1.2rem; }
+        .wikidocs-header-row .form-section-card, .wikidocs-editor-row .form-section-card { min-width: 0; }
+    }
+
+    /* Estilos para inputs, textareas e selects */
+    .form-floating > .form-control,
+    .form-floating > .form-select,
+    .form-control {
+        border-radius: 12px;
+        border: 1.5px solid var(--bs-border-color); /* Cor da borda do Bootstrap */
+        background: var(--bs-body-bg); /* Fundo padrão do corpo do Bootstrap, adaptável ao tema */
+        font-size: 1.13rem;
+        box-shadow: none;
+        transition: border-color 0.2s, background 0.2s;
+        padding: 1.1rem 1.1rem 0.6rem 1.1rem;
+    }
+
+    .form-floating > .form-control:focus,
+    .form-control:focus {
+        border-color: var(--bs-primary); /* Borda primária do Bootstrap no foco */
+        background: var(--bs-body-bg); /* Mantém o fundo padrão ao focar, ou defina um --form-focus-bg */
+    }
+
+    /* Estilo para labels */
+    .form-label, .editor-label {
+        font-weight: 700;
+        color: var(--bs-primary); /* Cor primária do Bootstrap */
+        margin-bottom: 0.5rem;
+        font-size: 1.15rem;
+        letter-spacing: 0.01em;
+    }
+
+    /* Estilo para input group text (onde o ícone aparece) */
+    .input-group-text {
+        font-size: 2.2rem;
+        min-width: 3.2rem;
+        background: var(--bs-body-bg); /* Fundo do corpo do Bootstrap */
+        border: 1.5px solid var(--bs-border-color);
+        border-radius: 12px 0 0 12px;
+        transition: border-color 0.2s;
+        padding: 0.4rem 1rem;
+        color: var(--bs-body-color); /* Cor do texto padrão do Bootstrap */
+    }
+
+    /* Preview do ícone */
+    #iconePreview {
+        border-radius: 12px;
+        border: 1.5px solid var(--bs-border-color);
+        background: var(--bs-body-bg);
+        transition: border-color 0.2s, background 0.2s;
+        font-size: 2.2rem;
+        padding: 0.3rem 0.9rem;
+        color: var(--bs-body-color);
+    }
+    #iconePreview:hover {
+        border-color: var(--bs-primary);
+        background: var(--bs-primary-bg-subtle); /* Fundo sutil primário do Bootstrap */
+    }
+
+    /* Botões da toolbar do editor */
+    .editor-toolbar-btns {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Estilos do ToastUI Editor */
+    .tui-editor-defaultUI, .toastui-editor-defaultUI {
+        border-radius: 18px !important;
+        border: 2px solid var(--bs-primary) !important;
+        box-shadow: 0 4px 24px rgba(var(--shadow-rgb, 13, 110, 253), 0.10);
+        background: var(--bs-body-bg) !important; /* Fundo do corpo do Bootstrap */
+        min-height: 700px !important;
+        margin-bottom: 2rem;
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 1.13rem;
+    }
+
+    /* Estilos para o modal de ícones */
+    .modal-content {
+        border-radius: 18px;
+        box-shadow: 0 8px 40px rgba(var(--shadow-rgb, 13, 110, 253), 0.13);
+        border: 1.5px solid var(--bs-border-color);
+    }
+    .icon-modal-search {
+        margin-bottom: 1.2rem;
+        border-radius: 10px;
+        border: 1.5px solid var(--bs-border-color);
+        background: var(--bs-body-bg);
+        font-size: 1.13rem;
+        padding: 0.7rem 1.1rem;
+    }
+    #iconGrid .icon-btn {
+        transition: box-shadow 0.2s, border-color 0.2s;
+        border-radius: 10px;
+        font-size: 2rem;
+        padding: 0.5rem 0.9rem;
+        color: var(--bs-body-color);
+        background-color: var(--bs-body-bg);
+    }
+    #iconGrid .icon-btn.border-primary {
+        box-shadow: 0 0 0 2px var(--bs-primary);
+        background: var(--bs-primary-bg-subtle);
+        border-color: var(--bs-primary) !important;
+    }
+
+    /* Estilos para botões gerais */
+    .btn-lg, .btn {
+        border-radius: 12px;
+        font-size: 1.18rem;
+        padding: 0.85rem 2.5rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        transition: box-shadow 0.2s, background 0.2s;
+    }
+    .btn-primary, .btn-success {
+        box-shadow: 0 2px 12px rgba(var(--shadow-rgb, 13, 110, 253), 0.13);
+    }
+    .btn-outline-secondary {
+        background: var(--bs-body-bg); /* Fundo do corpo do Bootstrap */
+        border: 1.5px solid var(--bs-border-color);
+        color: var(--bs-primary); /* Cor primária do Bootstrap */
+    }
+    .btn-outline-secondary:hover {
+        background: var(--bs-primary-bg-subtle);
+        color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+
+    /* Estilo para texto de ajuda */
+    .form-text.text-muted {
+        font-size: 1.01rem;
+        color: var(--bs-secondary-color) !important; /* Cor secundária do Bootstrap para texto muted */
+    }
+
+    /* Scrollbar moderno para editores */
+    .toastui-editor-contents, .toastui-editor-md-preview, .toastui-editor-md-container {
+        scrollbar-width: thin;
+        scrollbar-color: var(--bs-primary-bg-subtle) var(--bs-body-bg); /* Cores do Bootstrap para scrollbar */
+    }
+    .toastui-editor-contents::-webkit-scrollbar, .toastui-editor-md-preview::-webkit-scrollbar, .toastui-editor-md-container::-webkit-scrollbar {
+        width: 8px;
+        background: var(--bs-body-bg);
+    }
+    .toastui-editor-contents::-webkit-scrollbar-thumb, .toastui-editor-md-preview::-webkit-scrollbar-thumb, .toastui-editor-md-container::-webkit-scrollbar-thumb {
+        background: var(--bs-primary-bg-subtle);
+        border-radius: 8px;
+    }
+    .toastui-editor-contents {
+        white-space: pre-wrap !important;
+    }
+
+    /*
+     * Variáveis de tema para sombras (RGB) - adaptam-se ao tema claro/escuro.
+     * As cores primárias, de fundo, e de borda já são do Bootstrap e se adaptam automaticamente.
+     */
+    :root {
+        --shadow-rgb: 0, 0, 0; /* Padrão para tema claro (preto) */
+    }
+    body.theme-dark {
+        --shadow-rgb: 255, 255, 255; /* Branco para sombras no tema escuro */
+    }
+
+    /* Ajuste para campos readonly no tema escuro */
+    body.theme-dark .form-control[readonly] {
+        background: var(--bs-dark-bg-subtle) !important; /* Fundo sutil escuro do Bootstrap */
+    }
 </style>
-<div class="wikidocs-main-card">
-  <h2 class="mb-4 text-primary d-flex align-items-center" style="gap:0.7rem;">
-    <i class="bi bi-pencil-square"></i> Editar módulo: {{ modulo.nome }}
-  </h2>
-  {% if pendente %}
-    <div class="alert alert-warning d-flex align-items-center mb-3"><i class="bi bi-exclamation-triangle me-2"></i> Há uma edição pendente da documentação principal aguardando aprovação!</div>
-  {% endif %}
-  {% if pendente_tech %}
-    <div class="alert alert-warning d-flex align-items-center mb-3"><i class="bi bi-exclamation-triangle me-2"></i> Há uma edição pendente da documentação técnica aguardando aprovação!</div>
-  {% endif %}
-  <form method="post" id="editor_form" autocomplete="off">
-    <input type="hidden" name="token" value="{{ token }}">
-    <!-- Header horizontal com metadados -->
-    <div class="wikidocs-header-row">
-      <div class="form-section-card">
-        <div class="mb-3">
-          <label for="inputId" class="form-label">ID do Módulo</label>
-          <input type="text" class="form-control" id="inputId" name="id" value="{{ modulo.id }}" readonly>
 
-        </div>
-        <div class="mb-3">
-          <label for="inputNome" class="form-label">Nome do Módulo</label>
-          <input type="text" class="form-control" id="inputNome" name="nome" value="{{ modulo.nome }}">
-        </div>
-        <div class="mb-3">
-          <label for="inputDescricao" class="form-label">Descrição</label>
-          <textarea class="form-control" id="inputDescricao" name="descricao" style="height: 80px;">{{ modulo.descricao }}</textarea>
+<div class="wikidocs-main-card card"> {# Adiciona a classe 'card' para herdar estilos de tema do base.html #}
+    <h2 class="mb-4 text-primary d-flex align-items-center" style="gap:0.7rem;">
+        <i class="bi bi-pencil-square"></i> Editar módulo: {{ modulo.nome }}
+    </h2>
 
+    {% if pendente %}
+        <div class="alert alert-warning d-flex align-items-center mb-3">
+            <i class="bi bi-exclamation-triangle me-2"></i> Há uma edição pendente da documentação principal aguardando aprovação!
         </div>
-      </div>
-      <div class="form-section-card">
-        <div class="mb-3">
-          <label for="inputIcone" class="form-label">Ícone do Módulo</label>
-          <div class="input-group align-items-center">
-            <span class="input-group-text" id="iconePreview" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal" title="Clique para escolher um ícone">
-              <i class="bi {{ modulo.icone or 'bi-app' }}"></i>
-            </span>
-            <input type="text" class="form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly style="background:#f9f9f9; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal" placeholder="Clique para escolher">
-          </div>
+    {% endif %}
+    {% if pendente_tech %}
+        <div class="alert alert-warning d-flex align-items-center mb-3">
+            <i class="bi bi-exclamation-triangle me-2"></i> Há uma edição pendente da documentação técnica aguardando aprovação!
         </div>
-        <!-- Modal de seleção de ícones -->
-        <div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="iconModalLabel">Escolha um ícone</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-              </div>
-              <div class="modal-body">
-                <input type="text" class="form-control icon-modal-search" id="iconSearch" placeholder="Buscar ícone...">
-                <div id="iconGrid" class="row row-cols-8 g-2"></div>
-              </div>
+    {% endif %}
+
+    <form method="post" id="editor_form" autocomplete="off">
+        <input type="hidden" name="token" value="{{ token }}">
+
+        <div class="wikidocs-header-row">
+            <div class="form-section-card card"> {# Adiciona a classe 'card' #}
+                <div class="mb-3">
+                    <label for="inputId" class="form-label">ID do Módulo</label>
+                    <input type="text" class="form-control" id="inputId" name="id" value="{{ modulo.id }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="inputNome" class="form-label">Nome do Módulo</label>
+                    <input type="text" class="form-control" id="inputNome" name="nome" value="{{ modulo.nome }}">
+                </div>
+                <div class="mb-3">
+                    <label for="inputDescricao" class="form-label">Descrição</label>
+                    <textarea class="form-control" id="inputDescricao" name="descricao" style="height: 80px;">{{ modulo.descricao }}</textarea>
+                </div>
             </div>
-          </div>
+
+            <div class="form-section-card card"> {# Adiciona a classe 'card' #}
+                <div class="mb-3">
+                    <label for="inputIcone" class="form-label">Ícone do Módulo</label>
+                    <div class="input-group align-items-center">
+                        <span class="input-group-text" id="iconePreview" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal" title="Clique para escolher um ícone">
+                            <i class="bi {{ modulo.icone or 'bi-app' }}"></i>
+                        </span>
+                        <input type="text" class="form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#iconModal" placeholder="Clique para escolher">
+                    </div>
+                </div>
+
+                <div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="iconModalLabel">Escolha um Ícone</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" class="form-control icon-modal-search" id="iconSearch" placeholder="Buscar ícone...">
+                                <div id="iconGrid" class="row row-cols-8 g-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inputPalavras" class="form-label">Palavras-chave</label>
+                    <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" value="{{ modulo.palavras_chave|join(', ') }}" placeholder="Separe por vírgula">
+                    <small class="form-text text-muted">Ex: cadastro, usuário, permissão</small>
+                </div>
+                <div class="mb-3">
+                    <label for="inputRelacionados" class="form-label">Módulos Relacionados</label>
+                    <input type="text" class="form-control" id="inputRelacionados" name="relacionados" value="{{ modulo.relacionados|join(', ') }}" placeholder="IDs separados por vírgula">
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-          <label for="inputPalavras" class="form-label">Palavras-chave</label>
-          <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" value="{{ modulo.palavras_chave|join(', ') }}" placeholder="Separe por vírgula">
-          <small class="form-text text-muted">Ex: cadastro, usuário, permissão</small>
+
+        <input type="hidden" name="doc_content" id="doc_content_input">
+        <input type="hidden" name="tech_content" id="tech_content_input">
+        <div class="wikidocs-editor-row">
+            <div class="form-section-card card"> {# Adiciona a classe 'card' #}
+                <label class="editor-label">Conteúdo Markdown (Usuário)</label>
+                <div class="editor-toolbar-btns" id="doc_toolbar"></div>
+                <div id="doc_editor" class="border rounded"></div>
+            </div>
+            <div class="form-section-card card"> {# Adiciona a classe 'card' #}
+                <label class="editor-label">Documentação Técnica</label>
+                <div class="editor-toolbar-btns" id="tech_toolbar"></div>
+                <div id="tech_editor" class="border rounded"></div>
+            </div>
         </div>
-        <div class="mb-3">
-          <label for="inputRelacionados" class="form-label">Módulos Relacionados</label>
-          <input type="text" class="form-control" id="inputRelacionados" name="relacionados" value="{{ modulo.relacionados|join(', ') }}" placeholder="IDs separados por vírgula">
+
+        <div class="mt-4 d-flex gap-3 justify-content-end">
+            <button type="submit" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-save me-1"></i> Salvar
+            </button>
+            <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+            </a>
         </div>
-      </div>
-    </div>
-    <!-- Editores horizontal -->
-    <input type="hidden" name="doc_content" id="doc_content_input">
-    <input type="hidden" name="tech_content" id="tech_content_input">
-    <div class="wikidocs-editor-row">
-      <div class="form-section-card">
-        <label class="editor-label">Conteúdo Markdown (Usuário)</label>
-        <div class="editor-toolbar-btns" id="doc_toolbar"></div>
-        <div id="doc_editor" class="border rounded"></div>
-      </div>
-      <div class="form-section-card">
-        <label class="editor-label">Documentação Técnica</label>
-        <div class="editor-toolbar-btns" id="tech_toolbar"></div>
-        <div id="tech_editor" class="border rounded"></div>
-      </div>
-    </div>
-    <div class="mt-4 d-flex gap-3 justify-content-end">
-      <button type="submit" class="btn btn-primary btn-lg px-4">
-        <i class="bi bi-save me-1"></i> Salvar
-      </button>
-      <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
-        <i class="bi bi-x-circle me-1"></i> Cancelar
-      </a>
-    </div>
-  </form>
+    </form>
 </div>
+
 <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
 <script>
-  const docInitial = {{ doc_content|tojson }};
-  const techInitial = {{ tech_content|tojson }};
+    // Conteúdos iniciais dos editores
+    const docInitial = {{ doc_content|tojson }};
+    const techInitial = {{ tech_content|tojson }};
 
-  const docEditor = new toastui.Editor({
-    el: document.querySelector('#doc_editor'),
-    initialEditType: 'markdown',
-    previewStyle: 'vertical',
-    height: '700px',
-    initialValue: docInitial,
-    usageStatistics: false,    // desativa estatísticas
-    markdown: {
-      breaks: true,            // respeita quebra simples de linha
-      linkify: true,           // converte URLs em links
-      html: true               // permite HTML se desejado
-    },
-    hooks: {
-      beforePreviewRender: markdown => {
-        return markdown.replace(/\r?\n/g, '  \n');
-      },
-      addImageBlobHook: (blob, callback) => {
-        const formData = new FormData();
-        formData.append('file', blob);
-        fetch('{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token={{ token }}', {
-          method: 'POST',
-          body: formData
-        })
-        .then(res => res.json())
-        .then(data => callback(data.url, data.url))
-        .catch(() => alert('Erro ao enviar imagem!'));
-        return false;
-      }
-    }
-  });
+    // Variáveis para os editores do ToastUI
+    let docEditorInstance;
+    let techEditorInstance;
 
-  const techEditor = new toastui.Editor({
-    el: document.querySelector('#tech_editor'),
-    initialEditType: 'markdown',
-    previewStyle: 'vertical',
-    height: '700px',
-    initialValue: techInitial,
-    usageStatistics: false,
-    markdown: {
-      breaks: true,
-      linkify: true,
-      html: true
-    },
-    hooks: {
-      addImageBlobHook: (blob, callback) => {
-        const formData = new FormData();
-        formData.append('file', blob);
-        fetch('{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token={{ token }}', {
-          method: 'POST',
-          body: formData
-        })
-        .then(res => res.json())
-        .then(data => callback(data.url, data.url))
-        .catch(() => alert('Erro ao enviar imagem!'));
-        return false;
-      }
-    }
-  });
+    /**
+     * Aplica o tema correto ao ToastUI Editor.
+     * Recria os editores para garantir que o tema seja aplicado corretamente.
+     */
+    function applyToastUITheme() {
+        const isDark = document.body.classList.contains('theme-dark');
+        const editorTheme = isDark ? 'dark' : 'light';
 
-  // Função para upload de anexos
-  function uploadAttachment(editor) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = () => {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-      fetch('/editor/upload_anexo?token={{ token }}', { method: 'POST', body: formData })
-      .then(res => res.json())
-      .then(data => {
-        const url = data.url + '&token={{ token }}';
-        editor.insertText(`[${file.name}](${url})`);
-      }).catch(() => alert('Erro ao enviar anexo!')); 
-    };
-    input.click();
-  }
-
-  // Função para upload de vídeos
-  function uploadVideo(editor) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'video/*';
-    input.onchange = () => {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-      fetch(`/editor/upload_video/{{ modulo.id }}?token={{ token }}`, { method: 'POST', body: formData })
-      .then(res => res.json())
-      .then(data => {
-        if(data.url){
-          const videoTag = `<video width="640" height="360" controls>\n  <source src="${data.url}" type="${data.type}">\n  Seu navegador não suporta a tag de vídeo.\n</video>\n`;
-          editor.insertText(videoTag);
-        } else {
-          alert(data.error || 'Erro ao enviar vídeo!');
+        // Destroi instâncias existentes para recriar com o novo tema
+        if (docEditorInstance) {
+            docEditorInstance.destroy();
         }
-      }).catch(() => alert('Erro ao enviar vídeo!'));
-    };
-    input.click();
-  }
+        if (techEditorInstance) {
+            techEditorInstance.destroy();
+        }
 
-  // Botões anexar/vídeo alinhados à direita
-  [
-    {editor: docEditor, toolbar: 'doc_toolbar'},
-    {editor: techEditor, toolbar: 'tech_toolbar'}
-  ].forEach(({editor, toolbar}) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-outline-secondary btn-sm';
-    btn.innerText = 'Anexar arquivo';
-    btn.onclick = () => uploadAttachment(editor);
-    const btnVideo = document.createElement('button');
-    btnVideo.type = 'button';
-    btnVideo.className = 'btn btn-outline-primary btn-sm';
-    btnVideo.innerHTML = '<i class="bi bi-camera-video"></i> Inserir vídeo';
-    btnVideo.onclick = () => uploadVideo(editor);
-    document.getElementById(toolbar).appendChild(btn);
-    document.getElementById(toolbar).appendChild(btnVideo);
-  });
+        // Inicializa o editor de conteúdo (usuário)
+        docEditorInstance = new toastui.Editor({
+            el: document.querySelector('#doc_editor'),
+            initialEditType: 'markdown',
+            previewStyle: 'vertical',
+            height: '700px',
+            initialValue: docInitial,
+            usageStatistics: false,
+            theme: editorTheme, /* Aplica o tema! */
+            markdown: {
+                breaks: true,
+                linkify: true,
+                html: true
+            },
+            hooks: {
+                beforePreviewRender: markdown => {
+                    // Adiciona dois espaços no final da linha para quebras de linha em Markdown
+                    return markdown.replace(/\r?\n/g, '  \n');
+                },
+                addImageBlobHook: (blob, callback) => {
+                    const formData = new FormData();
+                    formData.append('file', blob);
+                    fetch('{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token={{ token }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => callback(data.url, data.url))
+                    .catch(() => alert('Erro ao enviar imagem!'));
+                    return false;
+                }
+            }
+        });
 
-  // Ao submeter, captura o valor dos dois editores
-  document.getElementById('editor_form').addEventListener('submit', () => {
-    document.getElementById('doc_content_input').value = docEditor.getMarkdown();
-    document.getElementById('tech_content_input').value = techEditor.getMarkdown();
-  });
+        // Inicializa o editor de documentação técnica
+        techEditorInstance = new toastui.Editor({
+            el: document.querySelector('#tech_editor'),
+            initialEditType: 'markdown',
+            previewStyle: 'vertical',
+            height: '700px',
+            initialValue: techInitial,
+            usageStatistics: false,
+            theme: editorTheme, /* Aplica o tema! */
+            markdown: {
+                breaks: true,
+                linkify: true,
+                html: true
+            },
+            hooks: {
+                addImageBlobHook: (blob, callback) => {
+                    const formData = new FormData();
+                    formData.append('file', blob);
+                    fetch('{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token={{ token }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => callback(data.url, data.url))
+                    .catch(() => alert('Erro ao enviar imagem!'));
+                    return false;
+                }
+            }
+        });
 
-  // Preview do ícone ao editar
-  const iconInput = document.getElementById('inputIcone');
-  const iconPreviewEl = document.querySelector('#iconePreview i');
-  if(iconInput) {
-    iconInput.addEventListener('input', () => {
-      const val = iconInput.value.trim();
-      iconPreviewEl.className = val ? 'bi ' + val : 'bi bi-app';
+        // Re-anexa os botões personalizados após recriar os editores
+        attachEditorButtons(docEditorInstance, 'doc_toolbar');
+        attachEditorButtons(techEditorInstance, 'tech_toolbar');
+    }
+
+    // Chama a função para aplicar o tema e inicializar os editores no carregamento da página
+    document.addEventListener('DOMContentLoaded', applyToastUITheme);
+
+    // Observa mudanças na classe 'theme-dark' do <body> para adaptar o tema do editor
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                applyToastUITheme();
+            }
+        }
     });
-  }
+    observer.observe(document.body, { attributes: true });
 
-  // Modal de ícones com busca
-  function renderIconGrid(selectedIcon) {
-    fetch('/editor/options?token={{ token }}')
-      .then(r => r.json())
-      .then(data => {
-        const icons = data.icons || [];
-        const grid = document.getElementById('iconGrid');
-        const searchInput = document.getElementById('iconSearch');
-        function showIcons(filter = '') {
-          grid.innerHTML = '';
-          icons.filter(ic => ic.includes(filter)).forEach(ic => {
-            const col = document.createElement('div');
-            col.className = 'col text-center';
-            col.innerHTML = `<button type="button" class="btn btn-light border icon-btn${ic===selectedIcon?' border-primary':''}" data-icon="${ic}" style="font-size:1.5rem;">
-              <i class="bi ${ic}"></i>
-            </button>`;
-            grid.appendChild(col);
-          });
-          grid.querySelectorAll('.icon-btn').forEach(btn => {
-            btn.onclick = function() {
-              const ic = this.getAttribute('data-icon');
-              document.getElementById('inputIcone').value = ic;
-              document.querySelector('#iconePreview i').className = 'bi ' + ic;
-              bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
-            };
-          });
-        }
-        showIcons();
-        searchInput.value = '';
-        searchInput.oninput = () => showIcons(searchInput.value.trim());
-      });
-  }
+    /**
+     * Função para upload de anexos para o editor.
+     * @param {object} editor - Instância do ToastUI Editor.
+     */
+    function uploadAttachment(editor) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = () => {
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/editor/upload_anexo?token={{ token }}', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                const url = data.url + '&token={{ token }}';
+                editor.insertText(`[${file.name}](${url})`);
+            }).catch(() => alert('Erro ao enviar anexo!'));
+        };
+        input.click();
+    }
 
-  // Abre o modal e mostra os ícones
-  document.getElementById('iconePreview').addEventListener('click', () => {
-    renderIconGrid(document.getElementById('inputIcone').value);
-  });
-  document.getElementById('inputIcone').addEventListener('click', () => {
-    renderIconGrid(document.getElementById('inputIcone').value);
-  });
+    /**
+     * Função para upload de vídeos para o editor.
+     * @param {object} editor - Instância do ToastUI Editor.
+     */
+    function uploadVideo(editor) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'video/*'; // Aceita apenas arquivos de vídeo
+        input.onchange = () => {
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch(`/editor/upload_video/{{ modulo.id }}?token={{ token }}`, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.url){
+                    const videoTag = `<video width="640" height="360" controls>\n  <source src="${data.url}" type="${data.type}">\n  Seu navegador não suporta a tag de vídeo.\n</video>\n`;
+                    editor.insertText(videoTag);
+                } else {
+                    alert(data.error || 'Erro ao enviar vídeo!');
+                }
+            }).catch(() => alert('Erro ao enviar vídeo!'));
+        };
+        input.click();
+    }
+
+    /**
+     * Anexa os botões personalizados à toolbar do editor.
+     * @param {object} editor - Instância do ToastUI Editor.
+     * @param {string} toolbarId - ID do elemento DIV da toolbar.
+     */
+    function attachEditorButtons(editor, toolbarId) {
+        const toolbarElement = document.getElementById(toolbarId);
+        toolbarElement.innerHTML = ''; // Limpa a toolbar antes de adicionar os botões
+
+        const btnAttach = document.createElement('button');
+        btnAttach.type = 'button';
+        btnAttach.className = 'btn btn-outline-secondary btn-sm';
+        btnAttach.innerText = 'Anexar arquivo';
+        btnAttach.onclick = () => uploadAttachment(editor);
+        toolbarElement.appendChild(btnAttach);
+
+        const btnVideo = document.createElement('button');
+        btnVideo.type = 'button';
+        btnVideo.className = 'btn btn-outline-primary btn-sm';
+        btnVideo.innerHTML = '<i class="bi bi-camera-video"></i> Inserir vídeo';
+        btnVideo.onclick = () => uploadVideo(editor);
+        toolbarElement.appendChild(btnVideo);
+    }
+
+    // Ao submeter o formulário, captura o conteúdo Markdown dos editores
+    document.getElementById('editor_form').addEventListener('submit', () => {
+        document.getElementById('doc_content_input').value = docEditorInstance.getMarkdown();
+        document.getElementById('tech_content_input').value = techEditorInstance.getMarkdown();
+    });
+
+    // Atualiza o preview do ícone conforme o usuário digita (ou seleciona)
+    const iconInput = document.getElementById('inputIcone');
+    const iconPreviewEl = document.querySelector('#iconePreview i');
+    if(iconInput) {
+        iconInput.addEventListener('input', () => {
+            const val = iconInput.value.trim();
+            iconPreviewEl.className = val ? 'bi ' + val : 'bi bi-app';
+        });
+    }
+
+    /**
+     * Renderiza a grade de ícones no modal.
+     * @param {string} selectedIcon - O ícone atualmente selecionado para destaque.
+     */
+    function renderIconGrid(selectedIcon) {
+        fetch('/editor/options?token={{ token }}')
+            .then(r => r.json())
+            .then(data => {
+                const icons = data.icons || [];
+                const grid = document.getElementById('iconGrid');
+                const searchInput = document.getElementById('iconSearch');
+
+                function showIcons(filter = '') {
+                    grid.innerHTML = ''; // Limpa a grade existente
+                    icons.filter(ic => ic.includes(filter)).forEach(ic => {
+                        const col = document.createElement('div');
+                        col.className = 'col text-center';
+                        col.innerHTML = `
+                            <button type="button" class="btn btn-light border icon-btn${ic === selectedIcon ? ' border-primary' : ''}" data-icon="${ic}" style="font-size:1.5rem;">
+                                <i class="bi ${ic}"></i>
+                            </button>
+                        `;
+                        grid.appendChild(col);
+                    });
+
+                    // Adiciona listener para seleção de ícone
+                    grid.querySelectorAll('.icon-btn').forEach(btn => {
+                        btn.onclick = function() {
+                            const ic = this.getAttribute('data-icon');
+                            document.getElementById('inputIcone').value = ic;
+                            document.querySelector('#iconePreview i').className = 'bi ' + ic;
+                            bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide(); // Fecha o modal
+                        };
+                    });
+                }
+                
+                showIcons(); // Mostra todos os ícones inicialmente
+                searchInput.value = ''; // Limpa o campo de busca
+                searchInput.oninput = () => showIcons(searchInput.value.trim()); // Filtra ao digitar
+            });
+    }
+
+    // Event listeners para abrir o modal de ícones
+    document.getElementById('iconePreview').addEventListener('click', () => {
+        renderIconGrid(document.getElementById('inputIcone').value);
+    });
+    document.getElementById('inputIcone').addEventListener('click', () => {
+        renderIconGrid(document.getElementById('inputIcone').value);
+    });
 </script>
 {% endblock %}

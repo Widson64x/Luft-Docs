@@ -19,7 +19,7 @@
     "description": "Acessar o menu de permissões",
     "groups": [],
     "users": [
-      "cleyton.silva",
+      "widson.araujo",
       "francisco.miranda"
     ]
   },
@@ -34,7 +34,7 @@
     "description": "Excluir módulos do sistema",
     "groups": [],
     "users": [
-      "cleyton.silva",
+      "widson.araujo",
       "francisco.miranda"
     ]
   },
@@ -42,7 +42,7 @@
     "description": "Gerenciar versionamento de módulos",
     "groups": [],
     "users": [
-      "cleyton.silva",
+      "widson.araujo",
       "francisco.miranda"
     ]
   },
@@ -50,7 +50,7 @@
     "description": "Controlar módulos do sistema",
     "groups": [],
     "users": [
-      "cleyton.silva",
+      "widson.araujo",
       "francisco.miranda"
     ]
   }

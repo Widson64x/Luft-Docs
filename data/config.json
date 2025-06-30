@@ -17,8 +17,8 @@
       ],
       "status": "aprovado",
       "ultima_edicao": {
-        "user": "cleyton.silva",
-        "data": "2025-06-18T17:19:15.818902"
+        "user": "francisco.miranda",
+        "data": "2025-06-26T17:10:10.524321"
       }
     },
     {
@@ -44,13 +44,32 @@
         "nfs"
       ],
       "relacionados": [
-        "coordenacao",
-        "telas-informa"
+        "tarifas-complomentares"
       ],
       "status": "aprovado",
       "ultima_edicao": {
         "user": "francisco.miranda",
-        "data": "2025-06-24T12:57:08.648506"
+        "data": "2025-06-26T17:04:59.834448"
+      }
+    },
+    {
+      "id": "tarifas-complomentares",
+      "nome": "Tarifas Complomentares",
+      "descricao": "Detalha as taxas adicionais que cobrem custos e serviços específicos não incluídos no valor padrão do frete.",
+      "icone": "bi-cash-stack",
+      "palavras_chave": [
+        "tarifas",
+        "taxas",
+        "complementares",
+        "adicionais"
+      ],
+      "relacionados": [
+        "agendamento"
+      ],
+      "status": "aprovado",
+      "ultima_edicao": {
+        "user": "widson.araujo",
+        "data": "2025-06-26T17:56:02.940885"
       }
     }
   ],
