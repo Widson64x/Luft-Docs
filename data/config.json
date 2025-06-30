@@ -44,17 +44,17 @@
         "nfs"
       ],
       "relacionados": [
-        "tarifas-complomentares"
+        "tarifas-complementares"
       ],
       "status": "aprovado",
       "ultima_edicao": {
         "user": "francisco.miranda",
-        "data": "2025-06-26T17:04:59.834448"
+        "data": "2025-06-30T12:22:53.516695"
       }
     },
     {
-      "id": "tarifas-complomentares",
-      "nome": "Tarifas Complomentares",
+      "id": "tarifas-complementares",
+      "nome": "Tarifas Complementares",
       "descricao": "Detalha as taxas adicionais que cobrem custos e serviços específicos não incluídos no valor padrão do frete.",
       "icone": "bi-cash-stack",
       "palavras_chave": [
