@@ -122,11 +122,11 @@ def editor_index():
     # 2. Carrega flags de permissão vindas da sessão
     grupo, user_name = get_user_group()
     user_perms = session.get('permissions', {})
-    can_edit_modules             = user_perms.get('can_edit_modules', False)
-    can_delete_modules              = user_perms.get('can_delete_modules', False)
-    can_versioning_modules   = user_perms.get('can_versioning_modules', False)
+    can_access_editor           = user_perms.get('can_access_editor', False)
+    can_edit_modules           = user_perms.get('can_edit_modules', False)
+    can_delete_modules             = user_perms.get('can_delete_modules', False)
+    can_versioning_modules = user_perms.get('can_versioning_modules', False)
     can_module_control = user_perms.get('can_module_control', False)
-
     # FUNÇÃO E OBTÉM A CONTAGEM DE PENDENCIAS
     num_pendencias = get_pending_count()
 
@@ -136,7 +136,7 @@ def editor_index():
         'editor/editor_index.html',
         modulos=modulos,
         token=token,
-        can_edit_modules=can_edit_modules,
+        can_access_editor=can_edit_modules,
         can_delete_modules=can_delete_modules,
         can_versioning_modules=can_versioning_modules,
         can_module_control=can_module_control,
@@ -217,6 +217,14 @@ def upload_anexo():
 
 @editor_bp.route('/modulo/<mid>', methods=['GET', 'POST'])
 def editar_modulo(mid):
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_access_editor', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para editar módulos."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
@@ -224,8 +232,8 @@ def editar_modulo(mid):
         abort(404)
 
     path_mod = os.path.join(DATA_DIR, mid)
-    official_path      = os.path.join(path_mod, "documentation.md")
-    pending_path       = os.path.join(path_mod, "pending_documentation.md")
+    official_path       = os.path.join(path_mod, "documentation.md")
+    pending_path        = os.path.join(path_mod, "pending_documentation.md")
     tech_official_path = os.path.join(path_mod, "technical_documentation.md")
     tech_pending_path  = os.path.join(path_mod, "pending_technical_documentation.md")
 
@@ -250,12 +258,12 @@ def editar_modulo(mid):
     pendente_tech = os.path.exists(tech_pending_path)
 
     if request.method == 'POST':
-        user_name = session.get('user_name', 'Anônimo')
+        user_name_session = session.get('user_name', 'Anônimo')
 
         # 1) Atualiza metadados
-        modulo['nome']          = request.form['nome']
-        modulo['descricao']     = request.form['descricao']
-        modulo['icone']         = request.form['icone']
+        modulo['nome']           = request.form['nome']
+        modulo['descricao']      = request.form['descricao']
+        modulo['icone']          = request.form['icone']
         modulo['palavras_chave'] = [
             k.strip() for k in request.form['palavras_chave'].split(',') if k.strip()
         ]
@@ -269,7 +277,7 @@ def editar_modulo(mid):
 
         # 3) Salva direto (com backup)  
         salvar_edicao_modulo_com_tecnico(
-            modulo, novo_conteudo, novo_conteudo_tech, user_name
+            modulo, novo_conteudo, novo_conteudo_tech, user_name_session
         )
 
         # 4) Feedback
@@ -288,13 +296,21 @@ def editar_modulo(mid):
 
 @editor_bp.route('/novo', methods=['GET', 'POST'])
 def criar_modulo():
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_edit_modules', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para criar novos módulos."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     if request.method == 'POST':
-        user_name = session.get('user_name', 'Anônimo')
-        mid        = request.form['id']
-        nome       = request.form['nome']
-        descricao  = request.form['descricao']
-        icone      = request.form['icone']
+        user_name_session = session.get('user_name', 'Anônimo')
+        mid          = request.form['id']
+        nome         = request.form['nome']
+        descricao    = request.form['descricao']
+        icone        = request.form['icone']
         palavras_chave = [k.strip() for k in request.form['palavras_chave'].split(',') if k.strip()]
         relacionados   = [k.strip() for k in request.form['relacionados'].split(',') if k.strip()]
 
@@ -306,7 +322,7 @@ def criar_modulo():
             "palavras_chave": palavras_chave,
             "relacionados": relacionados,
             "status": "aprovado",
-            "ultima_edicao": {"user": user_name, "data": datetime.now().isoformat()}
+            "ultima_edicao": {"user": user_name_session, "data": datetime.now().isoformat()}
         }
 
         # Limpa quebras antes de salvar
@@ -321,7 +337,7 @@ def criar_modulo():
             json.dump(config, f, ensure_ascii=False, indent=2)
 
         # Salva arquivos com backup
-        salvar_edicao_modulo_com_tecnico(novo_modulo, doc_content, tech_content, user_name)
+        salvar_edicao_modulo_com_tecnico(novo_modulo, doc_content, tech_content, user_name_session)
 
         # flash("Módulo criado e publicado!", "success")
         return redirect(url_for('.editor_index', token=token))
@@ -359,6 +375,15 @@ def editor_options():
 
 @editor_bp.route('/delete/<mid>', methods=['POST'])
 def delete_modulo(mid):
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    # Usando a permissão 'can_delete_modules' para esta ação específica
+    perms = load_permissions().get('can_delete_modules', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para deletar módulos."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
 
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -401,9 +426,16 @@ def get_pending_count():
             count += 1
     return count
 
-# Lista de pendências (agora visível para todos, mas provavelmente estará sempre vazia)
 @editor_bp.route('/pendentes')
 def pendentes():
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_module_control', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para visualizar ou gerenciar pendências."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     pendentes = []
@@ -443,6 +475,14 @@ def render_diff_html(old, new):
 
 @editor_bp.route('/diff_pendente')
 def diff_pendente():
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_module_control', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return jsonify({'error': 'Acesso negado. Você não tem permissão para visualizar esta diferença.'}), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     mid = request.args.get('mid')
     path_mod = os.path.join(DATA_DIR, mid)
     doc_path = os.path.join(path_mod, "documentation.md")
@@ -461,7 +501,6 @@ def diff_pendente():
     tech = get_text(tech_path)
     pend_tech = get_text(pend_tech_path)
 
-    # Sempre mostra os dois lados, com destaque nas diferenças
     doc_html_left = render_diff_html(doc, pend_doc) if doc or pend_doc else "<em>Não disponível</em>"
     doc_html_right = render_diff_html(pend_doc, doc) if doc or pend_doc else "<em>Não disponível</em>"
     tech_html_left = render_diff_html(tech, pend_tech) if tech or pend_tech else "<em>Não disponível</em>"
@@ -474,9 +513,16 @@ def diff_pendente():
         "tech_html_right": tech_html_right
     })
 
-# Aprovar pendência (agora visível para todos)
 @editor_bp.route('/aprovar/<mid>', methods=['POST'])
 def aprovar(mid):
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name_session = get_user_group()
+    perms = load_permissions().get('can_module_control', {})
+    allowed = (grupo in perms.get('groups', []) or user_name_session in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para aprovar alterações."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
@@ -485,9 +531,8 @@ def aprovar(mid):
     official_path = os.path.join(path_mod, "documentation.md")
     tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
     tech_official_path = os.path.join(path_mod, "technical_documentation.md")
-    user_name = session.get("user_name", "Anônimo")
+    user_name = session.get("user_name", "Anônimo") # Mantém o nome do usuário da sessão para os logs
 
-    # Backup dos vigentes
     history_dir = os.path.join(path_mod, "history")
     os.makedirs(history_dir, exist_ok=True)
     data = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
@@ -500,7 +545,6 @@ def aprovar(mid):
         backup_path_tech = os.path.join(history_dir, backup_name_tech)
         shutil.copyfile(tech_official_path, backup_path_tech)
 
-    # Aprova ambos se existirem
     if os.path.exists(pending_path):
         shutil.move(pending_path, official_path)
     if os.path.exists(tech_pending_path):
@@ -518,12 +562,18 @@ def aprovar(mid):
     with open(CONFIG_FILE, "w", encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
-    # flash("Aprovação concluída!")
     return redirect(url_for('editor.pendentes', token=token))
 
-# Rejeitar pendência (agora visível para todos)
 @editor_bp.route('/rejeitar/<mid>', methods=['POST'])
 def rejeitar(mid):
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_module_control', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para rejeitar alterações."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
@@ -531,7 +581,6 @@ def rejeitar(mid):
     pending_path = os.path.join(path_mod, "pending_documentation.md")
     tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
 
-    # Remove ambos se existirem
     if os.path.exists(pending_path):
         os.remove(pending_path)
     if os.path.exists(tech_pending_path):
@@ -547,12 +596,18 @@ def rejeitar(mid):
     with open(CONFIG_FILE, "w", encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
-    # flash("Pendência rejeitada.")
     return redirect(url_for('editor.pendentes', token=token))
 
 @editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
 def historico_modulo(mid):
-    # A lógica desta rota permanece a mesma, mas agora está acessível a todos.
+    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_versioning_modules', {})
+    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    if not allowed:
+        return render_template('access_denied.html', reason="Você não tem permissão para acessar o histórico de versões."), 403
+    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
+
     token = request.args.get('token', '')
     path_mod = os.path.join(DATA_DIR, mid)
     history_dir = os.path.join(path_mod, "history")
@@ -583,7 +638,6 @@ def historico_modulo(mid):
 
         versao_path = os.path.join(history_dir, versao)
         if os.path.exists(versao_path):
-            # Salva vigente atual no histórico antes de trocar
             if os.path.exists(vigente_path):
                 data = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
                 if tipo == 'doc':
@@ -592,9 +646,7 @@ def historico_modulo(mid):
                     backup_name = f"{data}_vigente_technical.md"
                 backup_path = os.path.join(history_dir, backup_name)
                 shutil.copyfile(vigente_path, backup_path)
-            # Troca vigente
             shutil.copyfile(versao_path, vigente_path)
-            #flash(f'Versão selecionada agora é a vigente!', 'success')
         else:
             flash('Arquivo de versão não encontrado.', 'danger')
         return redirect(url_for('editor.historico_modulo', mid=mid, token=token))

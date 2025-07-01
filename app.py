@@ -10,7 +10,7 @@ from routes.editor import editor_bp
 from routes.permissions import permissions_bp
 
 app = Flask(__name__)
-app.secret_key = 'SUA_CHAVE_SUPER_SECRETA_AQUI'
+app.secret_key = 'LUFT@123'
 app.config['SESSION_PERMANENT'] = False  # Assegura cookie de sessão não-permanente
 # 1) Registrar blueprint do index em primeiro lugar
 app.register_blueprint(index_bp, url_prefix='')

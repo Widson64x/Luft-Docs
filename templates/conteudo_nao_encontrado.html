@@ -1,15 +1,146 @@
 {% extends "base.html" %}
-{% block title %}Conteúdo não encontrado{% endblock %}
+{% block title %}Página em Desenvolvimento{% endblock %}
 
 {% block content %}
-  <div class="text-center py-5">
-    <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
-    <h2 class="mt-4">Conteúdo não encontrado</h2>
-    <p class="lead">
-      Desculpe, mas não encontramos o material solicitado.
-    </p>
-    <a href="{{ url_for('index.index', user_name=session.user_name, id=session.user_id) }}" class="btn btn-primary mt-3">
-      <i class="bi bi-arrow-clockwise me-2"></i> Voltar ao Início
-    </a>
+<style>
+  /* Estilo do container principal */
+  .dev-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    background-color: #f8f9fa; /* Um cinza bem claro para o fundo */
+    border-radius: 15px;
+    margin-top: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Garante que as animações não saiam do container */
+  }
+
+  /* Animação do ícone de código </> */
+  .code-icon {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #007bff; /* Azul primário do Bootstrap */
+    position: relative;
+    animation: bounce-in 1s ease forwards;
+  }
+
+  .code-icon span:nth-child(1) {
+    animation: slide-left 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .code-icon span:nth-child(2) {
+    animation: slide-right 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  /* Animação do título com efeito de digitação */
+  .typing-title {
+    font-family: 'Courier New', Courier, monospace;
+    color: #343a40; /* Cinza escuro */
+    border-right: 4px solid #343a40; /* Simula o cursor de digitação */
+    white-space: nowrap;
+    overflow: hidden;
+    animation:
+      typing 3.5s steps(40, end) forwards,
+      blink-caret .75s step-end infinite;
+    width: 0; /* Começa sem largura para a animação */
+    margin: 1.5rem 0;
+  }
+
+  .lead.dev-text {
+    color: #6c757d; /* Cinza secundário */
+    opacity: 0;
+    animation: fade-in 1s ease 3.5s forwards; /* Começa após a digitação */
+  }
+
+  /* Botão modernizado */
+  .btn-modern {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  }
+
+  .btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+  }
+
+  .btn-modern .bi-arrow-clockwise {
+     transition: transform 0.5s ease;
+  }
+
+  .btn-modern:hover .bi-arrow-clockwise {
+    transform: rotate(360deg);
+  }
+
+  /* Keyframes para as animações */
+
+  /* Animação de digitação */
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  /* Cursor piscando */
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #343a40; }
+  }
+
+  /* Efeito de fade-in para o parágrafo */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Animação para o container aparecer */
+   @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Animação para as tags de código */
+  @keyframes slide-left {
+    from { transform: translateX(-40px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slide-right {
+    from { transform: translateX(40px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+</style>
+
+<div class="dev-container">
+  <div class="code-icon">
+    <span>&lt;</span>/<span>&gt;</span>
   </div>
+  
+  <h2 class="mt-4 typing-title">Página em Desenvolvimento...</h2>
+  
+  <p class="lead dev-text">
+    Desculpe, o conteúdo que você procura ainda está sendo "compilado".<br>
+    Volte em breve para ver a versão final!
+  </p>
+  
+  <a href="{{ url_for('index.index', user_name=session.user_name, id=session.user_id) }}" class="btn btn-primary mt-3 btn-modern">
+    <i class="bi bi-arrow-clockwise me-2"></i> Voltar ao Início
+  </a>
+</div>
 {% endblock %}

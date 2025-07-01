@@ -169,6 +169,38 @@ Este email é parecido com o anterior, porém ao invés de um link para confirma
 * **Exemplo ([[RAIA]])**: Essa distribuidora exige que a solicitação de agendamento seja feita através de seu portal, um dia antes da entrega, com prazo máximo até as 09:00.
 * **Voucher**: Alguns destinatários específicos só aceitam as entregas mediante a apresentação de um "voucher" de notas emitido pelo cliente.
 
+## Botões e Funcionalidades
+
+### Filtros de Pesquisa
+
+A área "Dados para Pesquisa" permite ao usuário especificar múltiplos critérios para encontrar as notas desejadas.
+
+-   **Checkboxes (Tipo)**: Permitem selecionar a origem da nota, como `INTEC` ou `FARMA`.
+-   **Cliente**: Campo para selecionar um cliente específico. O valor padrão é "TODOS".
+-   **Dist/Repres**: Permite filtrar por um Distribuidor ou Representante específico.
+-   **Unid.**: Filtro por Unidades.
+-   **DT CTe**: Filtra as notas pela data de emissão do Conhecimento de Transporte (CTe), permitindo selecionar uma data inicial (`A Partir de`).
+-   **DT Sugerida**: Filtra pela data sugerida para a agendamento, também com campos de data inicial e final.
+-   **Cli. Ag.**: Campo para filtrar se é o cliente que faz a própria agenda.
+-   **Status**: Conjunto de caixas de seleção que representam diferentes status das notas para filtrar a busca (ex: **NP** - Nota Pendente, **AR** - Aguardando Retorno, **AG** - Agendado, **RE** - Reagendamento, **PC** - Notas Perecíveis, **SE** - Notas Sensíveis, **Rodo** - Rodoviário e **Aéreo** - Modal Aéreo.).
+-   **Pesquisa**: Campo de texto livre para uma busca por um termo específico.
+-   **RL**: Exportar em Excel
+-   **OC**: Mostrar as Ocorrências da Nota.
+-   **MN.**: Mostrar os Manifestos.
+-   **VC**: Vounchers de Agendamento.
+
+### Botões e Funcionalidades
+
+-   **Pesq** — Realiza a busca com base nos filtros preenchidos na seção "Dados para Pesquisa" e exibe os resultados na grade.
+-   **Limp** — Limpa todos os filtros aplicados e restaura os campos para seus valores padrão, permitindo uma nova busca.
+
+### Rodapé
+
+-   **Contato Email**: Funcionalidade para interagir com a nota, podendo realizar todas as ações de agendamento.
+-   **Total NFs**: Campo que exibe a contagem total de notas fiscais retornadas pela pesquisa.
+-   **NF(s) pendentes portal**: Contador específico para notas que possuem alguma pendência no portal.
+
+
 ## Anexos e Recursos
 
 * [EMAIL-B2-AUTO-EXEMPLO.pdf](/download?token=__TOKEN_PLACEHOLDER__&download=B2-AUTO-EXEMPLO.pdf&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzIjoiZnJhbmNpc2NvLm1pcmFuZGEiLCJlIjoxNzUxMzA0MDI2fQ.Aw3_74HH3uZ_LlfLOXqq7bLK04FMhTH0EKJ-4663838)

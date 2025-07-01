@@ -5,7 +5,6 @@ from flask import (
 import os
 import re
 from markupsafe import Markup, escape
-
 from utils.data.module_utils import (
     carregar_modulos_aprovados,
     get_modulo_by_id,
@@ -22,7 +21,6 @@ from routes.permissions import load_permissions, get_user_group
 
 index_bp = Blueprint('index', __name__)
 filtro_global = None  # Global para filtro avançado, inicializado apenas uma vez
-
 
 def destacar_termo(texto, termo):
     """
@@ -238,7 +236,6 @@ def index():
         can_access_permissions_menu=can_access_permissions_menu,
         menus=[]
     )
-
 
 @index_bp.route('/logout')
 @login_required

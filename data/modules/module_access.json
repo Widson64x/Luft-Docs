@@ -1,8 +1,9 @@
 {
   "coordenacao": {
-    "total": 4,
+    "total": 16,
     "historico": {
-      "2025-06-30": 4
+      "2025-06-30": 4,
+      "2025-07-01": 12
     }
   },
   "tarifas-complementares": {
@@ -12,9 +13,16 @@
     }
   },
   "agendamento": {
-    "total": 13,
+    "total": 36,
     "historico": {
-      "2025-06-30": 13
+      "2025-06-30": 13,
+      "2025-07-01": 23
+    }
+  },
+  "telas-informa": {
+    "total": 1,
+    "historico": {
+      "2025-07-01": 1
     }
   }
 }

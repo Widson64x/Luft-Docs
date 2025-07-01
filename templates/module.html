@@ -2,9 +2,15 @@
 {% block title %}{{ modulo['nome'] }} - LuftDocs{% endblock %}
 {% block content %}
     <style>
-    mark {
-        background-color: #b6fcb6 !important;
-        color: #1a3d1a !important;
+    mark, .highlight-standard {
+      background-color: #FFDC74; /* Um amarelo mais quente e moderno */
+      color: #1c1c1c; /* Preto um pouco mais suave */
+      font-weight: 600; /* Um pouco menos pesado que 'bold' */
+      padding: 0.1em 0.3em;
+      margin: 0 -0.3em; /* Evita que o padding afete o fluxo do texto */
+      border-radius: 4px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
     /* Autocomplete styles */
     .autocomplete-list {
