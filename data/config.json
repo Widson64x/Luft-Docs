@@ -19,12 +19,32 @@
       "ultima_edicao": {
         "user": "francisco.miranda",
         "data": "2025-06-26T17:10:10.524321"
-      }
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "version_info": {
+        "current_version": "1.1",
+        "last_approved_by": "francisco.miranda",
+        "last_approved_on": "2025-07-01T15:29:10.771961"
+      },
+      "edit_history": [
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "francisco.miranda",
+          "approver": "francisco.miranda",
+          "timestamp": "2025-07-01T15:29:10.771961",
+          "backup_file_doc": "v1.1_2025-07-01T15-29-10_francisco.miranda_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-01T15-29-10_francisco.miranda_technical.md"
+        }
+      ]
     },
     {
       "id": "telas-informa",
-      "nome": "Telas Informa",
-      "descricao": "Algumas telas do Luft Informa",
+      "nome": "Tutoriais Luft Informa",
+      "descricao": "Aqui você pode acompanhar algumas dicas, e funcionalidade, que eu tenho certeza que você não sabia que existia no Luft Informa.",
       "icone": "bi bi-window-fullscreen",
       "palavras_chave": [],
       "relacionados": [],
@@ -32,7 +52,36 @@
       "ultima_edicao": {
         "user": "francisco.miranda",
         "data": "2025-06-25T15:14:34.387021"
-      }
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "version_info": {
+        "current_version": "1.2",
+        "last_approved_by": "francisco.miranda",
+        "last_approved_on": "2025-07-02T10:40:42.457120"
+      },
+      "edit_history": [
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "francisco.miranda",
+          "approver": "francisco.miranda",
+          "timestamp": "2025-07-01T15:33:06.185604",
+          "backup_file_doc": "v1.1_2025-07-01T15-33-06_francisco.miranda_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-01T15-33-06_francisco.miranda_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "francisco.miranda",
+          "approver": "francisco.miranda",
+          "timestamp": "2025-07-02T10:40:42.457120",
+          "backup_file_doc": "v1.2_2025-07-02T10-40-42_francisco.miranda_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-02T10-40-42_francisco.miranda_technical.md"
+        }
+      ]
     },
     {
       "id": "agendamento",

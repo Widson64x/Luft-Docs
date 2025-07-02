@@ -1,7 +1,5 @@
 # Documentação Técnica
 
-***
-
 ## 1\. Estrutura de Tabelas Relacionadas à Coordenação
 
 1. **`Intec..tb_Coordenacao`**
@@ -54,8 +52,6 @@
         * `status_id` (FK)
         * `perfil_id` (FK)
 
-***
-
 ## 2\. Jobs e Processos Agendados
 
 1. **Job `Atualiza_Coordenacao_luftinforma`**
@@ -78,8 +74,6 @@
         * Anexa PDF gerado da coordenação e PDFs de notas fiscais.
         * Dispara e-mail via SMTP configurado no Servidor 80.
 
-***
-
 ## 3\. Regras de Negócio e Validações
 
 1. **Flag de Geração de Ordem de Coleta**
@@ -101,8 +95,6 @@
     * Cada ação de usuário que alterar dados críticos (status, motivo, endereços, datas) gera um registro em `tb_CoordenacaoAcao`.
     * Mantém rastreabilidade completa: usuário, data/hora, status anterior e posterior, motivo e eventuais observações.
 
-***
-
 ## 4\. Estrutura de Geração de Relatórios e Impressão
 
 1. **Geração de PDF de Coordenação**
@@ -123,8 +115,6 @@
 3. **Impressão Direta**
     * Chamadas via JavaScript (ou .NET Print API) para renderizar PDF em janela de visualização, permitindo impressão local.
 
-***
-
 ## 5\. Integrações Externas e Serviços Dependentes
 
 1. **Integração com CRM**
@@ -144,8 +134,6 @@
     * Configuração no Servidor 80 aponta para servidor SMTP corporativo (porta 25 ou 587).
     * Serviço utiliza bibliotecas .NET `MailMessage`/`SmtpClient` (ou JavaMail, conforme linguagem).
     * Template de e-mail montado com tecnologia Razor (ou equivalente), unindo dados do banco de `tb_Coordenacao` e anexos PDF.
-
-***
 
 ## 6\. Gestão de Parâmetros e Cadastros Auxiliares
 
@@ -168,8 +156,6 @@
     * Em `Intec..tb_CoordenacaoMotivo`, cada registro indica o `tipo_id` e a descrição do motivo (ex.: “Motivo de Segurança”, “Reagendamento Solicitado”).
     * A aplicação filtra motivos conforme `tipo_id` selecionado.
 
-***
-
 ## 7\. Segurança\, Logs e Auditoria
 
 1. **Controle de Acesso**
@@ -187,8 +173,6 @@
 3. **Criptografia e Proteção de Dados**
     * Campos sensíveis (como CNPJ, dados de contato) utilizam criptografia simétrica no banco (AES256), conforme política de segurança.
     * Acesso direto às tabelas via SQL (administradores) deve ter permissão limitada, com logs de consulta em `Intec..tb_LogConsultas`.
-
-***
 
 ## 8\. Fluxos de Deploy e Atualizações
 
@@ -209,8 +193,6 @@
 
 ![/data/img/coordenacao/img1.png](/data/img/coordenacao/img1.png)
 
-***
-
 ## 9\. Contatos para Suporte Técnico
 
 * **Equipe de Infraestrutura**
@@ -230,4 +212,4 @@
 
 > **Observação Final**
 
-> Esta documentação foi organizada em duas vertentes: a parte voltada ao usuário, com foco no fluxo operacional e orientações de uso, e a parte técnica, detalhando estruturas de banco, processos automatizados, integrações e governança do sistema. Ambas as seções devem ser consultadas conforme a necessidade — usuário operacional para execução de tarefas diárias e equipe técnica para manutenção, ajustes ou criação de novas funcionalidades.   
+> Esta documentação foi organizada em duas vertentes: a parte voltada ao usuário, com foco no fluxo operacional e orientações de uso, e a parte técnica, detalhando estruturas de banco, processos automatizados, integrações e governança do sistema. Ambas as seções devem ser consultadas conforme a necessidade — usuário operacional para execução de tarefas diárias e equipe técnica para manutenção, ajustes ou criação de novas funcionalidades.

@@ -28,7 +28,10 @@
     "groups": [
       "GRUPO TI"
     ],
-    "users": []
+    "users": [
+      "widson.araujo",
+      "francisco.miranda"
+    ]
   },
   "can_delete_modules": {
     "description": "Excluir módulos do sistema",

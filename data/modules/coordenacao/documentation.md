@@ -2,15 +2,9 @@
 
 Toda vez que for fazer uma operação relativa a um novo transporte (exceto Transferências e Distribuição), é exigido fazer a abertura de uma coordenação.
 
----
-
 ## Geral
 
 Toda Coordenação é aberta para uma Filial ou uma Base.
-
----
-
-## Existem vários tipos de coordenação, a saber
 
 ### Tipos de Coordenação:
 
@@ -61,8 +55,6 @@ Toda Coordenação é aberta para uma Filial ou uma Base.
 - **Pré-coordenação**  
   Permite que bases e filiais abram uma coordenação indicando uma avaria. Serve como aviso para a área de [[CRM]], evitando o tráfego de emails. A partir desta pré-coordenação, o [[CRM]] gera uma Coordenação de Autorização de Retorno.
 
----
-
 ## Portal de Transportes
 
 No Portal de Transportes existe a opção das bases abrirem estas coordenações.
@@ -83,6 +75,8 @@ No Portal de Transportes existe a opção das bases abrirem estas coordenações
 
 ![Tela de Cadastro](/data/img/coordenação/img3.png)
 
+---
+
 #### Funcionamento das Coordenações
 
 As coordenações são cadastradas com a cláusula de gerar ou não uma ordem de coleta.
@@ -93,8 +87,6 @@ No caso da Coordenação tipo 5 (autorização de retorno), a Torre também pode
 
 Exceto a pré-coordenação, todas as demais geram e-mails para os endereços vinculados àquela filial ou base.  
 A manutenção destes e-mails é feita na tela de Cadastro de Emails de Filiais e Bases.
-
----
 
 ## Exemplo de E-mail de Coordenação
 ![Exemplo de E-mail de Coordenação](/data/img/coordenação/img4.png)
@@ -119,9 +111,7 @@ Para incluir dados de uma coordenação, existem 7 abas com dados obrigatórios 
 6. **Transit Time** — Busca tabela de TT baseada no CNPJ do solicitante e motivo ‘DEV’. Se não encontrado, aplica tabela ND com prazo default (10 dias). Calcula prazo e exibe TT atual.  
 7. **Log Alterações** — Histórico das ações dadas à coordenação.
 
-![ela de Coordenação no LuftInforma](/data/img/coordenação/img6.png)
-
----
+![Tela de Coordenação no LuftInforma](/data/img/coordenação/img6.png)
 
 ## Botões e Funcionalidades
 
@@ -138,5 +128,4 @@ Para incluir dados de uma coordenação, existem 7 abas com dados obrigatórios 
 ## Anexos
 
 - [Fluxo de Coordenação (PNG)](/download?token=__TOKEN_PLACEHOLDER__&download=coordenacao_fluxo.png)
-- [Manual de Coordenação (DOCX)](/download?token=__TOKEN_PLACEHOLDER__&download=Coordenacao.docx)
-- [Documento de Coordenação (PNG)](/download?token=__TOKEN_PLACEHOLDER__&download=Documento_Coordenacao.png)
+- [Documento de Coordenação (DOCX)](/download?token=__TOKEN_PLACEHOLDER__&download=Coordenacao.docx)

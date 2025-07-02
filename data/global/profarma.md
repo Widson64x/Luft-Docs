@@ -2,8 +2,6 @@
 
 A Profarma é uma das maiores distribuidoras de produtos farmacêuticos e de higiene pessoal do Brasil. Com um modelo de negócio abrangente, atua na distribuição para farmácias e hospitais e também no varejo, através da rede de drogarias Drogasmil, Farmalife e Tamoio. Seu objetivo é ser o elo mais eficiente entre a indústria e o varejo farmacêutico.
 
----
-
 ## Histórico
 
 -   **1961**: Fundação da Profarma Distribuidora de Produtos Farmacêuticos.
@@ -12,15 +10,12 @@ A Profarma é uma das maiores distribuidoras de produtos farmacêuticos e de hig
 -   **2014**: Compra a rede de drogarias Farmalife, reforçando sua atuação no varejo.
 -   **2020 em diante**: Foco na digitalização de processos, otimização logística e expansão da plataforma de marketplace "Meu Tio".
 
----
 
 ## Presença no Brasil
 
 -   **Centros de Distribuição**: Possui 10 Centros de Distribuição estrategicamente localizados em estados como Rio de Janeiro, São Paulo, Minas Gerais, Pernambuco, Ceará, Bahia, Espírito Santo, Goiás e Paraná, cobrindo 94% do mercado consumidor nacional.
 -   **Varejo (Drogarias)**: Concentra sua rede de lojas principalmente no estado do Rio de Janeiro.
 -   **Força de Vendas**: Conta com uma ampla equipe comercial que atende milhares de farmácias independentes e redes em todo o país.
-
----
 
 ## Portfólio de Produtos e Serviços
 
@@ -31,8 +26,6 @@ A Profarma é uma das maiores distribuidoras de produtos farmacêuticos e de hig
 -   **Varejo**: Venda direta ao consumidor através das bandeiras Drogasmil, Farmalife e Tamoio.
 -   **Serviços para a Indústria**: Oferece soluções de logística, armazenagem e inteligência de mercado para os fabricantes.
 -   **Plataforma Digital**: "Meu Tio", um marketplace B2B que conecta farmácias a um vasto portfólio de produtos.
-
----
 
 ## Logística e Agendamento para Entregas
 

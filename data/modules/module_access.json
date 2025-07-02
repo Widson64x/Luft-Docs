@@ -1,28 +1,56 @@
 {
   "coordenacao": {
-    "total": 16,
+    "total": 33,
     "historico": {
       "2025-06-30": 4,
-      "2025-07-01": 12
+      "2025-07-01": 14,
+      "2025-07-02": 15
     }
   },
   "tarifas-complementares": {
-    "total": 1,
+    "total": 5,
     "historico": {
-      "2025-06-30": 1
+      "2025-06-30": 1,
+      "2025-07-02": 4
     }
   },
   "agendamento": {
-    "total": 36,
+    "total": 124,
     "historico": {
       "2025-06-30": 13,
-      "2025-07-01": 23
+      "2025-07-01": 29,
+      "2025-07-02": 82
     }
   },
   "telas-informa": {
-    "total": 1,
+    "total": 6,
     "historico": {
-      "2025-07-01": 1
+      "2025-07-01": 1,
+      "2025-07-02": 5
+    }
+  },
+  "Raia": {
+    "total": 6,
+    "historico": {
+      "2025-07-02": 6
+    }
+  },
+  "Profarma": {
+    "total": 5,
+    "historico": {
+      "2025-07-02": 5
+    }
+  },
+  "GSK": {
+    "total": 3,
+    "historico": {
+      "2025-07-02": 3
+    }
+  },
+  "RAIA": {
+    "total": 2,
+    "historico": {
+      "2025-07-02": 2
     }
   }
 }

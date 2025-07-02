@@ -36,21 +36,17 @@ def destacar_termo(texto, termo):
             f"<mark style='background:#ffe066;color:#222;border-radius:6px;"
             f"font-weight:600;'>{escape(match.group(0))}</mark>"
         )
-
     return Markup(pattern.sub(_repl, escape(texto)))
-
 
 @index_bp.route('/data/img/<path:nome_arquivo>')
 def serve_imagem_dinamica(nome_arquivo):
     caminho_base = os.path.join(current_app.root_path, 'data', 'img')
     return send_from_directory(caminho_base, nome_arquivo)
 
-
 @index_bp.route('/data/videos/<path:nome_arquivo>')
 def serve_video(nome_arquivo):
     caminho_base = os.path.join(current_app.root_path, 'data', 'videos')
     return send_from_directory(caminho_base, nome_arquivo)
-
 
 @index_bp.route('/', methods=['GET'])
 def index():

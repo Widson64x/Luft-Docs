@@ -7,40 +7,38 @@
 
 <style>
 /* ===================================================================
-    PENDING.HTML - DESIGN "DASHBOARD DE TRIAGEM" (NOVO)
-    + MODAL DE COMPARAÇÃO (ORIGINAL RESTAURADO E TEMÁTICO)
-    =================================================================== */
+   PENDING.HTML - DESIGN "DASHBOARD DE TRIAGEM"
+   + MODAL DE COMPARAÇÃO TEMÁTICO
+   =================================================================== */
 
 /* --- Variáveis de Tema para esta Página --- */
 :root {
   --page-bg: #f3f6fc;
-  --text-primary: #64748b;
+  --text-primary: #334155;
   --text-secondary: #64748b;
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
   --shadow-color: rgba(100, 116, 139, 0.1);
   --accent-color: #0d6efd;
   
-  /* Cores do Modal Original - Tema Claro */
+  /* Cores do Modal */
   --panel-bg: #f8f9fa;
   --panel-header-bg: #f1f3f4;
 }
 
 /* Dark Mode Variables */
 body[data-bs-theme="dark"] {
-  --page-bg: #1a202c; /* Darker background */
-  --text-primary: #f8f9fa; /* White text for primary elements */
-  --text-secondary: #a0aec0; /* Lighter gray for secondary text */
-  --card-bg: #2d3748; /* Darker card background */
-  --border-color: #4a5568; /* Darker border */
-  --shadow-color: rgba(0, 0, 0, 0.3); /* Darker shadow */
-  --accent-color: #0d6efd; /* Keep accent color same or adjust if needed */
+  --page-bg: #1a202c;
+  --text-primary: #f8f9fa;
+  --text-secondary: #a0aec0;
+  --card-bg: #2d3748;
+  --border-color: #4a5568;
+  --shadow-color: rgba(0, 0, 0, 0.3);
 
-  /* Cores do Modal Original - Tema Escuro */
+  /* Cores do Modal - Tema Escuro */
   --panel-bg: #2d3748;
   --panel-header-bg: #4a5568;
 }
-
 
 body { background-color: var(--page-bg); transition: background-color 0.3s; }
 
@@ -50,14 +48,14 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Estrutura do Dashboard (NOVO) --- */
+/* --- Estrutura do Dashboard --- */
 .pending-dashboard {
   max-width: 960px;
   margin: 0 auto;
 }
 
 .pending-header h1 {
-  color: var(--text-primary); /* Uses text-primary variable */
+  color: var(--text-primary);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -68,7 +66,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   color: white;
 }
 
-/* --- Lista de Pendências (NOVO) --- */
+/* --- Lista de Pendências --- */
 .pending-list .pending-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -108,7 +106,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 }
 
 .item-info .module-name {
-  color: var(--text-primary); /* Uses text-primary variable */
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -119,7 +117,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 
 .item-actions .btn { border-radius: 0.5rem; }
 
-/* Mensagem de "Nenhuma Pendência" (NOVO) */
+/* Mensagem de "Nenhuma Pendência" */
 .no-pending-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -129,22 +127,18 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   color: var(--text-secondary);
 }
 
-/* --- MODAL DE COMPARAÇÃO (ESTILO ORIGINAL RESTAURADO + TEMA) --- */
+/* --- MODAL DE COMPARAÇÃO --- */
 .modal-xxl { max-width: 95vw; }
 
-#diffModal .modal-content .pending-header{
+#diffModal .modal-content {
   background-color: var(--card-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
-
 #diffModal .modal-header {
   background-color: var(--panel-header-bg);
   border-bottom: 1px solid var(--border-color);
-}
-#diffModal .modal-body {
-  color: var(--text-secondary);
 }
 
 .panel-header {
@@ -171,7 +165,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   transition: background-color .3s, border-color .3s;
 }
 
-/* Os estilos para <mark> e <del> foram mantidos como no original */
+/* Estilos para diff (inserção/remoção) */
 .comparison-panel mark {
   padding: 0.1em 0.2em;
   border-radius: 0.2em;
@@ -197,14 +191,19 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   {% if pendentes %}
     <div class="pending-list d-flex flex-column gap-3">
       {% for item in pendentes %}
+        {# A variável 'm' agora é uma referência mais curta para item.modulo #}
         {% set m = item.modulo %}
         <div class="pending-item" style="--delay: {{ loop.index0 }};">
-          <div class="user-avatar" title="{{ m.ultima_edicao.user }}" style="--initial: '{{ m.ultima_edicao.user[0]|upper }}';"></div>
+
+          {# ATUALIZADO: Usando 'item.editor' que foi preparado na rota #}
+          <div class="user-avatar" title="{{ item.editor }}" style="--initial: '{{ item.editor[0]|upper }}';"></div>
+          
           <div class="item-info">
             <div class="module-name">{{ m.nome }}</div>
             <div class="module-meta">
               <span>ID: {{ m.id }}</span> &middot;
-              <span><i class="bi bi-clock"></i> {{ m.ultima_edicao.data }}</span>
+              {# ATUALIZADO: Usando 'm.pending_edit_info.data' e formatando a data #}
+              <span><i class="bi bi-clock"></i> {{ m.pending_edit_info.data.split('T')[0] }}</span>
             </div>
           </div>
           <div class="item-actions d-flex align-items-center gap-2 flex-wrap">
@@ -235,7 +234,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
 <div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xxl modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header bg-light">
+      <div class="modal-header">
         <h5 class="modal-title" id="diffModalLabel">
           <i class="bi bi-arrow-left-right"></i> Comparação de Pendência
         </h5>
@@ -244,9 +243,7 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
       <div class="modal-body container-fluid">
         <div class="row mb-3">
           <div class="col">
-            <span class="badge bg-success" style="background:#d4fcbc;color:#222;">Inserção</span>
-            <span class="badge bg-danger" style="background:#ffe6e6;color:#222;">Remoção</span>
-            <span class="ms-2 text-muted small">Destaques: <mark style="background:#d4fcbc">adicionado</mark>, <mark style="background:#ffe6e6;text-decoration:line-through;">removido</mark></span>
+            <span class="ms-2 text-muted small">Destaques: <mark style="background:#d4fcbc;color:#222;">Adicionado</mark>, <mark style="background:#ffe6e6;color:#222;text-decoration:line-through;">Removido</mark></span>
           </div>
         </div>
         <div class="row mb-5">
@@ -284,43 +281,6 @@ body { background-color: var(--page-bg); transition: background-color 0.3s; }
   </div>
 </div>
 
-<style>
-/* This style block is duplicated and should be removed or merged */
-.modal-xxl { max-width: 98vw; }
-.panel-header {
-  font-weight: 500;
-  background: #f1f3f4;
-  border-radius: 0.5rem 0.5rem 0 0;
-  padding: 0.5rem 1rem;
-  margin-bottom: -1px;
-  border-bottom: 1px solid #dee2e6;
-}
-.comparison-panel {
-  border: 1px solid #dee2e6;
-  border-radius: 0 0 0.5rem 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  min-height: 350px;
-  max-height: 65vh;
-  overflow: auto;
-  font-size: 1.08rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-}
-
-.comparison-panel mark {
-  padding: 0.1em 0.2em;
-  border-radius: 0.2em;
-}
-.comparison-panel del, .comparison-panel mark[style*="line-through"] {
-  background: #ffe6e6;
-  text-decoration: line-through;
-}
-@media (max-width: 991px) {
-  .comparison-panel { min-height: 180px; }
-  .panel-header { font-size: 1rem; }
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var diffModal = document.getElementById('diffModal');
@@ -332,9 +292,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var techVig = document.getElementById('tech-vigente');
     var techPen = document.getElementById('tech-pendente');
     var diffLoader = document.getElementById('diffLoader');
+    
     // Limpa antes de carregar
     docVig.innerHTML = docPen.innerHTML = techVig.innerHTML = techPen.innerHTML = '';
     diffLoader.style.display = 'block';
+
     fetch('{{ url_for("editor.diff_pendente") }}?mid=' + encodeURIComponent(mid) + '&token={{ token }}')
       .then(response => response.json())
       .then(data => {

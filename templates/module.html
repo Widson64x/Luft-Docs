@@ -35,7 +35,45 @@
     .autocomplete-list li:hover, .autocomplete-list li.active {
         background: #e6f7ff;
     }
+      /* Estilos para a classe markdown-body (ADICIONADO) */
+      tbody, td, tfoot, th, thead, tr{
+        color: white;
+      }
+      .markdown-body table{
+        border-radius: 10px;
+      }
+
+        .markdown-body ol ol,
+        .markdown-body ul ol {
+            list-style-type: upper-roman; /* Define o estilo como A, B, C... */
+        }
+
+        .markdown-body ol ol li::marker,
+        .markdown-body ul ol li::marker {
+            font-weight: bold; /* Deixa o marcador em negrito */
+        }
+
+      .markdown-body {
+          box-sizing: border-box;
+          min-width: 200px;
+          max-width: 980px;
+          margin: 0 auto;
+          padding: 45px;
+          color: #1e1e1e;
+          /* Garante que a cor do texto no markdown respeite o tema claro/escuro */
+          background-color: transparent;
+      }
+      body.theme-dark .markdown-body {
+          background-color: transparent;
+          color: white;
+      }
+      @media (max-width: 767px) {
+          .markdown-body {
+              padding: 15px;
+          }
+      }
     </style>
+    
     {# Formulário de busca dentro do módulo, preservando token e módulo #}
     <form class="busca-global mb-4 position-relative" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get" autocomplete="off">
         <input type="hidden" name="token" value="{{ request.args.get('token') }}">
@@ -50,51 +88,49 @@
         <ul id="autocomplete-list" class="autocomplete-list"></ul>
     </form>
 
-    <h1 class="mb-1">{{ modulo['nome'] }}</h1>
-    <p class="mb-1"><i>{{ modulo['descricao'] }}</i></p>
-    <hr>
+    <div class="markdown-body">
+        <h1 class="mb-1">{{ modulo['nome'] }}</h1>
+        <p class="mb-1"><i>{{ modulo['descricao'] }}</i></p>
 
-    {% if resultado_highlight %}
-        <div class="alert alert-info">
-            Mostrando resultados para: <b>{{ query }}</b>
+        {% if resultado_highlight %}
+            <div class="alert alert-info">
+                Mostrando resultados para: <b>{{ query }}</b>
+            </div>
+        {% endif %}
+
+        <div class="modulo-conteudo" id="imagem-viewer">
+            {# 1) Pega o HTML bruto, que contém "__TOKEN_PLACEHOLDER__" #}
+            {% set html_bruto = conteudo %}
+
+            {# 2) Substitui o marcador pelo token real #}
+            {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+
+            {#
+                3) Corrige links que apontam originalmente para "/downloads/docs/arquivo"
+                   de modo que passem a chamar:
+                     /?token=<TOKEN>&download=<arquivo>
+            #}
+            {% set prefix = '/downloads/docs/' %}
+            {% set replace_prefix = '/?token=' ~ request.args.get('token', '') ~ '&download=' %}
+            {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
+
+            {# 4) Renderiza o HTML final #}
+            {{ conteudo_final | safe }}
         </div>
-    {% endif %}
-
-    <div class="modulo-conteudo" id="imagem-viewer">
-        {# 1) Pega o HTML bruto, que contém "__TOKEN_PLACEHOLDER__" #}
-        {% set html_bruto = conteudo %}
-
-        {# 2) Substitui o marcador pelo token real #}
-        {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
-
-        {#
-           3) Corrige links que apontam originalmente para "/downloads/docs/arquivo"
-             de modo que passem a chamar:
-               /?token=<TOKEN>&download=<arquivo>
-        #}
-        {% set prefix = '/downloads/docs/' %}
-        {% set replace_prefix = '/?token=' ~ request.args.get('token', '') ~ '&download=' %}
-        {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
-
-        {# 4) Renderiza o HTML final #}
-        {{ conteudo_final | safe }}
     </div>
-
     <hr>
     <h3 class="mb-3">Módulos Relacionados</h3>
     <div class="relacionados mb-4">
         {% for rel in relacionados %}
             <a class="btn btn-outline-primary btn-sm me-1 mb-1"
                href="{{ url_for('submodulo.ver_submodulo_pela_raiz',
-                                **{'token': request.args.get('token'),
-                                   'modulo': rel['id']}) }}">
+                                 **{'token': request.args.get('token'),
+                                    'modulo': rel['id']}) }}">
                 <i class="bi {{ rel['icone'] }}"></i> {{ rel['nome'] }}
             </a>
-
         {% endfor %}
     </div>
 
-    <!-- Modal de visualização de imagem (permanece igual) -->
     <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark border-0">

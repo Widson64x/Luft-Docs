@@ -91,21 +91,22 @@ def salvar_edicao_modulo(modulo, novo_conteudo, user_name):
 def salvar_edicao_modulo_com_tecnico(modulo, novo_conteudo, novo_conteudo_tech, user_name):
     """
     Grava em pending_documentation.md e pending_technical_documentation.md,
-    marca status como 'pendente'.
+    marca status como 'pendente' e registra quem editou no campo 'pending_edit_info'.
     """
-    mod_id    = modulo['id']
-    path_mod  = os.path.join(DATA_DIR, mod_id)
+    mod_id = modulo['id']
+    path_mod = os.path.join(DATA_DIR, mod_id)
     os.makedirs(path_mod, exist_ok=True)
 
-    # 1) Salva both pending files
+    # 1) Salva os arquivos pendentes
     with open(os.path.join(path_mod, "pending_documentation.md"), "w", encoding="utf-8") as f:
         f.write(novo_conteudo)
     with open(os.path.join(path_mod, "pending_technical_documentation.md"), "w", encoding="utf-8") as f:
         f.write(novo_conteudo_tech)
 
-    # 2) Atualiza status para pendente
+    # 2) ATUALIZADO: Atualiza o status e as informações da edição pendente
+    # Em vez de 'ultima_edicao', usamos um campo específico para pendências.
     modulo['status'] = 'pendente'
-    modulo['ultima_edicao'] = {"user": user_name, "data": datetime.now().isoformat()}
+    modulo['pending_edit_info'] = {"user": user_name, "data": datetime.now().isoformat()}
 
     # 3) Atualiza config.json
     with open(CONFIG_FILE, "r", encoding='utf-8') as f:
@@ -307,13 +308,15 @@ def criar_modulo():
     token = request.args.get('token', '')
     if request.method == 'POST':
         user_name_session = session.get('user_name', 'Anônimo')
-        mid          = request.form['id']
-        nome         = request.form['nome']
-        descricao    = request.form['descricao']
-        icone        = request.form['icone']
+        mid = request.form['id']
+        nome = request.form['nome']
+        descricao = request.form['descricao']
+        icone = request.form['icone']
         palavras_chave = [k.strip() for k in request.form['palavras_chave'].split(',') if k.strip()]
-        relacionados   = [k.strip() for k in request.form['relacionados'].split(',') if k.strip()]
+        relacionados = [k.strip() for k in request.form['relacionados'].split(',') if k.strip()]
+        agora = datetime.now().isoformat()
 
+        # ATUALIZADO: Estrutura completa do novo módulo com versionamento
         novo_modulo = {
             "id": mid,
             "nome": nome,
@@ -321,12 +324,28 @@ def criar_modulo():
             "icone": icone,
             "palavras_chave": palavras_chave,
             "relacionados": relacionados,
-            "status": "aprovado",
-            "ultima_edicao": {"user": user_name_session, "data": datetime.now().isoformat()}
+            "status": "aprovado", # Começa como aprovado
+            "version_info": {
+                "current_version": "1.0",
+                "last_approved_by": user_name_session, # O criador é o primeiro "aprovador"
+                "last_approved_on": agora
+            },
+            "pending_edit_info": { # Nenhuma edição pendente ao criar
+                "user": None,
+                "data": None
+            },
+            "edit_history": [ # O primeiro evento do histórico é a criação
+                {
+                    "event": "criado",
+                    "version": "1.0",
+                    "user": user_name_session,
+                    "timestamp": agora
+                }
+            ]
         }
 
         # Limpa quebras antes de salvar
-        doc_content  = limpar_linhas_em_branco(request.form.get('doc_content', '# Novo módulo\n'))
+        doc_content = limpar_linhas_em_branco(request.form.get('doc_content', '# Novo módulo\n'))
         tech_content = limpar_linhas_em_branco(request.form.get('tech_content', '# Documentação técnica inicial\n'))
 
         # Atualiza config.json
@@ -336,10 +355,14 @@ def criar_modulo():
         with open(CONFIG_FILE, "w", encoding='utf-8') as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
 
-        # Salva arquivos com backup
-        salvar_edicao_modulo_com_tecnico(novo_modulo, doc_content, tech_content, user_name_session)
+        # Salva os arquivos de documentação iniciais (sem pendência)
+        path_mod = os.path.join(DATA_DIR, mid)
+        os.makedirs(path_mod, exist_ok=True)
+        with open(os.path.join(path_mod, "documentation.md"), "w", encoding="utf-8") as f:
+            f.write(doc_content)
+        with open(os.path.join(path_mod, "technical_documentation.md"), "w", encoding="utf-8") as f:
+            f.write(tech_content)
 
-        # flash("Módulo criado e publicado!", "success")
         return redirect(url_for('.editor_index', token=token))
 
     return render_template('editor/module_new.html', token=token)
@@ -438,23 +461,33 @@ def pendentes():
 
     token = request.args.get('token', '')
     modulos, _ = carregar_modulos()
-    pendentes = []
+    lista_pendentes = [] # Usando um novo nome de variável para clareza
+    
     for m in modulos:
         mod_id = m['id']
         path_mod = os.path.join(DATA_DIR, mod_id)
-        pend_doc = os.path.join(path_mod, "pending_documentation.md")
-        pend_tech = os.path.join(path_mod, "pending_technical_documentation.md")
-        pendente_normal = os.path.exists(pend_doc)
-        pendente_tecnico = os.path.exists(pend_tech)
+        pend_doc_path = os.path.join(path_mod, "pending_documentation.md")
+        pend_tech_path = os.path.join(path_mod, "pending_technical_documentation.md")
+        
+        pendente_normal = os.path.exists(pend_doc_path)
+        pendente_tecnico = os.path.exists(pend_tech_path)
+
+        # Se houver qualquer pendência, adiciona à lista
         if pendente_normal or pendente_tecnico:
-            pendentes.append({
+            # Pega o nome do editor de forma segura a partir de 'pending_edit_info'
+            editor_info = m.get('pending_edit_info', {})
+            editor_name = editor_info.get('user', 'N/A') # 'N/A' como fallback
+
+            lista_pendentes.append({
                 "modulo": m,
+                "editor": editor_name, # <-- Adiciona o nome do editor diretamente aqui
                 "pendente_normal": pendente_normal,
                 "pendente_tecnico": pendente_tecnico
             })
+            
     return render_template(
         'editor/pending.html',
-        pendentes=pendentes,
+        pendentes=lista_pendentes, # Passa a lista preparada para o template
         token=token
     )
 
@@ -516,9 +549,9 @@ def diff_pendente():
 @editor_bp.route('/aprovar/<mid>', methods=['POST'])
 def aprovar(mid):
     # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
-    grupo, user_name_session = get_user_group()
+    grupo, user_name_approver = get_user_group() # Este é o usuário que está APROVANDO
     perms = load_permissions().get('can_module_control', {})
-    allowed = (grupo in perms.get('groups', []) or user_name_session in perms.get('users', []))
+    allowed = (grupo in perms.get('groups', []) or user_name_approver in perms.get('users', []))
     if not allowed:
         return render_template('access_denied.html', reason="Você não tem permissão para aprovar alterações."), 403
     # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
@@ -527,32 +560,68 @@ def aprovar(mid):
     modulos, _ = carregar_modulos()
     modulo = get_modulo_by_id(modulos, mid)
     path_mod = os.path.join(DATA_DIR, mid)
+    
     pending_path = os.path.join(path_mod, "pending_documentation.md")
     official_path = os.path.join(path_mod, "documentation.md")
     tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
     tech_official_path = os.path.join(path_mod, "technical_documentation.md")
-    user_name = session.get("user_name", "Anônimo") # Mantém o nome do usuário da sessão para os logs
+    
+    # Pega o nome do usuário que EDITOU (que estava na pendência)
+    editor_info = modulo.get('pending_edit_info', {})
+    user_name_editor = editor_info.get('user', 'Desconhecido')
 
+    # Lógica de versionamento (ex: 1.0 -> 1.1, 1.9 -> 2.0)
+    versao_atual = modulo.get('version_info', {}).get('current_version', '1.0').split('.')
+    major, minor = int(versao_atual[0]), int(versao_atual[1])
+    minor += 1
+    # if minor >= 10: # Opcional: fazer bump da versão major
+    #     major += 1
+    #     minor = 0
+    nova_versao = f"{major}.{minor}"
+    agora = datetime.now()
+    data_str = agora.strftime("%Y-%m-%dT%H-%M-%S")
+    
+    # Cria backups nomeados com a nova versão
     history_dir = os.path.join(path_mod, "history")
     os.makedirs(history_dir, exist_ok=True)
-    data = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    backup_name, backup_name_tech = None, None
     if os.path.exists(official_path):
-        backup_name = f"{data}_{user_name}_documentation.md"
-        backup_path = os.path.join(history_dir, backup_name)
-        shutil.copyfile(official_path, backup_path)
+        backup_name = f"v{nova_versao}_{data_str}_{user_name_approver}_documentation.md"
+        shutil.copyfile(official_path, os.path.join(history_dir, backup_name))
     if os.path.exists(tech_official_path):
-        backup_name_tech = f"{data}_{user_name}_technical.md"
-        backup_path_tech = os.path.join(history_dir, backup_name_tech)
-        shutil.copyfile(tech_official_path, backup_path_tech)
+        backup_name_tech = f"v{nova_versao}_{data_str}_{user_name_approver}_technical.md"
+        shutil.copyfile(tech_official_path, os.path.join(history_dir, backup_name_tech))
 
+    # Move os arquivos pendentes para oficiais
     if os.path.exists(pending_path):
         shutil.move(pending_path, official_path)
     if os.path.exists(tech_pending_path):
         shutil.move(tech_pending_path, tech_official_path)
 
+    # ATUALIZADO: Atualiza o dicionário completo do módulo
     modulo['status'] = 'aprovado'
-    modulo['ultima_edicao'] = {"user": user_name, "data": datetime.now().isoformat()}
-
+    modulo['version_info'] = {
+        "current_version": nova_versao,
+        "last_approved_by": user_name_approver,
+        "last_approved_on": agora.isoformat()
+    }
+    modulo['pending_edit_info'] = {"user": None, "data": None} # Limpa a pendência
+    
+    if 'edit_history' not in modulo:
+        modulo['edit_history'] = []
+    
+    # Adiciona o evento de aprovação ao histórico, incluindo quem editou e quem aprovou
+    modulo['edit_history'].append({
+        "event": "aprovado",
+        "version": nova_versao,
+        "editor": user_name_editor,
+        "approver": user_name_approver,
+        "timestamp": agora.isoformat(),
+        "backup_file_doc": backup_name,
+        "backup_file_tech": backup_name_tech
+    })
+    
+    # Salva as alterações no config.json
     with open(CONFIG_FILE, "r", encoding='utf-8') as f:
         config = json.load(f)
     for idx, m in enumerate(config['modulos']):
@@ -567,9 +636,9 @@ def aprovar(mid):
 @editor_bp.route('/rejeitar/<mid>', methods=['POST'])
 def rejeitar(mid):
     # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
-    grupo, user_name = get_user_group()
+    grupo, user_name_rejecter = get_user_group() # Este é o usuário que está REJEITANDO
     perms = load_permissions().get('can_module_control', {})
-    allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
+    allowed = (grupo in perms.get('groups', []) or user_name_rejecter in perms.get('users', []))
     if not allowed:
         return render_template('access_denied.html', reason="Você não tem permissão para rejeitar alterações."), 403
     # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
@@ -581,12 +650,30 @@ def rejeitar(mid):
     pending_path = os.path.join(path_mod, "pending_documentation.md")
     tech_pending_path = os.path.join(path_mod, "pending_technical_documentation.md")
 
+    # Pega o nome do usuário que EDITOU (cuja edição foi rejeitada)
+    editor_info = modulo.get('pending_edit_info', {})
+    user_name_editor = editor_info.get('user', 'Desconhecido')
+
     if os.path.exists(pending_path):
         os.remove(pending_path)
     if os.path.exists(tech_pending_path):
         os.remove(tech_pending_path)
 
-    modulo['status'] = 'aprovado'
+    # ATUALIZADO: Atualiza o status e limpa a pendência
+    modulo['status'] = 'aprovado' # Volta ao estado anterior
+    modulo['pending_edit_info'] = {"user": None, "data": None}
+    
+    if 'edit_history' not in modulo:
+        modulo['edit_history'] = []
+
+    # Adiciona o evento de rejeição ao histórico
+    modulo['edit_history'].append({
+        "event": "rejeitado",
+        "editor": user_name_editor,
+        "rejecter": user_name_rejecter,
+        "timestamp": datetime.now().isoformat()
+    })
+
     with open(CONFIG_FILE, "r", encoding='utf-8') as f:
         config = json.load(f)
     for idx, m in enumerate(config['modulos']):
@@ -600,6 +687,12 @@ def rejeitar(mid):
 
 @editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
 def historico_modulo(mid):
+    """
+    MODIFICADO: A lógica de restauração (POST) foi refeita para:
+    1. Fazer backup da versão vigente antes de sobrescrever.
+    2. Atualizar o 'version_info' no config.json para refletir a versão restaurada.
+    3. Adicionar um evento 'restaurado' no 'edit_history' para auditoria completa.
+    """
     # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
     grupo, user_name = get_user_group()
     perms = load_permissions().get('can_versioning_modules', {})
@@ -609,57 +702,159 @@ def historico_modulo(mid):
     # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
 
     token = request.args.get('token', '')
+    modulos, _ = carregar_modulos()
+    modulo = get_modulo_by_id(modulos, mid)
+    if not modulo:
+        abort(404)
+
     path_mod = os.path.join(DATA_DIR, mid)
     history_dir = os.path.join(path_mod, "history")
-    official_path = os.path.join(path_mod, "documentation.md")
-    tech_official_path = os.path.join(path_mod, "technical_documentation.md")
-
-    historicos = []
-    historicos_tech = []
-    if os.path.isdir(history_dir):
-        for fname in sorted(os.listdir(history_dir), reverse=True):
-            fpath = os.path.join(history_dir, fname)
-            if fname.endswith('_documentation.md'):
-                with open(fpath, encoding='utf-8') as f:
-                    content = f.read()
-                historicos.append({'filename': fname, 'content': content})
-            elif fname.endswith('_technical.md'):
-                with open(fpath, encoding='utf-8') as f:
-                    content = f.read()
-                historicos_tech.append({'filename': fname, 'content': content})
-
+    
+    # --- LÓGICA DE RESTAURAÇÃO (POST) ATUALIZADA ---
     if request.method == 'POST':
-        tipo = request.form.get('tipo')
-        versao = request.form.get('versao')
-        if tipo == 'doc':
-            vigente_path = official_path
-        else:
-            vigente_path = tech_official_path
+        versao_filename = request.form.get('versao_filename')
+        tipo = request.form.get('tipo')  # 'doc' ou 'tech'
+        
+        if not versao_filename or not tipo:
+            flash('Informações de restauração incompletas.', 'danger')
+            return redirect(url_for('editor.historico_modulo', mid=mid, token=token))
 
-        versao_path = os.path.join(history_dir, versao)
+        vigente_path = os.path.join(path_mod, "documentation.md" if tipo == 'doc' else "technical_documentation.md")
+        versao_path = os.path.join(history_dir, versao_filename)
+
         if os.path.exists(versao_path):
+            agora = datetime.now()
+            
+            # 1. Fazer backup da versão atual antes de sobrescrevê-la (segurança)
             if os.path.exists(vigente_path):
-                data = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-                if tipo == 'doc':
-                    backup_name = f"{data}_vigente_documentation.md"
-                else:
-                    backup_name = f"{data}_vigente_technical.md"
-                backup_path = os.path.join(history_dir, backup_name)
-                shutil.copyfile(vigente_path, backup_path)
+                backup_vigente_name = f"{agora.strftime('%Y-%m-%dT%H-%M-%S')}_backup_antes_da_restauracao.md"
+                shutil.copyfile(vigente_path, os.path.join(history_dir, backup_vigente_name))
+
+            # 2. Restaurar o arquivo da versão escolhida
             shutil.copyfile(versao_path, vigente_path)
+
+            # 3. Extrair a informação da versão do nome do arquivo (ex: 'v1.2_...')
+            try:
+                versao_restaurada = versao_filename.split('_')[0].replace('v', '')
+            except IndexError:
+                versao_restaurada = "desconhecida"
+
+            # 4. Atualizar o estado do módulo no dicionário
+            modulo['version_info']['current_version'] = versao_restaurada
+            modulo['version_info']['last_approved_by'] = user_name # O restaurador é o "aprovador" deste estado
+            modulo['version_info']['last_approved_on'] = agora.isoformat()
+            
+            # 5. Adicionar um evento de "restaurado" ao histórico
+            if 'edit_history' not in modulo:
+                modulo['edit_history'] = []
+            modulo['edit_history'].append({
+                "event": "restaurado",
+                "version": versao_restaurada,
+                "restorer": user_name,
+                "timestamp": agora.isoformat(),
+                "restored_from_file": versao_filename
+            })
+            
+            # 6. Salvar o config.json atualizado
+            with open(CONFIG_FILE, "r", encoding='utf-8') as f:
+                config = json.load(f)
+            for idx, m in enumerate(config['modulos']):
+                if m['id'] == mid:
+                    config['modulos'][idx] = modulo
+                    break
+            with open(CONFIG_FILE, "w", encoding='utf-8') as f:
+                json.dump(config, f, ensure_ascii=False, indent=2)
+
+            flash(f'Módulo revertido para a versão {versao_restaurada} com sucesso!', 'success')
         else:
             flash('Arquivo de versão não encontrado.', 'danger')
+        
         return redirect(url_for('editor.historico_modulo', mid=mid, token=token))
 
+    # --- LÓGICA DE EXIBIÇÃO (GET) - SEM ALTERAÇÕES ---
+    historico_eventos = sorted(modulo.get('edit_history', []), key=lambda x: x['timestamp'], reverse=True)
+
+    official_path = os.path.join(path_mod, "documentation.md")
+    tech_official_path = os.path.join(path_mod, "technical_documentation.md")
     vigente = open(official_path, encoding='utf-8').read() if os.path.exists(official_path) else ""
     vigente_tech = open(tech_official_path, encoding='utf-8').read() if os.path.exists(tech_official_path) else ""
 
     return render_template(
         'editor/historical_module.html',
-        mid=mid,
-        historicos=historicos,
-        historicos_tech=historicos_tech,
+        modulo=modulo,
+        historico_eventos=historico_eventos,
         vigente=vigente,
         vigente_tech=vigente_tech,
         token=token
     )
+
+@editor_bp.route('/diff_historico')
+def diff_historico():
+    """
+    Gera um diff entre dois arquivos de backup do histórico.
+    """
+    # Verificação de permissão
+    grupo, user_name = get_user_group()
+    perms = load_permissions().get('can_versioning_modules', {})
+    if not (grupo in perms.get('groups', []) or user_name in perms.get('users', [])):
+        return jsonify({'error': 'Acesso negado.'}), 403
+
+    # Obtenção dos parâmetros
+    mid = request.args.get('mid')
+    file1 = request.args.get('file1')
+    file2 = request.args.get('file2')
+
+    if not all([mid, file1, file2]):
+        return jsonify({'error': 'Parâmetros ausentes para a comparação.'}), 400
+
+    history_dir = os.path.join(DATA_DIR, mid, "history")
+    path1 = os.path.join(history_dir, secure_filename(file1))
+    path2 = os.path.join(history_dir, secure_filename(file2))
+
+    if not os.path.exists(path1) or not os.path.exists(path2):
+        return jsonify({'error': 'Um ou mais arquivos da versão não foram encontrados.'}), 404
+        
+    with open(path1, 'r', encoding='utf-8') as f1, open(path2, 'r', encoding='utf-8') as f2:
+        content1 = f1.read()
+        content2 = f2.read()
+
+    # Gera o diff no formato necessário para a biblioteca diff2html
+    dmp = dmp_module.diff_match_patch()
+    diffs = dmp.diff_main(content1, content2)
+    dmp.diff_cleanupSemantic(diffs)
+    
+    # A biblioteca diff2html espera um formato de patch, então criamos um
+    patch = dmp.patch_make(content1, diffs)
+    diff_text = dmp.patch_toText(patch)
+
+    return jsonify({'diff': diff_text})
+
+@editor_bp.route('/get_historical_content')
+def get_historical_content():
+    # ... (código de permissão e obtenção de parâmetros) ...
+    mid = request.args.get('mid')
+    filename = request.args.get('filename')
+
+    if not mid or not filename:
+        print(f"!!! ERRO: Parâmetros ausentes! mid={mid}, filename={filename}") # DEBUG
+        return jsonify({'error': 'Parâmetros ausentes (módulo ou nome do arquivo).'}), 400
+
+    history_dir = os.path.join(DATA_DIR, mid, "history")
+    filepath = os.path.join(history_dir, secure_filename(filename))
+    
+    print(f"--- DEBUG: Tentando ler o arquivo: {filepath}") # DEBUG
+
+    if not os.path.exists(filepath):
+        print(f"!!! ERRO: Arquivo não encontrado em {filepath}") # DEBUG
+        return jsonify({'error': 'Arquivo da versão histórica não encontrado.'}), 404
+        
+    with open(filepath, 'r', encoding='utf-8') as f:
+        markdown_content = f.read()
+    
+    print(f"--- DEBUG: Conteúdo Markdown Lido (tamanho: {len(markdown_content)})") # DEBUG
+    
+    html_content = markdown.markdown(markdown_content, extensions=['fenced_code', 'tables'])
+    
+    print(f"--- DEBUG: Conteúdo HTML Gerado (tamanho: {len(html_content)})") # DEBUG
+
+    return jsonify({'html': html_content})

@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <!-- Título configurável nas páginas-filhas -->
   <title>
     {% block title %}LuftDocs{% endblock %}
   </title>
 
-  <!-- Favicon padrão -->
   <link rel="shortcut icon" href="{{ url_for('static', filename='assets/icon2.png') }}" type="image/png">
   <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
 
-  <!-- CSS de terceiros -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 
@@ -52,6 +52,7 @@
         --surface-bg: #212529;
         --surface-color: #f8f9fa;
       }
+    
 
       /* Navbar */
       .navbar {
@@ -67,7 +68,7 @@
 
       .logo-wiki {
         text-decoration: none;
-        color: var(--surface-color);        /* MODIFICADO */
+        color: var(--surface-color);         /* MODIFICADO */
         font-size: 1.35rem;
         font-weight: 700;
         letter-spacing: 1px;
@@ -207,11 +208,26 @@
         // Funções para aplicar configurações salvas
         function applyTheme(theme) {
             document.body.classList.remove('theme-dark');
+            // ===================================================================
+            // LÓGICA DE TROCA DE TEMA DO HIGHLIGHT.JS (MODIFICADA)
+            const highlightStyle = document.getElementById('highlight-theme-style');
+            let isDark = false;
+
             if (theme === 'dark') {
-                document.body.classList.add('theme-dark');
+                isDark = true;
             } else if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.body.classList.add('theme-dark');
+                isDark = true;
             }
+
+            if (isDark) {
+                document.body.classList.add('theme-dark');
+                // Altera o tema do highlight.js para um tema escuro
+                highlightStyle.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css";
+            } else {
+                // Altera o tema do highlight.js para um tema claro
+                highlightStyle.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css";
+            }
+            // ===================================================================
         }
         function applyFontSize(size) {
             document.body.classList.remove('font-small','font-medium','font-large','font-xlarge');
@@ -393,6 +409,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // Ativa o highlight.js em todos os blocos de código da página
+        // Isso precisa ser executado depois que o DOM está pronto.
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
     <script>
         // Preenche os controles do modal com os valores salvos no localStorage
         document.addEventListener('DOMContentLoaded', () => {

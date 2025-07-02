@@ -1,7 +1,5 @@
 # Definições Técnicas de Tarifas Complementares
 
----
-
 ### **TAXA TAS (Taxa de Administração SEFAZ)**
 * **Cod Intec:** 101
 * **Cod Farma:** 50

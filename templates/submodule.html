@@ -1,16 +1,57 @@
 {% extends "base.html" %}
 {% block title %}{{ nome }} - Submódulo{% endblock %}
 {% block content %}
-    <h1>{{ nome }}</h1>
-    <div class="submodulo-conteudo">
-        {# 1) Recebemos aqui o HTML bruto em “conteudo”, que contém "__TOKEN_PLACEHOLDER__" #}
-        {% set html_bruto = conteudo %}
+<style>
+      /* Estilos para a classe markdown-body (ADICIONADO) */
+      tbody, td, tfoot, th, thead, tr{
+        color: white;
+      }
+      .markdown-body table{
+        border-radius: 10px;
+      }
 
-        {# 2) Substituímos “__TOKEN_PLACEHOLDER__” pelo token real vindo de request.args #}
-        {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+        .markdown-body ol ol,
+        .markdown-body ul ol {
+            list-style-type: upper-roman; /* Define o estilo como A, B, C... */
+        }
 
-        {# 3) Renderizamos o resultado final #}
-        {{ conteudo_corrigido | safe }}
+        .markdown-body ol ol li::marker,
+        .markdown-body ul ol li::marker {
+            font-weight: bold; /* Deixa o marcador em negrito */
+        }
+
+      .markdown-body {
+          box-sizing: border-box;
+          min-width: 200px;
+          max-width: 980px;
+          margin: 0 auto;
+          padding: 45px;
+          color: #1e1e1e;
+          /* Garante que a cor do texto no markdown respeite o tema claro/escuro */
+          background-color: transparent;
+      }
+      body.theme-dark .markdown-body {
+          background-color: transparent;
+          color: white;
+      }
+      @media (max-width: 767px) {
+          .markdown-body {
+              padding: 15px;
+          }
+      }
+</style>
+    <div class="markdown-body">
+        <h1>{{ nome }}</h1>
+        <div class="submodulo-conteudo">
+            {# 1) Recebemos aqui o HTML bruto em “conteudo”, que contém "__TOKEN_PLACEHOLDER__" #}
+            {% set html_bruto = conteudo %}
+
+            {# 2) Substituímos “__TOKEN_PLACEHOLDER__” pelo token real vindo de request.args #}
+            {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+
+            {# 3) Renderizamos o resultado final #}
+            {{ conteudo_corrigido | safe }}
+        </div>
     </div>
     <hr>
     {# Usamos javascript:history.back() para voltar à página anterior do histórico #}

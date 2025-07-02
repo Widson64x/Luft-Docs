@@ -1,103 +1,126 @@
-## Etapas do Processo para Lançar Agenda
+# Etapas do Processo de Solicitação de Agenda
 
-O agendamento é a etapa iniciada após a emissão do CTe (Conhecimento de Transporte Eletrônico) para destinatários ou laboratórios que exigem agendamento prévio. As notas fiscais (NFs) para esses parceiros entram automaticamente em uma fila de pendências, com o status inicial de NP (Nota Pendente).
+O agendamento é a etapa iniciada após a emissão do CTe (Conhecimento de Transporte Eletrônico) para destinatários ou laboratórios que exigem agendamento prévio. As notas fiscais (NFs) para esses parceiros entram automaticamente em uma fila de pendências, com o status inicial de **NP (Nota Pendente)**.
 
 O processo se divide em duas ocorrências principais:
 
-* `B2` → **(Agendamento Distribuidores)**: A solicitação de agendamento é de responsabilidade da equipe interna "Torre de Controle", Exemplos de distribuidores que incluem são [[Profarma]] e [[Raia]].
+* `B2` → **(Agendamento Distribuidores)**: A solicitação de agendamento é de responsabilidade da equipe interna "Torre de Controle", Exemplos de distribuidores que incluem são **[[Profarma]]** e **[[Raia]]**.
+* `B3` → **(Agendamento Cliente)**: A solicitação é feita diretamente pelo laboratório, que é o responsável também por confirmar o agendamento. Um exemplo é a **[[GSK]]**.
 
-* `B3` → **(Agendamento Cliente)**: A solicitação é feita diretamente pelo laboratório, que é o responsável também por confirmar o agendamento. Um exemplo é a [[GSK]].
-
-### Particularidades da ocorrência B2
+## Particularidades da ocorrência B2
 
 A execução do agendamento B2 se divide em duas particularidades, dependendo do nível de integração com o distribuidor:
 
-#### 1. Agendamento Automático (B2 Auto)
+### 1. Agendamento Automático (B2 Auto)
+
 Esta modalidade é utilizada para distribuidores cujos sistemas estão integrados.
 
 * **Como funciona**: O sistema realiza o processo de forma autônoma em horários fixos (6:00 e 15:00) para as solicitações cadastradas como automáticas.
 * **Fluxo**:
-  1. Diariamente, às **6:00** ou **15:00**, o sistema processa automaticamente as notas com status **NP** (Notas Pendentes) e que precisam do agenadamento.
-  2. Um e-mail é enviado ao **distribuidor** solicitando a confirmação do agendamento.
-  3. Após o envio:
-     - O status da nota muda de **NP** para **AR** (Aguardando Retorno).
-     - Isso indica que estamos aguardando a confirmação da agenda por parte do distribuidor.
-  4. No e-mail recebido, o distribuidor tem acesso a um botão de **Confirmação**.
-     - Ao clicar nesse botão, o agendamento é automaticamente realizado.
-     - O status da nota é atualizado para **AG** (Agendado) no sistema.
+    1.  Diariamente, às **6:00** ou **15:00**, o sistema processa automaticamente as notas com status **NP** (Notas Pendentes).
+    2.  Um e-mail é enviado ao **distribuidor** solicitando a confirmação do agendamento.
+    3.  Após o envio, o status da nota muda de **NP** para **AR** (Aguardando Retorno).
+    4.  No e-mail recebido, o distribuidor clica no botão de **Confirmação**, e o agendamento é realizado.
+    5.  O status da nota é atualizado para **AG** (Agendado).
 
-*Exemplo*: A distribuidora **Profarma** utiliza este fluxo.
+* **O que acontece se o agendamento for perdido? (Reagendamento)**
+    * Se ocorrer uma falha na entrega na data agendada (gerando uma ocorrência **LV** ou **RV**), o status da nota muda de **AG** para **RE (Reagendamento)**.
+    * A nota com status **RE** entra novamente no fluxo automático para ser processada no próximo ciclo (6:00 ou 15:00), reiniciando o processo e voltando ao status **AR** após o novo envio de e-mail.
 
-#### 2. Agendamento Manual (B2 Manual)
-É necessária quando o distribuidor não tem integração direta com o sistema, exigindo interação humana para usar plataformas.
+* **Exemplo**: A distribuidora **[[Profarma]]** utiliza este fluxo.
 
-* **Como funciona**: A solicitação é feita manualmente via luft informa e portal, conforme exigência do distribuidor.
-* **Fluxo**: 
-  1. O operador acessa a tela de **Notas Pendentes** e seleciona as notas com status **NP**.
-  2. Com as notas selecionadas, clica no botão **Contato de E-mail**, o que abre a tela de **Agendamento**.
-  3. Na tela de Agendamento:
-     - Seleciona-se a **agenda desejada**.
-     - Informa-se o **e-mail do destinatário**.
-     - Solicita-se o agendamento clicando em **Sol. Ag. (B2)**.
-  4. Após a solicitação:
-     - O status da nota muda de **NP** para **AR**.
-     - Um e-mail é enviado ao distribuidor.
-     - Uma cópia é enviada ao operador.
-  5. O operador aguarda o **e-mail de confirmação** do agendamento.
-  6. Após o recebimento da confirmação:
-     - Acessa novamente a tela de **Notas Pendentes**, agora selecionando as notas com status **AR**.
-     - Entra novamente na tela de **Agendamento**.
-     - Informa o **dia e horário confirmados** no e-mail.
-     - Clica no botão **Conf. Ag. (B2)** (em vez de **Sol. Ag. (B2)**).
-  7. Com a confirmação:
-     - O status da nota muda para **AG**.
-     - O agendamento está concluído.
+### 2. Agendamento Manual (B2 Manual)
 
-*Exemplo*: A distribuidora **Raia** utiliza este fluxo.
+É necessária quando o distribuidor não tem integração direta com o sistema.
 
-***
+* **Como funciona**: A solicitação é feita manualmente via portal ou e-mail, exigindo interação humana.
+* **Fluxo**:
+    1.  O operador acessa as notas com status **NP**.
+    2.  Clica em **Contato de E-mail** e, na tela de agendamento, seleciona a agenda e envia a solicitação clicando em **Sol. Ag. (B2)**.
+    3.  O status da nota muda de **NP** para **AR**.
+    4.  O operador aguarda o **e-mail de confirmação** do agendamento.
+    5.  Após receber a confirmação, acessa as notas com status **AR**.
+    6.  Na tela de agendamento, informa o **dia e horário confirmados** e clica em **Conf. Ag. (B2)**.
+    7.  O status da nota muda para **AG**.
 
-## Ciclo de vida no processo de agendamento
+* **O que acontece se o agendamento for perdido? (Reagendamento)**
+    * Se a entrega falhar na data agendada (ocorrência **LV** ou **RV**), o status muda de **AG** para **RE (Reagendamento)**.
+    * A nota com status **RE** retorna para a fila do operador. Ele deverá repetir o processo de solicitação manual (a partir do passo 2), fazendo com que o status mude de **RE** para **AR** e, posteriormente, para **AG** com a nova confirmação.
 
-Independentemente da modalidade, as notas seguem um ciclo de status claro:
+* **Exemplo**: A distribuidora **Raia** utiliza este fluxo.
 
-1.  **`NP` (Nota Pendente)**: Status inicial, no qual a nota fiscal aguarda a primeira ação, informando que necessita de agenda.
-2.  **`AR` (Aguardando Retorno)**: O status muda para `AR` após a solicitação ser enviada (manual ou automaticamente).
-3.  **`AG` (Agendada)**: Após a confirmação do distribuidor ou laboratório, o operador/sistema finaliza o processo no sistema (subindo a ocorrência 91), e o status é atualizado para `AG`.
+## Particularidades da ocorrência B3
 
-***
+Esta ocorrência é acionada quando o agendamento é de responsabilidade direta do cliente (o laboratório).
 
-## Siglas e Ocorrências de Agendamento
+* **Como funciona**: O laboratório acessa uma plataforma para consultar as notas pendentes e realiza a marcação da data e horário.
+* **Fluxo**:
+    1.  A nota fiscal é emitida com o status **NP** (Nota Pendente).
+    2.  O **laboratório** (cliente) acessa o sistema e visualiza as NFs que precisam ser agendadas.
+    3.  O cliente seleciona a data e o horário desejado.
+    4.  Ao salvar a data, o status da nota é atualizado diretamente de **NP** para **AG** (Agendado), pois a solicitação e a confirmação são feitas no mesmo ato.
 
-***
+* **O que acontece se o agendamento for perdido? (Reagendamento)**
+    * Caso ocorra uma perda de agendamento (**LV** ou **RV**), o status da nota muda de **AG** para **RE (Reagendamento)**.
+    * A nota volta a ficar pendente no portal do cliente, sinalizada com o status **RE**, indicando que ele precisa realizar um novo agendamento.
+    * Quando o cliente escolhe uma nova data, o status muda novamente para **AG**.
+
+* **Exemplo**: O laboratório **[[GSK]]** utiliza este fluxo.
+
+## Ciclo de Vida Completo no Processo de Agendamento
+
+As notas seguem um ciclo de status que contempla tanto o caminho ideal quanto a necessidade de reagendamento.
+
+### Fluxo Padrão
+
+É o fluxo sem intercorrências, direto para o agendamento.
+
+
+1.  **`NP` (Nota Pendente)**: Status inicial. A nota aguarda a primeira ação de agendamento.
+2.  **`AR` (Aguardando Retorno)**: Status intermediário no processo B2. A solicitação foi enviada e aguarda confirmação. (O processo B3 pula esta etapa).
+3.  **`AG` (Agendada)**: O agendamento foi confirmado. A nota está pronta para a programação da entrega.
+
+### Fluxo de Reagendamento (Ciclo de Perda de Agendamento)
+
+Este fluxo é ativado quando uma entrega agendada falha.
+
+
+1.  **`AG` (Agendada)**: A nota possui uma data de entrega confirmada.
+2.  **`LV` / `RV` (Perda de Agendamento)**: Ocorre uma falha na entrega. A ocorrência é registrada, e o ciclo de reagendamento é iniciado.
+3.  **`RE` (Reagendamento)**: A nota entra neste estado, indicando que uma nova data precisa ser agendada com urgência.
+4.  A nota **retorna ao fluxo de solicitação**:
+    * **Para B2 (Auto/Manual)**: O status volta para **AR** após uma nova solicitação ser enviada.
+    * **Para B3**: O cliente agenda novamente, e o status pode ir de **RE** direto para **AG**.
+
+O ciclo se repete até que a entrega seja concluída com sucesso.
+
+---
 
 ### Ocorrências de Agendamento
 
-| Sigla | Descrição | Observação |
-| :---- | :--- | :--- |
-| `B2` | Agendamento via Luft | A Luft é responsável pela solicitação de agendamento |
-| `B3` | Agendamento via Cliente | O Cliente é responsável pela solicitação de agendamento. |
-| `B3` | Entrega Programada | O Agendamento foi confirmado. |
-| `A7` | Agendamento Recusado | NF não agendada por falta de XML e ou PDF da Nota. |
-| `A9` | Agendamento Recusado | Agendamento Recusado. |
-| `R1` | Re-agendamento Confirmado | O Re-agendamento foi confirmado. |
-| `R2` | Re-agendamento Solicitado | O Re-agendamento foi solicitado e aguarda confirmação. |
-| `R3` | Re-agendamento pelo Destinatário | O Re-agendamento foi solicitado pelo Destinatário. |
-| `RV` | Perda de Agendamento | O agendamento foi recusado por uma falha não atribuível à Luft. |
-| `LV` | Perda de Agendamento | O agendamento foi recusado por uma falha atribuída à Luft. |
+| Sigla | Descrição                         | Observação                                                          |
+| :---- | :-------------------------------- | :------------------------------------------------------------------ |
+| `B2`  | Agendamento via Luft              | A Luft é responsável pela solicitação de agendamento                |
+| `B3`  | Agendamento via Cliente           | O Cliente é responsável pela solicitação de agendamento.            |
+| `B3`  | Entrega Programada                | O Agendamento foi confirmado.                                       |
+| `A7`  | Agendamento Recusado              | NF não agendada por falta de XML e ou PDF da Nota.                  |
+| `A9`  | Agendamento Recusado              | Agendamento Recusado.                                               |
+| `R1`  | Re-agendamento Confirmado         | O Re-agendamento foi confirmado.                                    |
+| `R2`  | Re-agendamento Solicitado         | O Re-agendamento foi solicitado e aguarda confirmação.              |
+| `R3`  | Re-agendamento pelo Destinatário  | O Re-agendamento foi solicitado pelo Destinatário.                  |
+| `RV`  | Perda de Agendamento              | O agendamento foi perdido por uma falha **não** atribuível à Luft.  |
+| `LV`  | Perda de Agendamento              | O agendamento foi perdido por uma falha atribuída à Luft.           |
 
-***
+# 
 
-### Siglas de Agendamento
+### Siglas de Status de Agendamento
 
-| Sigla | Descrição | Observação |
-| :---- | :--- | :--- |
-| `NP` | Notas Pendente | São todas as notas que ainda necessitam que o agendamento seja realizado. |
-| `AR` | Aguardando Retorno | Determina as notas que estão esperando confirmação de agenda. |
-| `AG` | Nota Agendada | Determina as notas que já estão agendadas. |
-| `RE` | Re-agendamento | Determina as notas que obtiveram recusa e precisam ser reagendadas. |
-
-***
+| Sigla | Descrição           | Observação                                                                      |
+| :---- | :------------------ | :------------------------------------------------------------------------------ |
+| `NP`  | Notas Pendente      | São todas as notas que ainda necessitam que o agendamento seja realizado.       |
+| `AR`  | Aguardando Retorno  | Determina as notas que estão esperando confirmação de agenda.                   |
+| `AG`  | Nota Agendada       | Determina as notas que já estão agendadas.                                      |
+| `RE`  | Reagendamento       | Determina as notas que tiveram perda de agendamento (**LV** ou **RV**) e precisam ser reagendadas. |
 
 ## Telas no Sistema Luft Informa
 

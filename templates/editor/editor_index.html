@@ -3,9 +3,7 @@
 {% block content %}
 <style>
 /* ===================================================================
-   EDITOR DE MÓDULOS - DESIGN MODERNO COM FUNDO PADRÃO
-   - Fundo "Aurora" e efeito "Glass" removidos.
-   - Cards agora usam fundo sólido padrão do tema.
+   EDITOR DE MÓDULOS - DESIGN MODERNO
    =================================================================== */
 
 /* --- Variáveis de Tema para esta Página --- */
@@ -31,23 +29,22 @@ body.theme-dark {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-
-    /* Fundo animado com gradiente */
-    body {
-        background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
-        background-size: 200% 200%;
-        animation: bgMove 12s ease-in-out infinite;
-    }
-    @keyframes bgMove {
-        0%   { background-position: 0% 50%; }
-        50%  { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    body.theme-dark {
-        background: linear-gradient(120deg, #23263b 0%, #1e1e2f 100%);
-        background-size: 200% 200%;
-        animation: bgMove 12s ease-in-out infinite;
-    }
+/* Fundo animado com gradiente */
+body {
+    background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+}
+@keyframes bgMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+body.theme-dark {
+    background: linear-gradient(120deg, #23263b 0%, #1e1e2f 100%);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+}
 
 /* --- Estrutura da Página --- */
 .module-editor-container {
@@ -66,7 +63,6 @@ body.theme-dark {
 .module-header-bar h1 {
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 700;
-  /* A cor do título agora vem diretamente do base.html */
   color: var(--card-color);
   margin: 0;
   display: flex;
@@ -75,7 +71,6 @@ body.theme-dark {
 }
 
 .modulo-filtro-box .form-control {
-  /* O filtro agora usa o fundo sólido dos cards */
   background-color: var(--card-bg);
   color: var(--card-color);
   border: 1px solid var(--border-color, #dee2e6);
@@ -110,9 +105,8 @@ body.theme-dark .modulo-filtro-box .form-control {
   animation-delay: calc(var(--delay) * 60ms);
 }
 
-/* --- CARD DO MÓDULO (com fundo sólido) --- */
+/* --- CARD DO MÓDULO --- */
 .module-card {
-  /* O fundo agora é o padrão do tema, vindo do base.html */
   background: var(--card-bg);
   border: 1px solid var(--border-color, #dee2e6);
   border-radius: 1.25rem;
@@ -130,7 +124,7 @@ body.theme-dark .module-card {
 }
 
 
-/* Efeito "Shine" ao passar o mouse (mantido) */
+/* Efeito "Shine" ao passar o mouse */
 .module-card::before {
   content: '';
   position: absolute;
@@ -178,7 +172,7 @@ body.theme-dark .module-card::before {
 .module-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--card-color); /* Usa a cor de texto padrão do card */
+  color: var(--card-color);
   margin-bottom: 0.5rem;
 }
 
@@ -207,6 +201,21 @@ body.theme-dark .module-card::before {
   background: var(--bs-warning-bg-subtle);
   border-color: var(--bs-warning-border-subtle);
 }
+/* {# NOVO ESTILO PARA O BADGE DE VERSÃO #} */
+.module-version-badge {
+  color: var(--bs-primary);
+  background: var(--bs-primary-bg-subtle);
+  border-color: var(--bs-primary-border-subtle);
+}
+
+/* {# NOVO ESTILO PARA AS INFOS DE APROVAÇÃO #} */
+.module-approval-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+}
+
 
 .module-actions {
   border-top: 1px solid var(--border-color, #dee2e6);
@@ -279,7 +288,6 @@ body.theme-dark .pending-button {
   line-height: 20px;
   text-align: center;
   border-radius: 10px;
-  /* A borda agora usa a variável do fundo do body do base.html */
   border: 2px solid var(--bs-body-bg); 
   animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
   box-shadow: 0 0 0 rgba(220, 53, 69, 0.4);
@@ -291,47 +299,33 @@ body.theme-dark .pending-button {
   }
 }
 
-    /* --- Ícones decorativos flutuantes (CSS CORRIGIDO) --- */
-    .bg-icons {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        pointer-events: none;
-        overflow: hidden;
-        z-index: 0;
-    }
-
-    /* A animação agora é aplicada diretamente na classe principal .bg-icon */
-    .bg-icons .bg-icon {
-        position: absolute;
-        color: rgba(13,110,253,0.13);
-        bottom: -2rem; /* Posição inicial para a animação clássica */
-        
-        /* Propriedades da animação clássica */
-        animation-name: iconRise;
-        animation-timing-function: ease-in-out;
-        animation-iteration-count: infinite;
-    }
-
-    body.theme-dark .bg-icons .bg-icon {
-        color: rgba(255,255,255,0.13);
-    }
-    
-    @keyframes iconRise {
-        0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-        }
-        50% {
-            transform: translateY(-50vh) rotate(180deg);
-            opacity: 0.7;
-        }
-        100% {
-            transform: translateY(-100vh) rotate(360deg);
-            opacity: 0;
-        }
-    }
+/* --- Ícones decorativos flutuantes --- */
+.bg-icons {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+.bg-icons .bg-icon {
+    position: absolute;
+    color: rgba(13,110,253,0.13);
+    bottom: -2rem;
+    animation-name: iconRise;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+body.theme-dark .bg-icons .bg-icon {
+    color: rgba(255,255,255,0.13);
+}
+@keyframes iconRise {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
 </style>
+
 <div class="bg-icons"></div>
 <div class="container module-editor-container">
   <div class="module-header-bar">
@@ -342,11 +336,8 @@ body.theme-dark .pending-button {
          title="Ver pendências ({{ num_pendencias }})">
         <i class="bi bi-hourglass-split"></i>
         {% if num_pendencias > 0 %}
-          <span class="notification-dot 
-                       {% if num_pendencias > 1 %}with-count{% endif %}">
-            {% if num_pendencias > 1 %}
-              {{ '99+' if num_pendencias > 99 else num_pendencias }}
-            {% endif %}
+          <span class="notification-dot">
+            {{ '99+' if num_pendencias > 99 else num_pendencias }}
           </span>
         {% endif %}
       </a>
@@ -373,13 +364,60 @@ body.theme-dark .pending-button {
             <i class="bi {{ m.icone }}"></i>
           </div>
           <h5 class="module-title">{{ m.nome }}</h5>
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="module-badge module-id-badge">ID: {{ m.id }}</span>
-            {% if m.status == 'pendente' %}
-              <span class="module-badge module-status-badge">Pendente</span>
-            {% endif %}
+
+          <div class="module-info-block mb-3">
+            
+            {# Pega o último evento do histórico para análise #}
+            {% set last_event = m.edit_history | last %}
+
+            {# Bloco 1: Mostra os badges de ID e status/versão #}
+            <div class="d-flex align-items-center gap-2">
+              <span class="module-badge module-id-badge">ID: {{ m.id }}</span>
+              {% if m.status == 'pendente' %}
+                <span class="module-badge module-status-badge">Pendente</span>
+              {% elif last_event %}
+                <span class="module-badge module-version-badge">
+                  <i class="bi bi-tag"></i> v{{ last_event.version }}
+                </span>
+              {% endif %}
+            </div>
+
+            {# Bloco 2: Mostra os detalhes da última ação (edição, aprovação, criação) #}
+            <div class="d-flex flex-column gap-1 mt-2">
+              {% if m.status == 'pendente' %}
+                <div class="info-line">
+                  <i class="bi bi-pencil-fill text-warning"></i>
+                  <span>Editado por <strong>{{ m.pending_edit_info.user }}</strong></span>
+                </div>
+                <div class="info-line">
+                  <i class="bi bi-clock"></i>
+                  <span>Em {{ m.pending_edit_info.data.split('T')[0] }}</span>
+                </div>
+              {% elif last_event %}
+                {% if last_event.event == 'aprovado' %}
+                  <div class="info-line">
+                    <i class="bi bi-pencil-fill"></i>
+                    <span>Editado por <strong>{{ last_event.editor }}</strong></span>
+                  </div>
+                  <div class="info-line">
+                      <i class="bi bi-check-circle-fill text-success"></i>
+                      <span>Aprovado por <strong>{{ last_event.approver }}</strong></span>
+                  </div>
+                {% elif last_event.event == 'criado' %}
+                  <div class="info-line">
+                    <i class="bi bi-person-fill-add"></i>
+                    <span>Criado por <strong>{{ last_event.user }}</strong></span>
+                  </div>
+                {% endif %}
+                <div class="info-line">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Em {{ last_event.timestamp.split('T')[0] }}</span>
+                </div>
+              {% endif %}
+            </div>
           </div>
           <p class="module-desc">{{ m.descricao }}</p>
+
           <div class="module-actions d-flex justify-content-end gap-2 mt-auto">
             <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-sm btn-primary">
               <i class="bi bi-pencil-square"></i> Editar
@@ -431,23 +469,19 @@ body.theme-dark .pending-button {
       }
     });
   });
-document.addEventListener('DOMContentLoaded', () => {
+
+  // A lógica de animação dos ícones permanece a mesma
+  document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.bg-icons');
     let animationFrameId = null;
 
-    // =========================================================================
-    // MODIFICADO: Lendo todos os parâmetros de animação do localStorage
-    // =========================================================================
     function getAnimationParameters() {
         const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
         const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
-        // Aleatoriedade pode ser derivada da velocidade ou ser um parâmetro próprio.
-        // Aqui, usaremos a velocidade para influenciar a variação.
         const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
         return { quantity, speedFactor, randomnessFactor };
     }
 
-    // --- LÓGICA DA ANIMAÇÃO Nº 1: ÍCONES COM COLISÃO (MODIFICADA) ---
     function iniciarAnimacaoComColisao() {
         const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
         const iconsData = [];
@@ -457,23 +491,18 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('{{ url_for("static", filename="data/icons.json") }}')
             .then(res => res.json())
             .then(availableIcons => {
-                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                for (let i = 0; i < quantity; i++) {
                     const el = document.createElement('i');
-                    // A aleatoriedade influencia o tamanho
                     const size = (Math.random() * 32 * randomnessFactor + 16);
-                    
                     el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
                     el.style.fontSize = `${size}px`;
                     el.style.animation = 'none';
                     el.style.bottom = 'auto';
-                    
                     container.appendChild(el);
-
                     iconsData.push({
                         element: el,
                         x: Math.random() * (screenWidth - size),
                         y: Math.random() * (screenHeight - size),
-                        // A velocidade e aleatoriedade influenciam o movimento
                         dx: (Math.random() - 0.5) * 1.5 * speedFactor,
                         dy: (Math.random() - 0.5) * 1.5 * speedFactor,
                         size: size
@@ -484,12 +513,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(console.error);
 
         function animate() {
-            // ... a função animate interna continua exatamente a mesma ...
             iconsData.forEach((icon, index) => {
                 icon.x += icon.dx;
                 icon.y += icon.dy;
                 if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
-                if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+                if (icon.y <= 0 || icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
                 for (let i = index + 1; i < iconsData.length; i++) {
                     const otherIcon = iconsData[i];
                     const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
@@ -507,41 +535,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- LÓGICA DA ANIMAÇÃO Nº 2: ÍCONES SUBINDO (MODIFICADA) ---
     function iniciarAnimacaoOriginal() {
         const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
         
         fetch('{{ url_for("static", filename="data/icons.json") }}')
             .then(res => res.json())
             .then(icons => {
-                for (let i = 0; i < quantity; i++) { // USA A QUANTIDADE
+                for (let i = 0; i < quantity; i++) {
                     const cls = icons[Math.floor(Math.random() * icons.length)];
                     const el = document.createElement('i');
                     el.className = `bi ${cls} bg-icon`;
-                    
-                    // A aleatoriedade influencia a faixa de tamanhos
                     el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
                     el.style.left = `${Math.random() * 100}%`;
                     el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
-                    
-                    // A velocidade influencia a duração (menor duração = mais rápido)
                     const baseDuration = 10 + Math.random() * 10;
                     el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
-                    
                     container.appendChild(el);
                 }
             })
             .catch(console.error);
     }
 
-    // --- FUNÇÃO CONTROLADORA (permanece a mesma) ---
     window.mudarAnimacao = function(modo) {
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
         container.innerHTML = '';
-
         if (modo === 'original') {
             iniciarAnimacaoOriginal();
         } else {
@@ -549,7 +569,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- INICIA A ANIMAÇÃO (permanece a mesma) ---
     const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
     mudarAnimacao(savedAnimation);
 });
