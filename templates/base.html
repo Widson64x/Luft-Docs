@@ -387,6 +387,18 @@
         // --- INICIALIZAÇÃO ---
         loadSettings();
     });
+
+        // Inicializa o Viewer.js para imagens se o elemento existir
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewerEl = document.getElementById('imagem-viewer');
+            if (viewerEl) {
+                new Viewer(viewerEl, {
+                    toolbar: true, navbar: false, title: false,
+                    movable: true, zoomable: true, scalable: false,
+                    rotatable: false, transition: true, fullscreen: true
+                });
+            }
+        });
     </script>
 </body>
 </html>

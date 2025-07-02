@@ -128,9 +128,4 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 * **Definição:** Taxa percentual sobre o valor da nota fiscal destinada a cobrir os custos de medidas de segurança para combater o roubo de cargas. O seu cálculo não depende da distância percorrida, mas pode variar conforme a periculosidade da região.
 * **Quando se Aplica:** Cobrada sobre o valor da mercadoria para mitigar os riscos associados ao transporte.
 
----
-
-### **TAXA DE DESCARGA - VALOR FIXO**
-* **Definição:** 
-* **Quando se Aplica:** 
 
