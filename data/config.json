@@ -99,7 +99,27 @@
       "ultima_edicao": {
         "user": "francisco.miranda",
         "data": "2025-06-30T12:22:53.516695"
-      }
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "version_info": {
+        "current_version": "1.1",
+        "last_approved_by": "francisco.miranda",
+        "last_approved_on": "2025-07-02T14:52:55.590181"
+      },
+      "edit_history": [
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "francisco.miranda",
+          "approver": "francisco.miranda",
+          "timestamp": "2025-07-02T14:52:55.590181",
+          "backup_file_doc": "v1.1_2025-07-02T14-52-55_francisco.miranda_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-02T14-52-55_francisco.miranda_technical.md"
+        }
+      ]
     },
     {
       "id": "tarifas-complementares",
