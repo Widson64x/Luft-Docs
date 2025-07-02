@@ -1,299 +1,198 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <title>
-    {% block title %}LuftDocs{% endblock %}
-  </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="shortcut icon" href="{{ url_for('static', filename='assets/icon2.png') }}" type="image/png">
-  <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
+    <title>{% block title %}LuftDocs{% endblock %}</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/icon2.png') }}" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
 
-
-  <style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
+    <style>
+      /* --- VARIÁVEIS GLOBAIS --- */
       :root {
-        --font-small: 0.45rem;
-        --font-medium: 1rem;
-        --font-large: 1.5rem;
-        --font-xlarge: 2rem;
-        --card-bg: #fff;
-        --card-color: #212529;
-        --primary-accent-color: #1a237e;
-        /* NOVO: Variáveis para superfícies como navbar e footer */
-        --surface-bg: #f8f9fa;
+        --font-size-base: 1rem; /* Variável única para tamanho da fonte */
+        
+        /* Tema Claro (Padrão) */
+        --bg-color: #f9f9fb;
+        --text-color: #212529;
+        --surface-bg: #ffffff; /* Navbar, Footer, Cards */
         --surface-color: #23263b;
+        --accent-color: #1a237e;
+        --border-color: #dee2e6;
+        --shadow-color: #0000000d;
       }
 
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #f9f9fb;
-        font-size: var(--font-medium);
-        transition: background 0.3s, color 0.3s, font-size 0.3s;
-      }
-
+      /* --- TEMA ESCURO --- */
       body.theme-dark {
-        background: #1e1e1e;
-        color: #e7eaf1;
-        --card-bg: #2b2b3a;
-        --card-color: #e7eaf1;
-        --primary-accent-color: #f5f5f5;
-        /* NOVO: Versões escuras das variáveis de superfície */
-        --surface-bg: #212529;
+        --bg-color: #1e1e1e;
+        --text-color: #e7eaf1;
+        --surface-bg: #2b2b3a;
         --surface-color: #f8f9fa;
+        --accent-color: #f5f5f5;
+        --border-color: #444444;
+        --shadow-color: #00000026;
       }
-    
 
-      /* Navbar */
+      /* --- ESTILOS BASE --- */
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: var(--font-size-base);
+        margin: 0;
+        transition: background-color 0.3s, color 0.3s, font-size 0.3s;
+      }
+      
+      /* --- LAYOUT --- */
+      .navbar, .footer-LuftDocs {
+        background-color: var(--surface-bg);
+        color: var(--surface-color);
+        padding: 1rem clamp(1rem, 4vw, 6rem); /* Padding responsivo com clamp() */
+        box-shadow: 0 2px 12px var(--shadow-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
       .navbar {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        background: var(--surface-bg);      /* MODIFICADO */
-        padding: 18px 6vw;
-        color: var(--surface-color);         /* MODIFICADO */
-        box-shadow: 0 2px 12px #0001;
-        transition: background 0.3s, color 0.3s; /* ADICIONADO */
+        align-items: center;
+        flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas pequenas */
+        gap: 1rem;
       }
-
-      .logo-wiki {
-        text-decoration: none;
-        color: var(--surface-color);         /* MODIFICADO */
-        font-size: 1.35rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        transition: color 0.13s;
-      }
-
-      .logo-wiki:hover {
-        color: #0d6efd;
-      }
-
+      
       .main {
-        padding: 36px 6vw;
+        padding: 2rem clamp(1rem, 4vw, 6rem); /* Padding responsivo */
         max-width: 1200px;
         margin: 0 auto;
       }
 
-      /* Footer */
       .footer-LuftDocs {
-        width: 100%;
-        background: var(--surface-bg);      /* MODIFICADO */
-        color: var(--surface-color);         /* MODIFICADO */
-        margin-top: 48px;
-        padding: 28px 0 20px 0;
+        margin-top: 9rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
         text-align: center;
-        box-shadow: 0 -2px 10px #0001;
-        transition: background 0.3s, color 0.3s; /* ADICIONADO */
+        box-shadow: 0 -2px 10px var(--shadow-color);
       }
+      
+      /* --- COMPONENTES --- */
+      .logo-wiki {
+        color: var(--surface-color);
+        font-size: 1.35rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .logo-wiki:hover { color: #0d6efd; }
 
-      .modulo-conteudo img,
-      .modulo-conteudo video {
+      .modulo-conteudo img, .modulo-conteudo video {
         max-width: 440px;
         width: 100%;
         height: auto;
         display: block;
-        margin: 24px auto;
+        margin: 1.5rem auto;
         border-radius: 12px;
-        box-shadow: 0 2px 10px #0001;
-        transition: box-shadow 0.18s, filter 0.16s;
+        box-shadow: 0 2px 10px var(--shadow-color);
+        transition: box-shadow 0.2s, filter 0.2s;
         cursor: pointer;
       }
-
-      .modulo-conteudo img:hover,
-      .modulo-conteudo video:hover {
-        box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0002;
+      .modulo-conteudo img:hover, .modulo-conteudo video:hover {
+        box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0000001a;
         filter: brightness(1.04);
       }
-
-      .card {
-        background-color: var(--card-bg) !important;
-        color: var(--card-color)  !important;
-        transition: background-color 0.3s, color 0.3s;
+      
+      /* --- OVERRIDES TEMA ESCURO --- */
+      body.theme-dark .card,
+      body.theme-dark .modal-content,
+      body.theme-dark .dropdown-menu {
+        background-color: var(--surface-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
       }
 
-      /* --- REGRAS DE OVERRIDE PARA TEMA ESCURO --- */
-      body.theme-dark .text-body {
-        color: var(--card-color) !important;
-      }
-
-      body.theme-dark .text-primary {
-        color: var(--primary-accent-color) !important;
+      body.theme-dark .text-body,
+      body.theme-dark .dropdown-item,
+      body.theme-dark .form-check-label {
+        color: var(--text-color) !important;
       }
       
-      /* NOVO: Regras para corrigir botões e textos na navbar/footer no tema escuro */
+      body.theme-dark .text-primary { color: var(--accent-color) !important; }
+      body.theme-dark .text-dark { color: var(--surface-color) !important; }
+
       body.theme-dark .btn-outline-dark {
         color: var(--surface-color);
         border-color: var(--surface-color);
       }
-
       body.theme-dark .btn-outline-dark:hover {
         color: var(--surface-bg);
         background-color: var(--surface-color);
       }
-
-      body.theme-dark .text-dark {
-        color: var(--surface-color) !important;
-      }
       
-      /* ---------- Modal Configurações (tema escuro) ---------- */
-      body.theme-dark .modal-content {
-        background-color: var(--card-bg) !important;
-        color: var(--card-color) !important;
-      }
-      
-      body.theme-dark .modal-header,
-      body.theme-dark .modal-body,
-      body.theme-dark .modal-footer {
-        background-color: var(--card-bg) !important;
-        color: var(--card-color) !important;
-      }
+      body.theme-dark .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
 
-      /* Nav-tabs escuros */
       body.theme-dark .nav-tabs .nav-link {
-        background-color: #2b2b3a !important;
-        color: var(--card-color) !important;
-        border-color: #444 !important;
+        background-color: var(--surface-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
       }
+      body.theme-dark .nav-tabs .nav-link.active { background-color: #3a3a4a; }
 
-      body.theme-dark .nav-tabs .nav-link.active {
-        background-color: #3a3a4a !important;
-      }
-
-      /* Form controls */
       body.theme-dark .form-select,
       body.theme-dark .form-check-input {
-        background-color: #1e1e1e !important;
-        color: #e7eaf1 !important;
-        border: 1px solid #444 !important;
+        background-color: #1e1e1e;
+        color: var(--text-color);
+        border-color: var(--border-color);
       }
-
-      body.theme-dark .form-check-label {
-        color: var(--card-color) !important;
-      }
-
-      /* Botões */
-      body.theme-dark .btn-primary {
-        background-color: #0056b3 !important;
-        border-color: #004a99 !important;
-      }
-
-      body.theme-dark .btn-secondary {
-        background-color: #444 !important;
-        border-color: #555 !important;
-      }
-
-      /* --- MEDIA QUERIES --- */
-      @media (max-width: 900px) {
-        .navbar { flex-direction: column; align-items: stretch; gap: 14px; padding: 14px 2vw; }
-        .main   { padding: 18px 2vw; }
-      }
-      
-      @media (max-width: 700px) {
-        .main { padding: 18px 2vw; }
-      }
-  </style>
-
-    <script>
-        // Funções para aplicar configurações salvas
-        function applyTheme(theme) {
-            document.body.classList.remove('theme-dark');
-            // ===================================================================
-            // LÓGICA DE TROCA DE TEMA DO HIGHLIGHT.JS (MODIFICADA)
-            const highlightStyle = document.getElementById('highlight-theme-style');
-            let isDark = false;
-
-            if (theme === 'dark') {
-                isDark = true;
-            } else if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                isDark = true;
-            }
-
-            if (isDark) {
-                document.body.classList.add('theme-dark');
-                // Altera o tema do highlight.js para um tema escuro
-                highlightStyle.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css";
-            } else {
-                // Altera o tema do highlight.js para um tema claro
-                highlightStyle.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css";
-            }
-            // ===================================================================
-        }
-        function applyFontSize(size) {
-            document.body.classList.remove('font-small','font-medium','font-large','font-xlarge');
-            document.body.classList.add(`font-${size}`);
-        }
-        function applyCompactMode(enabled) {
-            document.body.classList.toggle('compact-mode', enabled);
-        }
-
-        // Função para aplicar a animação de fundo
-        function applyBgAnimation(mode) {
-            // Verifica se a função de troca de animação existe na página atual para evitar erros.
-            if (typeof window.mudarAnimacao === 'function') {
-                window.mudarAnimacao(mode);
-            }
-        }
-
-        // Aplica todas as configurações do localStorage ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
-            const theme       = localStorage.getItem('ld_theme')       || 'light';
-            const fontSize    = localStorage.getItem('ld_fontSize')    || 'medium';
-            const compact     = localStorage.getItem('ld_compact')     === 'true';
-            const bgAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao'; // Padrão é 'colisao'
-
-            applyTheme(theme);
-            applyFontSize(fontSize);
-            applyCompactMode(compact);
-            applyBgAnimation(bgAnimation); // Tenta aplicar a animação
-        });
-    </script>
+    </style>
 </head>
 <body>
-
     <nav class="navbar">
         <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-wiki d-flex align-items-center">
-            <img src="{{ url_for('static', filename='assets/icon2.png') }}" alt="LuftDocs" width="64" height="64" class="me-2">
+            <img src="{{ url_for('static', filename='assets/icon2.png') }}" alt="LuftDocs Logo" width="50" height="50" class="me-2">
             <span>LuftDocs</span>
         </a>
         <div class="d-flex align-items-center">
             <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1) }}" class="btn btn-outline-dark fw-bold me-3">
-                <i class="bi bi-search"></i> Buscar
-            </a>
+                <i class="bi bi-search"></i>
+                <span class="d-none d-sm-inline">Buscar</span> </a>
             <div class="dropdown">
-                <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle" style="font-size: 1.7rem;"></i>
+                <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalMinhaConta">Minha Conta</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracoes">Configurações</a></li>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalMinhaConta"><i class="bi bi-person-badge me-2"></i>Minha Conta</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracoes"><i class="bi bi-gear me-2"></i>Configurações</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{{ url_for('index.logout') }}">🔓 Logout</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('index.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <main class="main" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer-LuftDocs">
+        LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
+    </footer>
+
     <div class="modal fade" id="modalMinhaConta" tabindex="-1" aria-labelledby="modalMinhaContaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalMinhaContaLabel">Informações da Conta</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="modalMinhaContaLabel"><i class="bi bi-person-badge me-2"></i>Informações da Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Nome de Usuário:</strong> {{ session['user_name'] }}</li>
+                        <li class="list-group-item"><strong>Usuário:</strong> {{ session['user_name'] }}</li>
                         <li class="list-group-item"><strong>Email:</strong> {{ session['email'] }}</li>
                         <li class="list-group-item"><strong>Grupo:</strong> {{ session['user_group']['acronym'] }}</li>
                     </ul>
@@ -309,203 +208,185 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title" id="modalConfigLabel"><i class="bi bi-gear-fill"></i> Configurações</h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="modalConfigLabel"><i class="bi bi-gear-fill me-2"></i>Configurações</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="nav nav-tabs mb-3" id="configTabs" role="tablist">
-                        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visuais" type="button">Visuais</button></li>
-                        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#operacoes" type="button">Operações</button></li>
+                    <ul class="nav nav-tabs mb-4" role="tablist">
+                        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visuais">Visuais</button></li>
+                        <li class="nav-item" role="presentation"><button class="nav-link dev-feature" data-bs-toggle="tab" data-bs-target="#operacoes">Operações</button></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="visuais">
                             <form id="formVisuais" class="row g-4">
-                                <div class="col-md-6 col-lg-4">
-                                    <label for="selectTema" class="form-label">Tema</label>
-                                    <select id="selectTema" class="form-select">
-                                        <option value="light">Claro</option>
-                                        <option value="dark">Escuro</option>
-                                        <option value="auto">Automático</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <label for="fontSize" class="form-label">Tamanho da Fonte</label>
-                                    <select id="fontSize" class="form-select">
-                                        <option value="small">Pequena</option>
-                                        <option value="medium">Média</option>
-                                        <option value="large">Grande</option>
-                                        <option value="xlarge">Extra Grande</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <label for="selectAnimacao" class="form-label">Animação de Fundo</label>
-                                    <select id="selectAnimacao" class="form-select">
-                                        <option value="colisao">Nova Animação</option>
-                                        <option value="original">Clássica</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="rangeQuantidade" class="form-label">(BETA) Quantidade de Ícones: <span id="labelQuantidade">50</span></label>
-                                    <input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="rangeVelocidade" class="form-label">(BETA) Velocidade da Animação: <span id="labelVelocidade">1.0x</span></label>
-                                    <input type="range" class="form-range" min="0.2" max="3.0" step="0.1" id="rangeVelocidade">
-                                </div>
-
-                                <div class="col-12 mt-4">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="switchCompactMode">
-                                        <label class="form-check-label" for="switchCompactMode">Modo Compacto</label>
-                                    </div>
-                                </div>
+                                <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="dark">Escuro</option><option value="auto">Automático</option></select></div>
+                                <div class="col-md-6 col-lg-4"><label for="fontSize" class="form-label">Tamanho da Fonte</label><select id="fontSize" class="form-select"><option value="0.85rem">Pequena</option><option value="1rem">Média</option><option value="1.15rem">Grande</option><option value="1.3rem">Extra Grande</option></select></div>
+                                <div class="col-md-6 col-lg-4"><label for="selectAnimacao" class="form-label">Animação de Fundo</label><select id="selectAnimacao" class="form-select"><option value="colisao">Nova</option><option value="original">Clássica</option></select></div>
+                                <div class="col-md-6"><label for="rangeQuantidade" class="form-label">(BETA) Ícones: <span id="labelQuantidade">50</span></label><input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade"></div>
+                                <div class="col-md-6"><label for="rangeVelocidade" class="form-label">(BETA) Velocidade: <span id="labelVelocidade">1.0x</span></label><input type="range" class="form-range" min="0.2" max="3.0" step="0.1" id="rangeVelocidade"></div>
+                                <div class="col-12 mt-4"><div class="form-check form-switch"><input class="form-check-input dev-feature" type="checkbox" id="switchCompactMode"><label class="form-check-label" for="switchCompactMode">Modo Compacto</label></div></div>
                             </form>
                         </div>
                         <div class="tab-pane fade" id="operacoes">
-                            <form id="formOperacoes" class="row g-3">
-                                <div class="col-12 form-check">
-                                    <input class="form-check-input" type="checkbox" id="notifEmail">
-                                    <label class="form-check-label">Notificações por e-mail</label>
-                                </div>
-                                <div class="col-12 form-check">
-                                    <input class="form-check-input" type="checkbox" id="autoSave">
-                                    <label class="form-check-label">Auto-salvar buscas</label>
-                                </div>
-                                <div class="col-12">
-                                    <label for="futureFeatures" class="form-label">Recursos Futuro (Beta)</label>
-                                    <textarea id="futureFeatures" class="form-control" rows="2" placeholder="Sugestões..."></textarea>
-                                </div>
-                            </form>
+                            <p class="text-center text-muted">Esta seção está em desenvolvimento.</p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-primary" id="btnSalvarConfigs"><i class="bi bi-save-fill"></i> Salvar</button>
+                    <button class="btn btn-primary" id="btnSalvarConfigs"><i class="bi bi-save-fill me-2"></i>Salvar</button>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <div class="modal fade" id="modalDev" tabindex="-1" aria-labelledby="modalDevLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center p-4">
-                <i class="bi bi-tools fs-1 text-warning mb-3"></i>
-                <h5 id="modalDevLabel">Ferramenta em Desenvolvimento</h5>
-                <p>Em breve estará disponível!</p>
-                <button class="btn btn-primary mt-2" data-bs-dismiss="modal">Ok</button>
+                <div class="modal-body">
+                    <i class="bi bi-tools fs-1 text-warning mb-3"></i>
+                    <h5 id="modalDevLabel">Em Desenvolvimento</h5>
+                    <p class="mb-4">Este recurso estará disponível em breve!</p>
+                    <button class="btn btn-primary" data-bs-dismiss="modal">Entendi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="configToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Configurações salvas com sucesso! ✅</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
 
-    <main class="main">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="footer-LuftDocs">
-        LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
-        // Ativa o highlight.js em todos os blocos de código da página
-        // Isso precisa ser executado depois que o DOM está pronto.
-        document.addEventListener('DOMContentLoaded', (event) => {
+    // Script principal unificado para melhor organização e performance.
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- INSTÂNCIAS E ELEMENTOS ---
+        const devModal = new bootstrap.Modal(document.getElementById('modalDev'));
+        const configToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('configToast'));
+        const highlightStyle = document.getElementById('highlight-theme-style');
+        const body = document.body;
+
+        const ui = {
+            selectTema: document.getElementById('selectTema'),
+            fontSize: document.getElementById('fontSize'),
+            switchCompactMode: document.getElementById('switchCompactMode'),
+            selectAnimacao: document.getElementById('selectAnimacao'),
+            rangeQuantidade: document.getElementById('rangeQuantidade'),
+            labelQuantidade: document.getElementById('labelQuantidade'),
+            rangeVelocidade: document.getElementById('rangeVelocidade'),
+            labelVelocidade: document.getElementById('labelVelocidade'),
+            btnSalvarConfigs: document.getElementById('btnSalvarConfigs')
+        };
+        
+        // --- FUNÇÕES DE CONFIGURAÇÃO ---
+        const applyTheme = (theme) => {
+            const isDark = (theme === 'dark') || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            body.classList.toggle('theme-dark', isDark);
+            highlightStyle.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github${isDark ? '-dark' : ''}.min.css`;
+        };
+
+        const applyFontSize = (size) => {
+            body.style.setProperty('--font-size-base', size);
+        };
+
+        const applyBgAnimation = (mode) => {
+            if (typeof window.mudarAnimacao === 'function') {
+                window.mudarAnimacao(mode);
+            }
+        };
+
+        // --- CARREGAMENTO INICIAL DAS CONFIGS ---
+        const loadSettings = () => {
+            const settings = {
+                theme: localStorage.getItem('ld_theme') || 'light',
+                fontSize: localStorage.getItem('ld_fontSize') || '1rem',
+                bgAnimation: localStorage.getItem('ld_bgAnimation') || 'colisao',
+                bgQuantity: localStorage.getItem('ld_bg_quantity') || '50',
+                bgSpeed: localStorage.getItem('ld_bg_speed') || '1.0'
+            };
+            
+            applyTheme(settings.theme);
+            applyFontSize(settings.fontSize);
+            applyBgAnimation(settings.bgAnimation);
+
+            // Preenche os inputs do modal
+            ui.selectTema.value = settings.theme;
+            ui.fontSize.value = settings.fontSize;
+            ui.selectAnimacao.value = settings.bgAnimation;
+            ui.rangeQuantidade.value = settings.bgQuantity;
+            ui.labelQuantidade.textContent = settings.bgQuantity;
+            ui.rangeVelocidade.value = settings.bgSpeed;
+            ui.labelVelocidade.textContent = `${settings.bgSpeed}x`;
+            
+            // Ativa highlight.js e Viewer.js
             hljs.highlightAll();
-        });
-    </script>
-    <script>
-        // Preenche os controles do modal com os valores salvos no localStorage
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('selectTema').value = localStorage.getItem('ld_theme') || 'light';
-            document.getElementById('fontSize').value = localStorage.getItem('ld_fontSize') || 'medium';
-            document.getElementById('switchCompactMode').checked = localStorage.getItem('ld_compact') === 'true';
-            document.getElementById('selectAnimacao').value = localStorage.getItem('ld_bgAnimation') || 'colisao';
+            const viewerEl = document.getElementById('main-content');
+            if (viewerEl) {
+                new Viewer(viewerEl, {
+                    filter(image) { return image.parentElement.classList.contains('modulo-conteudo'); }, // Visualizar apenas imagens no conteúdo
+                    toolbar: true, navbar: false, title: false, movable: true, zoomable: true,
+                    rotatable: false, scalable: false, transition: true, fullscreen: true,
+                });
+            }
+        };
+        
+        // --- EVENT LISTENERS ---
+        ui.btnSalvarConfigs.addEventListener('click', () => {
+            const newSettings = {
+                theme: ui.selectTema.value,
+                fontSize: ui.fontSize.value,
+                bgAnimation: ui.selectAnimacao.value,
+                bgQuantity: ui.rangeQuantidade.value,
+                bgSpeed: ui.rangeVelocidade.value
+            };
             
-            const quantidade = localStorage.getItem('ld_bg_quantity') || '50';
-            const velocidade = localStorage.getItem('ld_bg_speed') || '1.0';
-            document.getElementById('rangeQuantidade').value = quantidade;
-            document.getElementById('labelQuantidade').textContent = quantidade;
-            document.getElementById('rangeVelocidade').value = velocidade;
-            document.getElementById('labelVelocidade').textContent = `${velocidade}x`;
-
-            document.getElementById('rangeQuantidade').addEventListener('input', (e) => {
-                document.getElementById('labelQuantidade').textContent = e.target.value;
+            Object.entries(newSettings).forEach(([key, value]) => {
+                localStorage.setItem(`ld_${key}`, value);
             });
-            document.getElementById('rangeVelocidade').addEventListener('input', (e) => {
-                document.getElementById('labelVelocidade').textContent = `${e.target.value}x`;
-            });
-        });
-
-        // Salva e aplica as configurações quando o botão é clicado
-        document.getElementById('btnSalvarConfigs').addEventListener('click', () => {
-            // Coleta os valores dos inputs do formulário
-            const theme       = document.getElementById('selectTema').value;
-            const fontSz      = document.getElementById('fontSize').value;
-            const compact     = document.getElementById('switchCompactMode').checked;
-            const bgAnimation = document.getElementById('selectAnimacao').value;
-            const bgQuantity  = document.getElementById('rangeQuantidade').value;
-            const bgSpeed     = document.getElementById('rangeVelocidade').value;
+            localStorage.setItem('ld_bg_quantity', newSettings.bgQuantity);
+            localStorage.setItem('ld_bg_speed', newSettings.bgSpeed);
             
-            // Salva os valores no localStorage
-            localStorage.setItem('ld_theme', theme);
-            localStorage.setItem('ld_fontSize', fontSz);
-            localStorage.setItem('ld_compact', compact);
-            localStorage.setItem('ld_bgAnimation', bgAnimation);
-            localStorage.setItem('ld_bg_quantity', bgQuantity);
-            localStorage.setItem('ld_bg_speed', bgSpeed);
-
-            // Aplica as configurações em tempo real
-            applyTheme(theme);
-            applyFontSize(fontSz);
-            applyCompactMode(compact);
-            applyBgAnimation(bgAnimation);
-
-            // Mostra confirmação (toast)
-            const toastEl = document.createElement('div');
-            toastEl.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
-            toastEl.style.bottom = '1rem'; toastEl.style.right = '1rem';
-            toastEl.setAttribute('role','alert');
-            toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">Configurações salvas! ✅</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-            document.body.append(toastEl);
-            new bootstrap.Toast(toastEl, { delay: 2000 }).show();
+            applyTheme(newSettings.theme);
+            applyFontSize(newSettings.fontSize);
+            applyBgAnimation(newSettings.bgAnimation);
             
-            // Fecha o modal
+            configToast.show();
             bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
         });
 
-        // Bloqueia a aba "Operações" (em desenvolvimento)
-        document.querySelectorAll('#formOperacoes input, #formOperacoes textarea').forEach(el => {
-            el.addEventListener('focus', () => {
-                new bootstrap.Modal(document.getElementById('modalDev')).show();
-                el.blur();
+        // Sliders de range
+        ui.rangeQuantidade.addEventListener('input', e => ui.labelQuantidade.textContent = e.target.value);
+        ui.rangeVelocidade.addEventListener('input', e => ui.labelVelocidade.textContent = `${e.target.value}x`);
+
+        // Gatilho para features em desenvolvimento
+        document.querySelectorAll('.dev-feature').forEach(el => {
+            const eventType = el.type === 'checkbox' ? 'change' : 'click';
+            el.addEventListener(eventType, (e) => {
+                if ( (el.type === 'checkbox' && e.target.checked) || (el.type !== 'checkbox') ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    devModal.show();
+                    if (el.type === 'checkbox') e.target.checked = false; // Desfaz a ação
+                    // Para abas, precisamos garantir que a aba anterior permaneça ativa
+                    if(el.hasAttribute('data-bs-toggle')) {
+                        const previousTab = document.querySelector('.nav-tabs .nav-link.active');
+                        if(previousTab) bootstrap.Tab.getOrCreateInstance(previousTab).show();
+                    }
+                }
             });
         });
 
-        // Exibe aviso de "em desenvolvimento" ao ativar Modo Compacto
-        document.getElementById('switchCompactMode').addEventListener('change', (e) => {
-            // Mostra o modal sempre que o usuário tentar ativar o modo compacto
-            if (e.target.checked) {
-                new bootstrap.Modal(document.getElementById('modalDev')).show();
-                e.target.checked = false; // opcional: desfaz a seleção
-            }
-        });
-
-        // Inicializa o Viewer.js para imagens se o elemento existir
-        document.addEventListener('DOMContentLoaded', () => {
-            const viewerEl = document.getElementById('imagem-viewer');
-            if (viewerEl) {
-                new Viewer(viewerEl, {
-                    toolbar: true, navbar: false, title: false,
-                    movable: true, zoomable: true, scalable: false,
-                    rotatable: false, transition: true, fullscreen: true
-                });
-            }
-        });
+        // --- INICIALIZAÇÃO ---
+        loadSettings();
+    });
     </script>
 </body>
 </html>

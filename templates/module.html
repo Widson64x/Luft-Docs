@@ -52,7 +52,16 @@
         .markdown-body ul ol li::marker {
             font-weight: bold; /* Deixa o marcador em negrito */
         }
-
+      .markdown-body mark {
+            background-color: #FFDC74; /* Um amarelo mais quente e moderno */
+            color: #1c1c1c; /* Preto um pouco mais suave */
+            font-weight: 600; /* Um pouco menos pesado que 'bold' */
+            padding: 0.1em 0.3em;
+            margin: 0 -0.3em; /* Evita que o padding afete o fluxo do texto */
+            border-radius: 4px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+      }
       .markdown-body {
           box-sizing: border-box;
           min-width: 200px;
