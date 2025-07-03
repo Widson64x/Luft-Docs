@@ -26,7 +26,7 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 ---
 
 ### **TSO (Taxa de Seguro Obrigatório)**
-* **Definição:** Criada pela NTC&Logística, a TSO cobre os custos dos seguros obrigatórios por desaparecimento de carga (RC-DC) e de responsabilidade civil do veículo (RC-V), exigidos por lei. A taxa sugerida pela NTC varia de 0,15% a 0,30% sobre o valor da mercadoria, com um valor mínimo de R$ 4,90 por conhecimento de transporte (CT-e), especialmente para cargas de baixo valor.
+* **Definição:** Criada pela NTC&Logística, a TSO cobre os custos dos seguros obrigatórios por desaparecimento de carga (RC-DC) e de responsabilidade civil do veículo (RC-V), exigidos pela Lei nº 14.599/23. A taxa sugerida pela NTC varia de 0,15% a 0,30% sobre o valor da mercadoria, com um valor mínimo de R$ 4,90 por conhecimento de transporte (CT-e), especialmente para cargas de baixo valor.
 * **Quando se Aplica:** Não há uma regra de aplicação especificada.
 
 ---
@@ -38,7 +38,7 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 ---
 
 ### **Taxa EMEX (Taxa de Emergência Excepcional)**
-* **Definição:** Taxa cobrada para compensar os altos custos e riscos de operar em regiões consideradas de difícil acesso ou perigosas ("estado de beligerância"). A cobrança ocorre para todas as cargas que entram ou saem dessas áreas. Atualmente, é mais comum na região metropolitana do Rio de Janeiro.
+* **Definição:** Taxa cobrada para compensar os altos custos e riscos de operar em regiões consideradas de difícil acesso ou perigosas ("estado de beligerância"). A cobrança ocorre para todas as cargas que entram ou saem dessas áreas, como a região metropolitana do Rio de Janeiro.
 * **Quando se Aplica:** Aplica-se somente para entregas em cidades ou regiões específicas previamente definidas.
 
 ---
@@ -46,6 +46,12 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 ### **TRF (Taxa de Redespacho Fluvial)**
 * **Definição:** Cobrada sobre cargas destinadas a localidades onde o transporte fluvial é necessário como complemento para a entrega, visando ressarcir o custo deste trecho. É calculada como um percentual sobre o valor da mercadoria.
 * **Quando se Aplica:** Aplica-se apenas quando o destino da carga é uma cidade que requer o uso de transporte fluvial.
+
+---
+
+### **TX SEGURO FLUVIAL**
+* **Definição:** Destinada a mercadorias com origem ou destino no estado do Amazonas que necessitam de transporte fluvial. A taxa é um percentual sobre o valor dos produtos e visa ressarcir os custos extras da operação.
+* **Quando se Aplica:** A regra só se aplica para as cidades que necessitam de complemento fluvial para a entrega.
 
 ---
 
@@ -79,15 +85,21 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 
 ---
 
+### **TAXA DE DIFICULDADE DE ACESSO**
+* **Definição:** Esta taxa se destina a ressarcir o transportador pelos custos operacionais e administrativos envolvidos na operação de despacho e nas atividades de coleta e entrega.
+* **Quando se Aplica:** Não há uma regra de aplicação especificada.
+
+---
+
 ### **Taxa de Paletização**
 * **Definição:** Cobre o serviço de montagem de paletes ou unitização da carga realizado pela transportadora. É importante notar que esta taxa não inclui o custo do palete em si.
-* **Quando se Aplica:** Cobrada quando o serviço é realizado, geralmente para destinatários específicos.
+* **Quando se Aplica:** Cobrada quando o serviço é realizado, geralmente para destinatários específicos cadastrados.
 
 ---
 
 ### **Taxa de Redespacho Aéreo**
-* **Definição:** Taxa aplicada quando, no transporte aéreo, o destino final não possui aeroporto, exigindo um transporte complementar (redespacho).
-* **Quando se Aplica:** Aplica-se quando o modal é aéreo e o destino é uma cidade do interior sem aeroporto. Esta taxa e a Taxa de Entrega são mutuamente exclusivas.
+* **Definição:** Taxa aplicada quando, no transporte aéreo, o destino final não possui aeroporto ou exige um transporte complementar (redespacho).
+* **Quando se Aplica:** Aplica-se quando o modal é aéreo e o destino é uma cidade do interior que necessite de redespacho. Esta taxa e a Taxa de Entrega são mutuamente exclusivas.
 
 ---
 
@@ -97,18 +109,54 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 
 ---
 
-### **Taxa de Entrega**
-* **Definição:** Cobre os custos do trecho final da entrega. No modal aéreo, refere-se ao transporte do aeroporto até o destinatário.
-* **Quando se Aplica:**
-    * **Aéreo:** Aplicada se o destino for uma capital ou uma cidade do interior que não necessite de redespacho aéreo.
-    * **Rodoviário:** Aplicada se o destino for uma capital.
-    * É excludente com as taxas de redespacho.
+### **TAXA DE EMISSÃO CTRC**
+* **Definição:** Taxa que pode ser cobrada pela emissão do Conhecimento de Transporte de Cargas (CTRC), o documento que formaliza a operação de transporte.
+* **Quando se Aplica:** Não há uma regra de aplicação especificada.
 
 ---
 
-### **Taxa de Manuseio INFRAERO**
+### **TARIFA PORTUÁRIA**
+* **Definição:** Taxa para cobrir despesas com a movimentação e manuseio de cargas em instalações portuárias.
+* **Quando se Aplica:** Não há uma regra de aplicação especificada.
+
+---
+
+### **Taxa de Entrega**
+* **Definição:** Cobre os custos do trecho final da entrega.
+* **Quando se Aplica:**
+    * **Aéreo:** Aplicada se o destino for uma capital ou uma cidade do interior que não necessite de redespacho aéreo.
+    * **Rodoviário:** Aplicada se o destino for uma capital.
+    * É excludente com as taxas de redespacho correspondentes ao seu modal.
+
+---
+
+### **TAXA REDESPACHO RODOVIÁRIO**
+* **Definição:** Aplicada para cobrir custos de um trecho rodoviário complementar necessário para finalizar a entrega.
+* **Quando se Aplica:** A aplicação da regra está condicionada a cidades que possuem uma marcação específica para redespacho fluvial.
+
+---
+
+### **TAXA DE RESTRIÇÃO DE ENTREGA**
+* **Definição:** Aplicada quando há dificuldades ou restrições pontuais no local da entrega que não se enquadram em outras taxas, como TRT ou TDE.
+* **Quando se Aplica:** Não há uma regra de aplicação especificada.
+
+---
+
+### **TAXA DE DESEMBARAÇO FLUVIAL**
+* **Definição:** Cobre os custos com os trâmites de liberação da carga (desembaraço) que utiliza o modal fluvial.
+* **Quando se Aplica:** A regra só se aplica para as cidades que exigem complemento fluvial.
+
+---
+
+### **Taxa Manuseio INFRAERO**
 * **Definição:** Taxa específica do transporte aéreo para cobrir despesas e taxas cobradas pela INFRAERO nos aeroportos.
 * **Quando se Aplica:** Não há uma regra de aplicação especificada, mas está atrelada ao modal aéreo.
+
+---
+
+### **TAXA DE COMBUSTIVEL**
+* **Definição:** Componente variável do frete, geralmente um percentual, que visa compensar as flutuações no preço dos combustíveis.
+* **Quando se Aplica:** Não há uma regra de aplicação especificada.
 
 ---
 
@@ -127,5 +175,3 @@ Este guia detalha as diversas tarifas complementares que podem incidir sobre o t
 ### **GRIS (Gerenciamento de Risco)**
 * **Definição:** Taxa percentual sobre o valor da nota fiscal destinada a cobrir os custos de medidas de segurança para combater o roubo de cargas. O seu cálculo não depende da distância percorrida, mas pode variar conforme a periculosidade da região.
 * **Quando se Aplica:** Cobrada sobre o valor da mercadoria para mitigar os riscos associados ao transporte.
-
-

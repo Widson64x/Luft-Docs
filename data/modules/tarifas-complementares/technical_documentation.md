@@ -128,7 +128,7 @@
 
 ---
 
-### **TPD - TX AJUDANTE VL FIXO**
+### **TPD - TX AJUDANTE/DESCARGA VL FIXO**
 * **Cod Intec:** 93
 * **Cod Farma:** 57
 * **Padrão NTC:** Sim
@@ -145,7 +145,7 @@
 * **Cod Intec:** 112
 * **Cod Farma:** 70
 * **Padrão NTC:** Sim
-* **Definição:** Taxa de Seguro Obrigatório (TSO) é um novo componente tarifário, criado pela NTC&Logísitica destinada a cobrir os custos com os seguros obrigatórios de Responsabilidade Civil do Transportador Rodoviário por Desaparecimento de Carga (RC-DC) e o de Responsabilidade Civil de Veículo (RC-V) (Lei nº 14.599/23, art. 13, incisos II e III), além de todos os custos envolvidos na administração das menicionadas novas responsabilidades. Com base nos estudos realizados pela NTC, os valores da TSO sugeridos pela entidade para aplicação imediata iniciam em 0,15% para curta distância e pode chegar a até 0,30% para longa distância (em função da maior exposição ao risco) sobre o valor da mercadoria, devendo o custo mínimo apurado para operar cada CT-e nas novas modalidades de seguros ser de R$ 4,90, especialmente no transporte de carga fracionada de baixo valor.
+* **Definição:** Taxa de Seguro Obrigatório (TSO) é um novo componente tarifário, criado pela NTC&Logísitica destinada a cobrir os custos com os seguros obrigatórios de Responsabilidade Civil do Transportador Rodoviário por Desaparecimento de Carga (RC-DC) e o de Responsabilidade Civil de Veículo (RC-V) (Lei nº 14.599/23, art. 13, incisos II e III), além de todos os custos envolvidos na administração das mencionadas novas responsabilidades. Com base nos estudos realizados pela NTC, os valores da TSO sugeridos pela entidade para aplicação imediata iniciam em 0,15% para curta distância e pode chegar a até 0,30% para longa distância (em função da maior exposição ao risco) sobre o valor da mercadoria, devendo o custo mínimo apurado para operar cada CT-e nas novas modalidades de seguros ser de R$ 4,90, especialmente no transporte de carga fracionada de baixo valor.
 * **Quando se Aplica:** (Não especificado)
 
 ---
@@ -164,7 +164,7 @@
 * **Cod Intec:** 99
 * **Cod Farma:** 60
 * **Padrão NTC:** Sim
-* **Definição:** Valor cobrado para regiões que se encontram em estado de beligerância e enquanto a situação não se normalizar. A sua cobrança se justifica pelo alto custo suportado pelas empresas transportadoras para manter suas operações nestas condições. A cobrança ocorre para todas as cargas que saem ou chegam a estas regiões,sejam elas CIF ou FOB. Regiões onde a cobrança vigora atualmente: regiãometropolitana do Rio de Janeiro (Belford Roxo, Cachoeiras de Macacu, Duquede Caxias, Guapimirim, Itaboraí, Itaguaí, Japeri, Mangaratiba, Magé, Maricá,Mesquita, Nilópolis, Niterói, Nova Iguaçu, Paracambi, Queimados, Rio Bonito, Rio de Janeiro, São Gonçalo, São João do Meriti, Seropédica, Tanguá).
+* **Definição:** Valor cobrado para regiões que se encontram em estado de beligerância e enquanto a situação não se normalizar. A sua cobrança se justifica pelo alto custo suportado pelas empresas transportadoras para manter suas operações nestas condições. A cobrança ocorre para todas as cargas que saem ou chegam a estas regiões, sejam elas CIF ou FOB. Regiões onde a cobrança vigora atualmente: região metropolitana do Rio de Janeiro (Belford Roxo, Cachoeiras de Macacu, Duque de Caxias, Guapimirim, Itaboraí, Itaguaí, Japeri, Mangaratiba, Magé, Maricá, Mesquita, Nilópolis, Niterói, Nova Iguaçu, Paracambi, Queimados, Rio Bonito, Rio de Janeiro, São Gonçalo, São João do Meriti, Seropédica, Tanguá).
 * **Quando se Aplica:** Somente se aplica às cidades com fl\_emex = 'S' na tabela tb\_cadcidades.
 
 ---
@@ -192,7 +192,7 @@
 * **Cod Intec:** 88
 * **Cod Farma:** 55
 * **Padrão NTC:** Sim
-* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a coleta e/ou a entrega for realizada em Municípios que possuam algum tipo de restrição à circulação de veículos de transporte de carga e/ou à própria atividade de carga e descarga. Incluem-se nesta generalidade as restrições impostas às regiões da Grande São Paulo, Rio de Janeiro, às cidades de Brasília, Salvador, Belo Horizonte, Porto Alegre, Curitiba, Belém e outras que vierem a adotar medidas semelhantes. A restrição de trânsito adotada pela da Capital de um Estado estende-se também à sua Região Metropolitana. Para regiões metropolitanas importantes e complexas como as de São Paulo e Rio de Janeiro, onde as restrições são muito severas, e consequentemente diminuem muito a produtividade dos veículos, a TRT deve ser agravada para compensar os maiores custos.
+* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a coleta e/ou a entrega for realizada em Municípios que possuam algum tipo de restrição à circulação de veículos de transporte de carga e/ou à própria atividade de carga e descarga. Incluem-se nesta generalidade as restrições impostas às regiões da Grande São Paulo, Rio de Janeiro, às cidades de Brasília, Salvador, Belo Horizonte, Porto Alegre, Curitiba, Belém e outras que vierem a adotar medidas semelhantes. Para regiões metropolitanas importantes e complexas como as de São Paulo e Rio de Janeiro, onde as restrições são muito severas, e consequentemente diminuem muito a produtividade dos veículos, a TRT deve ser agravada para compensar os maiores custos.
 * **Quando se Aplica:** Só se aplica nos casos onde o CEP do Destinatário esteja cadastrado na tabela TB\_RESTRICAO\_TRANS.
 
 ---
@@ -201,7 +201,7 @@
 * **Cod Intec:** 89
 * **Cod Farma:** 29
 * **Padrão NTC:** Não
-* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a coleta e/ou a entrega for realizada em Municípios que possuam algum tipo de restrição à circulação de veículos de transporte de carga e/ou à própria atividade de carga e descarga. Incluem-se nesta generalidade as restrições impostas às regiões da Grande São Paulo, Rio de Janeiro, às cidades de Brasília, Salvador, Belo Horizonte, Porto Alegre, Curitiba, Belém e outras que vierem a adotar medidas semelhantes. A restrição de trânsito adotada pela da Capital de um Estado estende-se também à sua Região Metropolitana. Para regiões metropolitanas importantes e complexas como as de São Paulo e Rio de Janeiro, onde as restrições são muito severas, e consequentemente diminuem muito a produtividade dos veículos, a TRT deve ser agravada para compensar os maiores custos.
+* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a coleta e/ou a entrega for realizada em Municípios que possuam algum tipo de restrição à circulação de veículos de transporte de carga e/ou à própria atividade de carga e descarga. Incluem-se nesta generalidade as restrições impostas às regiões da Grande São Paulo, Rio de Janeiro, às cidades de Brasília, Salvador, Belo Horizonte, Porto Alegre, Curitiba, Belém e outras que vierem a adotar medidas semelhantes. Para regiões metropolitanas importantes e complexas como as de São Paulo e Rio de Janeiro, onde as restrições são muito severas, e consequentemente diminuem muito a produtividade dos veículos, a TRT deve ser agravada para compensar os maiores custos.
 * **Quando se Aplica:** Só se aplica nos casos onde o CEP do Destinatário esteja cadastrado na tabela TB\_RESTRICAO\_TRANS.
 
 ---
@@ -254,7 +254,7 @@
 * **Cod Farma:** 18
 * **Padrão NTC:** Sim
 * **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a entrega for dificultada por um ou mais dos seguintes fatores:
-    * 1) Recebimento por ordem de chegada,independentemente da quantidade;
+    * 1) Recebimento por ordem de chegada, independentemente da quantidade;
     * 2) Recebimento precário, que gere longas filas e tempo excessivo na descarga;
     * 3) Exigência de separação de itens no recebimento;
     * 4) Exigência de tripulação superior à do veículo para carga e descarga;
@@ -267,8 +267,8 @@
 * **Cod Intec:** 85
 * **Cod Farma:** 52
 * **Padrão NTC:** Sim
-* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a entrega for dificultada por um ou mais dos seguintes fatores:
-    * 1) Recebimento por ordem de chegada,independentemente da quantidade;
+* **Definição:** Destina-se a ressarcir o transportador pelos custos adicionais sempre que a entrega for dificultada por um ou more dos seguintes fatores:
+    * 1) Recebimento por ordem de chegada, independentemente da quantidade;
     * 2) Recebimento precário, que gere longas filas e tempo excessivo na descarga;
     * 3) Exigência de separação de itens no recebimento;
     * 4) Exigência de tripulação superior à do veículo para carga e descarga;
@@ -370,12 +370,12 @@
 * **Cod Intec:** 15
 * **Cod Farma:** 15
 * **Padrão NTC:** Sim
-* **Definição:** Taxa cobrada apenas no aéreo - referente ao custo do trecho final.
+* **Definição:** Taxa referente ao custo do trecho final da entrega.
 * **Quando se Aplica:**
     * Se o modal do CTC for Aéreo a tarifa se aplica caso a cidade destino tiver CIM = CAP (Capital) ou se a cidade for INT (Interior) e a cidade não estiver assinalada com fl\_redespaereo = 1.
     * Taxa de Entrega e Taxa de Redespacho Aéreo são excludentes nos CTCs Aéreos. Quando cobrar uma, não pode cobrar a outra.
     * Se o modal for Rodoviário então a tarifa se aplica caso o destinatário for Capital.
-    * Taxa de Entrega e Taxa de Redespacho são excludentes nos CTCs Rodoviários . Quando cobrar uma não pode cobrar a outra.
+    * Taxa de Entrega e Taxa de Redespacho são excludentes nos CTCs Rodoviários. Quando cobrar uma não pode cobrar a outra.
 
 ---
 
@@ -397,7 +397,7 @@
 ### **TAXA DE DESEMBARAÇO FLUVIAL**
 * **Cod Farma:** 51
 * **Padrão NTC:** Não
-* **Quando se Aplica:** A regra só se aplica para as cidades assinaladas na tabela CadCidades que estejam com a flag fl\_redespachofluvial = 'S' excludentes nos CTCs Rodoviários . Quando cobrar uma não pode cobrar a outra.
+* **Quando se Aplica:** A regra só se aplica para as cidades assinaladas na tabela CadCidades que estejam com a flag fl\_redespachofluvial = 'S'.
 
 ---
 
