@@ -40,6 +40,10 @@
           }
       }
 </style>
+    {# Usamos javascript:history.back() para voltar à página anterior do histórico #}
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+        ← Voltar
+    </a>
     <div class="markdown-body">
         <h1>{{ nome }}</h1>
         <div class="submodulo-conteudo">
@@ -54,8 +58,5 @@
         </div>
     </div>
     <hr>
-    {# Usamos javascript:history.back() para voltar à página anterior do histórico #}
-    <a href="javascript:history.back()" class="btn btn-outline-secondary">
-        ← Voltar
-    </a>
+
 {% endblock %}

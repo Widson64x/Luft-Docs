@@ -349,13 +349,14 @@ body.theme-dark .bg-icons .bg-icon {
   </div>
 
   <div class="module-grid" id="moduloGrid">
+    {% if can_create_modules %}   
     <div class="module-item" style="--delay: 0;">
       <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="module-card add-new-card text-decoration-none">
         <div class="icon"><i class="bi bi-plus-circle-dotted"></i></div>
         <div class="text mt-3">Criar Novo Módulo</div>
       </a>
     </div>
-    
+    {% endif %}
     {% for m in modulos %}
     <div class="module-item" style="--delay: {{ loop.index }};" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
       <div class="module-card">

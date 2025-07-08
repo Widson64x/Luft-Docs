@@ -74,6 +74,7 @@ def index():
     can_access_editor           = user_perms.get('can_access_editor', False)
     can_view_tecnico            = user_perms.get('can_view_tecnico', False)
     can_access_permissions_menu = user_perms.get('can_access_permissions_menu', False)
+    can_create_modules = user_perms.get('can_create_modules', False)
 
     # Captura parâmetros
     action_download       = request.args.get('download', '').strip()
@@ -230,6 +231,7 @@ def index():
         can_access_editor=can_access_editor,
         can_view_tecnico=can_view_tecnico,
         can_access_permissions_menu=can_access_permissions_menu,
+        can_create_modules=can_create_modules,
         menus=[]
     )
 

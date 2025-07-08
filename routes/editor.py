@@ -126,6 +126,7 @@ def editor_index():
     can_access_editor           = user_perms.get('can_access_editor', False)
     can_edit_modules           = user_perms.get('can_edit_modules', False)
     can_delete_modules             = user_perms.get('can_delete_modules', False)
+    can_create_modules = user_perms.get('can_create_modules', False)
     can_versioning_modules = user_perms.get('can_versioning_modules', False)
     can_module_control = user_perms.get('can_module_control', False)
     # FUNÇÃO E OBTÉM A CONTAGEM DE PENDENCIAS
@@ -142,6 +143,7 @@ def editor_index():
         can_versioning_modules=can_versioning_modules,
         can_module_control=can_module_control,
         num_pendencias=num_pendencias,
+        can_create_modules=can_create_modules
     )
 
 @editor_bp.route('/upload_image/<modulo_id>', methods=['POST'])
@@ -299,7 +301,7 @@ def editar_modulo(mid):
 def criar_modulo():
     # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
     grupo, user_name = get_user_group()
-    perms = load_permissions().get('can_edit_modules', {})
+    perms = load_permissions().get('can_create_modules', {})
     allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
     if not allowed:
         return render_template('access_denied.html', reason="Você não tem permissão para criar novos módulos."), 403

@@ -72,6 +72,19 @@
           /* Garante que a cor do texto no markdown respeite o tema claro/escuro */
           background-color: transparent;
       }
+
+      .busca-global {
+          display: flex;
+          justify-content: space-between; /* Manda cada item para uma ponta */
+          align-items: center; /* Alinha verticalmente */
+      }
+
+      .search-group {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem; /* Cria um pequeno espaço entre o campo e o botão */
+          position: relative; /* Necessário para a lista de autocomplete funcionar */
+      }
       body.theme-dark .markdown-body {
           background-color: transparent;
           color: white;
@@ -83,18 +96,25 @@
       }
     </style>
     
-    {# Formulário de busca dentro do módulo, preservando token e módulo #}
-    <form class="busca-global mb-4 position-relative" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get" autocomplete="off">
+    {# Formulário de busca com alinhamento ajustado #}
+    <form class="busca-global mb-4" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get" autocomplete="off">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            ← Voltar
+        </a>
+        
         <input type="hidden" name="token" value="{{ request.args.get('token') }}">
         <input type="hidden" name="modulo" value="{{ modulo['id'] }}">
-        <input id="busca-input" type="text" name="q" value="{{ query or '' }}"
-               placeholder="Buscar neste módulo..."
-               class="form-control d-inline-block"
-               style="width: 70%; max-width: 400px;" autocomplete="off">
-        <button type="submit" class="btn btn-primary ms-2">
-            <i class="bi bi-search"></i> Buscar
-        </button>
-        <ul id="autocomplete-list" class="autocomplete-list"></ul>
+
+        <div class="search-group">
+            <input id="busca-input" type="text" name="q" value="{{ query or '' }}"
+                  placeholder="Buscar neste módulo..."
+                  class="form-control"
+                  style="width: 400px;" autocomplete="off">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            <ul id="autocomplete-list" class="autocomplete-list"></ul>
+        </div>
     </form>
 
     <div class="markdown-body">

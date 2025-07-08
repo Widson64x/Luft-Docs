@@ -105,9 +105,9 @@
         "data": null
       },
       "version_info": {
-        "current_version": "1.1",
+        "current_version": "1.2",
         "last_approved_by": "francisco.miranda",
-        "last_approved_on": "2025-07-02T14:52:55.590181"
+        "last_approved_on": "2025-07-08T10:50:26.701049"
       },
       "edit_history": [
         {
@@ -118,6 +118,15 @@
           "timestamp": "2025-07-02T14:52:55.590181",
           "backup_file_doc": "v1.1_2025-07-02T14-52-55_francisco.miranda_documentation.md",
           "backup_file_tech": "v1.1_2025-07-02T14-52-55_francisco.miranda_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "francisco.miranda",
+          "approver": "francisco.miranda",
+          "timestamp": "2025-07-08T10:50:26.701049",
+          "backup_file_doc": "v1.2_2025-07-08T10-50-26_francisco.miranda_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-08T10-50-26_francisco.miranda_technical.md"
         }
       ]
     },
@@ -158,6 +167,48 @@
           "timestamp": "2025-07-02T10:51:20.067599",
           "backup_file_doc": "v1.1_2025-07-02T10-51-20_widson.araujo_documentation.md",
           "backup_file_tech": "v1.1_2025-07-02T10-51-20_widson.araujo_technical.md"
+        }
+      ]
+    },
+    {
+      "id": "recebimento-intec",
+      "nome": "Recebimento INTEC",
+      "descricao": "Esse módulo aborda o processo de recebimento que ocorre na parte da INTEC.",
+      "icone": "bi-box-seam",
+      "palavras_chave": [
+        "recebimento",
+        "intec",
+        "coleta",
+        "transferência"
+      ],
+      "relacionados": [
+        "coordenacao"
+      ],
+      "status": "aprovado",
+      "version_info": {
+        "current_version": "1.1",
+        "last_approved_by": "widson.araujo",
+        "last_approved_on": "2025-07-08T14:59:56.596770"
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "edit_history": [
+        {
+          "event": "criado",
+          "version": "1.0",
+          "user": "widson.araujo",
+          "timestamp": "2025-07-08T14:58:53.193723"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-08T14:59:56.596770",
+          "backup_file_doc": "v1.1_2025-07-08T14-59-56_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-08T14-59-56_widson.araujo_technical.md"
         }
       ]
     }

@@ -56,5 +56,13 @@
       "francisco.miranda",
       "widson.araujo"
     ]
+  },
+  "can_create_modules": {
+    "description": "Permite criar novos módulos nos sistema.",
+    "groups": [],
+    "users": [
+      "francisco.miranda",
+      "widson.araujo"
+    ]
   }
 }

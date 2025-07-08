@@ -214,6 +214,28 @@
     .modern-btn:active {
         box-shadow: 0 0 0 2px #0d6efd33;
     }
+    .add-new-card {
+        background: transparent !important;
+        border: 2px dashed var(--border-color, #ced4da) !important;
+        color: #6c757d !important;
+        box-shadow: none !important;
+        transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .add-new-card:hover {
+        border-color: #0d6efd !important;
+        color: #0d6efd !important;
+        background: #f8f9fa !important;
+    }
+    body.theme-dark .add-new-card {
+        background: transparent !important;
+        border-color: #23263b !important;
+        color: #b6d0ff !important;
+    }
+    body.theme-dark .add-new-card:hover {
+        border-color: #0d6efd !important;
+        color: #0d6efd !important;
+        background: #23263b !important;
+    }
     @media (max-width: 575px) {
         .modern-card {
             min-height: 320px;
@@ -280,6 +302,17 @@
                 </div>
             </div>
         {% endfor %}
+        <!-- Card "Criar Novo Módulo" sempre por último -->
+        {% if can_create_modules %}
+        <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
+            <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: {{ modulos|length }}">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
+                    <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>
+                    <h5 class="card-title">Criar Novo Módulo</h5>
+                </div>
+            </a>
+        </div>
+        {% endif %}
         <div id="no-results-message" class="col-12 text-center py-5" style="display: none;">
             <i class="bi bi-emoji-frown fs-1 text-muted"></i>
             <h4 class="mt-3">Nenhum módulo encontrado</h4>
