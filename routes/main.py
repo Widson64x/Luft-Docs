@@ -226,6 +226,16 @@ def index():
 
     # Página inicial
     modulos, _ = carregar_modulos_aprovados()
+    
+    # --- INÍCIO DA ALTERAÇÃO ---
+    # Adiciona uma verificação para saber se o módulo tem conteúdo
+    for m in modulos:
+        # Carrega o conteúdo do markdown do módulo
+        md_content = carregar_markdown(m['id'])
+        # Cria uma nova chave 'has_content' que será True se houver conteúdo e False caso contrário
+        m['has_content'] = bool(md_content and md_content.strip())
+    # --- FIM DA ALTERAÇÃO ---
+
     return render_template(
         'index.html', modulos=modulos,
         can_access_editor=can_access_editor,

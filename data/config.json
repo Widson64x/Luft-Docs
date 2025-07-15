@@ -215,7 +215,7 @@
     {
       "id": "relacao-parceiros",
       "nome": "Relação de Parceiros",
-      "descricao": "",
+      "descricao": "Esse módulo aborda todos os parceiros e sistemas que se relacionam com a Luft ",
       "icone": "bi-people",
       "palavras_chave": [
         "relação",

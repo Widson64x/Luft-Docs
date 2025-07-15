@@ -3,7 +3,7 @@
 No sistema, existem dois tipos de destinatários cadastrados:
 
 1.  **Destinatários Genéricos:** Utilizam uma agenda padrão, aplicável a todos os clientes.
-2.  **Destinatários x Cliente:** Requerem uma agenda vinculada a um cliente específico, no caso é necessário que esse destinaário esteja associado a um cliente.
+2.  **Destinatários x Cliente:** Requerem uma agenda vinculada a um cliente específico, no caso é necessário que esse destinaário esteja associado a um cliente. [[RelatórioVendas]]
 
 ## Divisão de Ocorrências e Status
 
