@@ -211,6 +211,36 @@
           "backup_file_tech": "v1.1_2025-07-08T14-59-56_widson.araujo_technical.md"
         }
       ]
+    },
+    {
+      "id": "relacao-parceiros",
+      "nome": "Relação de Parceiros",
+      "descricao": "",
+      "icone": "bi-people",
+      "palavras_chave": [
+        "relação",
+        "parceiros",
+        "sistemas"
+      ],
+      "relacionados": [],
+      "status": "aprovado",
+      "version_info": {
+        "current_version": "1.0",
+        "last_approved_by": "widson.araujo",
+        "last_approved_on": "2025-07-15T09:20:50.616243"
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "edit_history": [
+        {
+          "event": "criado",
+          "version": "1.0",
+          "user": "widson.araujo",
+          "timestamp": "2025-07-15T09:20:50.616243"
+        }
+      ]
     }
   ],
   "palavras_globais": {

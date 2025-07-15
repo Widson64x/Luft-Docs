@@ -3,7 +3,7 @@
 No sistema, existem dois tipos de destinatários cadastrados:
 
 1.  **Destinatários Genéricos:** Utilizam uma agenda padrão, aplicável a todos os clientes.
-2.  **Destinatários Específicos:** Requerem uma agenda vinculada a um cliente específico.
+2.  **Destinatários x Cliente:** Requerem uma agenda vinculada a um cliente específico, no caso é necessário que esse destinaário esteja associado a um cliente.
 
 ## Divisão de Ocorrências e Status
 
@@ -55,7 +55,7 @@ Esta modalidade é utilizada para distribuidores cujos sistemas estão integrado
 * **Como funciona**: O sistema realiza o processo de forma autônoma em horários fixos (6:00 e 15:00) para as solicitações cadastradas como automáticas.
 * **Fluxo**:
     1.  Diariamente, às **6:00** ou **15:00**, o sistema processa automaticamente as notas com status **NP** (Notas Pendentes).
-    2.  Um e-mail é enviado ao **distribuidor** solicitando a confirmação do agendamento.
+    2.  Um e-mail automático é enviado ao **distribuidor** solicitando a confirmação do agendamento.
     3.  Após o envio, o status da nota muda de **NP** para **AR** (Aguardando Retorno).
     4.  No e-mail recebido, o distribuidor clica no botão de **Confirmação**, e o agendamento é realizado.
     5.  O status da nota é atualizado para **AG** (Agendado).
