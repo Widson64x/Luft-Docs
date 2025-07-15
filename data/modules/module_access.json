@@ -88,29 +88,65 @@
     }
   },
   "recebimento-intec": {
-    "total": 39,
+    "total": 42,
     "historico": {
       "2025-07-08": 2,
       "2025-07-10": 3,
-      "2025-07-15": 34
+      "2025-07-15": 37
     }
   },
   "relacao-parceiros": {
-    "total": 9,
+    "total": 24,
     "historico": {
-      "2025-07-15": 9
+      "2025-07-15": 24
     }
   },
   "Ocorrências": {
-    "total": 5,
+    "total": 9,
     "historico": {
-      "2025-07-15": 5
+      "2025-07-15": 9
     }
   },
   "CRM": {
     "total": 3,
     "historico": {
       "2025-07-15": 3
+    }
+  },
+  "API_ACTIVE": {
+    "total": 1,
+    "historico": {
+      "2025-07-15": 1
+    }
+  },
+  "Consultas_Públicas": {
+    "total": 1,
+    "historico": {
+      "2025-07-15": 1
+    }
+  },
+  "API_CONFIRMAFACIL": {
+    "total": 4,
+    "historico": {
+      "2025-07-15": 4
+    }
+  },
+  "Nrisk": {
+    "total": 2,
+    "historico": {
+      "2025-07-15": 2
+    }
+  },
+  "Access": {
+    "total": 2,
+    "historico": {
+      "2025-07-15": 2
+    }
+  },
+  "Toccato": {
+    "total": 1,
+    "historico": {
+      "2025-07-15": 1
     }
   }
 }

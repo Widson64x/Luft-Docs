@@ -38,16 +38,27 @@ def carregar_markdown_tecnico(modulo_id):
     
 def carregar_markdown_submodulo(nome: str) -> str | None:
     """
-    Lê o arquivo <nome>.md dentro de data/global.
-    Exemplo: nome="CRM" → data/global/CRM.md
+    Lê o arquivo <nome>.md dentro de data/global ou de qualquer uma de suas subpastas.
+    A busca é feita recursivamente.
+
+    Exemplo:
+    - nome="CRM" buscará por "CRM.md".
+    - Se "data/global/CRM.md" existir, será lido.
+    - Se "data/global/uma_subpasta/outra/CRM.md" existir, ele também será encontrado e lido.
     """
     nome_arquivo = nome.replace(" ", "_") + ".md"
-    path: Path = GLOBAL_DATA_DIR / nome_arquivo
 
-    if not path.exists():
-        return None
+    # Usa rglob para fazer uma busca recursiva pelo arquivo.
+    # rglob retorna um gerador, então usamos next() para obter o primeiro
+    # resultado encontrado ou None se nada for encontrado.
+    path_arquivo = next(GLOBAL_DATA_DIR.rglob(nome_arquivo), None)
 
-    return path.read_text(encoding='utf-8')
+    # Se o caminho do arquivo foi encontrado (não é None), lê o seu conteúdo.
+    if path_arquivo:
+        return path_arquivo.read_text(encoding='utf-8')
+
+    # Se o loop terminar e nada for encontrado, retorna None.
+    return None
 
 def get_modulo_by_id(modulos, mid):
     return next((m for m in modulos if m["id"] == mid), None)
