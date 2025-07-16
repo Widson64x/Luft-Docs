@@ -1,6 +1,7 @@
 # utils/module_access.py
 
 import json
+from pathlib import Path # 1. Importe a classe Path
 import os
 from collections import Counter
 from config import DATA_DIR, CONFIG_FILE, GLOBAL_DATA_DIR, MODULE_ACCESS_FILE
@@ -19,8 +20,16 @@ def load_access():
 
 
 def save_access(data):
+    # 2. Adicione esta linha para criar os diretórios
+    # .parent pega o caminho do diretório do arquivo (ex: 'daqta/modules')
+    # .mkdir() cria o diretório.
+    #    - parents=True: cria diretórios intermediários (como criar 'daqta' e 'modules' de uma vez)
+    #    - exist_ok=True: não dá erro se o diretório já existir
+    Path(ARQ).parent.mkdir(parents=True, exist_ok=True)
+
+    # 3. O restante do seu código permanece igual
     with open(ARQ, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, indent=4)
 
 from datetime import datetime, timedelta
 def register_access(modulo_id):

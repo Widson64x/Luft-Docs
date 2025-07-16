@@ -342,6 +342,13 @@ body.theme-dark .bg-icons .bg-icon {
         {% endif %}
       </a>
     {% endif %}
+        {% if can_module_control %}
+      <a href="{{ url_for('editor.listar_submodulos', token=token) }}" 
+         class="pending-button" 
+         title="Edita Submódulo ({{ num_pendencias }})">
+        <i class="bi bi-substack"></i>
+      </a>
+    {% endif %}
   </div>
 
   <div class="modulo-filtro-box mb-4">

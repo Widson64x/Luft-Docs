@@ -1,18 +1,21 @@
 # routes/editor.py
 
-from flask import Blueprint, render_template, request, redirect, url_for, abort, session, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, abort, session, flash, jsonify, current_app
 from werkzeug.utils import secure_filename
 from utils.data.module_utils import carregar_modulos, get_modulo_by_id
 from routes.permissions import load_permissions, get_user_group
 # a menos que você o use em outro lugar. Se não, pode ser removido.
 from config import DATA_DIR, CONFIG_FILE, BASE_DIR
 import os
+import uuid
 import re
+import re 
 import json
 import markdown
 import diff_match_patch as dmp_module
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 editor_bp = Blueprint('editor', __name__, url_prefix='/editor')
 
@@ -860,3 +863,198 @@ def get_historical_content():
     print(f"--- DEBUG: Conteúdo HTML Gerado (tamanho: {len(html_content)})") # DEBUG
 
     return jsonify({'html': html_content})
+
+# --- FUNÇÃO AUXILIAR PARA CRIAR A ÁRVORE DE DIRETÓRIOS ---
+def build_dir_tree(path):
+    tree = {}
+    for item in os.scandir(path):
+        if item.is_dir():
+            tree[item.name] = build_dir_tree(item.path)
+    return tree
+
+@editor_bp.route('/submodulos')
+def listar_submodulos():
+    """
+    Lista todos os submódulos e gera uma árvore de diretórios para o frontend.
+    """
+    token = request.args.get('token', '')
+    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    global_dir.mkdir(exist_ok=True) # Garante que o diretório base exista
+
+    # Pega a lista de arquivos .md
+    submodulos_info = []
+    for p in global_dir.rglob('*.md'):
+        mod_time_unix = os.path.getmtime(p)
+        mod_time_str = datetime.fromtimestamp(mod_time_unix).strftime('%d/%m/%Y %H:%M:%S')
+        submodulos_info.append({
+            'path': p.relative_to(global_dir).as_posix(),
+            'modified': mod_time_str
+        })
+    submodulos_info.sort(key=lambda x: x['path'])
+
+    # NOVO: Gera a árvore de diretórios como um dicionário aninhado
+    dir_tree = build_dir_tree(global_dir)
+
+    return render_template(
+        'editor/submodule_list.html',
+        submodulos=submodulos_info,
+        # Passa a árvore como uma string JSON para o JavaScript
+        dir_tree_json=json.dumps(dir_tree),
+        token=token
+    )
+
+@editor_bp.route('/deletar_submodulo', methods=['POST'])
+def deletar_submodulo():
+    """
+    Deleta um arquivo de submódulo e suas pastas-pai se ficarem vazias.
+    """
+    token = request.form.get('token')
+    # Adicione sua lógica de validação de token
+    if not token: return "Não autorizado", 403
+
+    path_to_delete = request.form.get('path_to_delete')
+    if not path_to_delete:
+        flash('Caminho do arquivo não fornecido.', 'danger')
+        return redirect(url_for('.listar_submodulos', token=token))
+
+    # Medida de segurança: garante que o caminho é relativo e dentro do diretório global
+    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    full_path = global_dir.joinpath(path_to_delete).resolve()
+
+    if global_dir.resolve() not in full_path.parents:
+        flash('Tentativa de exclusão de arquivo inválida.', 'danger')
+        return redirect(url_for('.listar_submodulos', token=token))
+
+    try:
+        if full_path.is_file():
+            full_path.unlink() # Deleta o arquivo
+            flash(f'Submódulo "{path_to_delete}" deletado com sucesso.', 'success')
+
+            # Lógica para deletar pastas-pai vazias
+            parent = full_path.parent
+            while parent != global_dir and not any(parent.iterdir()):
+                parent.rmdir()
+                parent = parent.parent
+
+        else:
+            flash('O caminho especificado não é um arquivo válido.', 'warning')
+    except Exception as e:
+        flash(f'Erro ao deletar o arquivo: {e}', 'danger')
+
+    return redirect(url_for('.listar_submodulos', token=token))
+
+@editor_bp.route('/criar_submodulo', methods=['POST'])
+def criar_submodulo():
+    """
+    Cria um novo arquivo .md (e a pasta, se necessário) a partir dos dados do modal.
+    """
+    token = request.form.get('token')
+    # Insira sua lógica de validação de token aqui
+    if not token:
+        return "Não autorizado", 403
+
+    folder_path = request.form.get('folder_path', '').strip()
+    file_name = request.form.get('file_name', '').strip()
+
+    if not file_name:
+        flash('O nome do arquivo é obrigatório.', 'danger')
+        return redirect(url_for('.listar_submodulos', token=token))
+
+    # Limpa o nome do arquivo para garantir segurança
+    file_name = file_name.replace('.md', '').replace('/', '').replace('\\', '')
+    
+    # Previne ataques de travessia de diretório
+    if '..' in folder_path or folder_path.startswith('/'):
+        flash('Caminho de pasta inválido.', 'danger')
+        return redirect(url_for('.listar_submodulos', token=token))
+
+    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    # Se o caminho da pasta for '.', usa a raiz. Senão, junta o caminho.
+    target_dir = global_dir.joinpath(folder_path) if folder_path and folder_path != '.' else global_dir
+    
+    # Cria os diretórios pais se não existirem
+    target_dir.mkdir(parents=True, exist_ok=True)
+    final_path = target_dir / f"{file_name}.md"
+    
+    if final_path.exists():
+        flash(f'O arquivo "{file_name}.md" já existe. Abrindo para edição.', 'info')
+    else:
+        final_path.touch() # Cria o arquivo vazio
+        flash(f'Submódulo "{file_name}.md" criado com sucesso!', 'success')
+    
+    # Redireciona para o editor do novo arquivo
+    submodule_path = final_path.relative_to(global_dir).as_posix()
+    return redirect(url_for('.editar_submodulo', submodulo_path=submodule_path, token=token))
+
+@editor_bp.route('/submodulo/<path:submodulo_path>', methods=['GET', 'POST'])
+def editar_submodulo(submodulo_path):
+    """
+    Carrega o editor ToastUI para editar o conteúdo de um submódulo.
+    """
+    token = request.args.get('token', '')
+    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    file_path = global_dir / submodulo_path
+
+    if request.method == 'POST':
+        # Pega o conteúdo do editor.
+        content = request.form.get('content', '')
+        
+        # --- ALTERAÇÃO AQUI ---
+        # Limpa as quebras de linha e espaços extras antes de salvar.
+        content = limpar_linhas_em_branco(content)
+        # --- FIM DA ALTERAÇÃO ---
+
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(content, encoding='utf-8')
+        
+        flash('Submódulo salvo com sucesso!', 'success')
+        return redirect(url_for('.listar_submodulos', token=token))
+
+    # Carrega o conteúdo bruto do arquivo para o editor.
+    content = ""
+    if file_path.exists():
+        content = file_path.read_text(encoding='utf-8')
+            
+    return render_template(
+        'editor/submodule_edit.html',
+        path=submodulo_path,
+        content=content,
+        token=token
+    )
+
+def _handle_upload(folder_name: str):
+    """Função auxiliar para lidar com uploads de forma genérica."""
+    if 'file' not in request.files:
+        return jsonify({'error': 'Nenhum arquivo encontrado'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'Nome de arquivo inválido'}), 400
+    
+    # Cria um nome de arquivo seguro e único
+    ext = Path(file.filename).suffix
+    filename = f"{uuid.uuid4().hex}{ext}"
+    
+    # Define o caminho para salvar o arquivo (ex: static/uploads/videos)
+    upload_folder = os.path.join(BASE_DIR, 'data', 'videos', 'submodulo')
+    os.makedirs(upload_folder, exist_ok=True)
+
+    save_path = os.path.join(upload_folder, filename)
+    file.save(save_path)
+    
+    file_url = url_for('static', filename=f'uploads/{folder_name}/{filename}', _external=False)
+    return jsonify({'url': file_url, 'type': file.mimetype})
+
+@editor_bp.route('/upload_submodule_anexo', methods=['POST'])
+def upload_submodule_anexo():
+    """Endpoint para upload de anexos (PDF, DOCX, etc) para submódulos."""
+    return _handle_upload('attachments') # Salva na pasta 'static/uploads/attachments'
+
+@editor_bp.route('/upload_submodule_video', methods=['POST'])
+def upload_submodule_video():
+    """Endpoint para upload de vídeos para submódulos."""
+    return _handle_upload('videos') # Salva na pasta 'static/uploads/videos'
+
+@editor_bp.route('/upload_submodule_image', methods=['POST'])
+def upload_submodule_image():
+    """Endpoint para upload de imagens (do editor) para submódulos."""
+    return _handle_upload('images') # Salva na pasta 'static/uploads/images'
