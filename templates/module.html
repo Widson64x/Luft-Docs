@@ -95,27 +95,6 @@
           }
       }
     </style>
-    
-    {# Formulário de busca com alinhamento ajustado #}
-    <form class="busca-global mb-4" action="{{ url_for('modulo.ver_modulo_pela_raiz') }}" method="get" autocomplete="off">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary">
-            ← Voltar
-        </a>
-        
-        <input type="hidden" name="token" value="{{ request.args.get('token') }}">
-        <input type="hidden" name="modulo" value="{{ modulo['id'] }}">
-
-        <div class="search-group">
-            <input id="busca-input" type="text" name="q" value="{{ query or '' }}"
-                  placeholder="Buscar neste módulo..."
-                  class="form-control"
-                  style="width: 400px;" autocomplete="off">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Buscar
-            </button>
-            <ul id="autocomplete-list" class="autocomplete-list"></ul>
-        </div>
-    </form>
 
     <div class="markdown-body">
         <h1 class="mb-1">{{ modulo['nome'] }}</h1>
@@ -152,7 +131,7 @@
     <div class="relacionados mb-4">
         {% for rel in relacionados %}
             <a class="btn btn-outline-primary btn-sm me-1 mb-1"
-               href="{{ url_for('submodulo.ver_submodulo_pela_raiz',
+               href="{{ url_for('modulo.ver_modulo_pela_raiz',
                                  **{'token': request.args.get('token'),
                                     'modulo': rel['id']}) }}">
                 <i class="bi {{ rel['icone'] }}"></i> {{ rel['nome'] }}

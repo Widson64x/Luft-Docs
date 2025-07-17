@@ -17,7 +17,6 @@ def carregar_modulos():
 
 def carregar_modulos_aprovados():
     config = carregar_config()
-    # Filtra apenas módulos com status 'aprovado'
     modulos_aprovados = [m for m in config["modulos"] if m.get("status") == "aprovado"]
     return modulos_aprovados, config["palavras_globais"]
 
@@ -40,24 +39,27 @@ def carregar_markdown_submodulo(nome: str) -> str | None:
     """
     Lê o arquivo <nome>.md dentro de data/global ou de qualquer uma de suas subpastas.
     A busca é feita recursivamente.
-
-    Exemplo:
-    - nome="CRM" buscará por "CRM.md".
-    - Se "data/global/CRM.md" existir, será lido.
-    - Se "data/global/uma_subpasta/outra/CRM.md" existir, ele também será encontrado e lido.
     """
     nome_arquivo = nome.replace(" ", "_") + ".md"
 
-    # Usa rglob para fazer uma busca recursiva pelo arquivo.
-    # rglob retorna um gerador, então usamos next() para obter o primeiro
-    # resultado encontrado ou None se nada for encontrado.
-    path_arquivo = next(GLOBAL_DATA_DIR.rglob(nome_arquivo), None)
+    # --- INÍCIO DA DEPURAÇÃO ---
+    print("\n--- [DEBUG] Iniciando busca por submódulo ---")
+    print(f"Nome do arquivo procurado: '{nome_arquivo}'")
+    print(f"Diretório de busca (caminho absoluto): '{GLOBAL_DATA_DIR.resolve()}'")
 
-    # Se o caminho do arquivo foi encontrado (não é None), lê o seu conteúdo.
+    found_files = list(GLOBAL_DATA_DIR.rglob(nome_arquivo))
+    print(f"Arquivos encontrados na busca: {found_files}")
+
+    path_arquivo = next(iter(found_files), None)
+    # --- FIM DA DEPURAÇÃO ---
+
     if path_arquivo:
+        print(f"Arquivo correspondente selecionado: '{path_arquivo}'")
+        print("--- [DEBUG] Fim da busca ---\n")
         return path_arquivo.read_text(encoding='utf-8')
 
-    # Se o loop terminar e nada for encontrado, retorna None.
+    print("Nenhum arquivo correspondente foi encontrado.")
+    print("--- [DEBUG] Fim da busca ---\n")
     return None
 
 def get_modulo_by_id(modulos, mid):

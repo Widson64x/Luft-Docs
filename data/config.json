@@ -241,6 +241,57 @@
           "timestamp": "2025-07-15T09:20:50.616243"
         }
       ]
+    },
+    {
+      "id": "teste",
+      "nome": "Testando Módulo",
+      "descricao": "",
+      "icone": "bi-bag",
+      "palavras_chave": [
+        "recebimento",
+        "intec",
+        "coleta",
+        "transferência"
+      ],
+      "relacionados": [
+        "coordenacao"
+      ],
+      "status": "aprovado",
+      "version_info": {
+        "current_version": "1.2",
+        "last_approved_by": "widson.araujo",
+        "last_approved_on": "2025-07-17T16:07:52.036676"
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "edit_history": [
+        {
+          "event": "criado",
+          "version": "1.0",
+          "user": "widson.araujo",
+          "timestamp": "2025-07-17T16:06:13.782802"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-17T16:06:46.620320",
+          "backup_file_doc": "v1.1_2025-07-17T16-06-46_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-17T16-06-46_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-17T16:07:52.036676",
+          "backup_file_doc": "v1.2_2025-07-17T16-07-52_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-17T16-07-52_widson.araujo_technical.md"
+        }
+      ]
     }
   ],
   "palavras_globais": {

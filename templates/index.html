@@ -250,11 +250,13 @@
 <div class="container my-5 position-relative" style="z-index:2;">
     <div class="mb-4 text-end d-flex justify-content-end gap-2">
         {% if can_access_editor %}
-            <a href="/editor/?token={{ request.args.get('token') }}" class="btn btn-outline-dark modern-btn">
+            {# --- CORREÇÃO: Endpoint correto e adição do token --- #}
+            <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
                 <i class="bi bi-pencil-square"></i> Acessar editor de conteúdos
             </a>
         {% endif %}
         {% if can_access_permissions_menu %}
+             {# --- CORREÇÃO: Adição do token --- #}
             <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
                 <i class="bi bi-shield-lock"></i> Gerenciar permissões
             </a>
@@ -282,7 +284,6 @@
 
     <div class="row g-4" id="modules-row">
         {% for m in modulos %}
-            {# --- ALTERAÇÃO: O CARD SÓ APARECE SE HOUVER CONTEÚDO OU PERMISSÃO TÉCNICA --- #}
             {% if m.has_content or can_view_tecnico %}
                 <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
                     <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: {{ loop.index0 }}">
@@ -292,15 +293,15 @@
                             <p class="card-text">{{ m['descricao'] }}</p>
                         </div>
                         <div class="pb-3 text-center">
-                            {# O botão "Ver módulo" só aparece se houver conteúdo #}
                             {% if m.has_content %}
-                                <a class="btn btn-outline-primary modern-btn me-2" href="{{ url_for('index.index', token=request.args.get('token'), modulo=m['id']) }}">
+                                {# --- CORREÇÃO: Endpoint correto para 'modulo' e adição do token --- #}
+                                <a class="btn btn-outline-primary modern-btn me-2" href="{{ url_for('modulo.ver_modulo_pela_raiz', modulo=m['id'], token=request.args.get('token')) }}">
                                     <i class="bi bi-search"></i> Ver módulo
                                 </a>
                             {% endif %}
-                            {# O botão "Módulo Técnico" só aparece para quem tem permissão #}
                             {% if can_view_tecnico %}
-                                <a class="btn btn-outline-secondary modern-btn ms-2" href="{{ url_for('index.index', token=request.args.get('token'), modulo_tecnico=m['id']) }}">
+                                {# --- CORREÇÃO: Endpoint correto para 'modulo' e adição do token --- #}
+                                <a class="btn btn-outline-secondary modern-btn ms-2" href="{{ url_for('modulo.ver_modulo_pela_raiz', modulo_tecnico=m['id'], token=request.args.get('token')) }}">
                                     <i class="bi bi-tools"></i> Módulo Técnico
                                 </a>
                             {% endif %}
@@ -308,11 +309,11 @@
                     </div>
                 </div>
             {% endif %}
-            {# --- FIM DA ALTERAÇÃO --- #}
         {% endfor %}
 
         {% if can_create_modules %}
         <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
+            {# --- CORREÇÃO: Endpoint para 'editor' e adição do token --- #}
             <a href="{{ url_for('editor.criar_modulo', token=request.args.get('token')) }}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: {{ modulos|length }}">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
                     <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>

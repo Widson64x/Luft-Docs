@@ -1,12 +1,10 @@
-# Documentação de Parceiros e Fornecedores
+# Documentação de Parceiros e Integradores
 
-A ideia desta documentação é centralizar e fornecer acesso fácil às referências de suporte, consulta e dados cadastrais de todos os fornecedores, parceiros e Fornecedores. O objetivo é que todos tenham as informações de maneira rápida, sem a necessidade de perguntar a múltiplos contatos.
+A ideia desta documentação é centralizar e fornecer acesso fácil às referências de suporte, consulta e dados cadastrais de todos os Integradores e pareceiros. O objetivo é que todos tenham as informações de maneira rápida, sem a necessidade de perguntar a múltiplos contatos.
 
-Conforme sugerido, o termo mais adequado pode ser "Fornecedores" em vez de "Fornecedores".
+## Lista de Parceiros e Integradores
 
-## Lista de Parceiros e Fornecedores
-
-### Fornecedores de Serviços e Integrações
+### Integradores de Serviços
 * [[API_ACTIVE]] - Utilizada para a integração de ocorrências de transporte.
 * [[API_CONFIRMAFACIL]] - Serve para inserir dados de embarque e ocorrências através de uma API de Carga.
 * [[API_ESL-FRETES]] - Aplicação para o envio de Conhecimentos de Transporte Eletrônicos (CT-e) para o parceiro ESL.
