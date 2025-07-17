@@ -19,7 +19,7 @@ MAX_SEARCH_HISTORY = 20
 TOP_MOST_ACCESSED  = 7
 TOP_MOST_SEARCHED  = 7
 
-USER_API_URL = os.environ.get("USER_API_URL", "https://api-wikidocs.onrender.com/api")
+USER_API_URL = os.environ.get("USER_API_URL", "http://172.16.200.80:8000/api")
 USER_API_CREDENTIAL_PARAMS = ["login_usuario"]
 USER_API_TOKEN_PARAMS = ["token"]
 
@@ -28,9 +28,13 @@ USER_API_TOKEN_PARAMS = ["token"]
 
 USER_API_URL = os.environ.get("USER_API_URL", "http://localhost:8000/api")
 
-# Rodar com API fake no Render:127.0.0.1:5000/?user_name=widson.araujo
+# Rodar com API fake no Render:
 
 USER_API_URL = os.environ.get("USER_API_URL", "https://api-wikidocs.onrender.com/api")
+
+# Rodar com API server real (80):
+
+USER_API_URL = os.environ.get("USER_API_URL", "http://172.16.200.80:8000/api")
 
 '''
 
