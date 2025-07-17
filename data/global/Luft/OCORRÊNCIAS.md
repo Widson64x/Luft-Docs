@@ -1,5 +1,3 @@
-## Visão Geral do Processo
-
 Este módulo visa centralizar-mos todos os tipos de ocorrÊncias possíveis no sistema caso haja alguma dúvida sobre alguma delas.
 
 

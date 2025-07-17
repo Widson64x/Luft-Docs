@@ -11,7 +11,7 @@ Toda Coordenação é aberta para uma Filial ou uma Base.
 - **Coleta**  
   Feita para as coletas frequentes de clientes que têm contrato. Gera uma ordem de coleta automaticamente.
 
-- **Reversa**  
+- **[[Reversa]]**  
   Feita para destinatários que acumulam produtos a serem devolvidos para o remetente, onde o remetente é um cliente Luft. Gera uma ordem de coleta automaticamente.
 
 - **Cliente retira**  
@@ -83,7 +83,7 @@ As coordenações são cadastradas com a cláusula de gerar ou não uma ordem de
 
 Geralmente são abertas pelo [[CRM]].
 
-No caso da Coordenação tipo 5 (autorização de retorno), a Torre também pode abrir, especialmente quando após 10 dias de recusa o cliente não determina se devolve ou reentrega.
+No caso da Coordenação tipo 5 (autorização de retorno), a [[Torre_de_Controle]] também pode abrir, especialmente quando após 10 dias de recusa o cliente não determina se devolve ou reentrega.
 
 Exceto a pré-coordenação, todas as demais geram e-mails para os endereços vinculados àquela filial ou base.  
 A manutenção destes e-mails é feita na tela de Cadastro de Emails de Filiais e Bases.

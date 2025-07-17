@@ -7,7 +7,7 @@ No sistema, existem dois tipos de destinatários cadastrados:
 
 ## Divisão de Ocorrências e Status
 
-O processo de agendamento é controlado por meio de ocorrências e status, que são detalhados abaixo.
+O processo de agendamento é controlado por meio de [[ocorrências]] e status, que são detalhados abaixo.
 
 ### Ocorrências de Agendamento
 
@@ -39,9 +39,9 @@ O processo de agendamento é controlado por meio de ocorrências e status, que s
 
 O agendamento é a etapa iniciada após a emissão do CTe (Conhecimento de Transporte Eletrônico) para destinatários ou laboratórios que exigem agendamento prévio. As notas fiscais (NFs) para esses parceiros entram automaticamente em uma fila de pendências, com o status inicial de **NP (Nota Pendente)**.
 
-O processo se divide em duas ocorrências principais:
+O processo se divide em duas [[ocorrências]] principais:
 
-* `B2` → **(Agendamento Distribuidores)**: A solicitação de agendamento é de responsabilidade da equipe interna "Torre de Controle", Exemplos de distribuidores que incluem são [[Profarma]] e [[Raia]].
+* `B2` → **(Agendamento Distribuidores)**: A solicitação de agendamento é de responsabilidade da equipe interna "[[Torre_de_Controle]]", Exemplos de distribuidores que incluem são [[Profarma]] e [[Raia]].
 * `B3` → **(Agendamento Cliente)**: A solicitação é feita diretamente pelo laboratório, que é o responsável também por confirmar o agendamento. Um exemplo é a [[GSK]].
 
 ## Particularidades da ocorrência B2
@@ -218,7 +218,7 @@ A área "Dados para Pesquisa" permite ao usuário especificar múltiplos critér
 -   **Status**: Conjunto de caixas de seleção que representam diferentes status das notas para filtrar a busca (ex: **NP** - Nota Pendente, **AR** - Aguardando Retorno, **AG** - Agendado, **RE** - Reagendamento, **PC** - Notas Perecíveis, **SE** - Notas Sensíveis, **Rodo** - Rodoviário e **Aéreo** - Modal Aéreo.).
 -   **Pesquisa**: Campo de texto livre para uma busca por um termo específico.
 -   **RL**: Exportar em Excel
--   **OC**: Mostrar as Ocorrências da Nota.
+-   **OC**: Mostrar as [[Ocorrências]] da Nota.
 -   **MN.**: Mostrar os Manifestos.
 -   **VC**: Vounchers de Agendamento.
 
