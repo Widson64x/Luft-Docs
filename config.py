@@ -19,7 +19,7 @@ MAX_SEARCH_HISTORY = 20
 TOP_MOST_ACCESSED  = 7
 TOP_MOST_SEARCHED  = 7
 
-USER_API_URL = os.environ.get("USER_API_URL", "http://172.16.200.80:8000/api")
+USER_API_URL = os.environ.get("USER_API_URL", "http://localhost:8000/api")
 USER_API_CREDENTIAL_PARAMS = ["login_usuario"]
 USER_API_TOKEN_PARAMS = ["token"]
 

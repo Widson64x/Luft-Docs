@@ -1,18 +1,89 @@
 {% extends "base.html" %}
-{% block title %}{{ modulo['nome'] }} - LuftDocs{% endblock %}
+{% block title %}{{ modulo.nome }} - LuftDocs{% endblock %}
+
 {% block content %}
-    <style>
-    mark, .highlight-standard {
-      background-color: #FFDC74; /* Um amarelo mais quente e moderno */
-      color: #1c1c1c; /* Preto um pouco mais suave */
-      font-weight: 600; /* Um pouco menos pesado que 'bold' */
-      padding: 0.1em 0.3em;
-      margin: 0 -0.3em; /* Evita que o padding afete o fluxo do texto */
-      border-radius: 4px;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
+<style>
+    tbody, td, tfoot, th, thead, tr{
+    color: white;
     }
-    /* Autocomplete styles */
+    
+    /* --- Estilos do Cabeçalho e Busca --- */
+    .module-header {
+        text-align: center;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 2rem;
+    }
+    body.theme-dark .module-header {
+        border-bottom-color: #343a40;
+    }
+    .module-header h1 .icon-title {
+        color: var(--primary-color, #0d6efd);
+        margin-right: 0.5rem;
+    }
+    .module-description {
+        font-size: 1.1rem;
+        color: #6c757d;
+        max-width: 700px;
+        margin: 0.5rem auto 1.5rem auto;
+    }
+    body.theme-dark .module-description {
+        color: #adb5bd;
+    }
+    .search-in-module-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .search-form {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 3rem; 
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 50px;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    .search-input:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+    }
+    body.theme-dark .search-input {
+        background-color: #2c2c2c;
+        border-color: #555;
+        color: #f1f1f1;
+    }
+    .search-button {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 0.5rem 0.8rem;
+        cursor: pointer;
+        color: #6c757d;
+    }
+    body.theme-dark .search-button {
+        color: #adb5bd;
+    }
+
+    /* --- Estilos de Destaque e Autocomplete (Mantidos) --- */
+    .markdown-body mark  {
+        background-color: #FFDC74;
+        color: #1c1c1c;
+        font-weight: 600;
+        padding: 0.1em 0.3em;
+        margin: 0 -0.3em;
+        border-radius: 4px;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
     .autocomplete-list {
         position: absolute;
         background: #fff;
@@ -20,9 +91,9 @@
         border-radius: 8px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         z-index: 1000;
-        width: 70%;
+        width: 100%;
         max-width: 400px;
-        margin-top: 2px;
+        margin-top: 5px;
         padding: 0;
         list-style: none;
         display: none;
@@ -31,218 +102,219 @@
         padding: 8px 16px;
         cursor: pointer;
         transition: background 0.15s;
+        color: #333;
     }
     .autocomplete-list li:hover, .autocomplete-list li.active {
         background: #e6f7ff;
     }
-      /* Estilos para a classe markdown-body (ADICIONADO) */
-      tbody, td, tfoot, th, thead, tr{
+    body.theme-dark .autocomplete-list {
+        background: #2d2d2d;
+        border-color: #444;
+    }
+    body.theme-dark .autocomplete-list li {
+        color: #f1f1f1;
+    }
+    body.theme-dark .autocomplete-list li:hover,
+    body.theme-dark .autocomplete-list li.active {
+        background: #3a3a3a;
+    }
+
+    /* --- Estilos do Conteúdo Markdown (Mantidos) --- */
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+        color: #1e1e1e;
+        background-color: transparent;
+    }
+    
+    body.theme-dark .markdown-body {
         color: white;
-      }
-      .markdown-body table{
+    }
+    .markdown-body table {
         border-radius: 10px;
-      }
+    }
+    tbody, td, tfoot, th, thead, tr{
+    color: white;
+    }
 
-        .markdown-body ol ol,
-        .markdown-body ul ol {
-            list-style-type: upper-roman; /* Define o estilo como A, B, C... */
+    body.theme-dark .markdown-body tbody,
+    body.theme-dark .markdown-body td,
+    body.theme-dark .markdown-body tfoot,
+    body.theme-dark .markdown-body th,
+    body.theme-dark .markdown-body thead,
+    body.theme-dark .markdown-body tr {
+        color: white;
+    }
+    .markdown-body ol ol,
+    .markdown-body ul ol {
+        list-style-type: upper-roman;
+    }
+    .markdown-body ol ol li::marker,
+    .markdown-body ul ol li::marker {
+        font-weight: bold;
+    }
+    @media (max-width: 767px) {
+        .markdown-body {
+            padding: 15px;
         }
+    }
+</style>
 
-        .markdown-body ol ol li::marker,
-        .markdown-body ul ol li::marker {
-            font-weight: bold; /* Deixa o marcador em negrito */
-        }
-      .markdown-body mark {
-            background-color: #FFDC74; /* Um amarelo mais quente e moderno */
-            color: #1c1c1c; /* Preto um pouco mais suave */
-            font-weight: 600; /* Um pouco menos pesado que 'bold' */
-            padding: 0.1em 0.3em;
-            margin: 0 -0.3em; /* Evita que o padding afete o fluxo do texto */
-            border-radius: 4px;
-            box-decoration-break: clone;
-            -webkit-box-decoration-break: clone;
-      }
-      .markdown-body {
-          box-sizing: border-box;
-          min-width: 200px;
-          max-width: 980px;
-          margin: 0 auto;
-          padding: 45px;
-          color: #1e1e1e;
-          /* Garante que a cor do texto no markdown respeite o tema claro/escuro */
-          background-color: transparent;
-      }
+<div class="module-container">
+    <div class="module-header">
+        <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
+        <p class="module-description">{{ modulo.descricao }}</p>
 
-      .busca-global {
-          display: flex;
-          justify-content: space-between; /* Manda cada item para uma ponta */
-          align-items: center; /* Alinha verticalmente */
-      }
+        <div class="search-in-module-container">
+            <form method="GET" action="{{ request.path }}" class="search-form">
+                <!-- Campos ocultos para manter o contexto -->
+                {% if request.args.get('modulo') %}
+                <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
+                {% elif request.args.get('modulo_tecnico') %}
+                <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
+                {% endif %}
 
-      .search-group {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem; /* Cria um pequeno espaço entre o campo e o botão */
-          position: relative; /* Necessário para a lista de autocomplete funcionar */
-      }
-      body.theme-dark .markdown-body {
-          background-color: transparent;
-          color: white;
-      }
-      @media (max-width: 767px) {
-          .markdown-body {
-              padding: 15px;
-          }
-      }
-    </style>
+                <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
+                <button type="submit" class="search-button" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                <ul id="autocomplete-list" class="autocomplete-list"></ul>
+            </form>
+        </div>
+    </div>
 
     <div class="markdown-body">
-        <h1 class="mb-1">{{ modulo['nome'] }}</h1>
-        <p class="mb-1"><i>{{ modulo['descricao'] }}</i></p>
-
         {% if resultado_highlight %}
             <div class="alert alert-info">
-                Mostrando resultados para: <b>{{ query }}</b>
+                Mostrando resultados para: <strong>{{ query }}</strong>
             </div>
         {% endif %}
 
         <div class="modulo-conteudo" id="imagem-viewer">
-            {# 1) Pega o HTML bruto, que contém "__TOKEN_PLACEHOLDER__" #}
             {% set html_bruto = conteudo %}
-
-            {# 2) Substitui o marcador pelo token real #}
             {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
-
-            {#
-                3) Corrige links que apontam originalmente para "/downloads/docs/arquivo"
-                   de modo que passem a chamar:
-                     /?token=<TOKEN>&download=<arquivo>
-            #}
             {% set prefix = '/downloads/docs/' %}
-            {% set replace_prefix = '/?token=' ~ request.args.get('token', '') ~ '&download=' %}
+            {% set replace_prefix = url_for('download.download_pela_raiz', token=request.args.get('token', '')) ~ '&file=' %}
             {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
-
-            {# 4) Renderiza o HTML final #}
             {{ conteudo_final | safe }}
         </div>
     </div>
+    
+    {% if relacionados %}
     <hr>
-    <h3 class="mb-3">Módulos Relacionados</h3>
-    <div class="relacionados mb-4">
-        {% for rel in relacionados %}
-            <a class="btn btn-outline-primary btn-sm me-1 mb-1"
-               href="{{ url_for('modulo.ver_modulo_pela_raiz',
-                                 **{'token': request.args.get('token'),
-                                    'modulo': rel['id']}) }}">
-                <i class="bi {{ rel['icone'] }}"></i> {{ rel['nome'] }}
-            </a>
-        {% endfor %}
+    <div class="related-modules-container" style="max-width: 980px; margin: 2rem auto; padding: 0 20px;">
+        <h3 class="mb-3">Módulos Relacionados</h3>
+        <div class="relacionados mb-4">
+            {% for rel in relacionados %}
+                <a class="btn btn-outline-primary btn-sm me-1 mb-1"
+                   href="{{ url_for('modulo.ver_modulo_pela_raiz', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
+                    <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
+                </a>
+            {% endfor %}
+        </div>
     </div>
+    {% endif %}
 
+    <!-- Modal para Imagens -->
     <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content bg-dark border-0">
                 <div class="modal-body text-center p-0">
-                    <img id="imagemExpandida" src="" alt="Imagem ampliada"
-                         style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
+                    <img id="imagemExpandida" src="" alt="Imagem ampliada" style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-      // Autocomplete para busca
-      const buscaInput = document.getElementById('busca-input');
-      const autocompleteList = document.getElementById('autocomplete-list');
-      let currentFocus = -1;
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Lógica de Autocomplete ---
+    const buscaInput = document.getElementById('busca-input');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    let currentFocus = -1;
 
-      buscaInput.addEventListener('input', function() {
+    buscaInput.addEventListener('input', function() {
         const val = this.value;
         if (val.length < 2) {
-          autocompleteList.style.display = 'none';
-          return;
+            autocompleteList.style.display = 'none';
+            return;
         }
-        fetch(`/busca/autocomplete?q=${encodeURIComponent(val)}`)
-          .then(r => r.json())
-          .then(sugestoes => {
-            autocompleteList.innerHTML = '';
-            if (sugestoes.length === 0) {
-              autocompleteList.style.display = 'none';
-              return;
-            }
-            sugestoes.forEach((s, idx) => {
-              const li = document.createElement('li');
-              li.textContent = s;
-              li.onclick = () => {
-                buscaInput.value = s;
+        // ATENÇÃO: Substitua pela sua rota de API real para o autocomplete
+        fetch(`/api/autocomplete?q=${encodeURIComponent(val)}`)
+            .then(response => response.json())
+            .then(sugestoes => {
+                autocompleteList.innerHTML = '';
+                if (sugestoes.length === 0) {
+                    autocompleteList.style.display = 'none';
+                    return;
+                }
+                sugestoes.forEach((s) => {
+                    const li = document.createElement('li');
+                    li.textContent = s;
+                    li.onclick = () => {
+                        buscaInput.value = s;
+                        autocompleteList.style.display = 'none';
+                        buscaInput.form.submit();
+                    };
+                    autocompleteList.appendChild(li);
+                });
+                autocompleteList.style.display = 'block';
+                currentFocus = -1;
+            }).catch(() => {
                 autocompleteList.style.display = 'none';
-                buscaInput.form.submit();
-              };
-              autocompleteList.appendChild(li);
             });
-            autocompleteList.style.display = 'block';
-            currentFocus = -1;
-          });
-      });
+    });
 
-      buscaInput.addEventListener('keydown', function(e) {
+    buscaInput.addEventListener('keydown', function(e) {
         let items = autocompleteList.getElementsByTagName('li');
         if (!items.length) return;
         if (e.key === 'ArrowDown') {
-          currentFocus++;
-          addActive(items);
+            currentFocus++;
+            addActive(items);
         } else if (e.key === 'ArrowUp') {
-          currentFocus--;
-          addActive(items);
+            currentFocus--;
+            addActive(items);
         } else if (e.key === 'Enter') {
-          if (currentFocus > -1) {
-            e.preventDefault();
-            items[currentFocus].click();
-          }
+            if (currentFocus > -1) {
+                e.preventDefault();
+                items[currentFocus].click();
+            }
         }
-      });
+    });
 
-      function addActive(items) {
-        if (!items) return false;
+    function addActive(items) {
+        if (!items) return;
         removeActive(items);
         if (currentFocus >= items.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = items.length - 1;
         items[currentFocus].classList.add('active');
-      }
-      function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
-          items[i].classList.remove('active');
+    }
+
+    function removeActive(items) {
+        for (let item of items) {
+            item.classList.remove('active');
         }
-      }
-      document.addEventListener('click', function(e) {
+    }
+
+    document.addEventListener('click', function(e) {
         if (!autocompleteList.contains(e.target) && e.target !== buscaInput) {
-          autocompleteList.style.display = 'none';
+            autocompleteList.style.display = 'none';
         }
-      });
+    });
 
-      // Modal vídeo (já existente)
-      function abrirVideoModal(url) {
-        const videoSource = document.getElementById('videoSource');
-        const videoPlayer = document.getElementById('videoPlayer');
-        videoSource.src = url;
-        videoPlayer.load();
-        var videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
-        videoModal.show();
-
-        const modalEl = document.getElementById('videoModal');
-        modalEl.addEventListener('hidden.bs.modal', function () {
-          videoPlayer.pause();
-          videoSource.src = "";
-        }, { once: true });
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.video-link').forEach(function(el) {
-          el.addEventListener('click', function(e) {
-            e.preventDefault();
-            abrirVideoModal(el.getAttribute('data-video-url'));
-          });
+    // --- Lógica de Rolagem para o Primeiro Destaque ---
+    const firstMark = document.querySelector('mark');
+    if (firstMark) {
+        firstMark.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
         });
-      });
-    </script>
+    }
+});
+</script>
 {% endblock %}

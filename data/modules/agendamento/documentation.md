@@ -136,7 +136,7 @@ O ciclo se repete até que a entrega seja concluída com sucesso.
 
 ### Tela de Cadastro de Contatos Clientes e Distribuidores
 
-![Cadastro de Contatos Clientes e Distribuidores](data/img/agendamento/img2.png)
+![Cadastro de Contatos Clientes e Distribuidores](/data/img/agendamento/img2.png)
 
 Nessa tela é possível definir as formas de contato tanto com o cliente quanto com os Distribuidores.
 
@@ -144,7 +144,7 @@ Nessa tela é possível definir as formas de contato tanto com o cliente quanto 
 
 ### Tela Cadastro de Distribuidores
 
-![Cadastro de Distribuidores](data/img/agendamento/img1.png)
+![Cadastro de Distribuidores](/data/img/agendamento/img1.png)
 
 Nessa tela é possível definir todos os destinatários que são de agenda.
 
@@ -152,7 +152,7 @@ Nessa tela é possível definir todos os destinatários que são de agenda.
 
 ### Tela de Assinatura de E-mail
 
-![Assinatura de Email](data/img/agendamento/img3.png)
+![Assinatura de Email](/data/img/agendamento/img3.png)
 
 Essa tela permite adicionar uma assinatura personalizada (telefones, etc.) ao e-mail padrão enviado para o Destinatário após a conclusão da agenda.
 
@@ -160,7 +160,7 @@ Essa tela permite adicionar uma assinatura personalizada (telefones, etc.) ao e-
 
 ### Tela de Notas Pendentes de Agendamento
 
-![Notas pendentes de Agendamento](data/img/agendamento/img4.png)
+![Notas pendentes de Agendamento](/data/img/agendamento/img4.png)
 
 É uma tela de acompanhamento para ver todas as notas de agendamento e seus status. Ao selecionar uma nota e clicar no botão ‘Contato E-mail’ (canto inferior esquerdo), o operador é direcionado para a Tela de Agendamento para iniciar o processo.
 
@@ -168,7 +168,7 @@ Essa tela permite adicionar uma assinatura personalizada (telefones, etc.) ao e-
 
 ### Tela de Agendamento
 
-![Tela de Agendamento](data/img/agendamento/img5.png)
+![Tela de Agendamento](/data/img/agendamento/img5.png)
 
 Nesta tela, o operador da Luft consegue realizar a agenda da nota, anexar arquivos e fazer confirmações, entre outras operações.
 

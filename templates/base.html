@@ -158,9 +158,12 @@
             <span>LuftDocs</span>
         </a>
         <div class="d-flex align-items-center">
-            <a href="{{ url_for('index.index', token=request.args.get('token'), busca=1) }}" class="btn btn-outline-dark fw-bold me-3">
+            
+            <a href="{{ url_for('search.perform_search', token=request.args.get('token')) }}"  class="btn btn-outline-dark fw-bold me-3">
                 <i class="bi bi-search"></i>
-                <span class="d-none d-sm-inline">Buscar</span> </a>
+                <span class="d-none d-sm-inline">Buscar</span>
+            </a>
+            
             <div class="dropdown">
                 <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
@@ -261,6 +264,8 @@
             </div>
         </div>
     </div>
+    {% block scripts %}
+    <script src="..."></script> <!-- Outros scripts do Bootstrap, etc. -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
@@ -400,5 +405,6 @@
             }
         });
     </script>
+    {% endblock %}
 </body>
 </html>

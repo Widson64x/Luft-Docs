@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% block title %}Busca e Recomendações{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ANIMAÇÕES --- */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* --- ESTILO BASE --- */
+    .search-page-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    /* --- CABEÇALHO E FORMULÁRIO DE BUSCA --- */
+    .search-header h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 700;
+        font-size: 2.25rem;
+        color: #2c3e50;
+        letter-spacing: -1px;
+    }
+
+    .search-form-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: #ffffff;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+        border: 1px solid #e9ecef;
+        position: relative;
+        margin-bottom: 3rem;
+    }
+
+    .search-form-container .form-control,
+    .search-form-container .form-select {
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .search-form-container .form-control:focus,
+    .search-form-container .form-select:focus {
+        background-color: #fff;
+        border-color: var(--primary-color, #0d6efd);
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+
+    /* --- ESTILO DO PLACEHOLDER --- */
+    .search-form-container .form-control::placeholder {
+        /* Define uma cor cinza mais escura para o tema claro, similar ao texto digitado */
+        color: #6c757d; 
+        /* Garante que não haja transparência extra aplicada pelo navegador */
+        opacity: 1; 
+    }
+
+    /* --- SUMÁRIO DOS RESULTADOS --- */
+    .results-summary {
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1.2rem;
+        padding-left: 1rem;
+        border-left: 4px solid var(--primary-color, #0d6efd);
+        color: #34495e;
+    }
+
+    /* --- CARD DE RESULTADO --- */
+    .result-card {
+        display: flex;
+        gap: 1.5rem;
+        background-color: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeInUp 0.5s ease-out forwards;
+        opacity: 0; /* Começa invisível para a animação */
+    }
+
+    .result-card:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    /* --- PRÉ-VISUALIZAÇÃO DE MÍDIA --- */
+    .result-media-preview {
+        flex-shrink: 0;
+        width: 180px;
+        height: 120px;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        background-color: #e9ecef;
+    }
+
+    .result-media-preview img, .result-media-preview video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .video-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.4));
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 0.5rem;
+        pointer-events: none;
+    }
+
+    .play-icon {
+        font-size: 1.5rem;
+        color: rgba(255,255,255,0.9);
+        text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+    }
+
+    /* --- CONTEÚDO DO CARD --- */
+    .result-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .result-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .result-card-header .icon {
+        font-size: 1.1rem;
+        color: var(--primary-color, #0d6efd);
+    }
+
+    .result-card-header .module-name {
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: #2c3e50;
+    }
+
+    .doc-type-badge {
+        font-size: 0.7rem;
+        padding: 0.25em 0.8em;
+        border-radius: 20px;
+        background-color: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .result-snippet {
+        color: #5d6d7e;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+    
+    .result-snippet mark {
+        background-color: rgba(13, 110, 253, 0.15);
+        color: #0b5ed7;
+        font-weight: 600;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+
+    /* --- ESTILOS DA PAGINAÇÃO --- */
+    .pagination-nav {
+        margin-top: 2.5rem;
+        display: flex;
+        justify-content: center;
+    }
+    .pagination .page-item .page-link {
+        color: var(--primary-color, #0d6efd);
+        border-radius: 8px;
+        margin: 0 3px;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color, #0d6efd);
+        border-color: var(--primary-color, #0d6efd);
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+    .pagination .page-item .page-link:hover {
+        background-color: #e9ecef;
+    }
+    .pagination .page-item.active .page-link:hover {
+        background-color: var(--primary-color, #0d6efd);
+    }
+
+    
+    /* --- TEMA ESCURO PARA PAGINAÇÃO --- */
+    body.theme-dark .pagination .page-item .page-link {
+        background-color: #2c2c2c;
+        border-color: #444;
+        color: #a0a0a0;
+    }
+    body.theme-dark .pagination .page-item.active .page-link {
+        background-color: var(--primary-color, #0d6efd);
+        border-color: var(--primary-color, #0d6efd);
+        color: #fff;
+    }
+    body.theme-dark .pagination .page-item.disabled .page-link {
+        background-color: #252525;
+        color: #666;
+        border-color: #444;
+    }
+    body.theme-dark .pagination .page-item .page-link:hover {
+        background-color: #3a3a3a;
+    }
+    body.theme-dark .pagination .page-item.active .page-link:hover {
+        background-color: var(--primary-color, #0d6efd);
+    }
+
+    /* --- TEMA ESCURO --- */
+    body.theme-dark {
+        background-color: #1a1a1a;
+    }
+    
+    body.theme-dark .search-header h2 { color: #ecf0f1; }
+    body.theme-dark .search-form-container { background: #2c2c2c; border-color: #444; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+    body.theme-dark .search-form-container .form-control,
+    body.theme-dark .search-form-container .form-select { background-color: #252525; color: #ecf0f1; border-color: #444; }
+    body.theme-dark .search-form-container .form-control:focus,
+    body.theme-dark .search-form-container .form-select:focus { background-color: #3a3a3a; border-color: var(--primary-color, #0d6efd); }
+    /* --- ESTILO DO PLACEHOLDER PARA O TEMA ESCURO --- */
+    body.theme-dark .search-form-container .form-control::placeholder {
+        /* Define a cor para ser EXATAMENTE a mesma do texto digitado no tema escuro */
+        color: #ecf0f1;
+    }
+
+    body.theme-dark .list-group-item:hover { 
+        background-color: rgba(255,255,255,0.05) !important; 
+    }
+
+    /* >>>>> COLOQUE A NOVA REGRA AQUI <<<<< */
+    body.theme-dark .recommendations-list .list-group-item {
+        color: #ecf0f1;
+    }
+
+    body.theme-dark #autocomplete-results { 
+        background: #2c2c2c; 
+        border-color: #444; 
+    }
+    
+    body.theme-dark .results-summary { color: #bdc3c7; }
+    body.theme-dark .result-card { background-color: #252525; border-color: #444; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); }
+    body.theme-dark .result-card-header .module-name { color: #ecf0f1; }
+    body.theme-dark .doc-type-badge { background-color: #3a3a3a; color: #e0e0e0; }
+    body.theme-dark .result-snippet { color: #95a5a6; }
+    body.theme-dark .result-snippet mark { background-color: rgba(13, 110, 253, 0.2); color: #5dade2; }
+    body.theme-dark #autocomplete-c{ background: #2c2c2c; border-color: #444; }
+    body.theme-dark #autocomplete-results a { color: #ecf0f1; }
+    body.theme-dark #autocomplete-results a:hover { background-color: #3a3a3a; }
+    body.theme-dark .no-results { background-color: #252525; border-color: #444; }
+
+    /* --- RECOMENDAÇÕES E AUTO-COMPLETE --- */
+    .recommendations-section { margin-top: 2.5rem; }
+    .recommendations-section h5 { font-weight: 600; margin-bottom: 1rem; color: #34495e; }
+    body.theme-dark .recommendations-section h5 { color: #bdc3c7; }
+    .list-group-item { background-color: transparent !important; transition: all 0.2s ease; }
+    .list-group-item:hover { background-color: rgba(0,0,0,0.03) !important; padding-left: 1rem !important; }
+    body.theme-dark .list-group-item:hover { background-color: rgba(255,255,255,0.05) !important; }
+
+    #autocomplete-results { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e9ecef; border-top: none; border-radius: 0 0 16px 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); z-index: 1000; max-height: 250px; overflow-y: auto; }
+    #autocomplete-results a { display: block; padding: 0.75rem 1.5rem; color: #2c3e50; text-decoration: none; }
+    #autocomplete-results a:hover { background-color: #f8f9fa; }
+</style>
+
+<body data-token="{{ token }}">
+
+<div class="search-page-container">
+    <div class="search-header">
+        <h2><i class="fas fa-search"></i> Busca na Documentação</h2>
+        <form id="search-form" method="GET" action="{{ url_for('search.perform_search') }}">
+            <input type="hidden" name="token" value="{{ token }}">
+            <div class="search-form-container">
+                <div class="flex-grow-1">
+                    <label for="q" class="form-label visually-hidden">Termo de busca</label>
+                    <input type="search" class="form-control form-control-lg" id="q" name="q" value="{{ query }}" placeholder="Digite o que você procura..." autocomplete="off">
+                    <div id="autocomplete-results"></div>
+                </div>
+                <div style="min-width: 200px;">
+                    <label for="module" class="form-label visually-hidden">Filtrar por Módulo</label>
+                    <select class="form-select form-select-lg" id="module" name="module" onchange="this.form.submit()">
+                        <option value="">Todos os Módulos</option>
+                        {% for mod in modules %}<option value="{{ mod.id }}" {% if mod.id|string == current_filter %}selected{% endif %}>{{ mod.nome }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+        <!-- MODO 1: Exibindo resultados de uma busca ativa -->
+        <div class="results-container">
+            {% if results %}
+                <h4 class="results-summary">{{ total_results }} resultado(s) para "{{ query }}"</h4>
+                {% for result in results %}
+                    <a href="{{ result.url }}" class="text-decoration-none">
+                        <div class="result-card">
+                            {% if result.preview and result.preview.path %}
+                            <div class="result-media-preview">
+                                {% if result.preview.type == 'image' %}<img src="{{ result.preview.path if result.preview.is_absolute else url_for('index.serve_imagem_dinamica', nome_arquivo=result.preview.path, token=token) }}" alt="Preview">{% elif result.preview.type == 'video' %}<video src="{{ result.preview.path if result.preview.is_absolute else url_for('index.serve_video', nome_arquivo=result.preview.path, token=token) }}" muted autoplay loop playsinline></video><div class="video-overlay"><i class="fas fa-play-circle play-icon"></i></div>{% endif %}
+                            </div>
+                            {% endif %}
+                            <div class="result-content">
+                                <div class="result-card-header">
+                                    <i class="{{ result.module_icon }} icon"></i>
+                                    <span class="module-name">{{ result.module_nome }}</span>
+                                    <span class="doc-type-badge">{{ result.doc_type }}</span>
+                                    <span class="ms-auto access-indicator" title="Visualizações"><i class="fas fa-eye me-1"></i>{{ result.access_count|default(0) }}</span>
+                                </div>
+                                <p class="result-snippet m-0">{{ result.snippet|safe }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="no-results"><h5>Nenhum resultado encontrado para "{{ query }}".</h5><p class="text-muted">Tente refinar sua busca.</p></div>
+            {% endif %}
+        </div>
+    {% else %}
+        <!-- MODO 2: Exibindo o painel de recomendações (nenhuma busca ativa) -->
+        <div id="recommendations-container" class="results-container">
+            <!-- O JavaScript preencherá este espaço -->
+        </div>
+    {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='js/search_recommendations.js') }}"></script>
+{% endblock %}
