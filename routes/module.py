@@ -1,6 +1,6 @@
 # routes/module.py
 
-from flask import Blueprint, render_template, request, abort, redirect, url_for
+from flask import Blueprint, render_template, request, abort, redirect, url_for, session
 from utils.data.module_utils import (
     carregar_modulos,
     get_modulo_by_id,
@@ -12,6 +12,9 @@ from utils.text.markdown_utils import parser_wikilinks
 from utils.auth.auth_utils import login_required
 from utils.text.service_filter import ContentFilterService
 from utils.recommendation_service import log_document_access
+
+# 1. IMPORTE a função get_user_group para manter o padrão
+from routes.permissions import get_user_group
 
 modulo_bp = Blueprint('modulo', __name__)
 filter_service = ContentFilterService()
@@ -32,16 +35,14 @@ def ver_modulo_pela_raiz():
 
     # --- Lógica para Submódulo (não alterada) ---
     if param_sub:
+        # (código do submódulo permanece o mesmo)
         md_content = carregar_markdown_submodulo(param_sub)
         if not md_content:
             abort(404, "Submódulo não encontrado.")
-        
         log_document_access(param_sub)
-        
         if query and md_content:
             md_content = filter_service.filter_submodule_content(md_content, query)
         conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
-        
         return render_template('submodule.html', nome=param_sub, conteudo=conteudo_html, modulos=modulos, query=query)
 
     # --- Lógica para Módulo Principal ---
@@ -49,12 +50,26 @@ def ver_modulo_pela_raiz():
         return redirect(url_for('index.index'))
 
     is_tech = bool(param_tech)
+
+    # 2. IMPLEMENTE a verificação de permissão como na main.py
+    if is_tech:
+        # Garante que as informações de grupo e permissões estão carregadas na sessão
+        get_user_group() 
+        
+        # Pega as permissões da sessão do usuário
+        user_perms = session.get('permissions', {})
+        
+        # Verifica se o usuário tem a permissão 'can_view_tecnico'
+        if not user_perms.get('can_view_tecnico', False):
+            return render_template('access_denied.html'), 403
+
     modulo_id = param_tech if is_tech else param_mod
 
     modulo = get_modulo_by_id(modulos, modulo_id)
     if not modulo:
         abort(404, "Módulo não encontrado.")
 
+    # (o restante do código permanece o mesmo)
     md_content = None
     if is_tech:
         md_content = carregar_markdown_tecnico(modulo_id)
@@ -68,8 +83,6 @@ def ver_modulo_pela_raiz():
     if not md_content:
         return render_template('conteudo_nao_encontrado.html'), 404
     
-    # --- CORREÇÃO: Cria um ID único para o registo de acesso ---
-    # Se for um documento técnico, adiciona o prefixo "tech_"
     document_id_to_log = f"tech_{modulo_id}" if is_tech else modulo_id
     log_document_access(document_id_to_log)
     

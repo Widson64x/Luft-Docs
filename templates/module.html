@@ -13,6 +13,8 @@
         padding-bottom: 2rem;
         border-bottom: 1px solid #e0e0e0;
         margin-bottom: 2rem;
+        position: relative;
+        padding-left: 95px;     
     }
     body.theme-dark .module-header {
         border-bottom-color: #343a40;
@@ -20,6 +22,12 @@
     .module-header h1 .icon-title {
         color: var(--primary-color, #0d6efd);
         margin-right: 0.5rem;
+    }
+
+    .header-back-button {
+    position: absolute;
+    top: 0;
+    left: 0;
     }
     .module-description {
         font-size: 1.1rem;
@@ -163,30 +171,34 @@
     }
 </style>
 
-<div class="module-container">
-    <div class="module-header">
-        <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
-        <p class="module-description">{{ modulo.descricao }}</p>
+    <div class="module-container">
+        <div class="module-header">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm header-back-button">
+                ← Voltar
+            </a>
 
-        <div class="search-in-module-container">
-            <form method="GET" action="{{ request.path }}" class="search-form">
-                {% if request.args.get('modulo') %}
-                    <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
-                {% elif request.args.get('modulo_tecnico') %}
-                    <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
-                {% endif %}
+            <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
+            <p class="module-description">{{ modulo.descricao }}</p>
 
-                <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
-                <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
-                <button type="submit" class="search-button" aria-label="Buscar">
-                    <i class="fas fa-search"></i>
-                </button>
-                
-                <ul id="autocomplete-list" class="autocomplete-list"></ul>
-            </form>
+            <div class="search-in-module-container">
+                <form method="GET" action="{{ request.path }}" class="search-form">
+                    {% if request.args.get('modulo') %}
+                        <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
+                    {% elif request.args.get('modulo_tecnico') %}
+                        <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
+                    {% endif %}
+                    
+                    <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
+                    <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
+                    <button type="submit" class="search-button" aria-label="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <ul id="autocomplete-list" class="autocomplete-list"></ul>
+                </form>
+            </div>
         </div>
     </div>
-
     <div class="markdown-body">
         {% if resultado_highlight %}
             <div class="alert alert-info">
@@ -233,7 +245,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Lógica de Autocomplete ---
+    // --- Lógica de Autocomplete (Mantida) ---
     const buscaInput = document.getElementById('busca-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     let currentFocus = -1;
@@ -307,12 +319,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Lógica de Rolagem para o Primeiro Destaque ---
-    const firstMark = document.querySelector('mark');
-    if (firstMark) {
-        firstMark.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
+    // --- LÓGICA DE ROLAGEM E NAVEGAÇÃO ENTRE DESTAQUES ---
+
+    const marks = document.querySelectorAll('.markdown-body mark');
+    let currentMarkIndex = 0;
+
+    // Só executa a lógica se houver resultados da busca (tags <mark>)
+    if (marks.length > 0) {
+        
+        // Função para rolar e destacar a marcação atual
+        function scrollToMark(index) {
+            // Remove o destaque da marcação anterior
+            marks.forEach(mark => mark.classList.remove('current-mark'));
+            
+            // Adiciona o destaque na marcação atual
+            const currentMark = marks[index];
+            currentMark.classList.add('current-mark');
+            
+            // Rola a tela até a marcação
+            currentMark.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        // Rola para a primeira marcação ao carregar a página
+        scrollToMark(currentMarkIndex);
+
+        // Adiciona o listener de eventos de teclado no documento inteiro
+        document.addEventListener('keydown', function(e) {
+            // Navega para o próximo com "Enter"
+            if (e.key === 'Enter') {
+                // Previne o comportamento padrão (ex: submeter um formulário)
+                e.preventDefault();
+
+                // Evita que a navegação funcione enquanto digita no campo de busca
+                if (document.activeElement === buscaInput) {
+                    return;
+                }
+
+                // Avança para o próximo índice, voltando ao início se chegar ao fim
+                currentMarkIndex = (currentMarkIndex + 1) % marks.length;
+                scrollToMark(currentMarkIndex);
+            }
+
+            // Limpa a busca com "Esc"
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                
+                // Cria uma URL baseada na atual
+                const url = new URL(window.location.href);
+                // Remove o parâmetro de busca 'q'
+                url.searchParams.delete('q');
+                // Redireciona para a página sem a busca, limpando os destaques
+                window.location.href = url.toString();
+            }
         });
     }
 });

@@ -8,6 +8,7 @@
         background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
         background-size: 200% 200%;
         animation: bgMove 12s ease-in-out infinite;
+        perspective: 1500px;
     }
     @keyframes bgMove {
         0%   { background-position: 0% 50%; }
@@ -226,6 +227,13 @@
         color: #0d6efd !important;
         background: #f8f9fa !important;
     }
+
+    body.page-transition-out .container {
+        transform: rotateY(-90deg) scale(0.9);
+        opacity: 0;
+        transition: transform 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.8s ease-out;
+    }
+
     body.theme-dark .add-new-card {
         background: transparent !important;
         border-color: #23263b !important;
@@ -249,6 +257,9 @@
 
 <div class="container my-5 position-relative" style="z-index:2;">
     <div class="mb-4 text-end d-flex justify-content-end gap-2">
+            <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" id="switchToMapViewBtn" class="btn btn-primary modern-btn">
+                <i class="bi bi-diagram-3"></i> Ver Mapa
+            </a>
         {% if can_access_editor %}
             {# --- CORREÇÃO: Endpoint correto e adição do token --- #}
             <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
@@ -390,6 +401,25 @@ document.addEventListener('DOMContentLoaded', () => {
             noResultsMessage.style.display = 'none';
         }
     });
+    // NOVO CÓDIGO PARA TRANSIÇÃO DE PÁGINA
+    const switchToMapBtn = document.getElementById('switchToMapViewBtn');
+    if (switchToMapBtn) {
+        switchToMapBtn.addEventListener('click', (event) => {
+            // 1. Impedir a navegação imediata para dar tempo para a animação
+            event.preventDefault(); 
+            
+            // 2. Guardar a URL de destino
+            const destinationUrl = switchToMapBtn.href;
+            
+            // 3. Adicionar a classe que dispara a animação de saída no CSS
+            document.body.classList.add('page-transition-out');
+            
+            // 4. Aguardar o fim da animação (400ms) e então redirecionar
+            setTimeout(() => {
+                window.location.href = destinationUrl;
+            }, 1000); 
+        });
+    }
 });
 
 // =========================================================================
@@ -501,5 +531,19 @@ window.mudarAnimacao = function(modo) {
 
 const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
 mudarAnimacao(savedAnimation);
+
+const switchToMapBtn = document.getElementById('switchToMapViewBtn');
+if (switchToMapBtn) {
+    switchToMapBtn.addEventListener('click', (event) => {
+        event.preventDefault(); 
+        const destinationUrl = switchToMapBtn.href;
+        document.body.classList.add('page-transition-out');
+        
+        // 🔄 ALTERADO: Ajuste o tempo para corresponder à nova duração da animação CSS
+        setTimeout(() => {
+            window.location.href = destinationUrl;
+        }, 600); // 600ms = 0.6s
+    });
+}
 </script>
 {% endblock %}
