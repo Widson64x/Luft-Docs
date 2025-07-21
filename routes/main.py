@@ -8,6 +8,7 @@ from utils.data.module_utils import (
     carregar_markdown
 )
 from utils.auth.auth_utils import authenticate_initial_request, logout_user, login_required
+from utils.restricted_modules import MODULOS_RESTRITOS
 from routes.permissions import get_user_group
 
 # Define o Blueprint para a rota principal
@@ -45,20 +46,33 @@ def index():
     can_view_tecnico = user_perms.get('can_view_tecnico', False)
     can_access_permissions_menu = user_perms.get('can_access_permissions_menu', False)
     can_create_modules = user_perms.get('can_create_modules', False)
+    # --- NOVO: Carrega a nova permissão ---
+    can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
 
-    # 3. Carrega os módulos que devem ser exibidos na página inicial.
-    modulos, _ = carregar_modulos_aprovados()
+    # 3. Carrega todos os módulos aprovados.
+    modulos_aprovados, _ = carregar_modulos_aprovados()
     
-    # 4. Verifica se cada módulo possui conteúdo para exibição.
-    # Esta lógica foi mantida do seu código original.
-    for m in modulos:
+    # --- LÓGICA ATUALIZADA: Filtra os módulos com base na permissão ---
+    modulos_visiveis = []
+    for m in modulos_aprovados:
+        # Verifica se o módulo é restrito
+        if m['id'] in MODULOS_RESTRITOS:
+            # Se for restrito, só adiciona à lista se o usuário tiver permissão
+            if can_see_restricted_module:
+                modulos_visiveis.append(m)
+        else:
+            # Se não for restrito, adiciona normalmente
+            modulos_visiveis.append(m)
+
+    # 4. Verifica se cada módulo visível possui conteúdo para exibição.
+    for m in modulos_visiveis:
         md_content = carregar_markdown(m['id'])
         m['has_content'] = bool(md_content and md_content.strip())
 
-    # 5. Renderiza o template da página inicial, passando os dados necessários.
+    # 5. Renderiza o template da página inicial, passando a lista de módulos já filtrada.
     return render_template(
         'index.html', 
-        modulos=modulos,
+        modulos=modulos_visiveis,  # Passa a lista filtrada para o template
         can_access_editor=can_access_editor,
         can_view_tecnico=can_view_tecnico,
         can_access_permissions_menu=can_access_permissions_menu,

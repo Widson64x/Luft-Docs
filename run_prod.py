@@ -3,7 +3,7 @@ from app import app # Garanta que 'app' é a instância do Flask no seu arquivo 
 
 # run_prod.py
 # Este script inicia o servidor de produção usando Waitress
-local = True
+local = False
 
 def localhost():
     if local:

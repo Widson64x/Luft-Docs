@@ -148,6 +148,14 @@ form.busca-global button:hover {
     background: #48CAE4;
 }
 
+/* Estilos para destacar a barra de Breadcrumbs */
+.breadcrumb {
+    background-color: #f8f9fa; /* Um fundo cinza claro, similar a outros elementos do Bootstrap */
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1.5rem; /* Adiciona um espaço extra abaixo dos breadcrumbs */
+}
+
 /* Responsivo */
 @media (max-width: 900px) {
     .main { padding: 24px 2vw 24px 2vw; }

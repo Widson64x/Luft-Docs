@@ -10,11 +10,13 @@ from routes.permissions import get_user_group
 from utils.recommendation_service import (
     log_search_term, 
     get_hybrid_recommendations, 
-    get_most_accessed, # <-- Importar a função de fallback
+    get_most_accessed,
     get_popular_searches,
     get_autocomplete_suggestions,
     get_access_counts
 )
+# --- NOVO: Importa a lista de módulos restritos ---
+from utils.restricted_modules import MODULOS_RESTRITOS 
 
 search_bp = Blueprint('search', __name__)
 filter_service = ContentFilterService()
@@ -39,17 +41,47 @@ def perform_search():
     query = request.args.get('q', '').strip()
     module_filter = request.args.get('module', '').strip()
     if query: log_search_term(query)
+    
     _, user_name = get_user_group()
     user_perms = session.get('permissions', {})
     can_view_tecnico = user_perms.get('can_view_tecnico', False)
+    can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
+    
     raw_results = search_all_documents(query, token, module_filter, can_view_tecnico)
+    
+    # Filtra os resultados da busca
+    if not can_see_restricted_module:
+        filtered_results = [res for res in raw_results if res.get('module_id') not in MODULOS_RESTRITOS]
+    else:
+        filtered_results = raw_results
+
     processed_results = []
-    for res in raw_results:
+    for res in filtered_results:
         snippet = get_context_snippet(res['content'], query)
         res['snippet'] = filter_service._highlight_terms(snippet, query)
         processed_results.append(res)
+        
+    # Carrega todos os módulos para o dropdown
     all_modules, _ = carregar_modulos()
-    return render_template('search_results.html', query=query, results=processed_results, total_results=len(processed_results), modules=all_modules, current_filter=module_filter, token=token)
+    
+    # --- NOVO: Filtra a lista de módulos para o dropdown ---
+    if not can_see_restricted_module:
+        # Envia para o template apenas os módulos que não são restritos
+        modules_for_dropdown = [mod for mod in all_modules if mod.get('id') not in MODULOS_RESTRITOS]
+    else:
+        # Se tem permissão, envia todos
+        modules_for_dropdown = all_modules
+    
+    # Passa a lista JÁ FILTRADA para o template
+    return render_template(
+        'search_results.html', 
+        query=query, 
+        results=processed_results, 
+        total_results=len(processed_results), 
+        modules=modules_for_dropdown,  # <-- Usa a lista filtrada
+        current_filter=module_filter, 
+        token=token
+    )
 
 # --- ROTA DE API UNIFICADA E CORRIGIDA ---
 @search_bp.route('/api/recommendations')
@@ -58,25 +90,25 @@ def api_recommendations():
     """Retorna um objeto JSON com todas as recomendações necessárias."""
     token = request.args.get('token', '')
     
+    # --- NOVO: Obtém a permissão do usuário da sessão ---
+    user_perms = session.get('permissions', {})
+    can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
+
     # 1. Tenta obter recomendações híbridas
     recs_raw = get_hybrid_recommendations(limit=10)
     
-    # --- DEBUG: Imprime as recomendações brutas do algoritmo ---
-    print("\n--- [DEBUG] Recomendações brutas do algoritmo híbrido ---")
-    print(recs_raw)
-    
-    # --- LÓGICA DE FALLBACK ---
-    # Se o algoritmo híbrido não retornar nada, pega os mais acedidos como plano B.
+    # Lógica de fallback
     if not recs_raw:
         current_app.logger.info("Recomendações híbridas vazias. Usando fallback para 'Mais Acedidos'.")
         recs_raw = get_most_accessed(limit=10)
-        print("\n--- [DEBUG] Recomendações brutas do FALLBACK (Mais Acedidos) ---")
-        print(recs_raw)
 
-
+    # --- NOVO: Filtra as recomendações com base na permissão ANTES de processar ---
+    if not can_see_restricted_module:
+        recs_raw = [rec for rec in recs_raw if rec.get('document_id') not in MODULOS_RESTRITOS]
+    
     doc_ids_to_show = [rec['document_id'] for rec in recs_raw]
     
-    # 2. Monta os detalhes completos para cada recomendação
+    # 2. Monta os detalhes completos para cada recomendação (já filtrada)
     all_modules, _ = carregar_modulos()
     module_details_map = {mod['id']: mod for mod in all_modules}
     access_counts = get_access_counts(doc_ids_to_show)
@@ -130,13 +162,6 @@ def api_recommendations():
         'popular_searches': get_popular_searches(limit=5)
     }
     
-    # --- DEBUG: Imprime o objeto final que será enviado como JSON ---
-    print("\n--- [DEBUG] Dados finais enviados para o frontend ---")
-    import json
-    print(json.dumps(final_data_to_send, indent=2))
-    print("---------------------------------------------------\n")
-
-    # Retorna o objeto com as duas chaves, como o JS espera
     return jsonify(final_data_to_send)
 
 # --- ROTA DE API PARA AUTO-COMPLETE ---

@@ -300,18 +300,39 @@ def editar_modulo(mid):
         pendente_tech=pendente_tech
     )
 
+TEMPLATE_BASE_PATH = 'data/modules/templates'
+
+def carregar_template_documentacao():
+    """Carrega o conteúdo do template de documentação padrão."""
+    try:
+        with open(os.path.join(TEMPLATE_BASE_PATH, 'template_documentation.md'), 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "# Documentação do Módulo\n" # Fallback caso o arquivo não exista
+
+def carregar_template_tecnico():
+    """Carrega o conteúdo do template de documentação técnica."""
+    try:
+        with open(os.path.join(TEMPLATE_BASE_PATH, 'template_technical_documentation.md'), 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "# Documentação Técnica\n" # Fallback
+
+# --- ROTA ATUALIZADA ---
+
 @editor_bp.route('/novo', methods=['GET', 'POST'])
 def criar_modulo():
-    # <<< INÍCIO DA VERIFICAÇÃO DE PERMISSÃO >>>
+    # <<< Verificação de permissão permanece a mesma >>>
     grupo, user_name = get_user_group()
     perms = load_permissions().get('can_create_modules', {})
     allowed = (grupo in perms.get('groups', []) or user_name in perms.get('users', []))
     if not allowed:
         return render_template('access_denied.html', reason="Você não tem permissão para criar novos módulos."), 403
-    # <<< FIM DA VERIFICAÇÃO DE PERMISSÃO >>>
 
     token = request.args.get('token', '')
+    
     if request.method == 'POST':
+        # <<< A lógica do POST permanece praticamente a mesma >>>
         user_name_session = session.get('user_name', 'Anônimo')
         mid = request.form['id']
         nome = request.form['nome']
@@ -321,7 +342,6 @@ def criar_modulo():
         relacionados = [k.strip() for k in request.form['relacionados'].split(',') if k.strip()]
         agora = datetime.now().isoformat()
 
-        # ATUALIZADO: Estrutura completa do novo módulo com versionamento
         novo_modulo = {
             "id": mid,
             "nome": nome,
@@ -329,38 +349,32 @@ def criar_modulo():
             "icone": icone,
             "palavras_chave": palavras_chave,
             "relacionados": relacionados,
-            "status": "aprovado", # Começa como aprovado
+            "status": "aprovado",
             "version_info": {
                 "current_version": "1.0",
-                "last_approved_by": user_name_session, # O criador é o primeiro "aprovador"
+                "last_approved_by": user_name_session,
                 "last_approved_on": agora
             },
-            "pending_edit_info": { # Nenhuma edição pendente ao criar
-                "user": None,
-                "data": None
-            },
-            "edit_history": [ # O primeiro evento do histórico é a criação
-                {
-                    "event": "criado",
-                    "version": "1.0",
-                    "user": user_name_session,
-                    "timestamp": agora
-                }
-            ]
+            "pending_edit_info": {"user": None, "data": None},
+            "edit_history": [{
+                "event": "criado",
+                "version": "1.0",
+                "user": user_name_session,
+                "timestamp": agora
+            }]
         }
 
-        # Limpa quebras antes de salvar
-        doc_content = limpar_linhas_em_branco(request.form.get('doc_content', '# Novo módulo\n'))
-        tech_content = limpar_linhas_em_branco(request.form.get('tech_content', '# Documentação técnica inicial\n'))
+        # CORREÇÃO: Pega o conteúdo do form, usando os templates como fallback se estiver vazio
+        doc_content = limpar_linhas_em_branco(request.form.get('doc_content') or carregar_template_documentacao())
+        tech_content = limpar_linhas_em_branco(request.form.get('tech_content') or carregar_template_tecnico())
 
-        # Atualiza config.json
+        # ... (resto da lógica de salvar o config.json e os arquivos .md permanece o mesmo)
         with open(CONFIG_FILE, "r", encoding='utf-8') as f:
             config = json.load(f)
         config['modulos'].append(novo_modulo)
         with open(CONFIG_FILE, "w", encoding='utf-8') as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
 
-        # Salva os arquivos de documentação iniciais (sem pendência)
         path_mod = os.path.join(DATA_DIR, mid)
         os.makedirs(path_mod, exist_ok=True)
         with open(os.path.join(path_mod, "documentation.md"), "w", encoding="utf-8") as f:
@@ -370,7 +384,18 @@ def criar_modulo():
 
         return redirect(url_for('.editor_index', token=token))
 
-    return render_template('editor/module_new.html', token=token)
+    # <<< ATUALIZAÇÃO PRINCIPAL AQUI (para o método GET) >>>
+    # Quando o formulário é carregado pela primeira vez, lemos os templates
+    initial_doc_content = carregar_template_documentacao()
+    initial_tech_content = carregar_template_tecnico()
+    
+    # Passamos o conteúdo dos templates para o HTML
+    return render_template(
+        'editor/module_new.html', 
+        token=token, 
+        doc_content=initial_doc_content, 
+        tech_content=initial_tech_content
+    )
 
 @editor_bp.route('/options', methods=['GET'])
 def editor_options():

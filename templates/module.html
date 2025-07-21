@@ -170,13 +170,13 @@
 
         <div class="search-in-module-container">
             <form method="GET" action="{{ request.path }}" class="search-form">
-                <!-- Campos ocultos para manter o contexto -->
                 {% if request.args.get('modulo') %}
-                <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
+                    <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
                 {% elif request.args.get('modulo_tecnico') %}
-                <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
+                    <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
                 {% endif %}
 
+                <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
                 <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
                 <button type="submit" class="search-button" aria-label="Buscar">
                     <i class="fas fa-search"></i>

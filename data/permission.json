@@ -64,5 +64,13 @@
       "francisco.miranda",
       "widson.araujo"
     ]
+  },
+  "can_see_restricted_module": {
+    "description": "Definição de usuários que podem ver módulo restritos.",
+    "groups": [
+      "GRUPO ADMIN",
+      "GRUPO TI"
+    ],
+    "users": []
   }
 }
