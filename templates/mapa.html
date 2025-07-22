@@ -44,114 +44,220 @@
 </div>
 
 <style>
-    /* CSS ATUALIZADO PARA O MÉTODO COM ÍCONES BOOTSTRAP */
-    body {
-        perspective: 1500px;
-    }
+    /* ====================================================================== */
+    /* ESTILO DO CONTAINER DO GRAFO (EFEITO NEBULOSA + STARFIELD) */
+    /* ====================================================================== */
     .graph-container {
         border-radius: 1.25rem;
-        background: var(--card-bg, #fff);
-        box-shadow: 0 8px 32px rgba(80, 120, 200, 0.12);
-        border: 1.5px solid var(--border-color, #e3e6ed);
         width: 100%;
-        height: 75vh;
-        min-height: 600px;
+        height: 80vh;
+        min-height: 650px;
         position: relative;
         cursor: grab;
-    }
-    body.theme-dark .graph-container {
-        background: var(--dark-card-bg, #23263b);
-        border-color: #23263b;
+        background-color: #0d1117; /* Fundo escuro base */
+        border: 1px solid #30363d;
+        overflow: hidden; /* Essencial para os efeitos */
+        transition: transform 0.2s ease-out;
     }
 
-    /* Estilo dos links (conexões) */
+    /* Animação da Nebulosa (existente) */
+    .graph-container::before {
+        content: '';
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        z-index: 0;
+        background: radial-gradient(circle, rgba(29, 78, 216, 0.15) 0%, rgba(30, 64, 175, 0.1) 20%, rgba(17, 24, 39, 0) 60%);
+        animation: rotateBackground 25s linear infinite;
+    }
+
+    /* NOVO: Efeito Starfield (Estrelas) */
+    .graph-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 1px;
+        background: transparent;
+        z-index: 0;
+        box-shadow: 
+            /* 150 estrelas brancas pequenas */
+            var(--stars-small),
+            /* 50 estrelas ciano médias */
+            var(--stars-medium);
+        animation: twinkle 5s linear infinite;
+    }
+    
+    @keyframes rotateBackground {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    @keyframes twinkle {
+        0% { opacity: 0.8; }
+        50% { opacity: 0.4; }
+        100% { opacity: 0.8; }
+    }
+
+    /* ====================================================================== */
+    /* ESTILO DOS NÓS (NODES) E LINKS */
+    /* ====================================================================== */
     .link {
-        stroke: #999;
-        stroke-opacity: 0.6;
-        transition: stroke-opacity 0.3s;
+        stroke: rgba(100, 116, 139, 0.5);
+        stroke-opacity: 0.7;
+        stroke-width: 1.5px;
+        transition: all 0.3s ease;
+    }
+
+    /* NOVO: Efeito Cometa para links ativos */
+    .link.active {
+        stroke: url(#link-gradient); /* Usa o gradiente animado */
+        stroke-opacity: 1;
+        stroke-width: 3px;
     }
     .link.faded { stroke-opacity: 0.1; }
 
-    /* Estilo do Grupo do Nó */
-    .node { cursor: pointer; transition: opacity 0.3s; }
-    .node.faded { opacity: 0.2; }
+    .node { cursor: pointer; transition: opacity 0.3s ease; }
+    .node.faded { opacity: 0.15; }
 
-    /* Círculo de fundo do nó */
+    /* Círculo de fundo do nó (agora com pulso) */
     .node-background {
-        fill: var(--card-bg, #f8f9fa);
-        stroke: #ccc;
-        stroke-width: 1.5px;
-        transition: transform 0.2s ease-out, filter 0.2s, fill 0.2s;
+        stroke: #475569;
+        stroke-width: 2px;
+        fill: url(#node-gradient);
+        transition: all 0.3s ease-out;
+        /* NOVO: Animação de pulso sutil */
+        animation: pulse 4s ease-in-out infinite;
     }
-    body.theme-dark .node-background {
-        fill: #2d325a;
-        stroke: #444;
+
+    /* NOVO: Keyframe da animação de pulso */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
     }
-    .node:hover .node-background {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 6px var(--primary-accent-color, #0d6efd));
+
+    /* Efeito de hover aprimorado com pulso mais forte */
+    .node:hover .node-background, .node.hovered .node-background {
+        transform: scale(1.15);
+        stroke: var(--primary-accent-color, #60a5fa);
+        filter: drop-shadow(0 0 10px var(--primary-accent-color, #3b82f6))
+                drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+        animation: pulse 2s ease-in-out infinite; /* Pulso mais rápido no hover */
     }
+
     .node.filtered .node-background {
-        stroke: #ffc107;
+        stroke: #facc15;
         stroke-width: 4px;
+        animation-play-state: paused; /* Pausa o pulso para não poluir o destaque */
     }
     .node.related .node-background {
-        stroke: #0dcaf0;
+        stroke: #22d3ee;
         stroke-width: 3px;
+        animation-play-state: paused;
     }
     
-    /* Estilos para o container do ícone (foreignObject) */
     .foreign-icon-wrapper {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 40px; /* Tamanho do ícone */
-        color: var(--primary-accent-color, #0d6efd);
-        pointer-events: none; /* Impede que o ícone bloqueie eventos de drag */
+        font-size: 38px;
+        color: #e2e8f0;
+        pointer-events: none;
+        transition: all 0.3s ease;
     }
-
-    /* Estilo do texto (nome do módulo) */
+    .node:hover .foreign-icon-wrapper, .node.hovered .foreign-icon-wrapper {
+        color: #fff;
+        transform: scale(1.1);
+    }
+    
     .node-label {
         pointer-events: none;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
-        fill: var(--text-color, #333);
-        text-shadow: 0 1px 3px var(--card-bg, #fff), 0 -1px 3px var(--card-bg, #fff), 1px 0 3px var(--card-bg, #fff), -1px 0 3px var(--card-bg, #fff);
-    }
-    body.theme-dark .node-label {
-        fill: #eee;
-        text-shadow: 0 1px 3px #23263b, 0 -1px 3px #23263b, 1px 0 3px #23263b, -1px 0 3px #23263b;
+        fill: #cbd5e1;
+        text-anchor: middle;
+        paint-order: stroke;
+        stroke: #0d1117; /* Contorno para legibilidade */
+        stroke-width: 4px;
+        stroke-linecap: butt;
+        stroke-linejoin: miter;
     }
 
-    /* {# NOVO: ESTILOS PARA O MENU DE CONTEXTO #} */
+    .node.visited .node-background {
+        stroke: #EAB308; /* Uma cor âmbar/dourada para destaque */
+        stroke-width: 3px;
+    }
+
+    /* NOVO: Estilo Glassmorphism para o Menu de Contexto */
     .context-menu {
         position: absolute;
         z-index: 1000;
-        min-width: 200px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        border-radius: .5rem;
+        min-width: 220px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        border-radius: .75rem; /* Mais arredondado */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Efeito de vidro */
+        background-color: rgba(31, 41, 55, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
-    /* Usamos as classes do Bootstrap .list-group, mas podemos customizar se necessário */
     .context-menu .list-group-item {
         font-weight: 500;
+        background-color: transparent;
+        color: #d1d5db;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .context-menu .list-group-item:last-child { border-bottom: none; }
+    .context-menu .list-group-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
     }
 
-    /* Estilos da animação de transição (mantidos) */
-    .container, .container-mapa { opacity: 0; transform: rotateY(90deg) scale(0.9); transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s ease-in; }
-    body.page-transition-in .container, body.page-transition-in .container-mapa { opacity: 1; transform: rotateY(0deg) scale(1); }
-    body.page-transition-out .container, body.page-transition-out .container-mapa { opacity: 0; transform: rotateY(-90deg) scale(0.9); transition: transform 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.8s ease-out; }
+    /* NOVO: Estilo para o Tooltip */
+    .graph-tooltip {
+        position: absolute;
+        max-width: 280px;
+        padding: 0.75rem 1rem;
+        background-color: #111827;
+        color: #d1d5db;
+        border: 1px solid #4b5563;
+        border-radius: .5rem;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        pointer-events: none; /* Essencial para não interferir no mouse */
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 1001;
+    }
+    .graph-tooltip.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Animações de página mantidas */
+    body { perspective: 1500px; }
+    .container, .container-mapa { opacity: 0; transform: translateY(50px) scale(0.98); transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1); }
+    body.page-transition-in .container, body.page-transition-in .container-mapa { opacity: 1; transform: translateY(0) scale(1); }
+    body.page-transition-out .container, body.page-transition-out .container-mapa { opacity: 0; transform: translateY(-50px) scale(0.98); }
 </style>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 
-{# Passando os dados dos módulos para o JS #}
-<script id="modulos-data" type="application/json">{{ modulos|tojson }}</script>
+<script id="user-permissions" type="application/json">
+    {
+        "can_view_tecnico": {{ can_view_tecnico|tojson }}
+    }
+</script>
 
-{# IMPORTANDO A BIBLIOTECA D3.JS #}
+<script id="modulos-data" type="application/json">{{ modulos|tojson }}</script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script>
@@ -161,189 +267,215 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. SETUP INICIAL E PREPARAÇÃO DOS DADOS
     // ======================================================================
     
-    const nodeRadius = 40;
-    const nodeCollideRadius = 50;
-    const transitionDuration = 1000;
+    /**
+     * Adiciona o ID de um nó à lista de nós visitados recentemente no localStorage.
+     * @param {string|number} nodeId O ID do nó a ser adicionado.
+     */
+    const addVisitedNode = (nodeId) => {
+        let visited = JSON.parse(localStorage.getItem('visitedNodes')) || [];
+        // Remove o id se já existir, para movê-lo para o início da lista
+        visited = visited.filter(id => id !== nodeId);
+        // Adiciona o id no início da lista (o mais recente)
+        visited.unshift(nodeId);
+        // Mantém apenas os 5 mais recentes para não poluir a visualização
+        const recentVisited = visited.slice(0, 5);
+        localStorage.setItem('visitedNodes', JSON.stringify(recentVisited));
+    };
 
+    const nodeRadius = 40;
+    const transitionDuration = 700;
     const graphContainer = document.getElementById('graph-container');
+    const rawModules = JSON.parse(document.getElementById('modulos-data').textContent);
+    
+    // Lê a lista de nós visitados do localStorage ao carregar a página
+    const visitedNodes = JSON.parse(localStorage.getItem('visitedNodes')) || [];
+
+    // Demais variáveis de setup
     const filterInput = document.getElementById('filterInput');
     const noResultsMessage = document.getElementById('no-results-message');
-    const switchToCardViewBtn = document.getElementById('switchToCardViewBtn');
-
-    const rawModules = JSON.parse(document.getElementById('modulos-data').textContent);
+    const userPermissions = JSON.parse(document.getElementById('user-permissions').textContent);
+    const canViewTecnico = userPermissions.can_view_tecnico;
     const token = new URLSearchParams(window.location.search).get('token');
     const width = graphContainer.clientWidth;
     const height = graphContainer.clientHeight;
     
     if (rawModules.length === 0) return;
 
-    // Assumindo que o backend envia 'tem_modulo_tecnico'
+    // Função para gerar o efeito de estrelas no fundo
+    function generateStars(n, color) {
+        let value = `${Math.random() * width}px ${Math.random() * height}px ${color}`;
+        for (let i = 2; i <= n; i++) {
+            value += `, ${Math.random() * width}px ${Math.random() * height}px ${color}`;
+        }
+        return value;
+    }
+    graphContainer.style.setProperty('--stars-small', generateStars(150, '#FFF'));
+    graphContainer.style.setProperty('--stars-medium', generateStars(50, '#60a5fa'));
+
+    // Processamento dos dados para D3.js
     const nodes = rawModules.map(m => ({ ...m }));
     const links = [];
+    const linkMap = new Map();
+    nodes.forEach(n => linkMap.set(n.id, []));
     rawModules.forEach(m => {
         if (m.relacionados_visiveis) {
             m.relacionados_visiveis.forEach(rel_id => {
-                if (nodes.some(n => n.id === rel_id)) {
+                const targetNode = nodes.find(n => n.id === rel_id);
+                if (targetNode) {
                     links.push({ source: m.id, target: rel_id });
+                    linkMap.get(m.id).push(targetNode);
+                    linkMap.get(rel_id).push(nodes.find(n => n.id === m.id));
                 }
             });
         }
     });
 
-    const initialRadius = Math.max(width, height) * 0.02;
-    nodes.forEach(node => {
-        const angle = Math.random() * 1.1 * Math.PI;
-        node.x = width / 1.1 + initialRadius * Math.cos(angle);
-        node.y = height / 1.1 + initialRadius * Math.sin(angle);
-    });
-
     // ======================================================================
-    // 2. CONFIGURAÇÃO DA SIMULAÇÃO DE FORÇA (A "GRAVIDADE")
+    // 2. SIMULAÇÃO DE FORÇA E RENDERIZAÇÃO SVG
     // ======================================================================
     const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.5))
-        .force("charge", d3.forceManyBody().strength(-100))
+        .force("link", d3.forceLink(links).id(d => d.id).distance(150).strength(0.4))
+        .force("charge", d3.forceManyBody().strength(-250))
         .force("center", d3.forceCenter(width / 2, height / 2).strength(0.1))
-        .force("collide", d3.forceCollide().radius(nodeCollideRadius));
+        .force("collide", d3.forceCollide().radius(55));
 
-    // ======================================================================
-    // 3. RENDERIZAÇÃO DOS ELEMENTOS GRÁFICOS (SVG)
-    // ======================================================================
-    const svg = d3.create("svg")
-        .attr("viewBox", [0, 0, width, height])
-        .attr("width", width)
-        .attr("height", height)
-        .attr("style", "max-width: 100%; height: auto;");
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]).attr("width", "100%").attr("height", "100%").attr("style", "max-width: 100%; height: auto; position: relative; z-index: 1;");
+    const defs = svg.append("defs");
+    
+    // Gradiente para o fundo dos nós
+    const nodeGradient = defs.append("radialGradient").attr("id", "node-gradient").attr("cx", "30%").attr("cy", "30%");
+    nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#475569");
+    nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#1e293b");
 
+    // Gradiente animado para o "fluxo de energia" nas conexões
+    const linkGradient = defs.append("linearGradient").attr("id", "link-gradient").attr("gradientUnits", "userSpaceOnUse").attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
+    linkGradient.append("stop").attr("offset", "0%").attr("stop-color", "#22d3ee");
+    linkGradient.append("stop").attr("offset", "50%").attr("stop-color", "#60a5fa");
+    linkGradient.append("stop").attr("offset", "100%").attr("stop-color", "#22d3ee");
+    linkGradient.append("animate").attr("attributeName", "x1").attr("values", "-100%; 100%").attr("dur", "2s").attr("repeatCount", "indefinite");
+    linkGradient.append("animate").attr("attributeName", "x2").attr("values", "0%; 200%").attr("dur", "2s").attr("repeatCount", "indefinite");
+
+    // Criação dos elementos SVG
     const g = svg.append("g");
+    const linkGroup = g.append("g").attr("class", "links");
+    const nodeGroup = g.append("g").attr("class", "nodes");
+    const tooltip = d3.select("body").append("div").attr("class", "graph-tooltip");
 
-    const link = g.append("g")
-        .attr("class", "links")
-        .selectAll("line")
-        .data(links)
-        .join("line")
-        .attr("class", "link");
-
-    const node = g.append("g")
-        .attr("class", "nodes")
-        .selectAll("g")
-        .data(nodes)
-        .join("g")
-        .attr("class", "node");
-
-    node.append("circle")
-        .attr("r", nodeRadius)
-        .attr("class", "node-background");
-
-    node.append("foreignObject")
-        .attr('width', nodeRadius * 2)
-        .attr('height', nodeRadius * 2)
-        .attr('x', -nodeRadius)
-        .attr('y', -nodeRadius)
-        .html(d => `
-            <div class="foreign-icon-wrapper">
-                <i class="bi ${d.icone || 'bi-record-circle'}"></i>
-            </div>
-        `);
-
-    node.append("text")
-        .attr("class", "node-label")
-        .text(d => d.nome)
-        .attr("x", 0)
-        .attr("y", nodeRadius + 18)
-        .attr("text-anchor", "middle");
+    const link = linkGroup.selectAll("line").data(links).join("line").attr("class", "link");
+    
+    const node = nodeGroup.selectAll("g").data(nodes, d => d.id).join("g")
+        .attr("class", "node")
+        // Aplica a classe 'visited' se o nó estiver na lista de visitados
+        .classed("visited", d => visitedNodes.includes(d.id));
+    
+    node.append("circle").attr("class", "node-background").attr("r", 0).transition().duration(1000).ease(d3.easeElasticOut.amplitude(0.8).period(0.5)).attr("r", nodeRadius);
+    node.append("foreignObject").attr('width', nodeRadius * 2).attr('height', nodeRadius * 2).attr('x', -nodeRadius).attr('y', -nodeRadius).html(d => `<div class="foreign-icon-wrapper"><i class="bi ${d.icone || 'bi-box'}"></i></div>`);
+    node.append("text").attr("class", "node-label").text(d => d.nome).attr("y", nodeRadius + 20);
 
     graphContainer.append(svg.node());
 
     // ======================================================================
-    // 4. DEFINIÇÃO DA INTERATIVIDADE (DRAG, ZOOM, CLICK)
+    // 3. INTERATIVIDADE (DRAG, HOVER, CLICK, ZOOM)
     // ======================================================================
-    const drag = d3.drag()
-        .on("start", (event, d) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x; d.fy = d.y;
-        })
-        .on("drag", (event, d) => {
-            d.fx = event.x; d.fy = event.y;
-        })
-        .on("end", (event, d) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null; d.fy = null;
-        });
-    
+    const drag = d3.drag().on("start", (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; graphContainer.style.cursor = 'grabbing'; tooltip.classed("visible", false); }).on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; }).on("end", (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; graphContainer.style.cursor = 'grab'; });
     node.call(drag);
 
-    // // MODIFICADO: Lógica de clique para abrir o menu de contexto
     node.on("click", (event, d) => {
-        console.log("Dados do nó clicado:", d); // <-- ADICIONE ESTA LINHA
-        event.stopPropagation(); // Impede que o clique no nó feche o menu imediatamente
+        event.stopPropagation();
+        tooltip.classed("visible", false);
         showContextMenu(event, d);
     });
-
-    const zoom = d3.zoom().scaleExtent([0.1, 4]).on("zoom", (event) => {
-        g.attr("transform", event.transform);
+    
+    node.on('mouseover', (event, d) => {
+        // Exibe o tooltip com a descrição do nó
+        if (d.descricao && d.descricao.trim() !== '') {
+            tooltip.html(d.descricao).style("left", (event.pageX + 15) + "px").style("top", (event.pageY + 15) + "px").classed("visible", true);
+        }
+        // Ativa o destaque de nós vizinhos e a animação de link
+        if (filterInput.value.trim() !== '') return;
+        node.classed('faded', n => n.id !== d.id);
+        d3.select(event.currentTarget).classed('faded', false).classed('hovered', true);
+        const connectedIds = new Set(linkMap.get(d.id).map(n => n.id));
+        node.filter(n => connectedIds.has(n.id)).classed('faded', false).classed('related', true);
+        link.classed('faded', l => l.source.id !== d.id && l.target.id !== d.id)
+            .classed('active', l => l.source.id === d.id || l.target.id === d.id); // Esta linha aplica a classe .active para ativar a animação
     });
-    svg.call(zoom);
 
-    // // NOVO: Função para criar e mostrar o menu de contexto
+    node.on('mouseout', () => {
+        tooltip.classed("visible", false);
+        if (filterInput.value.trim() === '') {
+            node.classed("faded", false).classed("hovered", false).classed("related", false);
+            link.classed("faded", false).classed("active", false);
+        }
+    });
+    
+    d3.select('body').on('mousemove', (event) => {
+        tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY + 15) + 'px');
+    });
+    
+    const zoom = d3.zoom().scaleExtent([0.2, 5]).on("zoom", (event) => g.attr("transform", event.transform));
+    svg.call(zoom).on("dblclick.zoom", null);
+    svg.on('click', () => d3.select('.context-menu').remove());
+
+    graphContainer.addEventListener('mousemove', (e) => {
+        if (d3.select('.context-menu').node()) return;
+        const rect = graphContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const rotateY = x / (rect.width / 2) * 6;
+        const rotateX = -y / (rect.height / 2) * 6;
+        graphContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    graphContainer.addEventListener('mouseleave', () => {
+        graphContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+
+    // ======================================================================
+    // 4. FUNÇÕES DE MENU, FILTRO E ANIMAÇÕES DE PÁGINA
+    // ======================================================================
     function showContextMenu(event, d) {
-        // Remove qualquer menu existente
         d3.select('.context-menu').remove();
-
-        const menuItems = [];
+        const menu = d3.select('body').append('div').attr('class', 'context-menu').style('left', `${event.pageX + 10}px`).style('top', `${event.pageY}px`);
+        const list = menu.append('ul').attr('class', 'list-group list-group-flush');
         
-        // Adiciona a opção padrão
-        menuItems.push({
-            label: 'Abrir Módulo Padrão',
-            url: `/modulo/?modulo=${d.id}&token=${token}`
+        const menuItems = [
+            { href: `/modulo/?modulo=${d.id}&token=${token}`, html: `<i class="bi bi-box-arrow-up-right me-2"></i>Abrir Módulo`, condition: true },
+            { href: `/modulo/?modulo_tecnico=${d.id}&token=${token}`, html: `<i class="bi bi-tools me-2"></i>Abrir Módulo Técnico`, condition: canViewTecnico }
+        ];
+
+        menuItems.forEach(item => {
+            if (item.condition) {
+                list.append('a').attr('href', item.href).attr('class', 'list-group-item list-group-item-action').html(item.html)
+                    .on('click', function(clickEvent) {
+                        clickEvent.preventDefault();
+                        
+                        // Registra o nó como visitado
+                        addVisitedNode(d.id);
+
+                        const destinationUrl = d3.select(this).attr('href');
+                        document.body.classList.remove('page-transition-in');
+                        document.body.classList.add('page-transition-out');
+                        setTimeout(() => { window.location.href = destinationUrl; }, transitionDuration);
+                    });
+            }
         });
-
-        // Adiciona a opção técnica, se existir
-        if (true) { // <-- FORÇA A OPÇÃO TÉCNICA A SEMPRE APARECER (PARA TESTE)
-            menuItems.push({
-                label: 'Abrir Módulo Técnico',
-                url: `/modulo/?modulo_tecnico=${d.id}&token=${token}`
-            });
-        }
-        
-        // Se houver apenas uma opção, redireciona direto
-        if (menuItems.length === 1) {
-            window.location.href = menuItems[0].url;
-            return;
-        }
-
-        // Cria o menu
-        const menu = d3.select('body').append('div')
-            .attr('class', 'context-menu list-group')
-            .style('left', `${event.pageX}px`)
-            .style('top', `${event.pageY}px`);
-
-        menu.selectAll('a')
-            .data(menuItems)
-            .enter()
-            .append('a')
-            .attr('href', item => item.url)
-            .attr('class', 'list-group-item list-group-item-action')
-            .html(item => `<i class="bi bi-box-arrow-up-right me-2"></i>${item.label}`);
     }
 
-    // // NOVO: Evento para fechar o menu ao clicar em qualquer outro lugar
-    d3.select('body').on('click', () => {
-        d3.select('.context-menu').remove();
-    });
-
-
-    // ======================================================================
-    // 5. LÓGICA DE FILTRO AVANÇADO
-    // ======================================================================
+    d3.select('body').on('click', () => d3.select('.context-menu').remove());
+    
     filterInput.addEventListener('input', () => {
         const filterText = filterInput.value.toLowerCase().trim();
+        node.classed('hovered', false);
+        link.classed('active', false);
 
         if (!filterText) {
-            node.classed("faded", false).classed("filtered", false).classed("related", false);
+            node.classed("faded", false).classed("filtered", false).classed("related", false)
+                // Garante que o status de visitado seja reaplicado ao limpar o filtro
+                .classed("visited", d => visitedNodes.includes(d.id));
             link.classed("faded", false);
             noResultsMessage.style.display = 'none';
             graphContainer.style.display = 'block';
+            svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
             return;
         }
 
@@ -353,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 matchedNodes.add(n.id);
             }
         });
-
         const relatedNodes = new Set();
         if (matchedNodes.size > 0) {
             links.forEach(l => {
@@ -363,7 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const visibleNodes = new Set([...matchedNodes, ...relatedNodes]);
-
         node.classed("faded", d => !visibleNodes.has(d.id));
         node.classed("filtered", d => matchedNodes.has(d.id));
         node.classed("related", d => relatedNodes.has(d.id) && !matchedNodes.has(d.id));
@@ -372,25 +502,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasVisibleNodes = visibleNodes.size > 0;
         noResultsMessage.style.display = hasVisibleNodes ? 'none' : 'block';
         graphContainer.style.display = hasVisibleNodes ? 'block' : 'none';
+
+        if (matchedNodes.size === 1) {
+            const targetNodeId = matchedNodes.values().next().value;
+            const targetNode = nodes.find(n => n.id === targetNodeId);
+            if (targetNode) {
+                const newScale = 1.5;
+                const newX = width / 2 - newScale * targetNode.x;
+                const newY = height / 2 - newScale * targetNode.y;
+                const transform = d3.zoomIdentity.translate(newX, newY).scale(newScale);
+                svg.transition().duration(750).call(zoom.transform, transform);
+            }
+        }
     });
     
-    // ======================================================================
-    // 6. FUNÇÃO 'TICK' E ANIMAÇÕES DE TRANSIÇÃO
-    // ======================================================================
     simulation.on("tick", () => {
         link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
         node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
+    // Animações de transição de página
     setTimeout(() => { document.body.classList.add('page-transition-in'); }, 10);
-
-    switchToCardViewBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        const destinationUrl = switchToCardViewBtn.href;
-        document.body.classList.remove('page-transition-in');
-        document.body.classList.add('page-transition-out');
-        setTimeout(() => { window.location.href = destinationUrl; }, transitionDuration);
+    
+    document.querySelectorAll('a:not([target="_blank"]):not(.list-group-item-action)').forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const destinationUrl = link.href;
+            document.body.classList.remove('page-transition-in');
+            document.body.classList.add('page-transition-out');
+            setTimeout(() => { window.location.href = destinationUrl; }, transitionDuration);
+        });
     });
 });
 </script>

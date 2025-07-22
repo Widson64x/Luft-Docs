@@ -1,5 +1,3 @@
-# Comprovei
-
 ## Visão Geral
 
 A Comprovei é uma empresa parceira da Luft Logistics. realiza o controle de entregas da empresa.

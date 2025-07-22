@@ -116,6 +116,7 @@
         border-color: var(--border-color);
       }
 
+
       body.theme-dark .text-body,
       body.theme-dark .dropdown-item,
       body.theme-dark .form-check-label {
@@ -187,13 +188,13 @@
     </footer>
 
     <div class="modal fade" id="modalMinhaConta" tabindex="-1" aria-labelledby="modalMinhaContaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-lg">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalMinhaContaLabel"><i class="bi bi-person-badge me-2"></i>Informações da Conta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body modal-lg">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><strong>Usuário:</strong> {{ session['user_name'] }}</li>
                         <li class="list-group-item"><strong>Email:</strong> {{ session['email'] }}</li>
@@ -208,7 +209,7 @@
     </div>
 
     <div class="modal fade" id="modalConfiguracoes" tabindex="-1" aria-labelledby="modalConfigLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header border-0">
                     <h5 class="modal-title" id="modalConfigLabel"><i class="bi bi-gear-fill me-2"></i>Configurações</h5>
@@ -265,9 +266,7 @@
         </div>
     </div>
     {% block scripts %}
-    <script src="..."></script> <!-- Outros scripts do Bootstrap, etc. -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="..."></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>

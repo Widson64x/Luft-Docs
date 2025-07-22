@@ -1,51 +1,100 @@
 ## Visão Geral do Processo
 
-Este documento detalha o fluxo de trabalho para o registro de coletas no sistema, desde a chegada do veículo até a emissão do romaneio e a conferência física da carga. O processo é dividido entre o registro da coleta e o recebimento de transferências, com etapas manuais e regras específicas de sistema.
+Este documento estabelece o fluxo de trabalho completo para a recepção de mercadorias, unificando as etapas desde a chegada do veículo até a finalização sistêmica da carga. O processo de recebimento é dividido em três modalidades principais:
 
-## Etapa 1: Registro da Recebimento de Coleta no Sistema
+- **Transferências de Filiais:** Cargas recebidas de outras unidades da empresa.
+- **Coletas:** Cargas coletadas diretamente em clientes.
+- **Cliente Entrega:** Modalidade específica para quando o próprio cliente realiza a entrega da carga na unidade.
 
-O processo é iniciado no na tela de 'Recebimento Diversos' dento do módulo de Operação.
+A organização do departamento classifica os processos em três estágios: carregado, descarregado e finalizado.
 
-- **Início do Registro:**
-    - O processo começa quando o veículo encosta na doca designada (ex: Doca 29).
-    - Ao registrar a chegada no sistema, **é obrigatório retroceder o horário em 11 minutos**. O sistema não permite registrar o horário atual.
+## Etapa 1: Chegada do Veículo e Registro Inicial (Manual)
 
-- **Preenchimento dos Dados:**
+A operação começa com a recepção física do veículo e a criação de um registro de controle manual.
+
+- **Recepção e Identificação:**
+    - O motorista encosta o veículo na doca designada ou no pátio.
+    - Ele apresenta as notas fiscais e, em alguns casos, uma Ordem de Serviço (OS) para facilitar a identificação.
+
+- **Caderno de Controle:**
+    - Um caderno físico é utilizado para o primeiro registro.
+    - O motorista deve preencher as seguintes informações:
+        - Nome do motorista
+        - Placa do veículo (a do "cavalo" em caso de carreta)
+        - Origem da carga (ex: Sanofi, filial de Goiânia)
+        - Número da Doca ou Pátio (PT)
+        - Data e hora da chegada
+        - Assinatura 
+
+- **Finalidade do Caderno:**
+    - Este registro é crucial para vincular os lotes de notas aos motoristas corretos, especialmente em coletas sem OS. A falta deste controle pode gerar grande confusão no momento de processar as notas.
+
+## Etapa 2: Registro Sistêmico (Tela "Recebimento Diversos")
+
+Após o controle manual, as informações são inseridas no sistema.
+
+- **Acesso ao Sistema:**
+    - O processo é executado na tela de "Recebimento Diversos", dentro do módulo de "Operação".
+
+- **Regra dos 11 Minutos:**
+    - **É obrigatório retroceder o horário em 11 minutos** ao registrar a chegada.
+    - O sistema não permite o registro com o horário atual.
+
+- **Preenchimento de Dados:**
     - **Placa:** Informar a placa do veículo.
-    - **Material e Modal:** A definição do tipo de material (ex: Laboratório), espécie (ex: Caixas) e modal (ex: Rodoviário). O modal aéreo é utilizado em situações específicas e urgentes, já vindo identificado nas notas.
+    - **Material, Espécie e Modal:** Definir o tipo de material (ex: Laboratório), a espécie (ex: Caixas) e o modal (normalmente "Rodoviário").
 
-- **Seleção de Notas:**
-    - Após preencher os dados iniciais, o próximo passo é selecionar (bipar) todas as notas fiscais que farão parte daquela coleta(OBS: No caso de transferência as notas já estão manifestadas basta apenas ).
-    - É recomendável fazer uma segunda contagem para garantir que nenhuma nota foi esquecida.
+- **Processamento de Notas Fiscais:**
+    - O operador deve escanear ("bipar") todas as notas fiscais da carga. No caso de transferências, as notas já estão pré-manifestadas.
+    - É altamente recomendável realizar uma segunda contagem das notas para evitar esquecimentos.
+    - Após a seleção, é necessário clicar em **"Processar XML"** para validação.
 
-## Etapa 2: Processamento e Geração do Romaneio
+## Etapa 3: Geração do Romaneio e Fluxo de Documentos
 
-- **Processar XML:** Após selecionar as notas, é necessário processar os arquivos XML correspondentes.
+Com a carga registrada, o próximo passo é consolidar as informações em um documento formal.
 
 - **Geração do Romaneio:**
-    - O **Romaneio** é o documento que consolida a carga. Ele é diferente de um manifesto.
-    - O Romaneio contém:
-        - O número das notas fiscais
-        - Cliente e Destinatário
-        - Peso e Volumetria (quantidade de caixas)
-        - **Pallet:** Apenas para o processo de [[Transferência]] que vem com a etiqueta.
+    - O **Romaneio** é o documento que consolida a carga, sendo diferente de um manifesto.
+    - Ele contém:
+        - Números das notas fiscais
+        - Dados do cliente e do destinatário
+        - Peso e volumetria (quantidade de caixas)
+        - **Pallet:** A informação de pallet só aparece para o processo de transferência.
 
-- **Finalização Manual:**
-    - É preenchida uma folha de controle manual com o número do romaneio e a placa do veículo.
-    - As notas fiscais e esta folha são entregues ao setor de **Emissão**, que carimba os documentos e os devolve para a o ADM de Recebimento. 
+- **Processo Manual de Controle:**
+    - Uma folha de controle manual é preenchida com o número do romaneio e a placa do veículo.
+    - Esta folha e as notas fiscais são entregues ao setor de **Emissão**.
+    - A Emissão carimba os documentos e os devolve para a Administração de Recebimento.
 
-## Etapa 3: Recebimento e Conferência Física
+## Etapa 4: Conferência Física da Carga
 
-- **Chegada do Veículo:** Quando o motorista chega ao destino, ele encosta o caminhão e apresenta as notas.
+A verificação física da mercadoria é uma etapa crítica e **inteiramente manual**.
 
-- **Conferência:**
-    - O processo de conferência é **totalmente manual**, feito no papel.
-    - O conferente verifica na nota fiscal a quantidade de volumes descrita (ex: 87 volumes) e conta fisicamente a carga.
-    - Se houver divergência (falta ou sobra de volumes), o conferente anota o ocorrido no romaneio. Essa informação é depois lançada no sistema para tratar a ocorrência 33. ([[Ocorrências]])
+- **Procedimento de Conferência:**
+    - O conferente utiliza o romaneio e a nota fiscal para verificar a quantidade de volumes descrita e realiza a contagem física da carga.
+    - A conferência é feita pallet a pallet.
 
+- **Tratamento de Divergências:**
+    - Se houver divergência (falta ou sobra), o conferente anota o ocorrido no campo de observações do romaneio.
+    - Posteriormente, essa informação é lançada no sistema para gerar uma **"Ocorrência 33"**.
 
-## Pontos de Atenção e Dificuldades do Processo
+## Etapa 5: Finalização Sistêmica (Confirmação do Veículo)
 
-- **Processo Manual:** A operação inteira, principalmente a conferência, é baseada em papel, o que a torna lenta e suscetível a erros.
-- **Regra dos 11 Minutos:** É uma regra obrigatória do sistema e um ponto de atenção para todos os usuários que registram coletas ou transferências.
-- **Troca de Motorista:** É comum que o nome do motorista no sistema não seja o mesmo que está realizando a entrega, pois ocorrem trocas de motorista durante o percurso, Isso vale para quando ocorre o processo de [[[[Transferência]]]].
+Esta é a etapa final de extrema importância para a cadeia operacional.
+
+- **Obrigatoriedade da Confirmação:**
+    - Após o recebimento, é **mandatório** que o veículo seja "confirmado" no sistema na tela de ‘Consulta Recebimento Transporte’.
+
+- **Consequências da Não Confirmação:**
+    - Se um veículo não for confirmado, ele fica "bloqueado" sistemicamente.
+    - **Bloqueio de Notas:** As notas fiscais ficam presas e não podem ser trabalhadas por outras áreas.
+    - **Bloqueio do Veículo:** A equipe de Frota fica impossibilitada de gerar uma nova OS para o veículo.
+    - **Impacto na Emissão:** O setor de Emissão também fica impedido de processar os documentos.
+
+## Processos Detalhados de Montagem Etiqueta
+
+Esta seção detalha os processos de apoio que conectam o recebimento à expedição.
+
+- **Montagem de Etiqueta de Pallet:**
+    - **Finalidade:** Agrupar um conjunto de volumes ou notas em pallets, gerando uma etiqueta única de identificação no sistema.
+    - **Responsabilidade:** Embora seja uma tarefa dos conferentes, muitas vezes é executada pelo administrativo do recebimento. Esta prática é considerada "arriscada", pois qualquer erro fica registrado no login de quem executou a tarefa.

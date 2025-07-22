@@ -136,7 +136,7 @@
     .bg-icons {
         position: fixed;
         top: 0; left: 0;
-        width: 100vw; height: 100vh;
+        width: 100vw; height: 200vh;
         pointer-events: none;
         overflow: hidden;
         z-index: 0;
@@ -439,7 +439,7 @@ function iniciarAnimacaoComColisao() {
     const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
     const iconsData = [];
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+    const screenHeight = container.offsetHeight;
 
     fetch('{{ url_for("static", filename="data/icons.json") }}')
         .then(res => res.json())
@@ -473,7 +473,7 @@ function iniciarAnimacaoComColisao() {
             icon.x += icon.dx;
             icon.y += icon.dy;
             if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
-            if (icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+            if (icon.y <= 0 || icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
             for (let i = index + 1; i < iconsData.length; i++) {
                 const otherIcon = iconsData[i];
                 const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);

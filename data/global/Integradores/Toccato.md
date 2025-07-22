@@ -51,3 +51,9 @@ Conforme o e-mail recebido, o acesso para abertura de chamados é restrito. Atua
 * **SLA de Início:** A equipe de suporte deve iniciar o atendimento em até **2 horas** após a abertura do chamado.
 * **SLA de Solução:** Após o início do atendimento, a equipe tem até **24 horas** para resolver o problema.
 > **Importante:** Se o técnico precisar de mais informações do usuário ou de um fornecedor, o relógio do SLA é **pausado** até que a resposta seja fornecida.
+
+## Anexo
+
+* [QLIKSENSE_PASSO_A_PASSO_CHAMADO_USUÁRIOS.pdf](/download?token=__TOKEN_PLACEHOLDER__&download=QLIKSENSE_PASSO_A_PASSO_CHAMADO_USUÁRIOS.pdf&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzIjoiZnJhbmNpc2NvLm1pcmFuZGEiLCJlIjoxNzUxMzA0MDI2fQ.Aw3_74HH3uZ_LlfLOXqq7bLK04FMhTH0EKJ-4663838)
+
+QLIKSENSE_PASSO_A_PASSO_CHAMADO_USUÁRIOS.pdf

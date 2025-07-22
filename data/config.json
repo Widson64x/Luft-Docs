@@ -12,8 +12,9 @@
         "torre de controle"
       ],
       "relacionados": [
-        "coleta",
-        "telas-informa"
+        "recebimento-intec",
+        "telas-informa",
+        "agendamento"
       ],
       "status": "aprovado",
       "ultima_edicao": {
@@ -154,9 +155,9 @@
         "data": null
       },
       "version_info": {
-        "current_version": "1.1",
+        "current_version": "1.2",
         "last_approved_by": "widson.araujo",
-        "last_approved_on": "2025-07-02T10:51:20.067599"
+        "last_approved_on": "2025-07-22T08:50:19.667543"
       },
       "edit_history": [
         {
@@ -167,6 +168,15 @@
           "timestamp": "2025-07-02T10:51:20.067599",
           "backup_file_doc": "v1.1_2025-07-02T10-51-20_widson.araujo_documentation.md",
           "backup_file_tech": "v1.1_2025-07-02T10-51-20_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-22T08:50:19.667543",
+          "backup_file_doc": "v1.2_2025-07-22T08-50-19_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-22T08-50-19_widson.araujo_technical.md"
         }
       ]
     },
@@ -243,6 +253,36 @@
       ]
     },
     {
+      "id": "relacao-edi",
+      "nome": "Relação do EDIs",
+      "descricao": "",
+      "icone": "bi-cloud-upload",
+      "palavras_chave": [
+        "EDIs",
+        "Troca de Arquivos",
+        "Sistema"
+      ],
+      "relacionados": [],
+      "status": "aprovado",
+      "version_info": {
+        "current_version": "1.0",
+        "last_approved_by": "widson.araujo",
+        "last_approved_on": "2025-07-22T14:49:32.290286"
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "edit_history": [
+        {
+          "event": "criado",
+          "version": "1.0",
+          "user": "widson.araujo",
+          "timestamp": "2025-07-22T14:49:32.290286"
+        }
+      ]
+    },
+    {
       "id": "template",
       "nome": "Template de Módulo",
       "descricao": "",
@@ -256,8 +296,8 @@
         "last_approved_on": "2025-07-18T21:26:32.373147"
       },
       "pending_edit_info": {
-        "user": null,
-        "data": null
+        "user": "widson.araujo",
+        "data": "2025-07-22T14:52:16.942077"
       },
       "edit_history": [
         {
