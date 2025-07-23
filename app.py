@@ -2,7 +2,7 @@
 
 from flask import Flask, session, redirect, url_for, request
 import click  # <-- Adicionar esta importação
-from flask.cli import with_appcontext  # <-- Adicionar esta importação
+from flask.cli import with_appcontext 
 
 # Seus imports existentes
 from utils import database_utils
@@ -13,6 +13,8 @@ from routes.download import download_bp
 from routes.editor import editor_bp
 from routes.permissions import permissions_bp
 from routes.search import search_bp
+from routes.learning_plan import learning_plan_bp
+from routes.api import api_bp
 
 
 app = Flask(__name__)
@@ -44,6 +46,8 @@ app.register_blueprint(download_bp, url_prefix='/download')
 app.register_blueprint(editor_bp, url_prefix='/editor')
 app.register_blueprint(permissions_bp, url_prefix='/permissions')
 app.register_blueprint(search_bp, url_prefix='/search')
+app.register_blueprint(learning_plan_bp, url_for='/learning-plan')
+app.register_blueprint(api_bp)
 
 
 if __name__ == "__main__":

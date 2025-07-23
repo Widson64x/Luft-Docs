@@ -72,5 +72,13 @@
       "GRUPO TI"
     ],
     "users": []
+  },
+  "can_view_tools_in_development": {
+    "description": "Permissão para ver ferramenta em desenvolvimento",
+    "groups": [
+      "GRUPO ADMIN",
+      "GRUPO TI"
+    ],
+    "users": []
   }
 }

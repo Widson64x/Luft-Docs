@@ -12,9 +12,10 @@ from utils.text.markdown_utils import parser_wikilinks
 from utils.auth.auth_utils import login_required
 from utils.text.service_filter import ContentFilterService
 from utils.recommendation_service import log_document_access
-
-# 1. IMPORTE a função get_user_group para manter o padrão
 from routes.permissions import get_user_group
+
+# ✅ PASSO 1: Importe a lista de exceções, assim como fizemos antes.
+from utils.permissions_config import MODULOS_TECNICOS_VISIVEIS
 
 modulo_bp = Blueprint('modulo', __name__)
 filter_service = ContentFilterService()
@@ -35,7 +36,6 @@ def ver_modulo_pela_raiz():
 
     # --- Lógica para Submódulo (não alterada) ---
     if param_sub:
-        # (código do submódulo permanece o mesmo)
         md_content = carregar_markdown_submodulo(param_sub)
         if not md_content:
             abort(404, "Submódulo não encontrado.")
@@ -50,20 +50,24 @@ def ver_modulo_pela_raiz():
         return redirect(url_for('index.index'))
 
     is_tech = bool(param_tech)
+    modulo_id = param_tech if is_tech else param_mod
 
-    # 2. IMPLEMENTE a verificação de permissão como na main.py
+    # ✅ PASSO 2: Implementa a verificação de permissão com a regra de exceção
     if is_tech:
-        # Garante que as informações de grupo e permissões estão carregadas na sessão
         get_user_group() 
-        
-        # Pega as permissões da sessão do usuário
         user_perms = session.get('permissions', {})
         
-        # Verifica se o usuário tem a permissão 'can_view_tecnico'
-        if not user_perms.get('can_view_tecnico', False):
+        # Pega a permissão do usuário
+        tem_permissao = user_perms.get('can_view_tecnico', False)
+        
+        # Verifica se o módulo solicitado está na lista de exceções
+        eh_modulo_de_excecao = modulo_id in MODULOS_TECNICOS_VISIVEIS
+        
+        # BLOQUEIA o acesso SOMENTE SE o usuário NÃO tiver a permissão E o módulo NÃO for uma exceção.
+        if not tem_permissao and not eh_modulo_de_excecao:
+            # Se o usuário não tem permissão e o módulo não é uma exceção, negue o acesso.
+            # Caso contrário (se ele tiver permissão OU se o módulo for uma exceção), o código continua normalmente.
             return render_template('access_denied.html'), 403
-
-    modulo_id = param_tech if is_tech else param_mod
 
     modulo = get_modulo_by_id(modulos, modulo_id)
     if not modulo:

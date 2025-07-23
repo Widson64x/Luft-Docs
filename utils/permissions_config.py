@@ -10,3 +10,7 @@ MODULOS_RESTRITOS = [
     'template',
     'relacao-parceiros',
 ]
+
+MODULOS_TECNICOS_VISIVEIS = [
+    'tarifas-complementares',
+]

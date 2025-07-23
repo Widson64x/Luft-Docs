@@ -132,48 +132,30 @@
         }
     }
 
-    /* --- Ícones decorativos flutuantes (CSS CORRIGIDO) --- */
+    /* --- Ícones decorativos flutuantes --- */
     .bg-icons {
         position: fixed;
         top: 0; left: 0;
-        width: 100vw; height: 200vh;
+        width: 100vw; height: 100vh;
         pointer-events: none;
         overflow: hidden;
         z-index: 0;
     }
-
-    /* A animação agora é aplicada diretamente na classe principal .bg-icon */
     .bg-icons .bg-icon {
         position: absolute;
         color: rgba(13,110,253,0.13);
-        bottom: -2rem; /* Posição inicial para a animação clássica */
-        
-        /* Propriedades da animação clássica */
-        animation-name: iconRise;
-        animation-timing-function: ease-in-out;
-        animation-iteration-count: infinite;
+        /* As propriedades de animação são definidas pelo JS */
     }
-
     body.theme-dark .bg-icons .bg-icon {
         color: rgba(255,255,255,0.13);
     }
-    
     @keyframes iconRise {
-        0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-        }
-        50% {
-            transform: translateY(-50vh) rotate(180deg);
-            opacity: 0.7;
-        }
-        100% {
-            transform: translateY(-100vh) rotate(360deg);
-            opacity: 0;
-        }
+        0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+        50%  { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; }
+        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
     }
 
-    /* Restante dos estilos originais de cards e botões */
+    /* Restante dos estilos originais */
     .modern-card .card-body {
         flex: 1 1 auto;
         display: flex;
@@ -229,14 +211,14 @@
     }
 
     body.page-transition-out .container {
-        transform: rotateY(-90deg) scale(0.9);
+        transform: translateY(50px) scale(0.95);
         opacity: 0;
-        transition: transform 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.8s ease-out;
+        transition: transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-out;
     }
 
     body.theme-dark .add-new-card {
         background: transparent !important;
-        border-color: #23263b !important;
+        border-color: #3b405f !important;
         color: #b6d0ff !important;
     }
     body.theme-dark .add-new-card:hover {
@@ -250,25 +232,27 @@
             max-height: 320px;
         }
     }
-
 </style>
 
 <div class="bg-icons"></div>
 
 <div class="container my-5 position-relative" style="z-index:2;">
     <div class="mb-4 text-end d-flex justify-content-end gap-2">
-            <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" id="switchToMapViewBtn" class="btn btn-primary modern-btn">
-                <i class="bi bi-diagram-3"></i> Ver Mapa
+        {% if can_view_tools_in_development %}
+            <a href="{{ url_for('learning_plan.show_focused_dashboard', token=request.args.get('token')) }}" class="btn btn-primary modern-btn page-transition-btn">
+                <i class="bi bi-mortarboard"></i> Plano de Aprendizado
             </a>
+        {% endif %}
+        <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" class="btn btn-primary modern-btn page-transition-btn">
+            <i class="bi bi-diagram-3"></i> Ver Mapa
+        </a>
         {% if can_access_editor %}
-            {# --- CORREÇÃO: Endpoint correto e adição do token --- #}
-            <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
-                <i class="bi bi-pencil-square"></i> Acessar editor de conteúdos
+            <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn page-transition-btn">
+                <i class="bi bi-pencil-square"></i> Acessar editor
             </a>
         {% endif %}
         {% if can_access_permissions_menu %}
-             {# --- CORREÇÃO: Adição do token --- #}
-            <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn">
+            <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn page-transition-btn">
                 <i class="bi bi-shield-lock"></i> Gerenciar permissões
             </a>
         {% endif %}
@@ -289,144 +273,186 @@
         <h1 class="Title mb-0">Módulos do LuftDocs</h1>
         <div class="position-relative" style="min-width: 250px;">
             <input type="text" id="filterInput" class="form-control ps-4" placeholder="Filtrar módulos...">
-            <i class="bi bi-search position-absolute top-50 translate-middle-y" style="left: 5px; color: #6c757d;"></i>
+            <i class="bi bi-search position-absolute top-50 translate-middle-y" style="left: 10px; color: #6c757d;"></i>
         </div>
     </div>
 
     <div class="row g-4" id="modules-row">
-        {% for m in modulos %}
-            {% if m.has_content or can_view_tecnico %}
-                <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-                    <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: {{ loop.index0 }}">
-                        <div class="card-body">
-                            <i class="bi {{ m['icone'] }} display-4 text-primary mb-3"></i>
-                            <h5 class="card-title">{{ m['nome'] }}</h5>
-                            <p class="card-text">{{ m['descricao'] }}</p>
-                        </div>
-                        <div class="pb-3 text-center">
-                            {% if m.has_content %}
-                                {# --- CORREÇÃO: Endpoint correto para 'modulo' e adição do token --- #}
-                                <a class="btn btn-outline-primary modern-btn me-2" href="{{ url_for('modulo.ver_modulo_pela_raiz', modulo=m['id'], token=request.args.get('token')) }}">
-                                    <i class="bi bi-search"></i> Ver módulo
-                                </a>
-                            {% endif %}
-                            {% if can_view_tecnico %}
-                                {# --- CORREÇÃO: Endpoint correto para 'modulo' e adição do token --- #}
-                                <a class="btn btn-outline-secondary modern-btn ms-2" href="{{ url_for('modulo.ver_modulo_pela_raiz', modulo_tecnico=m['id'], token=request.args.get('token')) }}">
-                                    <i class="bi bi-tools"></i> Módulo Técnico
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-
-        {% if can_create_modules %}
-        <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-            {# --- CORREÇÃO: Endpoint para 'editor' e adição do token --- #}
-            <a href="{{ url_for('editor.criar_modulo', token=request.args.get('token')) }}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: {{ modulos|length }}">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
-                    <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>
-                    <h5 class="card-title">Criar Novo Módulo</h5>
-                </div>
-            </a>
         </div>
-        {% endif %}
-        
-        <div id="no-results-message" class="col-12 text-center py-5" style="display: none;">
-            <i class="bi bi-emoji-frown fs-1 text-muted"></i>
-            <h4 class="mt-3">Nenhum módulo encontrado</h4>
-            <p class="text-muted">Tente ajustar os termos da sua busca.</p>
-        </div>
+    
+    <div id="no-results-message" class="col-12 text-center py-5" style="display: none;">
+        <i class="bi bi-emoji-frown fs-1 text-muted"></i>
+        <h4 class="mt-3">Nenhum módulo encontrado</h4>
+        <p class="text-muted">Tente ajustar os termos da sua busca.</p>
     </div>
+
+    <div id="pagination-container" class="mt-5 d-flex justify-content-center">
+        </div>
+
 </div>
 
 <script>
+// =========================================================================
+// LÓGICA DE BUSCA, PAGINAÇÃO E RENDERIZAÇÃO (NOVO)
+// =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     const filterInput = document.getElementById('filterInput');
     const modulesRow = document.getElementById('modules-row');
-    const moduleCards = Array.from(document.querySelectorAll('.module-card-wrapper')); // Convert NodeList to Array
     const noResultsMessage = document.getElementById('no-results-message');
+    const paginationContainer = document.getElementById('pagination-container');
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const TOKEN = urlParams.get('token');
+    
+    let searchTimeout;
 
-    filterInput.addEventListener('input', () => {
-        const filterText = filterInput.value.toLowerCase().trim();
-        let visibleCardsCount = 0;
-        const similarCards = [];
-        const matchingCards = [];
-        const otherCards = [];
+    // Função principal que busca e renderiza os dados da API
+    async function fetchAndRenderCards(searchTerm = '', page = 1) {
+        modulesRow.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>';
+        noResultsMessage.style.display = 'none';
+        paginationContainer.innerHTML = '';
 
-        moduleCards.forEach(cardWrapper => {
-            const titleElement = cardWrapper.querySelector('.card-title');
-            const descriptionElement = cardWrapper.querySelector('.card-text');
-
-            if (titleElement && descriptionElement) {
-                const title = titleElement.textContent.toLowerCase();
-                const description = descriptionElement.textContent.toLowerCase();
-                const fullText = `${title} ${description}`;
-
-                cardWrapper.style.display = 'none'; // Initially hide all cards
-                cardWrapper.style.visibility = 'hidden';
-
-                if (filterText === "") {
-                    otherCards.push(cardWrapper);
-                    visibleCardsCount++;
-                } else if (fullText.includes(filterText)) {
-                    matchingCards.push(cardWrapper);
-                    visibleCardsCount++;
-                } else if (fullText.split(" ").some(word => filterText.split(" ").includes(word) && word.length > 2)) { // Check for similar words (longer than 2 letters)
-                    similarCards.push(cardWrapper);
-                    visibleCardsCount++;
-                } else {
-                    otherCards.push(cardWrapper);
-                }
+        try {
+            const response = await fetch(`/api/modules?search=${encodeURIComponent(searchTerm)}&page=${page}&token=${TOKEN}`);
+            if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+            
+            const data = await response.json();
+            
+            modulesRow.innerHTML = '';
+            
+            if (data.cards && data.cards.length > 0) {
+                renderCards(data.cards, data.token);
+                renderPagination(data.current_page, data.total_pages);
+            } else {
+                noResultsMessage.style.display = 'block';
             }
-        });
+        } catch (error) {
+            console.error("Falha ao buscar módulos:", error);
+            modulesRow.innerHTML = '<div class="col-12 text-center py-5 text-danger"><strong>Oops!</strong> Falha ao carregar os módulos. Verifique sua conexão e tente novamente.</div>';
+        }
+    }
 
-        // Clear the current order
-        modulesRow.innerHTML = '';
-
-        // Append similar cards, then matching cards, then the rest
-        [...similarCards, ...matchingCards, ...otherCards].forEach(card => {
-            modulesRow.appendChild(card);
-            if (filterText === "" || similarCards.includes(card) || matchingCards.includes(card)) {
-                card.style.display = 'flex';
-                card.style.visibility = 'visible';
+    // Função para renderizar os cards no DOM
+    function renderCards(cards, token) {
+        cards.forEach((m, index) => {
+            let cardHtml = '';
+            if (m.type === 'create_card') {
+                cardHtml = `
+                    <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
+                        <a href="/editor/novo?token=${token}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: ${index}">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
+                                <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>
+                                <h5 class="card-title">Criar Novo Módulo</h5>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            } else {
+                cardHtml = `
+                    <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
+                        <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: ${index}">
+                            <div class="card-body">
+                                <i class="bi ${m.icone || 'bi-box'} display-4 text-primary mb-3"></i>
+                                <h5 class="card-title">${m.nome}</h5>
+                                <p class="card-text">${m.descricao}</p>
+                            </div>
+                            <div class="pb-3 text-center">
+                                ${m.has_content ? `
+                                <a class="btn btn-outline-primary modern-btn me-2 page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
+                                    <i class="bi bi-search"></i> Ver módulo
+                                </a>` : ''}
+                                ${m.show_tecnico_button ? `
+                                <a class="btn btn-outline-secondary modern-btn ms-2 page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
+                                    <i class="bi bi-tools"></i> Módulo Técnico
+                                </a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
+            modulesRow.insertAdjacentHTML('beforeend', cardHtml);
         });
+        // Re-aplica o listener de transição para os novos botões criados
+        setupPageTransitionListeners();
+    }
 
-        if (visibleCardsCount === 0 && filterText !== "") {
-            noResultsMessage.style.display = 'block';
-        } else {
-            noResultsMessage.style.display = 'none';
+    // Função para renderizar a paginação no DOM
+    function renderPagination(currentPage, totalPages) {
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let paginationHtml = '<nav aria-label="Navegação dos módulos"><ul class="pagination">';
+        paginationHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a></li>`;
+        
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        }
+
+        paginationHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">Próxima</a></li>`;
+        paginationHtml += '</ul></nav>';
+        
+        paginationContainer.innerHTML = paginationHtml;
+    }
+
+    // Listener para o filtro com debounce
+    filterInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            fetchAndRenderCards(e.target.value.trim(), 1);
+        }, 300);
+    });
+    
+    // Listener para paginação com delegação de eventos
+    paginationContainer.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = e.target;
+        if (target.tagName === 'A' && target.dataset.page) {
+            const page = parseInt(target.dataset.page, 10);
+            const searchTerm = filterInput.value.trim();
+            if (!isNaN(page) && !target.closest('.page-item.disabled')) {
+                fetchAndRenderCards(searchTerm, page);
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo
+            }
         }
     });
-    // NOVO CÓDIGO PARA TRANSIÇÃO DE PÁGINA
-    const switchToMapBtn = document.getElementById('switchToMapViewBtn');
-    if (switchToMapBtn) {
-        switchToMapBtn.addEventListener('click', (event) => {
-            // 1. Impedir a navegação imediata para dar tempo para a animação
-            event.preventDefault(); 
-            
-            // 2. Guardar a URL de destino
-            const destinationUrl = switchToMapBtn.href;
-            
-            // 3. Adicionar a classe que dispara a animação de saída no CSS
-            document.body.classList.add('page-transition-out');
-            
-            // 4. Aguardar o fim da animação (400ms) e então redirecionar
-            setTimeout(() => {
-                window.location.href = destinationUrl;
-            }, 1000); 
+
+    // Carga inicial dos dados
+    fetchAndRenderCards();
+
+    // =========================================================================
+    // LÓGICA DE TRANSIÇÃO DE PÁGINA (ATUALIZADO)
+    // =========================================================================
+    function setupPageTransitionListeners() {
+        // Seleciona todos os links que devem ter a transição
+        document.querySelectorAll('.page-transition-btn').forEach(btn => {
+            // Remove listener antigo para evitar duplicação
+            btn.removeEventListener('click', handleTransitionClick); 
+            // Adiciona o novo listener
+            btn.addEventListener('click', handleTransitionClick);
         });
     }
+
+    function handleTransitionClick(event) {
+        event.preventDefault();
+        const destinationUrl = event.currentTarget.href;
+        document.body.classList.add('page-transition-out');
+        setTimeout(() => {
+            window.location.href = destinationUrl;
+        }, 500); // Duração da animação
+    }
+
+    // Configuração inicial dos listeners de transição
+    setupPageTransitionListeners();
+
 });
 
 // =========================================================================
-// LÓGICA ORIGINAL DA ANIMAÇÃO DE FUNDO (não modificada)
+// LÓGICA DA ANIMAÇÃO DE FUNDO (ORIGINAL)
 // =========================================================================
-const container = document.querySelector('.bg-icons');
-let animationFrameId = null;
+const bgContainer = document.querySelector('.bg-icons');
+let bgAnimationFrameId = null;
 
 function getAnimationParameters() {
     const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
@@ -439,7 +465,7 @@ function iniciarAnimacaoComColisao() {
     const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
     const iconsData = [];
     const screenWidth = window.innerWidth;
-    const screenHeight = container.offsetHeight;
+    const screenHeight = window.innerHeight; // Usar a altura da janela
 
     fetch('{{ url_for("static", filename="data/icons.json") }}')
         .then(res => res.json())
@@ -450,10 +476,8 @@ function iniciarAnimacaoComColisao() {
 
                 el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
                 el.style.fontSize = `${size}px`;
-                el.style.animation = 'none';
-                el.style.bottom = 'auto';
-
-                container.appendChild(el);
+                el.style.position = 'absolute'; // Garantir posicionamento absoluto
+                bgContainer.appendChild(el);
 
                 iconsData.push({
                     element: el,
@@ -469,25 +493,14 @@ function iniciarAnimacaoComColisao() {
         .catch(console.error);
 
     function animate() {
-        iconsData.forEach((icon, index) => {
+        iconsData.forEach(icon => {
             icon.x += icon.dx;
             icon.y += icon.dy;
             if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
             if (icon.y <= 0 || icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
-            for (let i = index + 1; i < iconsData.length; i++) {
-                const otherIcon = iconsData[i];
-                const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
-                const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
-                const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
-                const minDistance = (icon.size / 2) + (otherIcon.size / 2);
-                if (distance < minDistance) {
-                    [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
-                    [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
-                }
-            }
             icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
         });
-        animationFrameId = requestAnimationFrame(animate);
+        bgAnimationFrameId = requestAnimationFrame(animate);
     }
 }
 
@@ -504,23 +517,25 @@ function iniciarAnimacaoOriginal() {
 
                 el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
                 el.style.left = `${Math.random() * 100}%`;
+                el.style.bottom = '-2rem';
+                el.style.animationName = 'iconRise';
+                el.style.animationTimingFunction = 'ease-in-out';
+                el.style.animationIterationCount = 'infinite';
                 el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
-
                 const baseDuration = 10 + Math.random() * 10;
                 el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
-
-                container.appendChild(el);
+                bgContainer.appendChild(el);
             }
         })
         .catch(console.error);
 }
 
 window.mudarAnimacao = function(modo) {
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+    if (bgAnimationFrameId) {
+        cancelAnimationFrame(bgAnimationFrameId);
+        bgAnimationFrameId = null;
     }
-    container.innerHTML = '';
+    bgContainer.innerHTML = '';
 
     if (modo === 'original') {
         iniciarAnimacaoOriginal();
@@ -529,21 +544,9 @@ window.mudarAnimacao = function(modo) {
     }
 }
 
+// Inicia a animação de fundo preferida do usuário
 const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
 mudarAnimacao(savedAnimation);
 
-const switchToMapBtn = document.getElementById('switchToMapViewBtn');
-if (switchToMapBtn) {
-    switchToMapBtn.addEventListener('click', (event) => {
-        event.preventDefault(); 
-        const destinationUrl = switchToMapBtn.href;
-        document.body.classList.add('page-transition-out');
-        
-        // 🔄 ALTERADO: Ajuste o tempo para corresponder à nova duração da animação CSS
-        setTimeout(() => {
-            window.location.href = destinationUrl;
-        }, 600); // 600ms = 0.6s
-    });
-}
 </script>
 {% endblock %}

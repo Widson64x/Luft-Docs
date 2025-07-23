@@ -74,7 +74,7 @@
       }
 
       .footer-LuftDocs {
-        margin-top: 9rem;
+        margin-top: 31rem;
         padding-top: 1.5rem;
         padding-bottom: 1.5rem;
         text-align: center;
@@ -183,9 +183,6 @@
         {% block content %}{% endblock %}
     </main>
     
-    <footer class="footer-LuftDocs">
-        LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
-    </footer>
 
     <div class="modal fade" id="modalMinhaConta" tabindex="-1" aria-labelledby="modalMinhaContaLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -269,6 +266,7 @@
     <script src="..."></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://unpkg.com/cytoscape-cola/cytoscape-cola.js"></script>
     <script>
     // Script principal unificado para melhor organização e performance.
     document.addEventListener('DOMContentLoaded', () => {
@@ -406,4 +404,7 @@
     </script>
     {% endblock %}
 </body>
+<footer class="footer-LuftDocs">
+    LuftDocs &copy; 2025 — Feito para facilitar seu dia a dia.
+</footer>
 </html>

@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const menuItems = [
             { href: `/modulo/?modulo=${d.id}&token=${token}`, html: `<i class="bi bi-box-arrow-up-right me-2"></i>Abrir Módulo`, condition: true },
-            { href: `/modulo/?modulo_tecnico=${d.id}&token=${token}`, html: `<i class="bi bi-tools me-2"></i>Abrir Módulo Técnico`, condition: canViewTecnico }
+            { href: `/modulo/?modulo_tecnico=${d.id}&token=${token}`, html: `<i class="bi bi-tools me-2"></i>Abrir Módulo Técnico`, condition: d.show_tecnico_button}
         ];
 
         menuItems.forEach(item => {

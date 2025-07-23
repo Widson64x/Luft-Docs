@@ -16,7 +16,7 @@ from utils.recommendation_service import (
     get_access_counts
 )
 # --- NOVO: Importa a lista de módulos restritos ---
-from utils.restricted_modules import MODULOS_RESTRITOS 
+from utils.permissions_config import MODULOS_RESTRITOS
 
 search_bp = Blueprint('search', __name__)
 filter_service = ContentFilterService()
