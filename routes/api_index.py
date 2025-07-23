@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify, session, current_app
 from utils.auth.auth_utils import login_required
 from utils.data.module_utils import carregar_modulos_aprovados, carregar_markdown
 from utils.permissions_config import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
+import time
 
 # Blueprint para a API
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -68,6 +69,7 @@ def get_modules():
     end = start + CARDS_PER_PAGE
     cards_na_pagina = lista_final_de_cards[start:end]
 
+    time.sleep(1)
     # 7. Retornar dados em formato JSON
     return jsonify({
         'cards': cards_na_pagina,

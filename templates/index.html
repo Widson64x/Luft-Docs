@@ -138,6 +138,7 @@
         top: 0; left: 0;
         width: 100vw; height: 100vh;
         pointer-events: none;
+        height: 2100px;
         overflow: hidden;
         z-index: 0;
     }
@@ -464,8 +465,8 @@ function getAnimationParameters() {
 function iniciarAnimacaoComColisao() {
     const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
     const iconsData = [];
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight; // Usar a altura da janela
+    const screenWidth = bgContainer.offsetWidth;
+    const screenHeight = bgContainer.offsetHeight;
 
     fetch('{{ url_for("static", filename="data/icons.json") }}')
         .then(res => res.json())

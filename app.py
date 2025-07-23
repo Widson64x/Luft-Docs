@@ -14,7 +14,7 @@ from routes.editor import editor_bp
 from routes.permissions import permissions_bp
 from routes.search import search_bp
 from routes.learning_plan import learning_plan_bp
-from routes.api import api_bp
+from routes.api_index import api_bp
 
 
 app = Flask(__name__)
