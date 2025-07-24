@@ -115,6 +115,11 @@
     .autocomplete-list li:hover, .autocomplete-list li.active {
         background: #e6f7ff;
     }
+
+    .meta-info{
+        justify-content: left;
+    }
+    
     body.theme-dark .autocomplete-list {
         background: #2d2d2d;
         border-color: #444;
@@ -180,6 +185,7 @@
             <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
             <p class="module-description">{{ modulo.descricao }}</p>
 
+
             <div class="search-in-module-container">
                 <form method="GET" action="{{ request.path }}" class="search-form">
                     {% if request.args.get('modulo') %}
@@ -242,6 +248,29 @@
         </div>
     </div>
 </div>
+{% if versao_info and versao_info.versao_atual != "N/A" %}
+<div class="meta-info" style="color: #adb5bd; font-size: 0.9em; margin-bottom: 220px; text-align: right;">
+
+    {# 1. Exibe a versão atual do documento #}
+    <span>
+        <i class="fas fa-tag"></i> 
+        <strong>Versão:</strong> {{ versao_info.versao_atual }}
+    </span>
+
+    {# 2. Exibe o usuário que editou esta versão #}
+    <span style="margin-left: 15px;">
+        <i class="fas fa-user-edit"></i> 
+        <strong>Editado por:</strong> {{ versao_info.editor }}
+    </span>
+
+    {# 3. Exibe a data em que esta versão foi aprovada #}
+    <span style="margin-left: 15px;">
+        <i class="fas fa-calendar-check"></i> 
+        <strong>Aprovado em:</strong> {{ versao_info.data_aprovacao }}
+    </span>
+
+</div>
+{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

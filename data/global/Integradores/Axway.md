@@ -1,1 +1,0 @@
-* Mencionado como parceiro/fornecedor por Francisco Miranda. Não há mais detalhes nos e-mails.

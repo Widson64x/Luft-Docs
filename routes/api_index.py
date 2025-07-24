@@ -69,7 +69,7 @@ def get_modules():
     end = start + CARDS_PER_PAGE
     cards_na_pagina = lista_final_de_cards[start:end]
 
-    time.sleep(1)
+    time.sleep(0.5)
     # 7. Retornar dados em formato JSON
     return jsonify({
         'cards': cards_na_pagina,

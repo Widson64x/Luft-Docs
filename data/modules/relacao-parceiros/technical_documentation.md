@@ -27,6 +27,4 @@ A ideia desta documentação é centralizar e fornecer acesso fácil às referê
 * [[Silt]] - Sistema de WMS da Luft Healthcare.
 * [[ViaGreen]] - 
 * [[Toccato]] - Fornecedora  do sistema de BI Qlik Sense.
-
-### Consultas Públicas
-* [[Consultas_Públicas]]
+* [[Consultas_Públicas]] - Urls de sites de consulta de sistema públicos.

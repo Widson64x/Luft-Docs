@@ -13,7 +13,6 @@ from routes.download import download_bp
 from routes.editor import editor_bp
 from routes.permissions import permissions_bp
 from routes.search import search_bp
-from routes.learning_plan import learning_plan_bp
 from routes.api_index import api_bp
 
 
@@ -38,7 +37,7 @@ app.cli.add_command(init_db_command)
 # Registra a função de fechar o DB ao final de cada requisição
 database_utils.init_app(app)
 
-# --- REGISTRO DOS SEUS BLUEPRINTS (permanece o mesmo) ---
+# --- REGISTRO DOS SEUS BLUEPRINTS (permanece o mesmo) --- 
 app.register_blueprint(index_bp)
 app.register_blueprint(modulo_bp, url_prefix='/modulo')
 app.register_blueprint(submodulo_bp, url_prefix='/submodule')
@@ -46,7 +45,6 @@ app.register_blueprint(download_bp, url_prefix='/download')
 app.register_blueprint(editor_bp, url_prefix='/editor')
 app.register_blueprint(permissions_bp, url_prefix='/permissions')
 app.register_blueprint(search_bp, url_prefix='/search')
-app.register_blueprint(learning_plan_bp, url_for='/learning-plan')
 app.register_blueprint(api_bp)
 
 

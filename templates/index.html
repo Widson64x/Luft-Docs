@@ -239,11 +239,6 @@
 
 <div class="container my-5 position-relative" style="z-index:2;">
     <div class="mb-4 text-end d-flex justify-content-end gap-2">
-        {% if can_view_tools_in_development %}
-            <a href="{{ url_for('learning_plan.show_focused_dashboard', token=request.args.get('token')) }}" class="btn btn-primary modern-btn page-transition-btn">
-                <i class="bi bi-mortarboard"></i> Plano de Aprendizado
-            </a>
-        {% endif %}
         <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" class="btn btn-primary modern-btn page-transition-btn">
             <i class="bi bi-diagram-3"></i> Ver Mapa
         </a>
@@ -357,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <h5 class="card-title">${m.nome}</h5>
                                 <p class="card-text">${m.descricao}</p>
                             </div>
-                            <div class="pb-3 text-center">
+                            <div class="pb-3 text-center" style="margin-bottom: 1rem;">
                                 ${m.has_content ? `
                                 <a class="btn btn-outline-primary modern-btn me-2 page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
                                     <i class="bi bi-search"></i> Ver módulo
@@ -366,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <a class="btn btn-outline-secondary modern-btn ms-2 page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
                                     <i class="bi bi-tools"></i> Módulo Técnico
                                 </a>` : ''}
+                            </div>
+                            <div style="position: absolute; bottom: 10px; right: 15px; font-size: 0.60rem; color: #6c757d;">
+                                <i class="fas fa-user"></i> V${m.version_info?.current_version || '1.0'}
                             </div>
                         </div>
                     </div>

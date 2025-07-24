@@ -1,5 +1,7 @@
 # routes/module.py
 
+# Importa a biblioteca datetime para manipulação de datas e horas
+from datetime import datetime
 from flask import Blueprint, render_template, request, abort, redirect, url_for, session
 from utils.data.module_utils import (
     carregar_modulos,
@@ -14,7 +16,7 @@ from utils.text.service_filter import ContentFilterService
 from utils.recommendation_service import log_document_access
 from routes.permissions import get_user_group
 
-# ✅ PASSO 1: Importe a lista de exceções, assim como fizemos antes.
+# Importa a lista de exceções para módulos técnicos
 from utils.permissions_config import MODULOS_TECNICOS_VISIVEIS
 
 modulo_bp = Blueprint('modulo', __name__)
@@ -24,8 +26,8 @@ filter_service = ContentFilterService()
 @login_required
 def ver_modulo_pela_raiz():
     """
-    Renderiza o conteúdo de um módulo ou submódulo e regista o acesso
-    com um ID único para documentos técnicos.
+    Renderiza o conteúdo de um módulo ou submódulo, processa informações de
+    versão e registra o acesso ao documento.
     """
     param_mod = request.args.get('modulo', '').strip()
     param_tech = request.args.get('modulo_tecnico', '').strip()
@@ -52,28 +54,77 @@ def ver_modulo_pela_raiz():
     is_tech = bool(param_tech)
     modulo_id = param_tech if is_tech else param_mod
 
-    # ✅ PASSO 2: Implementa a verificação de permissão com a regra de exceção
+    # --- Lógica de Permissões (não alterada) ---
     if is_tech:
         get_user_group() 
         user_perms = session.get('permissions', {})
         
-        # Pega a permissão do usuário
         tem_permissao = user_perms.get('can_view_tecnico', False)
-        
-        # Verifica se o módulo solicitado está na lista de exceções
         eh_modulo_de_excecao = modulo_id in MODULOS_TECNICOS_VISIVEIS
         
-        # BLOQUEIA o acesso SOMENTE SE o usuário NÃO tiver a permissão E o módulo NÃO for uma exceção.
         if not tem_permissao and not eh_modulo_de_excecao:
-            # Se o usuário não tem permissão e o módulo não é uma exceção, negue o acesso.
-            # Caso contrário (se ele tiver permissão OU se o módulo for uma exceção), o código continua normalmente.
             return render_template('access_denied.html'), 403
 
     modulo = get_modulo_by_id(modulos, modulo_id)
     if not modulo:
         abort(404, "Módulo não encontrado.")
 
-    # (o restante do código permanece o mesmo)
+    # --- INÍCIO DA NOVA LÓGICA DE VERSÃO ---
+    # 1. Definimos um dicionário com valores padrão para as informações de versão.
+    #    Isso evita erros caso o módulo não tenha essas informações no JSON.
+    versao_info = {
+        'versao_atual': "N/A",
+        'data_aprovacao': "N/A",
+        'editor': "N/A"
+    }
+
+    # 2. Acessamos os dados de 'version_info' e 'edit_history' do módulo.
+    version_data = modulo.get('version_info')
+    edit_history = modulo.get('edit_history', [])
+
+    if version_data:
+        # 3. Extraímos a versão atual e a data de aprovação.
+        versao_atual = version_data.get('current_version')
+        data_aprovacao_str = version_data.get('last_approved_on')
+
+        # 4. Formatamos a data para um formato mais legível (dd/mm/aaaa às HH:MM).
+        data_aprovacao_formatada = "Data indisponível"
+        if data_aprovacao_str:
+            try:
+                data_obj = datetime.fromisoformat(data_aprovacao_str)
+                data_aprovacao_formatada = data_obj.strftime('%d/%m/%Y às %H:%M')
+            except (ValueError, TypeError):
+                # Se a data estiver em um formato inválido, mantém o valor padrão.
+                pass
+        
+        # 5. Procuramos pelo editor correspondente no histórico de edições.
+        editor_versao = "Não encontrado"
+        for entrada in edit_history:
+            # Comparamos a versão da entrada do histórico com a versão atual do módulo.
+            if entrada.get('version') == versao_atual:
+                # O editor pode estar na chave 'editor' (para eventos de 'aprovado') 
+                # ou 'user' (para eventos de 'criado').
+                editor_versao = entrada.get('editor') or entrada.get('user', 'Não encontrado')
+                break # Encontramos, então podemos sair do loop.
+
+        # 6. Atualizamos o dicionário 'versao_info' com os dados corretos.
+        versao_info.update({
+            'versao_atual': versao_atual,
+            'data_aprovacao': data_aprovacao_formatada,
+            'editor': editor_versao
+        })
+    # --- FIM DA NOVA LÓGICA DE VERSÃO ---
+
+    # --- Lógica de formatação de data da 'ultima_edicao' (código original mantido) ---
+    ultima_edicao = modulo.get('ultima_edicao')
+    if ultima_edicao and 'data' in ultima_edicao and ultima_edicao['data']:
+        try:
+            data_obj = datetime.fromisoformat(ultima_edicao['data'])
+            ultima_edicao['data_formatada'] = data_obj.strftime('%d/%m/%Y às %H:%M')
+        except (ValueError, TypeError):
+            ultima_edicao['data_formatada'] = "Data indisponível"
+
+    # --- Carregamento do conteúdo Markdown ---
     md_content = None
     if is_tech:
         md_content = carregar_markdown_tecnico(modulo_id)
@@ -94,6 +145,8 @@ def ver_modulo_pela_raiz():
     relacionados_ids = modulo.get('relacionados', [])
     relacionados = [m for m in modulos if m['id'] in relacionados_ids]
 
+    # --- Renderização final do Template ---
+    # Passamos o novo dicionário 'versao_info' para o template HTML.
     return render_template(
         'module.html',
         modulo=modulo,
@@ -102,5 +155,6 @@ def ver_modulo_pela_raiz():
         modulos=modulos,
         modulo_atual=modulo,
         query=query,
-        resultado_highlight=bool(query)
+        resultado_highlight=bool(query),
+        versao_info=versao_info  # <<< Informações da versão adicionadas aqui
     )
