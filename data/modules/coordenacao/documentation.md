@@ -95,6 +95,7 @@ O envio dos e-mails é feito por um serviço que roda no Servidor 80 (Luft Coord
 
 Anexos enviados incluem uma cópia da coordenação e o PDF das notas vinculadas.
 
+### Documento de coordenação
 ![Exemplo de Documento de Coordenação](/data/img/coordenação/img5.png)
 
 ---

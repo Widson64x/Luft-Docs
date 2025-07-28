@@ -75,7 +75,10 @@
   },
   "can_view_tools_in_development": {
     "description": "Permissão para ver ferramenta em desenvolvimento",
-    "groups": [],
+    "groups": [
+      "GRUPO ADMIN",
+      "GRUPO TI"
+    ],
     "users": [
       "widson.araujo"
     ]

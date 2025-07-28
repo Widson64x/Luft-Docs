@@ -1,4 +1,4 @@
-## Descrição
+## Finalidade
 Suporte para GNRE.
 
 ## Acessos e Suporte

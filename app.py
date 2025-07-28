@@ -6,7 +6,7 @@ from flask.cli import with_appcontext
 
 # Seus imports existentes
 from utils import database_utils
-from routes.main import index_bp
+from routes.main import index_bp, inject_global_permissions 
 from routes.module import modulo_bp
 from routes.submodule import submodulo_bp
 from routes.download import download_bp
@@ -14,6 +14,7 @@ from routes.editor import editor_bp
 from routes.permissions import permissions_bp
 from routes.search import search_bp
 from routes.api_index import api_bp
+from routes.ia import ia_bp
 
 
 app = Flask(__name__)
@@ -29,15 +30,16 @@ def init_db_command():
     """Limpa dados existentes e cria novas tabelas no banco de dados."""
     database_utils.init_db()
     click.echo('Banco de dados inicializado com sucesso.')
-
 # Adiciona o novo comando ao seu objeto 'app' do Flask
 app.cli.add_command(init_db_command)
-
-
 # Registra a função de fechar o DB ao final de cada requisição
 database_utils.init_app(app)
 
-# --- REGISTRO DOS SEUS BLUEPRINTS (permanece o mesmo) --- 
+# --- REGISTRO DE ROTAS GLOBAIS ---
+
+app.context_processor(inject_global_permissions) # Permissão de Developer ITEM / IA
+
+# --- REGISTRO DOS SEUS BLUEPRINTS --- 
 app.register_blueprint(index_bp)
 app.register_blueprint(modulo_bp, url_prefix='/modulo')
 app.register_blueprint(submodulo_bp, url_prefix='/submodule')
@@ -46,6 +48,7 @@ app.register_blueprint(editor_bp, url_prefix='/editor')
 app.register_blueprint(permissions_bp, url_prefix='/permissions')
 app.register_blueprint(search_bp, url_prefix='/search')
 app.register_blueprint(api_bp)
+app.register_blueprint(ia_bp)
 
 
 if __name__ == "__main__":

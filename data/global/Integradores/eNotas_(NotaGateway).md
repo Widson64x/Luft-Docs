@@ -1,4 +1,4 @@
-## Descrição
+## Finalidade
 Emissão de NFS-e, antigo eNotas.
 
 ## Acessos e Suporte

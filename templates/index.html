@@ -3,12 +3,14 @@
 
 {% block content %}
 <style>
+    .page-wrapper {
+        perspective: 1500px;
+    }
     /* Fundo animado com gradiente */
     body {
         background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
         background-size: 200% 200%;
         animation: bgMove 12s ease-in-out infinite;
-        perspective: 1500px;
     }
     @keyframes bgMove {
         0%   { background-position: 0% 50%; }
@@ -352,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <h5 class="card-title">${m.nome}</h5>
                                 <p class="card-text">${m.descricao}</p>
                             </div>
-                            <div class="pb-3 text-center" style="margin-bottom: 1rem;">
+                            <div class="pb-3 text-center">
                                 ${m.has_content ? `
                                 <a class="btn btn-outline-primary modern-btn me-2 page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
                                     <i class="bi bi-search"></i> Ver módulo
@@ -361,9 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <a class="btn btn-outline-secondary modern-btn ms-2 page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
                                     <i class="bi bi-tools"></i> Módulo Técnico
                                 </a>` : ''}
-                            </div>
-                            <div style="position: absolute; bottom: 10px; right: 15px; font-size: 0.60rem; color: #6c757d;">
-                                <i class="fas fa-user"></i> V${m.version_info?.current_version || '1.0'}
                             </div>
                         </div>
                     </div>

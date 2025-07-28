@@ -156,5 +156,7 @@ def ver_modulo_pela_raiz():
         modulo_atual=modulo,
         query=query,
         resultado_highlight=bool(query),
-        versao_info=versao_info  # <<< Informações da versão adicionadas aqui
+        versao_info=versao_info,  # <<< Informações da versão adicionadas aqui
+        proactive_module_name=modulo.get('nome', 'id'),
+        proactive_module_id=modulo.get('id', '') 
     )

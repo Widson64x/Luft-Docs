@@ -15,141 +15,400 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
     <style>
-      /* --- VARIÁVEIS GLOBAIS --- */
-      :root {
-        --font-size-base: 1rem; /* Variável única para tamanho da fonte */
-        
-        /* Tema Claro (Padrão) */
-        --bg-color: #f9f9fb;
-        --text-color: #212529;
-        --surface-bg: #ffffff; /* Navbar, Footer, Cards */
-        --surface-color: #23263b;
-        --accent-color: #1a237e;
-        --border-color: #dee2e6;
-        --shadow-color: #0000000d;
-      }
+     /* --- VARIÁVEIS GLOBAIS --- */
+     :root {
+         --font-size-base: 1rem; /* Variável única para tamanho da fonte */
+         
+         /* Tema Claro (Padrão) */
+         --bg-color: #f9f9fb;
+         --text-color: #212529;
+         --surface-bg: #ffffff; /* Navbar, Footer, Cards */
+         --surface-color: #23263b;
+         --accent-color: #1a237e;
+         --border-color: #dee2e6;
+         --shadow-color: #0000000d;
+        --lia-bg-color-light: #f0f2f5;
+        --lia-surface-color-light: rgba(255, 255, 255, 0.5);
+        --lia-glow-color-light: #0d6efd;
 
-      /* --- TEMA ESCURO --- */
-      body.theme-dark {
-        --bg-color: #1e1e1e;
-        --text-color: #e7eaf1;
-        --surface-bg: #2b2b3a;
-        --surface-color: #f8f9fa;
-        --accent-color: #f5f5f5;
-        --border-color: #444444;
-        --shadow-color: #00000026;
-      }
+        --lia-bg-color-dark: #0A0A10;
+        --lia-surface-color-dark: rgba(25, 28, 41, 0.5);
+        --lia-glow-color-dark: #339dff;
 
-      /* --- ESTILOS BASE --- */
-      body {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-size: var(--font-size-base);
-        margin: 0;
-        transition: background-color 0.3s, color 0.3s, font-size 0.3s;
-      }
-      
-      /* --- LAYOUT --- */
-      .navbar, .footer-LuftDocs {
-        background-color: var(--surface-bg);
-        color: var(--surface-color);
-        padding: 1rem clamp(1rem, 4vw, 6rem); /* Padding responsivo com clamp() */
-        box-shadow: 0 2px 12px var(--shadow-color);
-        transition: background-color 0.3s, color 0.3s;
-      }
+        --lia-grad-1: #0077ff;
+        --lia-grad-2: #00eaff;
+        --lia-grad-3: #9400d3;
+     }
 
-      .navbar {
+     /* --- TEMA ESCURO --- */
+     body.theme-dark {
+         --bg-color: #1e1e1e;
+         --text-color: #e7eaf1;
+         --surface-bg: #2b2b3a;
+         --surface-color: #f8f9fa;
+         --accent-color: #f5f5f5;
+         --border-color: #444444;
+         --shadow-color: #00000026;
+     }
+
+     /* --- ESTILOS BASE --- */
+     body {
+         background-color: var(--bg-color);
+         color: var(--text-color);
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+         font-size: var(--font-size-base);
+         margin: 0;
+         transition: background-color 0.3s, color 0.3s, font-size 0.3s;
+     }
+     
+     /* --- LAYOUT --- */
+     .navbar, .footer-LuftDocs {
+         background-color: var(--surface-bg);
+         color: var(--surface-color);
+         padding: 1rem clamp(1rem, 4vw, 6rem); /* Padding responsivo com clamp() */
+         box-shadow: 0 2px 12px var(--shadow-color);
+         transition: background-color 0.3s, color 0.3s;
+     }
+
+     .navbar {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas pequenas */
+         gap: 1rem;
+     }
+     
+     .main {
+         padding: 2rem clamp(1rem, 4vw, 6rem); /* Padding responsivo */
+         max-width: 1200px;
+         margin: 0 auto;
+     }
+
+     .footer-LuftDocs {
+         margin-top: 0rem;
+         padding-top: 0rem;
+         padding-bottom: 1.5rem;
+         text-align: center;
+         box-shadow: 0 -2px 10px var(--shadow-color);
+     }
+     
+     /* --- COMPONENTES --- */
+     .logo-wiki {
+         color: var(--surface-color);
+         font-size: 1.35rem;
+         font-weight: 700;
+         text-decoration: none;
+         transition: color 0.15s;
+     }
+     .logo-wiki:hover { color: #0d6efd; }
+
+     .modulo-conteudo img, .modulo-conteudo video {
+         max-width: 440px;
+         width: 100%;
+         height: auto;
+         display: block;
+         margin: 1.5rem auto;
+         border-radius: 12px;
+         box-shadow: 0 2px 10px var(--shadow-color);
+         transition: box-shadow 0.2s, filter 0.2s;
+         cursor: pointer;
+     }
+     .modulo-conteudo img:hover, .modulo-conteudo video:hover {
+         box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0000001a;
+         filter: brightness(1.04);
+     }
+     
+     /* --- OVERRIDES TEMA ESCURO --- */
+     body.theme-dark .card,
+     body.theme-dark .modal-content,
+     body.theme-dark .dropdown-menu {
+         background-color: var(--surface-bg);
+         color: var(--text-color);
+         border-color: var(--border-color);
+     }
+
+     body.theme-dark .text-body,
+     body.theme-dark .dropdown-item,
+     body.theme-dark .form-check-label {
+         color: var(--text-color) !important;
+     }
+     
+     body.theme-dark .text-primary { color: var(--accent-color) !important; }
+     body.theme-dark .text-dark { color: var(--surface-color) !important; }
+
+     body.theme-dark .btn-outline-dark {
+         color: var(--surface-color);
+         border-color: var(--surface-color);
+     }
+     body.theme-dark .btn-outline-dark:hover {
+         color: var(--surface-bg);
+         background-color: var(--surface-color);
+     }
+     
+     body.theme-dark .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+     body.theme-dark .nav-tabs .nav-link {
+         background-color: var(--surface-bg);
+         color: var(--text-color);
+         border-color: var(--border-color);
+     }
+     body.theme-dark .nav-tabs .nav-link.active { background-color: #3a3a4a; }
+
+     body.theme-dark .form-select,
+     body.theme-dark .form-check-input {
+         background-color: #1e1e1e;
+         color: var(--text-color);
+         border-color: var(--border-color);
+     }
+
+
+    /* ================================================================= */
+    /* === LIA AI - REDESIGN FUTURISTA ================================= */
+    /* ================================================================= */
+
+    /* --- Variáveis de Cor para o Tema da IA --- */
+    :root {
+        --lia-bg-light: #f0f2f5;
+        --lia-surface-light: rgba(255, 255, 255, 0.5);
+        --lia-glow-light: #0d6efd;
+        --lia-border-light: rgba(255, 255, 255, 0.2);
+
+        --lia-bg-dark: #0A0A10;
+        --lia-surface-dark: rgba(25, 28, 41, 0.5);
+        --lia-glow-dark: #339dff;
+        --lia-border-dark: rgba(50, 50, 80, 0.3);
+    }
+
+    /* --- Botão Flutuante --- */
+    .floating-lia-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        z-index: 1050;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #0d6efd, #0558ca);
+        color: white;
+        border-radius: 50%;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas pequenas */
+        justify-content: center;
+        font-size: 28px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        animation: lia-pulse 2.5s infinite;
+    }
+    .floating-lia-btn:hover {
+        transform: scale(1.15) rotate(15deg);
+        box-shadow: 0 12px 40px rgba(13, 110, 253, 0.5);
+        animation: none;
+    }
+
+    /* --- Estrutura do Modal --- */
+    #liaModal .modal-dialog {
+        max-width: 900px;
+    }
+    #liaModal .modal-content {
+        background: transparent;
+        border: none;
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+    }
+
+    /* Animação de entrada do Modal */
+    .modal.fade .modal-dialog {
+        transform: scale(0.95) translateY(20px);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
+    }
+    .modal.show .modal-dialog {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
+    /* --- Corpo do Modal --- */
+    #liaModal .modal-body {
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+        max-height: 850px;
+        padding: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        background-color: var(--lia-bg-light);
+        border: 1px solid var(--lia-border-light);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    body.theme-dark #liaModal .modal-body {
+        background-color: var(--lia-bg-dark);
+        border: 1px solid var(--lia-border-dark);
+    }
+
+    /* Padrão de grade animado no fundo */
+    #liaModal .modal-body::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: 
+            linear-gradient(rgba(13, 110, 253, 0.05) 1px, transparent 1px),
+            linear-gradient(to right, rgba(13, 110, 253, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+        animation: lia-grid-scroll 10s linear infinite;
+        z-index: 1;
+    }
+    body.theme-dark #liaModal .modal-body::before {
+        background-image: 
+            linear-gradient(rgba(51, 157, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(to right, rgba(51, 157, 255, 0.1) 1px, transparent 1px);
+    }
+
+    /* --- Área de Respostas do Chat --- */
+    #liaResponseContainer {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
         gap: 1rem;
-      }
-      
-      .main {
-        padding: 2rem clamp(1rem, 4vw, 6rem); /* Padding responsivo */
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+    }
+    #liaResponseContainer::-webkit-scrollbar { width: 6px; }
+    #liaResponseContainer::-webkit-scrollbar-track { background: transparent; }
+    #liaResponseContainer::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 6px; }
 
-      .footer-LuftDocs {
-        margin-top: 28rem;
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-        text-align: center;
-        box-shadow: 0 -2px 10px var(--shadow-color);
-      }
-      
-      /* --- COMPONENTES --- */
-      .logo-wiki {
-        color: var(--surface-color);
-        font-size: 1.35rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: color 0.15s;
-      }
-      .logo-wiki:hover { color: #0d6efd; }
+    /* --- Balões de Mensagem --- */
+    #liaResponseContainer .lia-message {
+        padding: 0.8rem 1.2rem;
+        border-radius: 12px;
+        max-width: 85%;
+        width: fit-content;
+        line-height: 1.6;
+        animation: lia-fade-in-up 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        background: var(--lia-surface-light);
+        border: 1px solid var(--lia-border-light);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    body.theme-dark #liaResponseContainer .lia-message {
+        background: var(--lia-surface-dark);
+        border: 1px solid var(--lia-border-dark);
+    }
+    #liaResponseContainer .user-message {
+        margin-left: auto; /* Alinha à direita */
+        background: var(--lia-glow-light);
+        color: white;
+    }
+    body.theme-dark #liaResponseContainer .user-message {
+        background: var(--lia-glow-dark);
+        color: #0A0A10;
+    }
 
-      .modulo-conteudo img, .modulo-conteudo video {
-        max-width: 440px;
-        width: 100%;
+    /* --- Área de Input --- */
+    .lia-input-area {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--lia-border-light);
+        background: var(--lia-surface-light);
+        z-index: 3;
+        position: relative;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    body.theme-dark .lia-input-area {
+        background: var(--lia-surface-dark);
+        border-top: 1px solid var(--lia-border-dark);
+    }
+
+    .lia-input-area .input-group {
+        border-radius: 12px;
+        background: var(--lia-bg-light);
+        padding: 0.25rem;
+        border: 1px solid var(--border-color);
+        transition: box-shadow 0.3s, border-color 0.3s;
+    }
+    body.theme-dark .lia-input-area .input-group {
+        background: var(--lia-bg-dark);
+    }
+    .lia-input-area .input-group:focus-within {
+        border-color: var(--lia-glow-light);
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    }
+    body.theme-dark .lia-input-area .input-group:focus-within {
+        border-color: var(--lia-glow-dark);
+        box-shadow: 0 0 0 3px rgba(51, 157, 255, 0.25);
+    }
+
+    #iaResponse img {
+        border-radius: 0.75rem !important; /* Bordas mais suaves na imagem */
+        margin: 1rem 0;
+    }
+
+    /* Define um tamanho máximo para as imagens dentro dos balões de mensagem */
+    #liaResponseContainer .lia-message img {
+        max-width: 450px; /* <<-- Altere este valor como quiser */
         height: auto;
         display: block;
-        margin: 1.5rem auto;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px var(--shadow-color);
-        transition: box-shadow 0.2s, filter 0.2s;
-        cursor: pointer;
-      }
-      .modulo-conteudo img:hover, .modulo-conteudo video:hover {
-        box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0000001a;
-        filter: brightness(1.04);
-      }
-      
-      /* --- OVERRIDES TEMA ESCURO --- */
-      body.theme-dark .card,
-      body.theme-dark .modal-content,
-      body.theme-dark .dropdown-menu {
+        margin: 1rem auto; /* Centraliza a imagem */
+        border-radius: 12px; /* Adiciona bordas arredondadas à imagem */
+    }
+
+    .lia-input-area #liaUserQuestion,
+    .lia-input-area #liaUserQuestion:focus {
+        background: transparent;
+        border: none;
+        color: var(--text-color);
+        box-shadow: none;
+    }
+    .lia-input-area #liaAskButton,
+    .lia-input-area #liaModulesHelperBtn {
+        border-radius: 10px !important;
+    }
+
+    /* --- Autocomplete e Contexto --- */
+    #liaModulesList {
         background-color: var(--surface-bg);
-        color: var(--text-color);
-        border-color: var(--border-color);
-      }
+    }
+    .lia-context-area {
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-color);
+    }
 
+    /* --- Keyframes para Animações --- */
+    @keyframes lia-pulse {
+        50% { transform: scale(1.05); }
+    }
+    @keyframes lia-grid-scroll {
+        from { background-position: 0 0; }
+        to { background-position: 30px 30px; }
+    }
+    @keyframes lia-fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-      body.theme-dark .text-body,
-      body.theme-dark .dropdown-item,
-      body.theme-dark .form-check-label {
-        color: var(--text-color) !important;
-      }
-      
-      body.theme-dark .text-primary { color: var(--accent-color) !important; }
-      body.theme-dark .text-dark { color: var(--surface-color) !important; }
+    .lia-proactive {
+        /* Ativa a animação de pulso e brilho */
+        animation: lia-proactive-pulse 2s infinite;
+    }
 
-      body.theme-dark .btn-outline-dark {
-        color: var(--surface-color);
-        border-color: var(--surface-color);
-      }
-      body.theme-dark .btn-outline-dark:hover {
-        color: var(--surface-bg);
-        background-color: var(--surface-color);
-      }
-      
-      body.theme-dark .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-      body.theme-dark .nav-tabs .nav-link {
-        background-color: var(--surface-bg);
-        color: var(--text-color);
-        border-color: var(--border-color);
-      }
-      body.theme-dark .nav-tabs .nav-link.active { background-color: #3a3a4a; }
-
-      body.theme-dark .form-select,
-      body.theme-dark .form-check-input {
-        background-color: #1e1e1e;
-        color: var(--text-color);
-        border-color: var(--border-color);
-      }
+    @keyframes lia-proactive-pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+        }
+        50% {
+            transform: scale(1.1);
+            box-shadow: 0 10px 40px rgba(13, 110, 253, 0.6);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+        }
+    }
     </style>
 </head>
 <body>
@@ -265,11 +524,73 @@
             </div>
         </div>
     </div>
+
+
+    <div class="modal fade" id="liaModal" tabindex="-1" aria-labelledby="liaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="position: absolute; top: 20px; right: 20px; z-index: 4;"></button>
+                
+                <div class="modal-body">
+                    <div id="liaResponseContainer">
+                        </div>
+
+                    <div class="lia-input-area">
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col"><h5 class="modal-title" id="liaModalLabel">🤖 Fale com a Lia</h5></div>
+                            <div class="col-auto">
+                                <label for="liaModelSelector" class="form-label small mb-0 visually-hidden">Modelo:</label>
+                                <select class="form-select form-select-sm" id="liaModelSelector">
+                                    <option value="groq-70b" selected>Groq (Llama 3 70b)</option>
+                                    <option value="groq-8b">Groq (Llama 3 8b)</option>
+                                    <option value="gemini">Gemini (1.5 Flash)</option>
+                                    <option value="kimi">Moonshot Kimi (Instruct)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="input-wrapper" style="position: relative;">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="liaUserQuestion" placeholder="Pergunte ou use @ para focar em um módulo...">
+                                
+                                <button class="btn btn-outline-secondary" type="button" id="liaModulesHelperBtn" title="Mencionar módulo">
+                                    <i class="bi bi-at"></i>
+                                </button>
+                                
+                                <button class="btn btn-primary" id="liaAskButton" type="button">
+                                    <span id="liaSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+
+                            <div id="liaModulesList" class="list-group" style="display: none; position: absolute; bottom: 100%; left: 0; right: 0; z-index: 10; max-height: 160px; overflow-y: auto; margin-bottom: 0.5rem; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
+                                </div>
+                        </div>
+
+                        {% if can_view_tecnico %}
+                            <div id="context-info-wrapper" class="mt-2" style="display: none;">
+                                </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if can_view_tools_in_development %}
+    <div class="floating-lia-btn" 
+        data-bs-toggle="modal" 
+        data-bs-target="#liaModal" 
+        title="Perguntar à Lia"
+        data-proactive-module-name="{{ proactive_module_name or '' }}"
+        data-proactive-module-id="{{ proactive_module_id or '' }}">
+        <i class="bi bi-stars"></i>
+    </div>
+    {% endif %}
     {% block scripts %}
-    <script src="..."></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://unpkg.com/cytoscape-cola/cytoscape-cola.js"></script>
     <script>
     // Script principal unificado para melhor organização e performance.
     document.addEventListener('DOMContentLoaded', () => {
@@ -323,13 +644,15 @@
             applyBgAnimation(settings.bgAnimation);
 
             // Preenche os inputs do modal
-            ui.selectTema.value = settings.theme;
-            ui.fontSize.value = settings.fontSize;
-            ui.selectAnimacao.value = settings.bgAnimation;
-            ui.rangeQuantidade.value = settings.bgQuantity;
-            ui.labelQuantidade.textContent = settings.bgQuantity;
-            ui.rangeVelocidade.value = settings.bgSpeed;
-            ui.labelVelocidade.textContent = `${settings.bgSpeed}x`;
+            if (ui.selectTema) { // Verifica se os elementos existem antes de usá-los
+                ui.selectTema.value = settings.theme;
+                ui.fontSize.value = settings.fontSize;
+                ui.selectAnimacao.value = settings.bgAnimation;
+                ui.rangeQuantidade.value = settings.bgQuantity;
+                ui.labelQuantidade.textContent = settings.bgQuantity;
+                ui.rangeVelocidade.value = settings.bgSpeed;
+                ui.labelVelocidade.textContent = `${settings.bgSpeed}x`;
+            }
             
             // Ativa highlight.js e Viewer.js
             hljs.highlightAll();
@@ -344,32 +667,23 @@
         };
         
         // --- EVENT LISTENERS ---
-        ui.btnSalvarConfigs.addEventListener('click', () => {
-            const newSettings = {
-                theme: ui.selectTema.value,
-                fontSize: ui.fontSize.value,
-                bgAnimation: ui.selectAnimacao.value,
-                bgQuantity: ui.rangeQuantidade.value,
-                bgSpeed: ui.rangeVelocidade.value
-            };
-            
-            Object.entries(newSettings).forEach(([key, value]) => {
-                localStorage.setItem(`ld_${key}`, value);
+        if(ui.btnSalvarConfigs) {
+            ui.btnSalvarConfigs.addEventListener('click', () => {
+                const newSettings = { theme: ui.selectTema.value, fontSize: ui.fontSize.value, bgAnimation: ui.selectAnimacao.value, bgQuantity: ui.rangeQuantidade.value, bgSpeed: ui.rangeVelocidade.value };
+                Object.entries(newSettings).forEach(([key, value]) => { localStorage.setItem(`ld_${key}`, value); });
+                localStorage.setItem('ld_bg_quantity', newSettings.bgQuantity);
+                localStorage.setItem('ld_bg_speed', newSettings.bgSpeed);
+                applyTheme(newSettings.theme);
+                applyFontSize(newSettings.fontSize);
+                applyBgAnimation(newSettings.bgAnimation);
+                configToast.show();
+                bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
             });
-            localStorage.setItem('ld_bg_quantity', newSettings.bgQuantity);
-            localStorage.setItem('ld_bg_speed', newSettings.bgSpeed);
-            
-            applyTheme(newSettings.theme);
-            applyFontSize(newSettings.fontSize);
-            applyBgAnimation(newSettings.bgAnimation);
-            
-            configToast.show();
-            bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
-        });
 
-        // Sliders de range
-        ui.rangeQuantidade.addEventListener('input', e => ui.labelQuantidade.textContent = e.target.value);
-        ui.rangeVelocidade.addEventListener('input', e => ui.labelVelocidade.textContent = `${e.target.value}x`);
+            // Sliders de range
+            ui.rangeQuantidade.addEventListener('input', e => ui.labelQuantidade.textContent = e.target.value);
+            ui.rangeVelocidade.addEventListener('input', e => ui.labelVelocidade.textContent = `${e.target.value}x`);
+        }
 
         // Gatilho para features em desenvolvimento
         document.querySelectorAll('.dev-feature').forEach(el => {
@@ -380,7 +694,6 @@
                     e.stopPropagation();
                     devModal.show();
                     if (el.type === 'checkbox') e.target.checked = false; // Desfaz a ação
-                    // Para abas, precisamos garantir que a aba anterior permaneça ativa
                     if(el.hasAttribute('data-bs-toggle')) {
                         const previousTab = document.querySelector('.nav-tabs .nav-link.active');
                         if(previousTab) bootstrap.Tab.getOrCreateInstance(previousTab).show();
@@ -392,19 +705,232 @@
         // --- INICIALIZAÇÃO ---
         loadSettings();
     });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const liaModal = document.getElementById('liaModal');
+        if (!liaModal) return; 
 
-        // Inicializa o Viewer.js para imagens se o elemento existir
-        document.addEventListener('DOMContentLoaded', () => {
-            const viewerEl = document.getElementById('imagem-viewer');
-            if (viewerEl) {
-                new Viewer(viewerEl, {
-                    toolbar: true, navbar: false, title: false,
-                    movable: true, zoomable: true, scalable: false,
-                    rotatable: false, transition: true, fullscreen: true
+        // --- SELETORES DE ELEMENTOS ---
+        const liaFloatingBtn = document.querySelector('.floating-lia-btn'); // Adicionado seletor para o botão
+        const askButton = document.getElementById('liaAskButton');
+        const userQuestionInput = document.getElementById('liaUserQuestion');
+        const modelSelector = document.getElementById('liaModelSelector');
+        const responseContainer = document.getElementById('liaResponseContainer');
+        const spinner = document.getElementById('liaSpinner');
+        const sendIcon = askButton.querySelector('.bi-send-fill');
+        const modulesHelperBtn = document.getElementById('liaModulesHelperBtn');
+        const modulesListDiv = document.getElementById('liaModulesList');
+        const contextInfoWrapper = document.getElementById('context-info-wrapper');
+
+        // ==========================================================
+        // === LÓGICA DO ASSISTENTE PROATIVO ==========================
+        // ==========================================================
+        // Lemos os dois atributos do botão flutuante
+        const proactiveModuleName = liaFloatingBtn.dataset.proactiveModuleName;
+        const proactiveModuleId = liaFloatingBtn.dataset.proactiveModuleId;
+
+        if (proactiveModuleName && proactiveModuleId) {
+            // Se os atributos existirem, ativa a animação de pulso no botão.
+            liaFloatingBtn.classList.add('lia-proactive');
+        }
+        // ========================================================
+        // === FIM DA LÓGICA DO ASSISTENTE PROATIVO =================
+        // ========================================================
+
+        // --- LÓGICA DE AUTOCOMPLETE DE MÓDULOS ---
+        let modulesCache = [];
+        let isListVisible = false;
+
+        const fetchModules = async () => {
+            if (modulesCache.length > 0) return modulesCache;
+            try {
+                const response = await fetch("{{ url_for('ia_bp.get_modules_list') }}");
+                if (!response.ok) return [];
+                const data = await response.json();
+                modulesCache = data.modules;
+                return modulesCache;
+            } catch (error) {
+                console.error("Erro ao buscar lista de módulos:", error);
+                return [];
+            }
+        };
+
+        const showModulesList = (filter = '') => {
+            fetchModules().then(modules => {
+                const filteredModules = modules.filter(m => m.toLowerCase().includes(filter.toLowerCase()));
+                if (filteredModules.length === 0) {
+                    hideModulesList();
+                    return;
+                }
+                
+                modulesListDiv.innerHTML = '';
+                filteredModules.forEach(module => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action py-2 px-3';
+                    item.textContent = `@${module}`;
+                    item.onclick = (e) => {
+                        e.preventDefault();
+                        const currentText = userQuestionInput.value;
+                        const atIndex = currentText.lastIndexOf('@');
+                        userQuestionInput.value = currentText.substring(0, atIndex) + `@${module} `;
+                        hideModulesList();
+                        userQuestionInput.focus();
+                    };
+                    modulesListDiv.appendChild(item);
                 });
+                modulesListDiv.style.display = 'block';
+                isListVisible = true;
+            });
+        };
+
+        const hideModulesList = () => {
+            modulesListDiv.style.display = 'none';
+            isListVisible = false;
+        };
+        
+        // --- LÓGICA PRINCIPAL DO CHAT ---
+        const removeWelcomeMessage = () => {
+            const welcome = responseContainer.querySelector('.alert-welcome');
+            if (welcome) welcome.remove();
+        };
+
+        const handleAsk = async () => {
+            const userQuestion = userQuestionInput.value;
+            if (!userQuestion.trim()) return;
+
+            removeWelcomeMessage();
+            if (contextInfoWrapper) contextInfoWrapper.style.display = 'none';
+            
+            spinner.style.display = 'inline-block';
+            sendIcon.style.display = 'none';
+            askButton.disabled = true;
+            userQuestionInput.disabled = true;
+
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'lia-message user-message';
+            userMessageDiv.textContent = userQuestion;
+            responseContainer.appendChild(userMessageDiv);
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+
+            userQuestionInput.value = ''; 
+
+            try {
+                const response = await fetch("{{ url_for('ia_bp.ask_llm_api') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_question: userQuestion,
+                        selected_model: modelSelector.value 
+                    }),
+                });
+
+                const data = await response.json();
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'lia-message';
+                
+                if (response.ok) {
+                    answerDiv.innerHTML = marked.parse(data.answer);
+
+                    if (contextInfoWrapper && data.context_files && data.context_files.length > 0) {
+                        const collapseId = `liaContextCollapse-${Date.now()}`;
+                        const filesList = data.context_files.map(file => `<li class="list-group-item">${file}</li>`).join('');
+                        contextInfoWrapper.innerHTML = `
+                            <a class="btn-context" data-bs-toggle="collapse" href="#${collapseId}" role="button" aria-expanded="false">
+                                Fontes utilizadas <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse" id="${collapseId}">
+                                <ul class="list-group list-group-flush mt-2">${filesList}</ul>
+                            </div>
+                        `;
+                        contextInfoWrapper.style.display = 'block';
+                    }
+                } else {
+                    answerDiv.classList.add('bg-danger', 'text-white');
+                    answerDiv.innerHTML = `<strong>Erro:</strong> ${data.error}`;
+                }
+                responseContainer.appendChild(answerDiv);
+
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'lia-message bg-danger text-white';
+                errorDiv.innerHTML = '<strong>Erro de conexão.</strong> Verifique o console do servidor.';
+                responseContainer.appendChild(errorDiv);
+            } finally {
+                spinner.style.display = 'none';
+                sendIcon.style.display = 'inline-block';
+                askButton.disabled = false;
+                userQuestionInput.disabled = false;
+                userQuestionInput.focus();
+                responseContainer.scrollTop = responseContainer.scrollHeight;
+            }
+        };
+
+        // --- EVENT LISTENERS ---
+        userQuestionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleAsk();
             }
         });
+
+        askButton.addEventListener('click', handleAsk);
+
+        modulesHelperBtn.addEventListener('click', () => {
+            if (isListVisible) hideModulesList();
+            else {
+                const val = userQuestionInput.value;
+                userQuestionInput.value += (val.length > 0 && !val.endsWith(' ')) ? ' @' : '@';
+                userQuestionInput.focus();
+                showModulesList();
+            }
+        });
+
+        userQuestionInput.addEventListener('input', () => {
+            const text = userQuestionInput.value;
+            const atIndex = text.lastIndexOf('@');
+            if (atIndex !== -1 && !text.includes(' ', atIndex)) {
+                showModulesList(text.substring(atIndex + 1));
+            } else {
+                hideModulesList();
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!modulesListDiv.contains(e.target) && e.target !== userQuestionInput && e.target !== modulesHelperBtn && !modulesHelperBtn.contains(e.target)) {
+                hideModulesList();
+            }
+        });
+
+        // ATUALIZADO: Lógica de abertura do Modal
+        liaModal.addEventListener('shown.bs.modal', () => {
+            userQuestionInput.focus();
+            
+            // Exibe a mensagem de boas-vindas apenas se o chat estiver vazio.
+            if (responseContainer.children.length === 0) {
+                let welcomeMessage = '';
+                // Usa o NOME do módulo para a mensagem
+                if (proactiveModuleName) {
+                    const formattedModuleName = proactiveModuleName.replace(/-/g, ' ');
+                    welcomeMessage = `<div class="alert alert-light my-2 alert-welcome">Olá! 👋 Vi que você está na página de <strong>${formattedModuleName}</strong>. Posso ajudar com alguma dúvida sobre este processo?</div>`;
+                } else {
+                    welcomeMessage = '<div class="alert alert-light my-2 alert-welcome">Olá! 👋 Sou a Lia, sua assistente de conhecimento.</div>';
+                }
+                responseContainer.innerHTML = welcomeMessage;
+            }
+
+            // Pré-preenche o input com o @ID do módulo
+            if (proactiveModuleId) {
+                if (!userQuestionInput.value.includes(`@${proactiveModuleId}`)) {
+                    userQuestionInput.value = `@${proactiveModuleId} `;
+                }
+            }
+        });
+    });
     </script>
-    {% endblock %}
+        {% endblock %}
 </body>
 </html>

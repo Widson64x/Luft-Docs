@@ -15,10 +15,17 @@ from routes.permissions import get_user_group
 # Define o Blueprint
 index_bp = Blueprint('index', __name__)
 
-# ✅ PASSO 2: Defina uma constante para a quantidade de cards por página
 CARDS_PER_PAGE = 10
 
-# ... (suas rotas de serve_imagem_dinamica e serve_video permanecem iguais) ...
+@index_bp.context_processor
+def inject_global_permissions():
+    """Injeta permissões do usuário em todos os templates renderizados por este blueprint."""
+    user_perms = session.get('permissions', {})
+    return dict(
+        can_view_tecnico=user_perms.get('can_view_tecnico', False),
+        can_view_tools_in_development = user_perms.get('can_view_tools_in_development', False)
+    )
+
 @index_bp.route('/data/img/<path:nome_arquivo>')
 def serve_imagem_dinamica(nome_arquivo):
     """Serve imagens da pasta /data/img."""

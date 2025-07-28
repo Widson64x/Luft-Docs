@@ -1,6 +1,6 @@
 ## Visão Geral do Processo
 
-Este documento estabelece o fluxo de trabalho completo para a recepção de mercadorias, unificando as etapas desde a chegada do veículo até a finalização sistêmica da carga. O processo de recebimento é dividido em três modalidades principais:
+Este documento estabelece o fluxo de trabalho completo para a recepção de mercadorias, unificando as etapas desde a chegada do veículo até a finalização sistêmica da carga. O processo de recebimento é dividido em três modalidades principais 'Transferência, Coleta e Cliente Entrega:
 
 * **Transferências de Filiais:** Cargas recebidas de outras unidades da empresa.
 * **Coletas:** Cargas coletadas diretamente em clientes.
@@ -32,7 +32,7 @@ A operação começa com a recepção física do veículo e a criação de um re
 Após o controle manual, as informações são inseridas no sistema.
 
 * **Acesso ao Sistema:**
-    * O processo é executado na tela de "Recebimento Diversos", dentro do módulo de "Operação".
+    * O processo é executado na tela de "Recebimento Diversos", dentro da seção de "Operação".
 * **Regra dos 11 Minutos:**
     * **É obrigatório retroceder o horário em 11 minutos** ao registrar a chegada.
     * O sistema não permite o registro com o horário atual.
@@ -93,17 +93,17 @@ Esta seção detalha os processos de apoio que conectam o recebimento à expedi�
 
 ## Telas no sistema Luft Informa
 
-### Acessar o Módulo de Operação
+### Acessar a Seção de Operação
 
-Para começar, localize e acesse o módulo **Operação [14]** na árvore de módulos do sistema. Esta é a principal ferramenta utilizada pela equipe de recebimento.
+Para começar, localize e acesse a seção **Operação [14]** na árvore de módulos do sistema. Esta é a principal ferramenta utilizada pela equipe de recebimento.
 
-![Acesso ao Módulo de Operação](/data/img/recebimento-intec/img1.png)
+![Acesso ao Seção de Operação](/data/img/recebimento-intec/img1.png)
 
 ---
 
 ### Iniciar o Processo em "Recebimento Diversos"
 
-Dentro do módulo de Operação, a primeira ação é definir o tipo de recebimento.
+Dentro da seção de Operação, a primeira ação é definir o tipo de recebimento.
 
 - **Ação:** Selecione a opção **Transporte**. O recebimento da INTEC é especificamente focado nesta modalidade.
 
