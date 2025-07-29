@@ -1,39 +1,19 @@
-# Documentação Técnica: [Nome do Módulo]
+# Entendendo o EDI (Electronic Data Interchange)
 
-Este documento detalha a arquitetura técnica, os endpoints de API e as principais tabelas de banco de dados para o módulo de [Nome do Módulo].
+Este documento descreve o processo de **EDI (Electronic Data Interchange)** e seu funcionamento geral. O objetivo é detalhar o conceito por trás da troca eletrônica de dados entre sistemas, suas vantagens e como ele opera, preparando o terreno para futuras discussões sobre as particularidades de cada cliente.
 
----
+## O que é EDI?
 
-## Arquitetura e Fluxo de Dados
-1.  O serviço `A` recebe uma requisição no endpoint `/api/exemplo`.
-2.  Ele valida os dados e chama o método `processar()` da classe `B`.
-3.  Os dados são salvos na tabela `NOME_DA_TABELA`.
-4.  Uma mensagem é enviada para a fila `NOME_DA_FILA`.
+EDI, ou **Electronic Data Interchange**, é um padrão para a **troca eletrônica de documentos comerciais** entre empresas, de um computador para outro, em um formato padrão. Em termos mais simples, é como as empresas "conversam" eletronicamente, trocando informações importantes de negócios (como pedidos de compra, faturas, avisos de embarque) de forma padronizada e automatizada.
 
-### Diagrama
-![Diagrama de Arquitetura](/data/img/caminho/diagrama_tecnico.png)
+Imagine que, em vez de enviar e-mails, PDFs ou até mesmo documentos físicos, as informações fluam diretamente do sistema de uma empresa para o sistema da outra. Isso elimina a necessidade de entrada manual de dados, que é propensa a erros e consome muito tempo.
 
 ---
 
-## Endpoints da API
+### Como Funciona o EDI?
 
-### `GET /api/recurso`
-* **Descrição:** Retorna uma lista de todos os recursos.
-* **Parâmetros de Query:**
-  * `status` (string, opcional): Filtra os recursos pelo status.
-* **Resposta de Sucesso (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "nome": "Recurso Exemplo"
-  }
-]
+O funcionamento do EDI envolve algumas etapas e componentes-chave:
 
-#### Código Fonte (SQL)
+1.  **Padronização dos Dados**: Antes de qualquer troca, as empresas precisam concordar com um **padrão de EDI**. Existem diversos padrões, como `ANSI X12` (comum na América do Norte) e `UN/EDIFACT` (internacional). Esses padrões definem a estrutura e o formato exatos dos documentos. Por exemplo, um pedido de compra (ou `850 Purchase Order` no padrão `ANSI X12`) terá campos específicos para o número do pedido, itens, quantidades, preços, etc., todos dispostos de uma forma que os computadores possam "entender".
 
-    ```sql
-    IF(SELECT COUNT(0) FROM intec..tb_Cli_Agenda CA
-    WHERE CA.DS_Cgc_Cli = isnull(@pxRementente,@pxConsignatario) AND CA.FL_CobraTarifa_Cli = 0
-    AND (CA.DS_Cgc_Distr = @pxDestinatario OR CA.FL_Todos_Distr = 1)) > 0
-    ```
+2.  **Mapeamento de Dados**: Cada cliente tem seus próprios sistemas internos (ERPs, sistemas de vendas, etc.), que armazenam dados em formatos internos. Para que o EDI funcione, é preciso haver um **mapeamento** entre os dados internos da empresa e o formato padrão de EDI. Isso geralmente é feito por um *software* de tradução EDI.

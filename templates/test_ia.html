@@ -16,6 +16,8 @@
         #iaResponse li { margin-bottom: 5px; }
         #iaResponse h2 { font-size: 1.2rem; margin-top: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         #iaResponse img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; border: 1px solid #dee2e6; }
+        .feedback-section { margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem; }
+        .feedback-buttons button { margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -26,7 +28,7 @@
             </div>
             <div class="card-body">
                 <p class="card-text">A "Lia" agora lê todos os arquivos do projeto para criar o contexto. Faça sua pergunta abaixo!</p>
-                
+
                 <div class="mb-3">
                     <label for="userQuestion" class="form-label"><strong>Sua Pergunta:</strong></label>
                     <input type="text" class="form-control" id="userQuestion" placeholder="Ex: Como é a tela do recebimento INTEC?">
@@ -40,7 +42,6 @@
                         <option value="gemini">Gemini (1.5 Flash - Google)</option>
                         <option value="openai" disabled>OpenAI (GPT-4o - Requer Crédito)</option>
                     </select>
-                </div>
                 </div>
                 <div class="d-grid">
                     <button class="btn btn-success btn-lg" id="askButton">
@@ -60,6 +61,18 @@
                         <small><strong>Contexto utilizado (arquivos lidos):</strong></small>
                         <div id="context-files" class="list-group list-group-flush p-2"></div>
                     </div>
+                     <div class="card-footer feedback-section" id="feedbackSection" style="display: none;">
+                        <small>Esta resposta foi útil?</small>
+                        <div class="feedback-buttons mt-2">
+                            <button class="btn btn-outline-success btn-sm" id="feedbackGood" data-rating="1">👍 Sim</button>
+                            <button class="btn btn-outline-danger btn-sm" id="feedbackBad" data-rating="0">👎 Não</button>
+                        </div>
+                        <div class="mt-3" id="feedbackCommentArea" style="display: none;">
+                            <textarea class="form-control" id="feedbackComment" rows="2" placeholder="Opcional: Deixe um comentário para nos ajudar a melhorar..."></textarea>
+                            <button class="btn btn-primary btn-sm mt-2" id="submitComment">Enviar Comentário</button>
+                        </div>
+                        <div class="mt-2" id="feedbackMessage"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -68,15 +81,28 @@
     <script>
         const askButton = document.getElementById('askButton');
         const userQuestionInput = document.getElementById('userQuestion');
-        const modelSelector = document.getElementById('modelSelector'); // MUDANÇA: Pega o seletor
+        const modelSelector = document.getElementById('modelSelector');
         const iaResponseDiv = document.getElementById('iaResponse');
         const spinner = document.getElementById('spinner');
         const contextInfo = document.getElementById('context-info');
         const contextFilesDiv = document.getElementById('context-files');
 
+        // NEW: Elementos de feedback
+        const feedbackSection = document.getElementById('feedbackSection');
+        const feedbackGoodBtn = document.getElementById('feedbackGood');
+        const feedbackBadBtn = document.getElementById('feedbackBad');
+        const feedbackCommentArea = document.getElementById('feedbackCommentArea');
+        const feedbackCommentInput = document.getElementById('feedbackComment');
+        const submitCommentBtn = document.getElementById('submitComment');
+        const feedbackMessageDiv = document.getElementById('feedbackMessage');
+
+        let currentResponseId = null;
+        let currentUserId = null;
+        let lastSubmittedRating = null; // Para rastrear a última classificação enviada para o comentário
+
         askButton.addEventListener('click', async () => {
             const userQuestion = userQuestionInput.value;
-            const selectedModel = modelSelector.value; // MUDANÇA: Pega o valor do modelo selecionado
+            const selectedModel = modelSelector.value;
 
             if (!userQuestion.trim()) {
                 alert('Por favor, faça uma pergunta.');
@@ -88,22 +114,28 @@
             iaResponseDiv.innerHTML = `<p class="text-muted">A Lia está pensando com o motor do ${selectedModel.toUpperCase()}...</p>`;
             contextInfo.style.display = 'none';
             contextFilesDiv.innerHTML = '';
+            feedbackSection.style.display = 'none'; // Esconde a seção de feedback
+            feedbackCommentArea.style.display = 'none'; // Esconde a área de comentário
+            feedbackMessageDiv.textContent = ''; // Limpa mensagens anteriores
+            feedbackGoodBtn.disabled = false; // Habilita botões de feedback
+            feedbackBadBtn.disabled = false;
+            feedbackCommentInput.value = ''; // Limpa o campo de comentário
+
 
             try {
                 const response = await fetch('/api/ask_llm', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // MUDANÇA: Envia a pergunta E o modelo escolhido para a API
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         user_question: userQuestion,
-                        selected_model: selectedModel 
+                        selected_model: selectedModel
                     }),
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    iaResponseDiv.innerHTML = marked.parse(data.answer); 
+                    iaResponseDiv.innerHTML = marked.parse(data.answer);
                     if (data.context_files && data.context_files.length > 0) {
                         data.context_files.forEach(file => {
                             const fileElement = document.createElement('div');
@@ -113,6 +145,9 @@
                         });
                         contextInfo.style.display = 'block';
                     }
+                    currentResponseId = data.response_id; // Armazena o ID da resposta
+                    currentUserId = data.user_id; // Armazena o ID do usuário
+                    feedbackSection.style.display = 'block'; // Mostra a seção de feedback
                 } else {
                     iaResponseDiv.innerHTML = `<p class="text-danger"><strong>Erro:</strong> ${data.error}</p>`;
                 }
@@ -123,6 +158,77 @@
                 askButton.disabled = false;
             }
         });
+
+        // NEW: Listeners de eventos para feedback
+        feedbackGoodBtn.addEventListener('click', () => {
+            submitFeedback(1);
+            feedbackCommentArea.style.display = 'none'; // Esconde área de comentário para feedback positivo
+            feedbackSection.style.display = 'none'; // Esconde toda a seção de feedback após feedback positivo
+        });
+
+        feedbackBadBtn.addEventListener('click', () => {
+            feedbackCommentArea.style.display = 'block'; // Mostra área de comentário para feedback negativo
+            submitFeedback(0); // Envia 0 para feedback negativo imediatamente
+        });
+
+        submitCommentBtn.addEventListener('click', () => {
+            const comment = feedbackCommentInput.value;
+            if (lastSubmittedRating !== null) { // Garante que há uma classificação anterior para associar o comentário
+                submitFeedback(lastSubmittedRating, comment);
+            } else {
+                feedbackMessageDiv.innerHTML = '<p class="text-danger">Por favor, selecione uma avaliação primeiro.</p>';
+            }
+        });
+
+
+        async function submitFeedback(rating, comment = null) {
+            if (!currentResponseId || !currentUserId) {
+                feedbackMessageDiv.innerHTML = '<p class="text-danger">Erro: ID da resposta ou do usuário não disponível.</p>';
+                return;
+            }
+
+            lastSubmittedRating = rating; // Armazena a classificação para uso posterior com comentários
+
+            // Desabilita botões para evitar múltiplas submissões
+            feedbackGoodBtn.disabled = true;
+            feedbackBadBtn.disabled = true;
+            submitCommentBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/submit_feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        response_id: currentResponseId,
+                        user_id: currentUserId,
+                        rating: rating,
+                        comment: comment
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    feedbackMessageDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
+                    if (comment !== null) { // Se um comentário foi submetido, esconde a área de comentário
+                         feedbackCommentArea.style.display = 'none';
+                         feedbackSection.style.display = 'none'; // Esconde toda a seção após o envio do comentário
+                    }
+                } else {
+                    feedbackMessageDiv.innerHTML = `<p class="text-danger">Erro: ${data.error}</p>`;
+                }
+            } catch (error) {
+                feedbackMessageDiv.innerHTML = `<p class="text-danger">Erro de conexão ao enviar feedback.</p>`;
+            } finally {
+                // Reabilita os botões de feedback se o comentário não foi o feedback final (ex: apenas o rating inicial)
+                if (comment === null) {
+                    // Os botões só devem ser reativados se o usuário ainda puder adicionar um comentário ao feedback "ruim"
+                    // ou se não houver um feedback completo ainda.
+                    // Para simplificar, desativamos totalmente os botões de feedback após qualquer envio para evitar confusão.
+                    // Seções de feedback "Good" e "Bad" devem ser desabilitadas para uma dada resposta após o primeiro feedback.
+                }
+            }
+        }
     </script>
 </body>
 </html>

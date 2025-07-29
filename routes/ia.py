@@ -1,3 +1,4 @@
+# /routes/ia.py
 import os
 import re
 import chromadb
@@ -6,7 +7,9 @@ import groq
 import openai
 from flask import Blueprint, render_template, request, jsonify, session
 from dotenv import load_dotenv
-from utils.auth.auth_utils import login_required 
+from utils.auth.auth_utils import login_required
+from utils.recommendation_service import log_ai_feedback
+import uuid # Importa uuid para gerar IDs únicos
 
 ia_bp = Blueprint('ia_bp', __name__)
 load_dotenv()
@@ -36,17 +39,17 @@ try:
     genai.configure(api_key=gemini_api_key)
     embedding_model = 'models/text-embedding-004'
     gemini_generation_model = genai.GenerativeModel('gemini-1.5-flash-latest')
-    
+
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key: raise ValueError("Chave da API do Groq não encontrada.")
     groq_client = groq.Groq(api_key=groq_api_key)
-    
+
     openai_api_key = os.getenv("OPENAI_API_KEY")
     openai_client = openai.OpenAI(api_key=openai_api_key) if openai_api_key else None
-    
+
     chroma_client = chromadb.PersistentClient(path="./chroma_db")
     collection = chroma_client.get_collection(name="luftdocs_collection")
-    
+
     print("Módulo de IA: Modelos (OpenAI, Groq, Gemini) e DB Vetorial carregados com sucesso.")
 except Exception as e:
     print(f"ERRO CRÍTICO no setup da IA: {e}")
@@ -54,16 +57,6 @@ except Exception as e:
 
 RESTRICTED_PATHS = ["data/global/EDIs", "data/global/Integradores"]
 RESTRICTED_FILENAME = "technical_documentation.md"
-
-'''
-# --- ROTAS DA PÁGINA DA IA ---
-
-@ia_bp.route('/test_ia')
-@login_required
-def test_ia_page():
-    return render_template('test_ia.html', available_modules=AVAILABLE_MODULES)
-
-'''
 
 @ia_bp.route('/api/get_modules_list', methods=['GET'])
 @login_required
@@ -85,7 +78,10 @@ def ask_llm_api():
 
     original_user_question = data['user_question']
     user_question = original_user_question
-    selected_model = data.get('selected_model', 'groq-70b') 
+    selected_model = data.get('selected_model', 'groq-70b')
+    user_id = session.get('username', 'anonymous') # Obtém o ID do usuário da sessão
+
+    response_uuid = str(uuid.uuid4()) # Gera um ID único para esta resposta da IA
 
     user_perms = session.get('permissions', {})
     can_view_tecnico = user_perms.get('can_view_tecnico', False)
@@ -93,10 +89,10 @@ def ask_llm_api():
     # --- ETAPA 1: BUSCA DE CONTEXTO COM FILTRO EXPLÍCITO '@' ---
     query_filter = {}
     found_modules = []
-    
+
     module_pattern = re.compile(r'@([\w-]+)')
     mentioned_modules = module_pattern.findall(user_question)
-    
+
     if mentioned_modules:
         print(f"Detecção explícita com '@' encontrada: {mentioned_modules}")
         valid_modules = [m for m in mentioned_modules if m in AVAILABLE_MODULES]
@@ -104,7 +100,7 @@ def ask_llm_api():
             found_modules = valid_modules
             user_question = module_pattern.sub('', user_question).strip()
             print(f"Módulos válidos encontrados: {valid_modules}. Pergunta limpa: '{user_question}'")
-    
+
     if not found_modules:
         print("Nenhuma menção explícita válida. Tentando detecção implícita...")
         question_lower = user_question.lower()
@@ -115,10 +111,10 @@ def ask_llm_api():
         print(f"Busca FOCADA ativada. Filtro: {query_filter}")
     else:
         print("Nenhum módulo específico mencionado. Realizando busca GERAL.")
-    
+
     question_embedding = genai.embed_content(model=embedding_model, content=user_question, task_type="RETRIEVAL_QUERY")['embedding']
     relevant_chunks = collection.query(query_embeddings=[question_embedding], n_results=5, where=query_filter if query_filter else None)
-    
+
     if not relevant_chunks['documents'][0] and query_filter:
         print(f"Busca filtrada por {query_filter} não retornou resultados. Tentando busca geral como fallback.")
         relevant_chunks = collection.query(query_embeddings=[question_embedding], n_results=5)
@@ -131,7 +127,7 @@ def ask_llm_api():
         print("Verificando permissões no contexto retornado...")
         safe_documents = []
         safe_metadatas = []
-        
+
         for doc, meta in zip(final_documents, final_metadatas):
             source = meta['source']
             is_restricted_file = os.path.basename(source) == RESTRICTED_FILENAME
@@ -146,7 +142,15 @@ def ask_llm_api():
         if not safe_documents:
             print("Nenhum documento acessível encontrado após a filtragem de permissão.")
             no_access_answer = "Não encontrei informações sobre este tópico nos documentos aos quais você tem acesso. Tente perguntar de outra forma ou sobre outro assunto."
-            return jsonify({"answer": no_access_answer, "context_files": []})
+            return jsonify({
+                "answer": no_access_answer,
+                "context_files": [],
+                "response_id": response_uuid,
+                "user_id": user_id,
+                "original_user_question": original_user_question, # NEW: Inclui a pergunta original
+                "model_used": selected_model, # NEW: Inclui o modelo usado
+                "context_sources_list": [] # NEW: Lista vazia se não houver documentos acessíveis
+            })
 
         final_documents = safe_documents
         final_metadatas = safe_metadatas
@@ -156,14 +160,18 @@ def ask_llm_api():
     context = "\n---\n".join(final_documents)
     sources = [meta['source'] for meta in final_metadatas]
     unique_sources = sorted(list(set(sources)))
-    
+
     # --- ETAPA 3: GERAÇÃO DA RESPOSTA E PÓS-PROCESSAMENTO ---
     try:
-        # Se o contexto estiver vazio após a filtragem, retorna uma mensagem padrão sem chamar a IA.
         if not context.strip():
             return jsonify({
                 "answer": "Opa! Não encontrei nada sobre isso nos documentos. Pode tentar perguntar de outra forma? 😉",
-                "context_files": []
+                "context_files": [],
+                "response_id": response_uuid,
+                "user_id": user_id,
+                "original_user_question": original_user_question, # NEW: Inclui a pergunta original
+                "model_used": selected_model, # NEW: Inclui o modelo usado
+                "context_sources_list": [] # NEW: Lista vazia se não houver contexto
             })
 
         system_prompt = """Você é a 'Lia', a assistente de conhecimento gente boa da Luft. Sua missão é ajudar seus colegas de equipe a encontrar informações de forma clara, amigável e descomplicada. Pense e responda como se fosse um colega de trabalho brasileiro: prestativo, um pouco informal e que vai direto ao ponto sem ser robótico. Use um toque de "malemolência" e bom humor. Você é a funcionária Luft que tem o dever de responder tudo que se sabe da Luft com base no contexto.
@@ -182,8 +190,8 @@ def ask_llm_api():
     * **REGRA CRÍTICA PARA IMAGENS:** Se o contexto contiver um caminho para uma imagem (ex: `/data/img/tela/foto.png`), É SUA OBRIGAÇÃO **INCLUIR O CAMINHO EXATO DO ARQUIVO COMO TEXTO** na sua resposta, perto da descrição da imagem. Deixe o caminho do arquivo visível no texto.
 
 3.  **Foco e Honestidade:**
-    * IMPORTANTE: NUNCA traga informações que não estejam explicitamente presentes no contexto acima. 
-    * Se não achar a resposta, apenas diga que não foi possível encontrar nos documentos. 
+    * IMPORTANTE: NUNCA traga informações que não estejam explicitamente presentes no contexto acima.
+    * Se não achar a resposta, apenas diga que não foi possível encontrar nos documentos.
     * Não chute, não deduza, não invente. Seja 100% fiel ao que está no contexto.
 
 Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar uma dúvida!"""
@@ -193,7 +201,7 @@ Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar u
             print("Gerando resposta com Groq (Llama 3 70b - Poderoso)...")
             chat_completion = groq_client.chat.completions.create(messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": human_prompt}], model="llama3-70b-8192")
             answer = chat_completion.choices[0].message.content
-            
+
         elif selected_model == 'kimi':
             print("Gerando resposta com Moonshot Kimi (via Groq)...")
             chat_completion = groq_client.chat.completions.create(
@@ -209,7 +217,7 @@ Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar u
             print("Gerando resposta com Groq (Llama 3 8b - Rápido)...")
             chat_completion = groq_client.chat.completions.create(messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": human_prompt}], model="llama3-8b-8192")
             answer = chat_completion.choices[0].message.content
-        
+
         elif selected_model == 'openai' and openai_client:
             print("Gerando resposta com OpenAI (GPT-4o)...")
             chat_completion = openai_client.chat.completions.create(messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": human_prompt}], model="gpt-4o")
@@ -220,7 +228,7 @@ Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar u
             gemini_prompt = f"{system_prompt}\n---\n{human_prompt}"
             response = gemini_generation_model.generate_content(gemini_prompt)
             answer = response.text
-        
+
         else:
             return jsonify({"error": f"Modelo '{selected_model}' inválido ou não configurado."}), 400
 
@@ -232,7 +240,47 @@ Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar u
             return final_text
         final_answer = force_image_formatting(answer)
 
-        return jsonify({"answer": final_answer, "context_files": unique_sources})
+        return jsonify({
+            "answer": final_answer,
+            "context_files": unique_sources,
+            "response_id": response_uuid,
+            "user_id": user_id,
+            "original_user_question": original_user_question, # NOVO: Retorna a pergunta original
+            "model_used": selected_model,       # NOVO: Retorna o modelo usado
+            "context_sources_list": unique_sources # NOVO: Retorna as fontes de contexto
+        })
 
     except Exception as e:
         return jsonify({"error": f"Erro ao gerar resposta com {selected_model}: {e}"}), 500
+
+@ia_bp.route('/api/submit_feedback', methods=['POST'])
+@login_required
+def submit_feedback_api():
+    data = request.get_json()
+    response_id = data.get('response_id')
+    user_id = session.get('username', 'anonymous')
+    rating = data.get('rating')
+    comment = data.get('comment')
+    # NOVOS: Recebe os campos adicionais do frontend
+    user_question = data.get('user_question')
+    model_used = data.get('model_used')
+    context_sources = data.get('context_sources') # Será uma lista do frontend
+
+    if not all([response_id, user_id, rating is not None]):
+        return jsonify({"error": "Dados de feedback inválidos."}), 400
+
+    try:
+        # Passa os novos campos para log_ai_feedback
+        log_ai_feedback(
+            response_id=response_id,
+            user_id=user_id,
+            rating=rating,
+            comment=comment,
+            user_question=user_question,
+            model_used=model_used,
+            context_sources=context_sources
+        )
+        return jsonify({"message": "Feedback registrado com sucesso!"}), 200
+    except Exception as e:
+        print(f"Erro ao registrar feedback: {e}")
+        return jsonify({"error": "Erro interno ao registrar feedback."}), 500

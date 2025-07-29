@@ -168,42 +168,55 @@
 
     /* --- Variáveis de Cor para o Tema da IA --- */
     :root {
-        --lia-bg-light: #f0f2f5;
-        --lia-surface-light: rgba(255, 255, 255, 0.5);
-        --lia-glow-light: #0d6efd;
-        --lia-border-light: rgba(255, 255, 255, 0.2);
+        --lia-bg-light: #f0f2f5; /* Fundo geral claro */
+        --lia-surface-light: rgba(255, 255, 255, 0.5); /* Superfície (balões, input) clara e translúcida */
+        --lia-glow-light: #0d6efd; /* Cor de destaque/brilho clara (azul) */
+        --lia-border-light: rgba(255, 255, 255, 0.2); /* Cor de borda sutil clara */
 
-        --lia-bg-dark: #0A0A10;
-        --lia-surface-dark: rgba(25, 28, 41, 0.5);
-        --lia-glow-dark: #339dff;
-        --lia-border-dark: rgba(50, 50, 80, 0.3);
+        /* Cores para o tema escuro */
+        --lia-bg-dark: #0A0A10; /* Fundo geral escuro */
+        --lia-surface-dark: rgba(25, 28, 41, 0.5); /* Superfície escura e translúcida */
+        --lia-glow-dark: #339dff; /* Cor de destaque/brilho escura (azul claro) */
+        --lia-border-dark: rgba(50, 50, 80, 0.3); /* Cor de borda sutil escura */
+
+        /* Variáveis globais para integração com o tema principal do site */
+        --text-color: #212529; /* Cor padrão do texto no tema claro */
+        --border-color: #dee2e6; /* Cor padrão da borda no tema claro */
+        --surface-bg: #ffffff; /* Cor padrão da superfície no tema claro */
     }
 
-    /* --- Botão Flutuante --- */
+    /* Adaptação das variáveis globais para o tema escuro do site */
+    body.theme-dark {
+        --text-color: #f8f9fa; /* Cor do texto no tema escuro */
+        --border-color: #495057; /* Cor da borda no tema escuro */
+        --surface-bg: #212529; /* Cor da superfície no tema escuro */
+    }
+
+    /* --- Botão Flutuante (LIA) --- */
     .floating-lia-btn {
         position: fixed;
         bottom: 25px;
         right: 25px;
-        z-index: 1050;
+        z-index: 1050; /* Garante que esteja acima de outros elementos */
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, #0d6efd, #0558ca);
+        background: linear-gradient(135deg, #0d6efd, #0558ca); /* Gradiente de azul */
         color: white;
-        border-radius: 50%;
+        border-radius: 50%; /* Botão redondo */
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 28px;
         border: none;
-        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4); /* Sombra vibrante */
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        animation: lia-pulse 2.5s infinite;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição suave e bouncy */
+        animation: lia-pulse 2.5s infinite; /* Animação de pulso padrão */
     }
     .floating-lia-btn:hover {
-        transform: scale(1.15) rotate(15deg);
+        transform: scale(1.15) rotate(15deg); /* Efeito de escala e rotação ao hover */
         box-shadow: 0 12px 40px rgba(13, 110, 253, 0.5);
-        animation: none;
+        animation: none; /* Remove a animação de pulso ao hover */
     }
 
     /* --- Estrutura do Modal --- */
@@ -211,9 +224,9 @@
         max-width: 900px;
     }
     #liaModal .modal-content {
-        background: transparent;
+        background: transparent; /* Fundo transparente para o efeito de vidro */
         border: none;
-        backdrop-filter: blur(16px) saturate(180%);
+        backdrop-filter: blur(16px) saturate(180%); /* Efeito de vidro principal */
         -webkit-backdrop-filter: blur(16px) saturate(180%);
     }
 
@@ -228,19 +241,19 @@
         opacity: 1;
     }
 
-    /* --- Corpo do Modal --- */
+    /* --- Corpo do Modal (área principal) --- */
     #liaModal .modal-body {
         display: flex;
         flex-direction: column;
-        height: 80vh;
-        max-height: 850px;
+        height: 80vh; /* Altura responsiva */
+        max-height: 850px; /* Altura máxima */
         padding: 0;
         border-radius: 16px;
-        overflow: hidden;
+        overflow: hidden; /* Garante que o grid de fundo não vaze */
         position: relative;
-        background-color: var(--lia-bg-light);
-        border: 1px solid var(--lia-border-light);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        background-color: var(--lia-bg-light); /* Fundo base */
+        border: 1px solid var(--lia-border-light); /* Borda sutil */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* Sombra forte para destaque */
     }
     body.theme-dark #liaModal .modal-body {
         background-color: var(--lia-bg-dark);
@@ -255,8 +268,8 @@
         background-image: 
             linear-gradient(rgba(13, 110, 253, 0.05) 1px, transparent 1px),
             linear-gradient(to right, rgba(13, 110, 253, 0.05) 1px, transparent 1px);
-        background-size: 30px 30px;
-        animation: lia-grid-scroll 10s linear infinite;
+        background-size: 30px 30px; /* Tamanho da célula da grade */
+        animation: lia-grid-scroll 10s linear infinite; /* Animação de scroll */
         z-index: 1;
     }
     body.theme-dark #liaModal .modal-body::before {
@@ -267,47 +280,53 @@
 
     /* --- Área de Respostas do Chat --- */
     #liaResponseContainer {
-        flex-grow: 1;
+        flex-grow: 1; /* Ocupa o espaço disponível */
         overflow-y: auto;
         padding: 1.5rem;
         position: relative;
-        z-index: 2;
+        z-index: 2; /* Acima do grid de fundo */
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1rem; /* Espaçamento entre as mensagens */
     }
+    /* Estilos da barra de rolagem customizada */
     #liaResponseContainer::-webkit-scrollbar { width: 6px; }
     #liaResponseContainer::-webkit-scrollbar-track { background: transparent; }
     #liaResponseContainer::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 6px; }
+    body.theme-dark #liaResponseContainer::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.3); }
+
 
     /* --- Balões de Mensagem --- */
     #liaResponseContainer .lia-message {
         padding: 0.8rem 1.2rem;
-        border-radius: 12px;
+        border-radius: 12px; /* Bordas mais arredondadas */
         max-width: 85%;
-        width: fit-content;
+        width: fit-content; /* Ajusta a largura ao conteúdo */
         line-height: 1.6;
-        animation: lia-fade-in-up 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-        background: var(--lia-surface-light);
+        animation: lia-fade-in-up 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Animação de entrada */
+        background: var(--lia-surface-light); /* Cor de fundo com transparência */
         border: 1px solid var(--lia-border-light);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px); /* Efeito de vidro nos balões */
         -webkit-backdrop-filter: blur(10px);
+        color: var(--text-color); /* Garante que o texto seja legível */
+        position: relative; /* Necessário para posicionamento absoluto do feedback */
+        padding-bottom: 2rem; /* Aumenta o padding inferior para os botões discretos */
     }
     body.theme-dark #liaResponseContainer .lia-message {
         background: var(--lia-surface-dark);
         border: 1px solid var(--lia-border-dark);
     }
     #liaResponseContainer .user-message {
-        margin-left: auto; /* Alinha à direita */
-        background: var(--lia-glow-light);
+        margin-left: auto; /* Alinha mensagens do usuário à direita */
+        background: var(--lia-glow-light); /* Cor de destaque para o usuário */
         color: white;
     }
     body.theme-dark #liaResponseContainer .user-message {
         background: var(--lia-glow-dark);
-        color: #0A0A10;
+        color: #0A0A10; /* Cor de texto para contraste no tema escuro do user-message */
     }
 
-    /* --- Área de Input --- */
+    /* --- Área de Input (pergunta, modelo, botões) --- */
     .lia-input-area {
         padding: 1rem 1.5rem;
         border-top: 1px solid var(--lia-border-light);
@@ -323,17 +342,17 @@
     }
 
     .lia-input-area .input-group {
-        border-radius: 12px;
+        border-radius: 12px; /* Bordas arredondadas para o grupo de input */
         background: var(--lia-bg-light);
         padding: 0.25rem;
-        border: 1px solid var(--border-color);
-        transition: box-shadow 0.3s, border-color 0.3s;
+        border: 1px solid var(--border-color); /* Borda sutil */
+        transition: box-shadow 0.3s, border-color 0.3s; /* Transição para o foco */
     }
     body.theme-dark .lia-input-area .input-group {
         background: var(--lia-bg-dark);
     }
     .lia-input-area .input-group:focus-within {
-        border-color: var(--lia-glow-light);
+        border-color: var(--lia-glow-light); /* Cor de brilho no foco */
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
     }
     body.theme-dark .lia-input-area .input-group:focus-within {
@@ -341,7 +360,7 @@
         box-shadow: 0 0 0 3px rgba(51, 157, 255, 0.25);
     }
 
-    #iaResponse img {
+    #iaResponse img { /* Imagens dentro da resposta da IA */
         border-radius: 0.75rem !important; /* Bordas mais suaves na imagem */
         margin: 1rem 0;
     }
@@ -357,17 +376,17 @@
 
     .lia-input-area #liaUserQuestion,
     .lia-input-area #liaUserQuestion:focus {
-        background: transparent;
-        border: none;
+        background: transparent; /* Fundo transparente */
+        border: none; /* Remove a borda padrão do input */
         color: var(--text-color);
-        box-shadow: none;
+        box-shadow: none; /* Remove sombra no foco */
     }
     .lia-input-area #liaAskButton,
     .lia-input-area #liaModulesHelperBtn {
-        border-radius: 10px !important;
+        border-radius: 10px !important; /* Botões com bordas arredondadas */
     }
 
-    /* --- Autocomplete e Contexto --- */
+    /* --- Autocomplete e Contexto (ajustes de estilo) --- */
     #liaModulesList {
         background-color: var(--surface-bg);
     }
@@ -376,6 +395,179 @@
         padding-top: 0.75rem;
         border-top: 1px solid var(--border-color);
     }
+    .btn-context {
+        display: block;
+        background-color: var(--lia-bg-light); /* Adapta ao tema claro/escuro da Lia */
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        color: var(--lia-glow-light);
+        text-decoration: none;
+        text-align: center;
+        font-size: 0.9rem;
+        transition: background-color 0.2s ease-in-out;
+    }
+    body.theme-dark .btn-context {
+        background-color: var(--lia-bg-dark);
+        color: var(--lia-glow-dark);
+    }
+    .btn-context:hover {
+        background-color: rgba(13, 110, 253, 0.1); /* Hover suave */
+    }
+    body.theme-dark .btn-context:hover {
+        background-color: rgba(51, 157, 255, 0.1);
+    }
+
+    /* --- ESTILOS DE FEEDBACK (DISCRETO E NO CANTO) --- */
+    .feedback-section {
+        position: absolute; /* Posição absoluta dentro do balão da mensagem */
+        bottom: 5px; /* Alinha no canto inferior direito do balão */
+        right: 5px;
+        z-index: 10; /* Garante que esteja sobre o conteúdo do balão */
+        display: flex; /* Para alinhar os botões */
+        align-items: center;
+        gap: 8px; /* Espaçamento entre os botões de feedback e a mensagem */
+        background: none; /* Sem fundo */
+        border: none; /* Sem borda */
+        padding: 0; /* Sem padding */
+        margin: 0; /* Sem margin */
+        box-shadow: none; /* Sem sombra */
+        text-align: right; /* Alinha conteúdo à direita */
+        opacity: 0; /* Começa invisível */
+        transform: translateY(10px); /* Começa um pouco abaixo para animação */
+        transition: opacity 0.3s ease, transform 0.3s ease; /* Transição suave */
+        pointer-events: none; /* Permite clicar através quando invisível */
+    }
+
+    /* Mostra a seção de feedback ao passar o mouse sobre a mensagem da Lia */
+    #liaResponseContainer .lia-message:not(.user-message):hover .feedback-section {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: all; /* Habilita cliques quando visível */
+    }
+
+    .feedback-section small {
+        font-size: 0.75rem; /* Fonte menor */
+        color: var(--text-color); /* Adapta ao tema */
+        display: none; /* Esconde o texto "Esta resposta foi útil?" por padrão para ser discreto */
+    }
+
+    .feedback-buttons {
+        display: flex;
+        gap: 2px; /* Espaçamento muito pequeno entre os botões */
+        margin: 0;
+    }
+
+    .feedback-buttons button {
+        background: transparent; /* Fundo transparente */
+        border: none; /* Sem borda */
+        padding: 3px 6px; /* Padding mínimo */
+        font-size: 0.9rem; /* Tamanho do ícone/texto */
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        border-radius: 4px; /* Bordas levemente arredondadas */
+        color: var(--text-color); /* Cor do ícone/texto */
+        opacity: 0.7; /* Mais discreto por padrão */
+    }
+    body.theme-dark .feedback-buttons button {
+        color: var(--lia-glow-dark); /* Ícones do tema escuro em azul claro */
+    }
+
+    .feedback-buttons button:hover {
+        background-color: rgba(0, 0, 0, 0.1); /* Fundo sutil ao hover */
+        opacity: 1; /* Aumenta a opacidade ao hover */
+    }
+    body.theme-dark .feedback-buttons button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .feedback-buttons button.feedback-good-btn:hover {
+        color: #28a745; /* Cor verde ao hover */
+    }
+
+    .feedback-buttons button.feedback-bad-btn:hover {
+        color: #dc3545; /* Cor vermelha ao hover */
+    }
+
+    .feedback-comment-area {
+        position: absolute; /* Posição absoluta para expandir da base do balão */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background: var(--lia-bg-light); /* Fundo da área de comentário */
+        border-top: 1px solid var(--lia-border-light);
+        transform: translateY(100%); /* Começa escondido abaixo */
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 0;
+        z-index: 11; /* Acima da seção de feedback */
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    body.theme-dark .feedback-comment-area {
+        background: var(--lia-bg-dark);
+        border-top: 1px solid var(--lia-border-dark);
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Mostra a área de comentário */
+    .feedback-comment-area[style*="display: block"] {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .feedback-comment-area textarea {
+        width: 100%;
+        min-height: 50px; /* Altura mínima reduzida */
+        border-radius: 0.4rem;
+        padding: 0.6rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--surface-bg);
+        color: var(--text-color);
+        box-shadow: none; /* Remove a sombra interna */
+        transition: border-color 0.2s ease-in-out;
+    }
+    .feedback-comment-area textarea:focus {
+        border-color: var(--lia-glow-light); /* Foco em destaque */
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2); /* Sombra de foco mais discreta */
+    }
+    body.theme-dark .feedback-comment-area textarea:focus {
+        border-color: var(--lia-glow-dark);
+        box-shadow: 0 0 0 0.15rem rgba(51, 157, 255, 0.2);
+    }
+
+    .submit-comment-btn {
+        margin-top: 0.8rem; /* Espaçamento menor */
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 0.4rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .feedback-message {
+        font-size: 0.8rem; /* Mensagem de feedback menor */
+        margin-top: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.2rem;
+        font-weight: normal; /* Menos negrito */
+        opacity: 0.9;
+    }
+    /* Cores dinâmicas para sucesso/erro */
+    .feedback-message p.text-success {
+        color: #157347 !important; /* Cor mais forte para sucesso */
+        background-color: #d1e7dd;
+        border: 1px solid #a3cfbb;
+    }
+    .feedback-message p.text-danger {
+        color: #bb2d3b !important; /* Cor mais forte para erro */
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+    }
+    .feedback-message p.text-info { /* Para a mensagem de "adicione comentário" */
+        color: #055160 !important;
+        background-color: #dbeaf0;
+        border: 1px solid #b6d4fe;
+    }
 
     /* --- Keyframes para Animações --- */
     @keyframes lia-pulse {
@@ -383,18 +575,17 @@
     }
     @keyframes lia-grid-scroll {
         from { background-position: 0 0; }
-        to { background-position: 30px 30px; }
+        to { background-position: 30px 30px; } /* Deslocamento do grid */
     }
     @keyframes lia-fade-in-up {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Animação proativa para o botão flutuante */
     .lia-proactive {
-        /* Ativa a animação de pulso e brilho */
         animation: lia-proactive-pulse 2s infinite;
     }
-
     @keyframes lia-proactive-pulse {
         0% {
             transform: scale(1);
@@ -533,7 +724,7 @@
                         style="position: absolute; top: 20px; right: 20px; z-index: 4;"></button>
                 
                 <div class="modal-body">
-                    <div id="liaResponseContainer">
+                    <div id="liaResponseContainer" class="lia-response-container">
                         </div>
 
                     <div class="lia-input-area">
@@ -711,10 +902,10 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const liaModal = document.getElementById('liaModal');
-        if (!liaModal) return; 
+        if (!liaModal) return;
 
         // --- SELETORES DE ELEMENTOS ---
-        const liaFloatingBtn = document.querySelector('.floating-lia-btn'); // Adicionado seletor para o botão
+        const liaFloatingBtn = document.querySelector('.floating-lia-btn');
         const askButton = document.getElementById('liaAskButton');
         const userQuestionInput = document.getElementById('liaUserQuestion');
         const modelSelector = document.getElementById('liaModelSelector');
@@ -728,12 +919,10 @@
         // ==========================================================
         // === LÓGICA DO ASSISTENTE PROATIVO ==========================
         // ==========================================================
-        // Lemos os dois atributos do botão flutuante
-        const proactiveModuleName = liaFloatingBtn.dataset.proactiveModuleName;
-        const proactiveModuleId = liaFloatingBtn.dataset.proactiveModuleId;
+        const proactiveModuleName = liaFloatingBtn ? liaFloatingBtn.dataset.proactiveModuleName : null;
+        const proactiveModuleId = liaFloatingBtn ? liaFloatingBtn.dataset.proactiveModuleId : null;
 
-        if (proactiveModuleName && proactiveModuleId) {
-            // Se os atributos existirem, ativa a animação de pulso no botão.
+        if (liaFloatingBtn && proactiveModuleName && proactiveModuleId) {
             liaFloatingBtn.classList.add('lia-proactive');
         }
         // ========================================================
@@ -765,7 +954,7 @@
                     hideModulesList();
                     return;
                 }
-                
+
                 modulesListDiv.innerHTML = '';
                 filteredModules.forEach(module => {
                     const item = document.createElement('a');
@@ -791,7 +980,16 @@
             modulesListDiv.style.display = 'none';
             isListVisible = false;
         };
-        
+
+        // NEW: Variáveis para armazenar dados da última resposta da IA para feedback
+        let lastAiResponseData = {
+            response_id: null,
+            user_id: null,
+            user_question: null,
+            model_used: null,
+            context_sources_list: []
+        };
+
         // --- LÓGICA PRINCIPAL DO CHAT ---
         const removeWelcomeMessage = () => {
             const welcome = responseContainer.querySelector('.alert-welcome');
@@ -804,7 +1002,7 @@
 
             removeWelcomeMessage();
             if (contextInfoWrapper) contextInfoWrapper.style.display = 'none';
-            
+
             spinner.style.display = 'inline-block';
             sendIcon.style.display = 'none';
             askButton.disabled = true;
@@ -816,24 +1014,48 @@
             responseContainer.appendChild(userMessageDiv);
             responseContainer.scrollTop = responseContainer.scrollHeight;
 
-            userQuestionInput.value = ''; 
+            userQuestionInput.value = '';
 
             try {
                 const response = await fetch("{{ url_for('ia_bp.ask_llm_api') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         user_question: userQuestion,
-                        selected_model: modelSelector.value 
+                        selected_model: modelSelector.value
                     }),
                 });
 
                 const data = await response.json();
                 const answerDiv = document.createElement('div');
                 answerDiv.className = 'lia-message';
-                
+
                 if (response.ok) {
                     answerDiv.innerHTML = marked.parse(data.answer);
+
+                    // NEW: Atualiza lastAiResponseData com os dados da resposta atual
+                    lastAiResponseData.response_id = data.response_id;
+                    lastAiResponseData.user_id = data.user_id;
+                    lastAiResponseData.user_question = data.original_user_question; // From backend
+                    lastAiResponseData.model_used = data.model_used; // From backend
+                    lastAiResponseData.context_sources_list = data.context_files; // Assuming context_files is the same as context_sources_list for now
+
+                    // Adiciona a seção de feedback após a resposta da IA
+                    const feedbackHtml = `
+                        <div class="feedback-section mt-3">
+                            <small>Esta resposta foi útil?</small>
+                            <div class="feedback-buttons mt-2">
+                                <button class="btn btn-outline-success btn-sm feedback-good-btn">👍 Sim</button>
+                                <button class="btn btn-outline-danger btn-sm feedback-bad-btn">👎 Não</button>
+                            </div>
+                            <div class="mt-3 feedback-comment-area" style="display: none;">
+                                <textarea class="form-control" rows="2" placeholder="Opcional: Deixe um comentário para nos ajudar a melhorar..."></textarea>
+                                <button class="btn btn-primary btn-sm mt-2 submit-comment-btn">Enviar Comentário</button>
+                            </div>
+                            <div class="mt-2 feedback-message"></div>
+                        </div>
+                    `;
+                    answerDiv.innerHTML += feedbackHtml; // Adiciona o feedback ao conteúdo da resposta
 
                     if (contextInfoWrapper && data.context_files && data.context_files.length > 0) {
                         const collapseId = `liaContextCollapse-${Date.now()}`;
@@ -851,6 +1073,8 @@
                 } else {
                     answerDiv.classList.add('bg-danger', 'text-white');
                     answerDiv.innerHTML = `<strong>Erro:</strong> ${data.error}`;
+                    // NEW: Limpa lastAiResponseData em caso de erro
+                    lastAiResponseData = { response_id: null, user_id: null, user_question: null, model_used: null, context_sources_list: [] };
                 }
                 responseContainer.appendChild(answerDiv);
 
@@ -859,6 +1083,8 @@
                 errorDiv.className = 'lia-message bg-danger text-white';
                 errorDiv.innerHTML = '<strong>Erro de conexão.</strong> Verifique o console do servidor.';
                 responseContainer.appendChild(errorDiv);
+                // NEW: Limpa lastAiResponseData em caso de erro de conexão
+                lastAiResponseData = { response_id: null, user_id: null, user_question: null, model_used: null, context_sources_list: [] };
             } finally {
                 spinner.style.display = 'none';
                 sendIcon.style.display = 'inline-block';
@@ -868,6 +1094,118 @@
                 responseContainer.scrollTop = responseContainer.scrollHeight;
             }
         };
+
+        // NEW: Função para enviar feedback
+        async function submitFeedback(feedbackSectionElement, rating, comment = null) {
+            // Usa os dados da última resposta armazenados
+            const responseId = lastAiResponseData.response_id;
+            const userId = lastAiResponseData.user_id;
+            const userQuestion = lastAiResponseData.user_question;
+            const modelUsed = lastAiResponseData.model_used;
+            const contextSources = lastAiResponseData.context_sources_list; // Passa a lista diretamente
+
+            const feedbackMessageDiv = feedbackSectionElement.querySelector('.feedback-message');
+            const feedbackCommentArea = feedbackSectionElement.querySelector('.feedback-comment-area');
+            const feedbackGoodBtn = feedbackSectionElement.querySelector('.feedback-good-btn');
+            const feedbackBadBtn = feedbackSectionElement.querySelector('.feedback-bad-btn');
+            const submitCommentBtn = feedbackSectionElement.querySelector('.submit-comment-btn');
+
+
+            if (!responseId || !userId) {
+                feedbackMessageDiv.innerHTML = '<p class="text-danger">Erro: ID da resposta ou do usuário não disponível.</p>';
+                return;
+            }
+
+            // Desabilitar botões para evitar múltiplas submissões
+            feedbackGoodBtn.disabled = true;
+            feedbackBadBtn.disabled = true;
+            if (submitCommentBtn) submitCommentBtn.disabled = true;
+
+            try {
+                const response = await fetch("{{ url_for('ia_bp.submit_feedback_api') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        response_id: responseId,
+                        user_id: userId,
+                        rating: rating,
+                        comment: comment,
+                        user_question: userQuestion, // NOVO
+                        model_used: modelUsed,       // NOVO
+                        context_sources: contextSources // NOVO
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    feedbackMessageDiv.innerHTML = `<p class="text-success">${data.message}</p>`;
+                    // Esconde a seção de feedback completa após o envio do feedback ou do comentário
+                    if (comment !== null || rating === 1) { // Se um comentário foi enviado ou feedback positivo
+                        feedbackSectionElement.style.display = 'none';
+                    } else if (rating === 0 && comment === null) { // Se feedback negativo inicial sem comentário
+                        feedbackMessageDiv.innerHTML = '<p class="text-info">Por favor, adicione um comentário para nos ajudar a melhorar.</p>';
+                        if (submitCommentBtn) submitCommentBtn.disabled = false; // Reabilita o botão de enviar comentário
+                    }
+                } else {
+                    feedbackMessageDiv.innerHTML = `<p class="text-danger">Erro: ${data.error}</p>`;
+                    // Reabilita os botões em caso de erro, exceto se já foi dado um feedback definitivo
+                    if (!(comment !== null || rating === 1)) {
+                         feedbackGoodBtn.disabled = false;
+                         feedbackBadBtn.disabled = false;
+                    }
+                    if (rating === 0 && comment === null) {
+                         if (submitCommentBtn) submitCommentBtn.disabled = false;
+                    }
+                }
+            } catch (error) {
+                feedbackMessageDiv.innerHTML = `<p class="text-danger">Erro de conexão ao enviar feedback.</p>`;
+                // Reabilita os botões em caso de erro de conexão
+                if (!(comment !== null || rating === 1)) {
+                    feedbackGoodBtn.disabled = false;
+                    feedbackBadBtn.disabled = false;
+                }
+                if (rating === 0 && comment === null) {
+                    if (submitCommentBtn) submitCommentBtn.disabled = false;
+                }
+            }
+        }
+
+        // NEW: Event delegation for feedback buttons
+        // Usamos delegação de eventos no responseContainer para lidar com botões de feedback adicionados dinamicamente
+        responseContainer.addEventListener('click', (e) => {
+            const target = e.target;
+            // Encontra a seção de feedback mais próxima para o botão clicado
+            const feedbackSectionElement = target.closest('.feedback-section');
+
+            if (!feedbackSectionElement) return; // Não é um clique relacionado a feedback
+
+            // Opcional: Para garantir que o feedback é sempre para a última resposta da IA
+            // Note: Esta verificação garante que o feedback seja apenas para a resposta mais recente.
+            // Se você quiser permitir feedback em mensagens anteriores, remova este bloco.
+            const allLiaMessages = responseContainer.querySelectorAll('.lia-message:not(.user-message)');
+            const lastAiMessageDiv = allLiaMessages[allLiaMessages.length - 1]; // Pega a última mensagem da Lia
+            if (!lastAiMessageDiv || !lastAiMessageDiv.contains(feedbackSectionElement)) {
+                console.warn('Botão de feedback clicado para uma resposta antiga. Apenas a resposta mais recente pode ser avaliada.');
+                return;
+            }
+
+
+            if (target.classList.contains('feedback-good-btn')) {
+                feedbackSectionElement.dataset.lastSubmittedRating = 1; // Armazena para possível comentário posterior
+                submitFeedback(feedbackSectionElement, 1);
+            } else if (target.classList.contains('feedback-bad-btn')) {
+                feedbackSectionElement.dataset.lastSubmittedRating = 0; // Armazena para possível comentário posterior
+                const commentArea = feedbackSectionElement.querySelector('.feedback-comment-area');
+                commentArea.style.display = 'block'; // Mostra a área de comentário
+                submitFeedback(feedbackSectionElement, 0);
+            } else if (target.classList.contains('submit-comment-btn')) {
+                const commentInput = feedbackSectionElement.querySelector('textarea');
+                const comment = commentInput.value;
+                const lastRating = parseInt(feedbackSectionElement.dataset.lastSubmittedRating, 10);
+                submitFeedback(feedbackSectionElement, lastRating, comment);
+            }
+        });
 
         // --- EVENT LISTENERS ---
         userQuestionInput.addEventListener('keypress', (e) => {
@@ -898,7 +1236,7 @@
                 hideModulesList();
             }
         });
-        
+
         document.addEventListener('click', (e) => {
             if (!modulesListDiv.contains(e.target) && e.target !== userQuestionInput && e.target !== modulesHelperBtn && !modulesHelperBtn.contains(e.target)) {
                 hideModulesList();
@@ -908,9 +1246,9 @@
         // ATUALIZADO: Lógica de abertura do Modal
         liaModal.addEventListener('shown.bs.modal', () => {
             userQuestionInput.focus();
-            
+
             // Exibe a mensagem de boas-vindas apenas se o chat estiver vazio.
-            if (responseContainer.children.length === 0) {
+            if (responseContainer.children.length === 0 || responseContainer.textContent.trim() === '') {
                 let welcomeMessage = '';
                 // Usa o NOME do módulo para a mensagem
                 if (proactiveModuleName) {
@@ -920,6 +1258,8 @@
                     welcomeMessage = '<div class="alert alert-light my-2 alert-welcome">Olá! 👋 Sou a Lia, sua assistente de conhecimento.</div>';
                 }
                 responseContainer.innerHTML = welcomeMessage;
+                // NEW: Reseta lastAiResponseData ao abrir o modal se o chat estiver vazio
+                lastAiResponseData = { response_id: null, user_id: null, user_question: null, model_used: null, context_sources_list: [] };
             }
 
             // Pré-preenche o input com o @ID do módulo

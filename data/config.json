@@ -345,7 +345,7 @@
     {
       "id": "relacao-edi",
       "nome": "Relação do EDIs",
-      "descricao": "",
+      "descricao": "O EDI é a troca eletrônica padronizada de documentos comerciais entre empresas.",
       "icone": "bi-cloud-upload",
       "palavras_chave": [
         "EDIs",
@@ -355,9 +355,9 @@
       "relacionados": [],
       "status": "aprovado",
       "version_info": {
-        "current_version": "1.0",
+        "current_version": "1.1",
         "last_approved_by": "widson.araujo",
-        "last_approved_on": "2025-07-22T14:49:32.290286"
+        "last_approved_on": "2025-07-29T10:08:18.839533"
       },
       "pending_edit_info": {
         "user": null,
@@ -369,6 +369,15 @@
           "version": "1.0",
           "user": "widson.araujo",
           "timestamp": "2025-07-22T14:49:32.290286"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-29T10:08:18.839533",
+          "backup_file_doc": "v1.1_2025-07-29T10-08-18_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-29T10-08-18_widson.araujo_technical.md"
         }
       ]
     },

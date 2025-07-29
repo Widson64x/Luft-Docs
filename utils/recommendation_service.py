@@ -1,6 +1,7 @@
 # /utils/recommendation_service.py
 from datetime import datetime
 import re
+import json # Importa a biblioteca json para serializar a lista de fontes
 from .database_utils import get_db
 
 def log_document_access(document_id: str):
@@ -60,7 +61,7 @@ def get_popular_searches(limit: int = 5) -> list:
     rows = db.execute(query, (limit,)).fetchall()
     return [dict(row) for row in rows]
 
-# --- NOVO: Algoritmo de Recomendação Híbrida ---
+# --- Algoritmo de Recomendação Híbrida ---
 def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, search_weight: float = 0.4) -> list:
     """
     Gera uma lista de documentos recomendados com base em um algoritmo híbrido.
@@ -85,7 +86,7 @@ def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, searc
     # 3. Normalizar os scores para que fiquem entre 0 e 1, evitando divisão por zero
     max_access_count = max(doc['access_count'] for doc in all_docs) if all_docs else 1
     max_search_count = max(search['search_count'] for search in popular_searches) if popular_searches else 1
-    
+
     if max_access_count == 0: max_access_count = 1
     if max_search_count == 0: max_search_count = 1
 
@@ -94,17 +95,17 @@ def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, searc
         search['query_term']: search['search_count'] / max_search_count
         for search in popular_searches
     }
-    
+
     final_scores = {}
 
     # 4. Calcular o score final para cada documento
     for doc in all_docs:
         doc_id = doc['document_id']
-        
+
         # Score base da popularidade de acesso
         normalized_access_score = doc['access_count'] / max_access_count
         score = normalized_access_score * access_weight
-        
+
         # Adicionar score com base na relevância das buscas
         relevance_score = 0
         for term, normalized_search_score in search_scores.items():
@@ -120,10 +121,35 @@ def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, searc
 
     # 5. Classificar os documentos pelo score final e retornar o top 'limit'
     sorted_docs = sorted(final_scores.items(), key=lambda item: item[1], reverse=True)
-    
+
     recommendations = [
         {'document_id': doc_id, 'score': score}
         for doc_id, score in sorted_docs[:limit]
     ]
 
     return recommendations
+
+# NEW: Função para registrar feedback da IA com informações adicionais
+def log_ai_feedback(response_id: str, user_id: str, rating: int, comment: str = None,
+                    user_question: str = None, model_used: str = None, context_sources: list = None):
+    """
+    Registra o feedback de um usuário para uma resposta da IA, incluindo a pergunta original,
+    o modelo usado e as fontes de contexto.
+    """
+    db = get_db()
+    cursor = db.cursor()
+
+    # Serializa a lista de fontes de contexto para uma string JSON
+    serialized_context_sources = json.dumps(context_sources) if context_sources else None
+
+    cursor.execute(
+        """
+        INSERT INTO ia_feedback (
+            response_id, user_id, user_question, model_used, context_sources, rating, comment, timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (response_id, user_id, user_question, model_used, serialized_context_sources, rating, comment, datetime.now())
+    )
+    db.commit()
+    print(f"Feedback registrado para response_id: {response_id} pelo usuário: {user_id} com rating: {rating}. "
+          f"Questão: '{user_question}', Modelo: '{model_used}'. Fontes: {context_sources}")
