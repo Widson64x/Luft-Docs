@@ -239,13 +239,16 @@
 
     <!-- Modal para Imagens -->
     <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content bg-dark border-0">
-                <div class="modal-body text-center p-0">
-                    <img id="imagemExpandida" src="" alt="Imagem ampliada" style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
-                </div>
-            </div>
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark border-0">
+        <div class="modal-body text-center p-0">
+            <img id="imagemExpandida"
+                src=""
+                alt="Imagem ampliada"
+                style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
         </div>
+        </div>
+    </div>
     </div>
 </div>
 {% if versao_info and versao_info.versao_atual != "N/A" %}
@@ -272,6 +275,22 @@
 </div>
 {% endif %}
 
+<script>
+// Zoom de Imagem
+document.addEventListener('DOMContentLoaded', () => {
+  // Seleciona todas as imagens dentro do seu conteúdo
+  document.querySelectorAll('.markdown-body img').forEach(img => {
+    img.style.cursor = 'pointer';  // mostra que é clicável
+    img.addEventListener('click', () => {
+      // Define a mesma src da imagem clicada no modal
+      document.getElementById('imagemExpandida').src = img.src;
+      // Instancia e exibe o modal
+      const modal = new bootstrap.Modal(document.getElementById('imagemModal'));
+      modal.show();
+    });
+  });
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // --- Lógica de Autocomplete (Mantida) ---

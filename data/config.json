@@ -298,9 +298,9 @@
       "relacionados": [],
       "status": "aprovado",
       "version_info": {
-        "current_version": "1.0",
+        "current_version": "1.3",
         "last_approved_by": "widson.araujo",
-        "last_approved_on": "2025-07-15T09:20:50.616243"
+        "last_approved_on": "2025-07-28T16:16:05.668744"
       },
       "pending_edit_info": {
         "user": null,
@@ -312,6 +312,33 @@
           "version": "1.0",
           "user": "widson.araujo",
           "timestamp": "2025-07-15T09:20:50.616243"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.1",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-28T15:26:40.547915",
+          "backup_file_doc": "v1.1_2025-07-28T15-26-40_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.1_2025-07-28T15-26-40_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-28T15:48:46.432193",
+          "backup_file_doc": "v1.2_2025-07-28T15-48-46_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-28T15-48-46_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.3",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-28T16:16:05.668744",
+          "backup_file_doc": "v1.3_2025-07-28T16-16-05_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.3_2025-07-28T16-16-05_widson.araujo_technical.md"
         }
       ]
     },

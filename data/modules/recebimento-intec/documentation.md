@@ -69,7 +69,7 @@ A verificação física da mercadoria é uma etapa crítica e **inteiramente man
     * A conferência é feita pallet a pallet.
 * **Tratamento de Divergências:**
     * Se houver divergência (falta ou sobra), o conferente anota o ocorrido no campo de observações do romaneio.
-    * Posteriormente, essa informação é lançada no sistema para gerar uma **"Ocorrência 33"**.
+    * Posteriormente, essa informação é lançada no sistema para gerar a Ocorrência **33**.
 
 ## Etapa 5: Finalização Sistêmica (Confirmação do Veículo)
 

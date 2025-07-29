@@ -547,4 +547,21 @@ const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
 mudarAnimacao(savedAnimation);
 
 </script>
+<script>
+    // Espera o documento carregar completamente para apagar as mensagens de flash
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Seleciona todos os elementos com a classe 'alert'
+        const alerts = document.querySelectorAll('.alert');
+
+        // Define o tempo em milissegundos (aqui, 5000ms = 5 segundos)
+        const aletTimeout = 5000;
+
+        alerts.forEach((alert) => {
+            // Define um timer para cada alerta
+            setTimeout(() => {
+                new bootstrap.Alert(alert).close();
+            }, aletTimeout);
+        });
+    });
+</script>
 {% endblock %}

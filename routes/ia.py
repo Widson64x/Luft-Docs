@@ -55,7 +55,8 @@ except Exception as e:
 RESTRICTED_PATHS = ["data/global/EDIs", "data/global/Integradores"]
 RESTRICTED_FILENAME = "technical_documentation.md"
 
-'''# --- ROTAS DA PÁGINA DA IA ---
+'''
+# --- ROTAS DA PÁGINA DA IA ---
 
 @ia_bp.route('/test_ia')
 @login_required

@@ -4,19 +4,16 @@ A Raia Drogasil é a maior rede de drogarias do Brasil, resultado da fusão entr
 
 ## Histórico
 
-
 - **2011**: Conclusão da fusão entre Droga Raia e Drogasil.  
 - **2012–2020**: Expansão por aquisições e abertura de novas lojas em shoppings e centros urbanos.  
 - **2021**: Lançamento do aplicativo RD+ e integração omnichannel.  
 - **2024**: Mais de 2.300 lojas físicas e forte presença em canais digitais.
-
 
 ## Presença no Brasil
 
 - **Lojas físicas**: +2.300 pontos de venda em todos os estados e no DF.  
 - **E-commerce**: Site e app com frete rápido e opção de “retirar na loja”.  
 - **App RD+**: Programa de fidelidade com descontos, cashback e ofertas exclusivas.
-
 
 ## Portfólio de Produtos e Serviços
 
@@ -43,4 +40,4 @@ Se seu processo envolve entrega ou coleta para lojas RD, atente-se a estas parti
   - Lojas físicas e centros de distribuição (conforme rota).  
 - **Contatos Úteis**:  
   - **SAC RD**: 0800 998 1400  
-  - **E-mail Logística**: logistica@rd.com.br  
+  - **E-mail Logística**: logistica@rd.com.br
