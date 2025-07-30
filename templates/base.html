@@ -600,6 +600,56 @@
             box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
         }
     }
+
+    .lia-proactive-toast {
+        position: fixed;
+        /* Posiciona acima do botão flutuante */
+        bottom: 95px; 
+        right: 25px;
+        z-index: 1049; /* Fica abaixo do modal, mas acima do resto */
+        
+        /* Aparência */
+        background: linear-gradient(135deg, #0d6efd, #0558ca);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+        display: flex;
+        align-items: center;
+        
+        /* Estado inicial e animação */
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+        transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        pointer-events: none; /* Impede que o toast seja clicável */
+    }
+
+    /* Classe que ativa a visibilidade e a animação de entrada */
+    .lia-proactive-toast.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    /* Pequena seta que aponta para o botão */
+    .lia-proactive-toast .toast-pointer {
+        position: absolute;
+        bottom: -7px; /* Posiciona a seta para fora do corpo do toast */
+        right: 22px;
+        width: 16px;
+        height: 16px;
+        background: #0558ca; /* Cor que combina com o gradiente */
+        transform: rotate(45deg);
+        z-index: -1;
+    }
+
+    .lia-proactive-toast .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Espaço entre o ícone e o texto, se houver */
+    }
+
     </style>
 </head>
 <body>
@@ -777,6 +827,12 @@
         data-proactive-module-id="{{ proactive_module_id or '' }}">
         <i class="bi bi-stars"></i>
     </div>
+    <div id="lia-proactive-toast" class="lia-proactive-toast">
+        <div class="toast-content">
+            <span>Precisa de alguma ajuda?</span>
+        </div>
+        <div class="toast-pointer"></div>
+    </div>
     {% endif %}
     {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -909,6 +965,7 @@
     </script>
 
     <script src="{{ url_for('static', filename='js/lia_chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lia_proactive_assistant.js') }}"></script>
     
     {% endblock %}
 </body>

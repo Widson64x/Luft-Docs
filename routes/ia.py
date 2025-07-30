@@ -8,6 +8,7 @@ from utils.auth.auth_utils import login_required
 # --- IMPORTAÇÕES DOS SERVIÇOS DE IA ---
 from ai_services import context_service, response_generator, feedback_service
 from ai_services.llm_config import are_components_available
+from utils.recommendation_service import log_ai_feedback
 
 ia_bp = Blueprint('ia_bp', __name__)
 
@@ -132,19 +133,30 @@ def ask_llm_api():
 @login_required
 def submit_feedback_api():
     data = request.get_json()
+    response_id = data.get('response_id')
+    user_id = session.get('username', 'anonymous')
+    rating = data.get('rating')
+    comment = data.get('comment')
+    # NOVOS: Recebe os campos adicionais do frontend
+    user_question = data.get('user_question')
+    model_used = data.get('model_used')
+    context_sources = data.get('context_sources') # Será uma lista do frontend
+
+    if not all([response_id, user_id, rating is not None]):
+        return jsonify({"error": "Dados de feedback inválidos."}), 400
+
     try:
-        feedback_service.save_feedback(
-            response_id=data.get('response_id'),
-            user_id=session.get('username', 'anonymous'),
-            rating=data.get('rating'),
-            comment=data.get('comment'),
-            user_question=data.get('user_question'),
-            model_used=data.get('model_used'),
-            context_sources=data.get('context_sources')
+        # Passa os novos campos para log_ai_feedback
+        log_ai_feedback(
+            response_id=response_id,
+            user_id=user_id,
+            rating=rating,
+            comment=comment,
+            user_question=user_question,
+            model_used=model_used,
+            context_sources=context_sources
         )
         return jsonify({"message": "Feedback registrado com sucesso!"}), 200
-    except ValueError as ve:
-        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         print(f"Erro ao registrar feedback: {e}")
         return jsonify({"error": "Erro interno ao registrar feedback."}), 500

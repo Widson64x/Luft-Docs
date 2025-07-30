@@ -136,17 +136,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 answerDiv.innerHTML = marked.parse(data.answer);
 
+                // Armazena todos os dados necessários para o feedback da resposta atual
                 lastAiResponseData.response_id = data.response_id;
                 lastAiResponseData.user_id = data.user_id;
                 lastAiResponseData.user_question = data.original_user_question;
                 lastAiResponseData.model_used = data.model_used;
                 lastAiResponseData.context_sources_list = data.context_files;
 
+                // --- ATUALIZADO: HTML de Feedback com área de comentário ---
                 const feedbackHtml = `
                     <div class="feedback-section mt-3" style="position: relative; padding-bottom: 2rem;">
-                        <div class="feedback-section" style="position: absolute; bottom: 5px; right: 5px;">
+                        <div class="feedback-buttons" style="position: absolute; bottom: 5px; right: 5px;">
                             <small class="d-none">Esta resposta foi útil?</small>
-                            <div class="feedback-buttons">
+                            <div class="btn-group">
                                 <button class="btn btn-sm feedback-good-btn" title="Útil">👍</button>
                                 <button class="btn btn-sm feedback-bad-btn" title="Não útil">👎</button>
                             </div>
@@ -195,18 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- ATUALIZADO: Função para Enviar Feedback (aceita comentário opcional) ---
     async function submitFeedback(feedbackSectionElement, rating, comment = null) {
         const { response_id, user_id, user_question, model_used, context_sources_list } = lastAiResponseData;
         const feedbackMessageDiv = feedbackSectionElement.querySelector('.feedback-message');
         const feedbackGoodBtn = feedbackSectionElement.querySelector('.feedback-good-btn');
         const feedbackBadBtn = feedbackSectionElement.querySelector('.feedback-bad-btn');
         const submitCommentBtn = feedbackSectionElement.querySelector('.submit-comment-btn');
+        const feedbackButtonsDiv = feedbackSectionElement.querySelector('.feedback-buttons');
+        const commentArea = feedbackSectionElement.querySelector('.feedback-comment-area');
 
         if (!response_id || !user_id) {
             feedbackMessageDiv.innerHTML = '<p class="alert alert-danger p-2">Erro: ID da resposta não disponível.</p>';
             return;
         }
-
+        
+        // Desabilita os botões para prevenir múltiplos envios
         feedbackGoodBtn.disabled = true;
         feedbackBadBtn.disabled = true;
         if (submitCommentBtn) submitCommentBtn.disabled = true;
@@ -227,47 +233,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (response.ok) {
                 feedbackMessageDiv.innerHTML = `<p class="alert alert-success p-2">${data.message}</p>`;
-                setTimeout(() => feedbackSectionElement.closest('.feedback-section-wrapper')?.remove(), 2000);
+                // Remove a seção de feedback após um envio bem-sucedido
+                setTimeout(() => {
+                    feedbackButtonsDiv.style.display = 'none';
+                    commentArea.style.display = 'none';
+                }, 1500);
             } else {
                 feedbackMessageDiv.innerHTML = `<p class="alert alert-danger p-2">Erro: ${data.error}</p>`;
                 feedbackGoodBtn.disabled = false;
                 feedbackBadBtn.disabled = false;
+                 if (submitCommentBtn) submitCommentBtn.disabled = false;
             }
         } catch (error) {
             console.error("Erro ao enviar feedback:", error);
             feedbackMessageDiv.innerHTML = '<p class="alert alert-danger p-2">Erro de conexão ao enviar feedback.</p>';
             feedbackGoodBtn.disabled = false;
             feedbackBadBtn.disabled = false;
+            if (submitCommentBtn) submitCommentBtn.disabled = false;
         }
     }
-
+    
+    // --- ATUALIZADO: Event Listener com lógica de comentários ---
     responseContainer.addEventListener('click', (e) => {
         const target = e.target;
         const feedbackSection = target.closest('.feedback-section');
         if (!feedbackSection) return;
 
+        // Garante que o feedback seja apenas para a resposta mais recente.
         const allLiaMessages = responseContainer.querySelectorAll('.lia-message:not(.user-message)');
         const lastAiMessageDiv = allLiaMessages[allLiaMessages.length - 1];
         if (!lastAiMessageDiv || !lastAiMessageDiv.contains(feedbackSection)) {
-            console.warn('Botão de feedback clicado para uma resposta antiga. Apenas a resposta mais recente pode ser avaliada.');
             const oldFeedbackMsg = feedbackSection.querySelector('.feedback-message');
             if (oldFeedbackMsg) oldFeedbackMsg.innerHTML = '<p class="alert alert-warning p-2">Apenas a última resposta pode ser avaliada.</p>';
             return;
         }
-
-        if (target.classList.contains('feedback-good-btn')) {
-            submitFeedback(feedbackSection, 1);
-        } else if (target.classList.contains('feedback-bad-btn')) {
-            feedbackSection.dataset.lastRating = 0;
+        
+        // Lógica para feedback positivo
+        if (target.closest('.feedback-good-btn')) {
+            submitFeedback(feedbackSection, 1); // Envia rating 1 (positivo)
+        } 
+        // Lógica para feedback negativo: mostra a área de comentário
+        else if (target.closest('.feedback-bad-btn')) {
+            feedbackSection.dataset.lastRating = 0; // Armazena o rating negativo
             const commentArea = feedbackSection.querySelector('.feedback-comment-area');
             if (commentArea.style.display === 'none') {
                 commentArea.style.display = 'block';
             } else {
                 commentArea.style.display = 'none';
             }
-        } else if (target.classList.contains('submit-comment-btn')) {
+        } 
+        // Lógica para enviar o comentário
+        else if (target.closest('.submit-comment-btn')) {
             const commentInput = feedbackSection.querySelector('textarea');
-            const rating = parseInt(feedbackSection.dataset.lastRating, 10);
+            // O rating para um comentário é sempre 0 (negativo)
+            const rating = 0; 
             submitFeedback(feedbackSection, rating, commentInput.value);
         }
     });

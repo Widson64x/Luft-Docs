@@ -4,7 +4,7 @@ import os
 from flask import current_app, g
 
 # Define o nome do arquivo do banco de dados
-DATABASE_NAME = 'recommendations.db'
+DATABASE_NAME = 'luftdocs.db'
 
 def get_db_path():
     """Retorna o caminho completo para o arquivo do banco de dados."""
@@ -29,10 +29,44 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
+def create_bug_reports_table(cursor):
+    """
+    Cria ou atualiza a tabela de report de bugs (bug_reports).
+    Adiciona novas colunas se a tabela já existir, mas as colunas não.
+    """
+    # Verifica as colunas existentes na tabela para evitar erros
+    cursor.execute("PRAGMA table_info(bug_reports)")
+    existing_columns = [column[1] for column in cursor.fetchall()]
+
+    # Se a lista de colunas estiver vazia, a tabela não existe. Então, a criamos.
+    if not existing_columns:
+        print("Criando nova tabela 'bug_reports'...")
+        cursor.execute('''
+            CREATE TABLE bug_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                report_type TEXT NOT NULL,
+                target_entity TEXT,
+                description TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'aberto',
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+    # Se a tabela já existe, verificamos se as colunas específicas estão faltando
+    else:
+        if 'report_type' not in existing_columns:
+            print("Adicionando coluna 'report_type' à tabela 'bug_reports'...")
+            cursor.execute("ALTER TABLE bug_reports ADD COLUMN report_type TEXT NOT NULL DEFAULT 'geral'")
+        if 'target_entity' not in existing_columns:
+            print("Adicionando coluna 'target_entity' à tabela 'bug_reports'...")
+            cursor.execute("ALTER TABLE bug_reports ADD COLUMN target_entity TEXT")
+
+
 def init_db():
     """
-    Cria as tabelas do banco de dados. Deve ser executado uma vez para configurar o banco.
+    Cria todas as tabelas do banco de dados. Deve ser executado uma vez para configurar o banco.
     """
+    print("Inicializando o banco de dados...")
     db = sqlite3.connect(get_db_path())
     cursor = db.cursor()
 
@@ -53,6 +87,9 @@ def init_db():
             last_searched TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # --- ADIÇÃO DA CRIAÇÃO DA TABELA DE BUGS ---
+    create_bug_reports_table(cursor)
     
     db.commit()
     db.close()

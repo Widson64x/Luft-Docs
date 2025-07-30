@@ -180,9 +180,6 @@
 
     <div class="module-container">
         <div class="module-header">
-            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm header-back-button">
-                ← Voltar
-            </a>
 
             <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
             <p class="module-description">{{ modulo.descricao }}</p>
@@ -425,6 +422,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = url.toString();
             }
         });
+    }
+});
+</script>
+{# ====================================================================== #}
+{# NOVA LÓGICA DO ASSISTENTE PROATIVO #}
+{# ====================================================================== #}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof initializeProactiveAssistant === 'function') {
+
+        // "banco de frases" para a Lia.
+        const possibleMessages = [
+            {
+                toast: "Psiu! Quer uma ajuda?",
+                modal: "Olá! 👋 Notei que você está lendo sobre o módulo **{{ modulo.nome }}**. Posso te ajudar a encontrar uma informação específica, fazer um resumo ou explicar algum tópico?"
+            },
+            {
+                toast: "Sabia que eu posso resumir?",
+                modal: "Estou vendo que você está focado(a) em **{{ modulo.nome }}**. Que tal um resumo rápido dos pontos mais importantes para começar?"
+            },
+            {
+                toast: "Uma curiosidade sobre este módulo...",
+                modal: "Uma curiosidade sobre **{{ modulo.nome }}**: ele tem links para **{{ relacionados|length }}** outros módulos! Quer que eu mostre quais são ou procure por um tópico específico nele?"
+            },
+            {
+                toast: "Encontrou o que procurava?",
+                modal: "Olá! Se estiver com dificuldade para encontrar algo em **{{ modulo.nome }}**, é só me avisar. Posso fazer uma busca inteligente para você. 😉"
+            },
+        ];
+        
+        // 2. O contexto agora passa a lista inteira de possibilidades.
+        const proactiveContext = {
+            type: 'module_page',
+            moduleId: '{{ modulo.id }}',
+            moduleName: '{{ modulo.nome }}',
+            messages: possibleMessages // Passamos o array de mensagens
+        };
+
+        // 3. As configurações do timer continuam as mesmas.
+        const timerConfig = {
+            timeout: 120000, // 2 minutos
+            promptTimeout: 300000 // 5 minutos
+        };
+
+        // 4. Inicia o assistente com o novo contexto.
+        initializeProactiveAssistant(proactiveContext, timerConfig);
     }
 });
 </script>
