@@ -11,7 +11,7 @@ Toda Coordenação é aberta para uma Filial ou uma Base.
 - **Coleta**  
   Feita para as coletas frequentes de clientes que têm contrato. Gera uma ordem de coleta automaticamente.
 
-- **[[Reversa]]**  
+- **Reversa**  
   Feita para destinatários que acumulam produtos a serem devolvidos para o remetente, onde o remetente é um cliente Luft. Gera uma ordem de coleta automaticamente.
 
 - **Cliente retira**  
