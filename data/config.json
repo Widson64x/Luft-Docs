@@ -124,9 +124,9 @@
         "data": null
       },
       "version_info": {
-        "current_version": "1.4",
+        "current_version": "1.5",
         "last_approved_by": "widson.araujo",
-        "last_approved_on": "2025-07-24T10:16:04.010779"
+        "last_approved_on": "2025-07-29T17:18:29.179198"
       },
       "edit_history": [
         {
@@ -164,6 +164,15 @@
           "timestamp": "2025-07-24T10:16:04.010779",
           "backup_file_doc": "v1.4_2025-07-24T10-16-04_widson.araujo_documentation.md",
           "backup_file_tech": "v1.4_2025-07-24T10-16-04_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.5",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-29T17:18:29.179198",
+          "backup_file_doc": "v1.5_2025-07-29T17-18-29_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.5_2025-07-29T17-18-29_widson.araujo_technical.md"
         }
       ]
     },
@@ -355,9 +364,9 @@
       "relacionados": [],
       "status": "aprovado",
       "version_info": {
-        "current_version": "1.1",
+        "current_version": "1.5",
         "last_approved_by": "widson.araujo",
-        "last_approved_on": "2025-07-29T10:08:18.839533"
+        "last_approved_on": "2025-07-30T14:22:20.933237"
       },
       "pending_edit_info": {
         "user": null,
@@ -378,6 +387,42 @@
           "timestamp": "2025-07-29T10:08:18.839533",
           "backup_file_doc": "v1.1_2025-07-29T10-08-18_widson.araujo_documentation.md",
           "backup_file_tech": "v1.1_2025-07-29T10-08-18_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.2",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-29T14:28:47.589733",
+          "backup_file_doc": "v1.2_2025-07-29T14-28-47_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.2_2025-07-29T14-28-47_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.3",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-29T14:32:48.355080",
+          "backup_file_doc": "v1.3_2025-07-29T14-32-48_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.3_2025-07-29T14-32-48_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.4",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-30T09:27:24.228607",
+          "backup_file_doc": "v1.4_2025-07-30T09-27-24_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.4_2025-07-30T09-27-24_widson.araujo_technical.md"
+        },
+        {
+          "event": "aprovado",
+          "version": "1.5",
+          "editor": "widson.araujo",
+          "approver": "widson.araujo",
+          "timestamp": "2025-07-30T14:22:20.933237",
+          "backup_file_doc": "v1.5_2025-07-30T14-22-20_widson.araujo_documentation.md",
+          "backup_file_tech": "v1.5_2025-07-30T14-22-20_widson.araujo_technical.md"
         }
       ]
     },
@@ -431,6 +476,32 @@
           "timestamp": "2025-07-23T11:52:53.840870",
           "backup_file_doc": "v1.3_2025-07-23T11-52-53_widson.araujo_documentation.md",
           "backup_file_tech": "v1.3_2025-07-23T11-52-53_widson.araujo_technical.md"
+        }
+      ]
+    },
+    {
+      "id": "procedimento-co2",
+      "nome": "Procedimento CO₂",
+      "descricao": "Fluxo de atividades para o gerenciamento do CO₂.",
+      "icone": "bi-2-circle",
+      "palavras_chave": [],
+      "relacionados": [],
+      "status": "aprovado",
+      "version_info": {
+        "current_version": "1.0",
+        "last_approved_by": "widson.araujo",
+        "last_approved_on": "2025-07-30T16:10:21.338258"
+      },
+      "pending_edit_info": {
+        "user": null,
+        "data": null
+      },
+      "edit_history": [
+        {
+          "event": "criado",
+          "version": "1.0",
+          "user": "widson.araujo",
+          "timestamp": "2025-07-30T16:10:21.338258"
         }
       ]
     }
