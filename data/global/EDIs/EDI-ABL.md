@@ -8,13 +8,13 @@ A tabela responde às perguntas: "Mando ou não mando?", "Destino?" e "Como é e
 
 | Tipo de EDI | Mando? | Destino | Detalhes do Envio |
 | :---------- | :----: | :-------: | :--------------------------------------------------- |
-| `CONENB`    | **Sim** | Cliente   | Envio por E-mail.|
+| `CONEMB`    | **Sim** | Cliente   | Envio por E-mail.|
 | `DOCCOB`    | **Sim** | Cliente   | Envio por E-mail.|
 
 ### Regras de Negócio e Observações
-1.  Os arquivos `DOCCOB` e `CONENB` são gerados e enviados diretamente para o cliente, sem intermediários.
+1.  Os arquivos `DOCCOB` e `CONEMB` são gerados e enviados diretamente para o cliente, sem intermediários.
 2.  O método de envio para ambos os arquivos é **E-mail Automático**.
-3.  O processo do `CONENB` é executado **a cada 5 minutos, todos os dias**.
+3.  O processo do `CONEMB` é executado **a cada 5 minutos, todos os dias**.
 4.  O processo do `DOCCOB` é executado **a cada 5 minutos, todos os dias**.
 
 ### E-mails de Envio
@@ -22,7 +22,7 @@ A tabela responde às perguntas: "Mando ou não mando?", "Destino?" e "Como é e
 
 Abaixo estão as listas de destinatários para cada tipo de arquivo EDI.
 
-#### **EDI `CONENB`**
+#### **EDI `CONEMB`**
 * **Para (`To`):**
     * `celula.edi@luftlogistics.com`
     * `rubens.menezes@luftlogistics.com`

@@ -30,7 +30,7 @@ except Exception as e:
 # --- ROTA PARA A PÁGINA DE TESTES (sem alterações) ---
 @ia_bp.route('/test_ia')
 def test_ia_page():
-    return render_template('test_ia.html')
+    return render_template('pages/test_ia.html')
 
 # --- ENDPOINT DE API (COM A NOVA LÓGICA DE BUSCA) ---
 @ia_bp.route('/api/ask_llm', methods=['POST'])

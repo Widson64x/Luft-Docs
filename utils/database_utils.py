@@ -2,9 +2,10 @@
 import sqlite3
 import os
 from flask import current_app, g
+from Config import BASE_DIR
 
 # Define o nome do arquivo do banco de dados
-DATABASE_NAME = 'luftdocs.db'
+DATABASE_NAME = BASE_DIR / 'DATA' / 'luftdocs.db'
 
 def get_db_path():
     """Retorna o caminho completo para o arquivo do banco de dados."""

@@ -6,7 +6,6 @@
 
     <title>{% block title %}LuftDocs{% endblock %}</title>
 
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/icon2.png') }}" type="image/png">
     <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,649 +13,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
-    <style>
-     /* --- VARIÁVEIS GLOBAIS --- */
-     :root {
-         --font-size-base: 1rem; /* Variável única para tamanho da fonte */
-         
-         /* Tema Claro (Padrão) */
-         --bg-color: #f9f9fb;
-         --text-color: #212529;
-         --surface-bg: #ffffff; /* Navbar, Footer, Cards */
-         --surface-color: #23263b;
-         --accent-color: #1a237e;
-         --border-color: #dee2e6;
-         --shadow-color: #0000000d;
-        --lia-bg-color-light: #f0f2f5;
-        --lia-surface-color-light: rgba(255, 255, 255, 0.5);
-        --lia-glow-color-light: #0d6efd;
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-        --lia-bg-color-dark: #0A0A10;
-        --lia-surface-color-dark: rgba(25, 28, 41, 0.5);
-        --lia-glow-color-dark: #339dff;
-
-        --lia-grad-1: #0077ff;
-        --lia-grad-2: #00eaff;
-        --lia-grad-3: #9400d3;
-     }
-
-     /* --- TEMA ESCURO --- */
-     body.theme-dark {
-         --bg-color: #1e1e1e;
-         --text-color: #e7eaf1;
-         --surface-bg: #2b2b3a;
-         --surface-color: #f8f9fa;
-         --accent-color: #f5f5f5;
-         --border-color: #444444;
-         --shadow-color: #00000026;
-     }
-
-     /* --- ESTILOS BASE --- */
-     body {
-         background-color: var(--bg-color);
-         color: var(--text-color);
-         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-         font-size: var(--font-size-base);
-         margin: 0;
-         transition: background-color 0.3s, color 0.3s, font-size 0.3s;
-     }
-     
-     /* --- LAYOUT --- */
-     .navbar, .footer-LuftDocs {
-         background-color: var(--surface-bg);
-         color: var(--surface-color);
-         padding: 1rem clamp(1rem, 4vw, 6rem); /* Padding responsivo com clamp() */
-         box-shadow: 0 2px 12px var(--shadow-color);
-         transition: background-color 0.3s, color 0.3s;
-     }
-
-     .navbar {
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-         flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas pequenas */
-         gap: 1rem;
-     }
-     
-     .main {
-         padding: 2rem clamp(1rem, 4vw, 6rem); /* Padding responsivo */
-         max-width: 1200px;
-         margin: 0 auto;
-     }
-
-     .footer-LuftDocs {
-         margin-top: 0rem;
-         padding-top: 0rem;
-         padding-bottom: 1.5rem;
-         text-align: center;
-         box-shadow: 0 -2px 10px var(--shadow-color);
-     }
-     
-     /* --- COMPONENTES --- */
-     .logo-wiki {
-         color: var(--surface-color);
-         font-size: 1.35rem;
-         font-weight: 700;
-         text-decoration: none;
-         transition: color 0.15s;
-     }
-     .logo-wiki:hover { color: #0d6efd; }
-
-     .modulo-conteudo img, .modulo-conteudo video {
-         max-width: 440px;
-         width: 100%;
-         height: auto;
-         display: block;
-         margin: 1.5rem auto;
-         border-radius: 12px;
-         box-shadow: 0 2px 10px var(--shadow-color);
-         transition: box-shadow 0.2s, filter 0.2s;
-         cursor: pointer;
-     }
-     .modulo-conteudo img:hover, .modulo-conteudo video:hover {
-         box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0000001a;
-         filter: brightness(1.04);
-     }
-     
-     /* --- OVERRIDES TEMA ESCURO --- */
-     body.theme-dark .card,
-     body.theme-dark .modal-content,
-     body.theme-dark .dropdown-menu {
-         background-color: var(--surface-bg);
-         color: var(--text-color);
-         border-color: var(--border-color);
-     }
-
-     body.theme-dark .text-body,
-     body.theme-dark .dropdown-item,
-     body.theme-dark .form-check-label {
-         color: var(--text-color) !important;
-     }
-     
-     body.theme-dark .text-primary { color: var(--accent-color) !important; }
-     body.theme-dark .text-dark { color: var(--surface-color) !important; }
-
-     body.theme-dark .btn-outline-dark {
-         color: var(--surface-color);
-         border-color: var(--surface-color);
-     }
-     body.theme-dark .btn-outline-dark:hover {
-         color: var(--surface-bg);
-         background-color: var(--surface-color);
-     }
-     
-     body.theme-dark .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-     body.theme-dark .nav-tabs .nav-link {
-         background-color: var(--surface-bg);
-         color: var(--text-color);
-         border-color: var(--border-color);
-     }
-     body.theme-dark .nav-tabs .nav-link.active { background-color: #3a3a4a; }
-
-     body.theme-dark .form-select,
-     body.theme-dark .form-check-input {
-         background-color: #1e1e1e;
-         color: var(--text-color);
-         border-color: var(--border-color);
-     }
-
-
-    /* ================================================================= */
-    /* === LIA AI - REDESIGN FUTURISTA ================================= */
-    /* ================================================================= */
-
-    /* --- Variáveis de Cor para o Tema da IA --- */
-    :root {
-        --lia-bg-light: #f0f2f5; /* Fundo geral claro */
-        --lia-surface-light: rgba(255, 255, 255, 0.5); /* Superfície (balões, input) clara e translúcida */
-        --lia-glow-light: #0d6efd; /* Cor de destaque/brilho clara (azul) */
-        --lia-border-light: rgba(255, 255, 255, 0.2); /* Cor de borda sutil clara */
-
-        /* Cores para o tema escuro */
-        --lia-bg-dark: #0A0A10; /* Fundo geral escuro */
-        --lia-surface-dark: rgba(25, 28, 41, 0.5); /* Superfície escura e translúcida */
-        --lia-glow-dark: #339dff; /* Cor de destaque/brilho escura (azul claro) */
-        --lia-border-dark: rgba(50, 50, 80, 0.3); /* Cor de borda sutil escura */
-
-        /* Variáveis globais para integração com o tema principal do site */
-        --text-color: #212529; /* Cor padrão do texto no tema claro */
-        --border-color: #dee2e6; /* Cor padrão da borda no tema claro */
-        --surface-bg: #ffffff; /* Cor padrão da superfície no tema claro */
-    }
-
-    /* Adaptação das variáveis globais para o tema escuro do site */
-    body.theme-dark {
-        --text-color: #f8f9fa; /* Cor do texto no tema escuro */
-        --border-color: #495057; /* Cor da borda no tema escuro */
-        --surface-bg: #212529; /* Cor da superfície no tema escuro */
-    }
-
-    /* --- Botão Flutuante (LIA) --- */
-    .floating-lia-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        z-index: 1050; /* Garante que esteja acima de outros elementos */
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #0d6efd, #0558ca); /* Gradiente de azul */
-        color: white;
-        border-radius: 50%; /* Botão redondo */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        border: none;
-        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4); /* Sombra vibrante */
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição suave e bouncy */
-        animation: lia-pulse 2.5s infinite; /* Animação de pulso padrão */
-    }
-    .floating-lia-btn:hover {
-        transform: scale(1.15) rotate(15deg); /* Efeito de escala e rotação ao hover */
-        box-shadow: 0 12px 40px rgba(13, 110, 253, 0.5);
-        animation: none; /* Remove a animação de pulso ao hover */
-    }
-
-    /* --- Estrutura do Modal --- */
-    #liaModal .modal-dialog {
-        max-width: 900px;
-    }
-    #liaModal .modal-content {
-        background: transparent; /* Fundo transparente para o efeito de vidro */
-        border: none;
-        backdrop-filter: blur(16px) saturate(180%); /* Efeito de vidro principal */
-        -webkit-backdrop-filter: blur(16px) saturate(180%);
-    }
-
-    /* Animação de entrada do Modal */
-    .modal.fade .modal-dialog {
-        transform: scale(0.95) translateY(20px);
-        opacity: 0;
-        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
-    }
-    .modal.show .modal-dialog {
-        transform: scale(1) translateY(0);
-        opacity: 1;
-    }
-
-    /* --- Corpo do Modal (área principal) --- */
-    #liaModal .modal-body {
-        display: flex;
-        flex-direction: column;
-        height: 80vh; /* Altura responsiva */
-        max-height: 850px; /* Altura máxima */
-        padding: 0;
-        border-radius: 16px;
-        overflow: hidden; /* Garante que o grid de fundo não vaze */
-        position: relative;
-        background-color: var(--lia-bg-light); /* Fundo base */
-        border: 1px solid var(--lia-border-light); /* Borda sutil */
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* Sombra forte para destaque */
-    }
-    body.theme-dark #liaModal .modal-body {
-        background-color: var(--lia-bg-dark);
-        border: 1px solid var(--lia-border-dark);
-    }
-
-    /* Padrão de grade animado no fundo */
-    #liaModal .modal-body::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: 
-            linear-gradient(rgba(13, 110, 253, 0.05) 1px, transparent 1px),
-            linear-gradient(to right, rgba(13, 110, 253, 0.05) 1px, transparent 1px);
-        background-size: 30px 30px; /* Tamanho da célula da grade */
-        animation: lia-grid-scroll 10s linear infinite; /* Animação de scroll */
-        z-index: 1;
-    }
-    body.theme-dark #liaModal .modal-body::before {
-        background-image: 
-            linear-gradient(rgba(51, 157, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(to right, rgba(51, 157, 255, 0.1) 1px, transparent 1px);
-    }
-
-    /* --- Área de Respostas do Chat --- */
-    #liaResponseContainer {
-        flex-grow: 1; /* Ocupa o espaço disponível */
-        overflow-y: auto;
-        padding: 1.5rem;
-        position: relative;
-        z-index: 2; /* Acima do grid de fundo */
-        display: flex;
-        flex-direction: column;
-        gap: 1rem; /* Espaçamento entre as mensagens */
-    }
-    /* Estilos da barra de rolagem customizada */
-    #liaResponseContainer::-webkit-scrollbar { width: 6px; }
-    #liaResponseContainer::-webkit-scrollbar-track { background: transparent; }
-    #liaResponseContainer::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 6px; }
-    body.theme-dark #liaResponseContainer::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.3); }
-
-
-    /* --- Balões de Mensagem --- */
-    #liaResponseContainer .lia-message {
-        padding: 0.8rem 1.2rem;
-        border-radius: 12px; /* Bordas mais arredondadas */
-        max-width: 85%;
-        width: fit-content; /* Ajusta a largura ao conteúdo */
-        line-height: 1.6;
-        animation: lia-fade-in-up 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Animação de entrada */
-        background: var(--lia-surface-light); /* Cor de fundo com transparência */
-        border: 1px solid var(--lia-border-light);
-        backdrop-filter: blur(10px); /* Efeito de vidro nos balões */
-        -webkit-backdrop-filter: blur(10px);
-        color: var(--text-color); /* Garante que o texto seja legível */
-        position: relative; /* Necessário para posicionamento absoluto do feedback */
-        padding-bottom: 2rem; /* Aumenta o padding inferior para os botões discretos */
-    }
-    body.theme-dark #liaResponseContainer .lia-message {
-        background: var(--lia-surface-dark);
-        border: 1px solid var(--lia-border-dark);
-    }
-    #liaResponseContainer .user-message {
-        margin-left: auto; /* Alinha mensagens do usuário à direita */
-        background: var(--lia-glow-light); /* Cor de destaque para o usuário */
-        color: white;
-    }
-    body.theme-dark #liaResponseContainer .user-message {
-        background: var(--lia-glow-dark);
-        color: #0A0A10; /* Cor de texto para contraste no tema escuro do user-message */
-    }
-
-    /* --- Área de Input (pergunta, modelo, botões) --- */
-    .lia-input-area {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--lia-border-light);
-        background: var(--lia-surface-light);
-        z-index: 3;
-        position: relative;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    body.theme-dark .lia-input-area {
-        background: var(--lia-surface-dark);
-        border-top: 1px solid var(--lia-border-dark);
-    }
-
-    .lia-input-area .input-group {
-        border-radius: 12px; /* Bordas arredondadas para o grupo de input */
-        background: var(--lia-bg-light);
-        padding: 0.25rem;
-        border: 1px solid var(--border-color); /* Borda sutil */
-        transition: box-shadow 0.3s, border-color 0.3s; /* Transição para o foco */
-    }
-    body.theme-dark .lia-input-area .input-group {
-        background: var(--lia-bg-dark);
-    }
-    .lia-input-area .input-group:focus-within {
-        border-color: var(--lia-glow-light); /* Cor de brilho no foco */
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-    }
-    body.theme-dark .lia-input-area .input-group:focus-within {
-        border-color: var(--lia-glow-dark);
-        box-shadow: 0 0 0 3px rgba(51, 157, 255, 0.25);
-    }
-
-    #iaResponse img { /* Imagens dentro da resposta da IA */
-        border-radius: 0.75rem !important; /* Bordas mais suaves na imagem */
-        margin: 1rem 0;
-    }
-
-    /* Define um tamanho máximo para as imagens dentro dos balões de mensagem */
-    #liaResponseContainer .lia-message img {
-        max-width: 450px; /* <<-- Altere este valor como quiser */
-        height: auto;
-        display: block;
-        margin: 1rem auto; /* Centraliza a imagem */
-        border-radius: 12px; /* Adiciona bordas arredondadas à imagem */
-    }
-
-    .lia-input-area #liaUserQuestion,
-    .lia-input-area #liaUserQuestion:focus {
-        background: transparent; /* Fundo transparente */
-        border: none; /* Remove a borda padrão do input */
-        color: var(--text-color);
-        box-shadow: none; /* Remove sombra no foco */
-    }
-    .lia-input-area #liaAskButton,
-    .lia-input-area #liaModulesHelperBtn {
-        border-radius: 10px !important; /* Botões com bordas arredondadas */
-    }
-
-    /* --- Autocomplete e Contexto (ajustes de estilo) --- */
-    #liaModulesList {
-        background-color: var(--surface-bg);
-    }
-    .lia-context-area {
-        margin-top: 1rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid var(--border-color);
-    }
-    .btn-context {
-        display: block;
-        background-color: var(--lia-bg-light); /* Adapta ao tema claro/escuro da Lia */
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        color: var(--lia-glow-light);
-        text-decoration: none;
-        text-align: center;
-        font-size: 0.9rem;
-        transition: background-color 0.2s ease-in-out;
-    }
-    body.theme-dark .btn-context {
-        background-color: var(--lia-bg-dark);
-        color: var(--lia-glow-dark);
-    }
-    .btn-context:hover {
-        background-color: rgba(13, 110, 253, 0.1); /* Hover suave */
-    }
-    body.theme-dark .btn-context:hover {
-        background-color: rgba(51, 157, 255, 0.1);
-    }
-
-    /* --- ESTILOS DE FEEDBACK (DISCRETO E NO CANTO) --- */
-    .feedback-section {
-        position: absolute; /* Posição absoluta dentro do balão da mensagem */
-        bottom: 5px; /* Alinha no canto inferior direito do balão */
-        right: 5px;
-        z-index: 10; /* Garante que esteja sobre o conteúdo do balão */
-        display: flex; /* Para alinhar os botões */
-        align-items: center;
-        gap: 8px; /* Espaçamento entre os botões de feedback e a mensagem */
-        background: none; /* Sem fundo */
-        border: none; /* Sem borda */
-        padding: 0; /* Sem padding */
-        margin: 0; /* Sem margin */
-        box-shadow: none; /* Sem sombra */
-        text-align: right; /* Alinha conteúdo à direita */
-        opacity: 0; /* Começa invisível */
-        transform: translateY(10px); /* Começa um pouco abaixo para animação */
-        transition: opacity 0.3s ease, transform 0.3s ease; /* Transição suave */
-        pointer-events: none; /* Permite clicar através quando invisível */
-    }
-
-    /* Mostra a seção de feedback ao passar o mouse sobre a mensagem da Lia */
-    #liaResponseContainer .lia-message:not(.user-message):hover .feedback-section {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: all; /* Habilita cliques quando visível */
-    }
-
-    .feedback-section small {
-        font-size: 0.75rem; /* Fonte menor */
-        color: var(--text-color); /* Adapta ao tema */
-        display: none; /* Esconde o texto "Esta resposta foi útil?" por padrão para ser discreto */
-    }
-
-    .feedback-buttons {
-        display: flex;
-        gap: 2px; /* Espaçamento muito pequeno entre os botões */
-        margin: 0;
-    }
-
-    .feedback-buttons button {
-        background: transparent; /* Fundo transparente */
-        border: none; /* Sem borda */
-        padding: 3px 6px; /* Padding mínimo */
-        font-size: 0.9rem; /* Tamanho do ícone/texto */
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        border-radius: 4px; /* Bordas levemente arredondadas */
-        color: var(--text-color); /* Cor do ícone/texto */
-        opacity: 0.7; /* Mais discreto por padrão */
-    }
-    body.theme-dark .feedback-buttons button {
-        color: var(--lia-glow-dark); /* Ícones do tema escuro em azul claro */
-    }
-
-    .feedback-buttons button:hover {
-        background-color: rgba(0, 0, 0, 0.1); /* Fundo sutil ao hover */
-        opacity: 1; /* Aumenta a opacidade ao hover */
-    }
-    body.theme-dark .feedback-buttons button:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .feedback-buttons button.feedback-good-btn:hover {
-        color: #28a745; /* Cor verde ao hover */
-    }
-
-    .feedback-buttons button.feedback-bad-btn:hover {
-        color: #dc3545; /* Cor vermelha ao hover */
-    }
-
-    .feedback-comment-area {
-        position: absolute; /* Posição absoluta para expandir da base do balão */
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 10px;
-        background: var(--lia-bg-light); /* Fundo da área de comentário */
-        border-top: 1px solid var(--lia-border-light);
-        transform: translateY(100%); /* Começa escondido abaixo */
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        opacity: 0;
-        z-index: 11; /* Acima da seção de feedback */
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-    }
-    body.theme-dark .feedback-comment-area {
-        background: var(--lia-bg-dark);
-        border-top: 1px solid var(--lia-border-dark);
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
-    }
-
-    /* Mostra a área de comentário */
-    .feedback-comment-area[style*="display: block"] {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    .feedback-comment-area textarea {
-        width: 100%;
-        min-height: 50px; /* Altura mínima reduzida */
-        border-radius: 0.4rem;
-        padding: 0.6rem;
-        border: 1px solid var(--border-color);
-        background-color: var(--surface-bg);
-        color: var(--text-color);
-        box-shadow: none; /* Remove a sombra interna */
-        transition: border-color 0.2s ease-in-out;
-    }
-    .feedback-comment-area textarea:focus {
-        border-color: var(--lia-glow-light); /* Foco em destaque */
-        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2); /* Sombra de foco mais discreta */
-    }
-    body.theme-dark .feedback-comment-area textarea:focus {
-        border-color: var(--lia-glow-dark);
-        box-shadow: 0 0 0 0.15rem rgba(51, 157, 255, 0.2);
-    }
-
-    .submit-comment-btn {
-        margin-top: 0.8rem; /* Espaçamento menor */
-        padding: 0.4rem 1rem;
-        font-size: 0.85rem;
-        border-radius: 0.4rem;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .feedback-message {
-        font-size: 0.8rem; /* Mensagem de feedback menor */
-        margin-top: 0.5rem;
-        padding: 0.4rem 0.8rem;
-        border-radius: 0.2rem;
-        font-weight: normal; /* Menos negrito */
-        opacity: 0.9;
-    }
-    /* Cores dinâmicas para sucesso/erro */
-    .feedback-message p.text-success {
-        color: #157347 !important; /* Cor mais forte para sucesso */
-        background-color: #d1e7dd;
-        border: 1px solid #a3cfbb;
-    }
-    .feedback-message p.text-danger {
-        color: #bb2d3b !important; /* Cor mais forte para erro */
-        background-color: #f8d7da;
-        border: 1px solid #f5c2c7;
-    }
-    .feedback-message p.text-info { /* Para a mensagem de "adicione comentário" */
-        color: #055160 !important;
-        background-color: #dbeaf0;
-        border: 1px solid #b6d4fe;
-    }
-
-    /* --- Keyframes para Animações --- */
-    @keyframes lia-pulse {
-        50% { transform: scale(1.05); }
-    }
-    @keyframes lia-grid-scroll {
-        from { background-position: 0 0; }
-        to { background-position: 30px 30px; } /* Deslocamento do grid */
-    }
-    @keyframes lia-fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Animação proativa para o botão flutuante */
-    .lia-proactive {
-        animation: lia-proactive-pulse 2s infinite;
-    }
-    @keyframes lia-proactive-pulse {
-        0% {
-            transform: scale(1);
-            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
-        }
-        50% {
-            transform: scale(1.1);
-            box-shadow: 0 10px 40px rgba(13, 110, 253, 0.6);
-        }
-        100% {
-            transform: scale(1);
-            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
-        }
-    }
-
-    .lia-proactive-toast {
-        position: fixed;
-        /* Posiciona acima do botão flutuante */
-        bottom: 95px; 
-        right: 25px;
-        z-index: 1049; /* Fica abaixo do modal, mas acima do resto */
-        
-        /* Aparência */
-        background: linear-gradient(135deg, #0d6efd, #0558ca);
-        color: white;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
-        display: flex;
-        align-items: center;
-        
-        /* Estado inicial e animação */
-        opacity: 0;
-        transform: translateY(15px) scale(0.95);
-        transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        pointer-events: none; /* Impede que o toast seja clicável */
-    }
-
-    /* Classe que ativa a visibilidade e a animação de entrada */
-    .lia-proactive-toast.show {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    /* Pequena seta que aponta para o botão */
-    .lia-proactive-toast .toast-pointer {
-        position: absolute;
-        bottom: -7px; /* Posiciona a seta para fora do corpo do toast */
-        right: 22px;
-        width: 16px;
-        height: 16px;
-        background: #0558ca; /* Cor que combina com o gradiente */
-        transform: rotate(45deg);
-        z-index: -1;
-    }
-
-    .lia-proactive-toast .toast-content {
-        display: flex;
-        align-items: center;
-        gap: 8px; /* Espaço entre o ícone e o texto, se houver */
-    }
-
-    </style>
 </head>
 <body>
+    <canvas id="background-animation-canvas"></canvas>
     <nav class="navbar">
         <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-wiki d-flex align-items-center">
-            <img src="{{ url_for('static', filename='assets/icon2.png') }}" alt="LuftDocs Logo" width="50" height="50" class="me-2">
-            <span>LuftDocs</span>
+            <img src="{{ url_for('static', filename='assets/logo-claro.png') }}" alt="LuftDocs Logo" class="me-2" id="logo-image">
         </a>
         <div class="d-flex align-items-center">
             
@@ -719,6 +84,8 @@
                     <ul class="nav nav-tabs mb-4" role="tablist">
                         <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visuais">Visuais</button></li>
                         <li class="nav-item" role="presentation"><button class="nav-link dev-feature" data-bs-toggle="tab" data-bs-target="#operacoes">Operações</button></li>
+                        
+                        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reportar-bug">Reportar</button></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="visuais">
@@ -733,6 +100,39 @@
                         </div>
                         <div class="tab-pane fade" id="operacoes">
                             <p class="text-center text-muted">Esta seção está em desenvolvimento.</p>
+                        </div>
+                        <div class="tab-pane fade" id="reportar-bug">
+                            <h4>Reportar um Problema ou Sugestão</h4>
+                            <p>Sua opinião é fundamental! Direcione seu feedback para nos ajudar a identificar o local exato do problema.</p>
+                            
+                            <form id="bugReportForm">
+                                <div class="mb-3">
+                                    <label for="reportType" class="form-label">Qual o tipo de feedback?</label>
+                                    <select class="form-select" id="reportType" required>
+                                        <option value="" selected disabled>Selecione uma opção...</option>
+                                        <option value="tela">Problema em uma Tela Específica</option>
+                                        <option value="modulo">Problema em um Módulo Específico</option>
+                                        <option value="geral">Problema Geral no Sistema</option>
+                                        <option value="sugestao">Sugestão de Melhoria</option>
+                                    </select>
+                                </div>
+
+                                <div id="targetEntityWrapper" class="mb-3" style="display: none;">
+                                </div>
+
+                                <div id="errorCategoryWrapper" class="mb-3" style="display: none;">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bugDescription" class="form-label">Descrição Detalhada:</label>
+                                    <textarea class="form-control" id="bugDescription" rows="5" placeholder="Por favor, descreva o problema ou a sua sugestão com o máximo de detalhes." required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-bug-fill me-2"></i>Enviar Feedback
+                                </button>
+                            </form>
+                            <div id="reportStatus" class="mt-3"></div>
                         </div>
                     </div>
                 </div>
@@ -834,138 +234,68 @@
         <div class="toast-pointer"></div>
     </div>
     {% endif %}
+
     {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>
-    // Script principal unificado para melhor organização e performance.
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- INSTÂNCIAS E ELEMENTOS ---
-        const devModal = new bootstrap.Modal(document.getElementById('modalDev'));
-        const configToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('configToast'));
-        const highlightStyle = document.getElementById('highlight-theme-style');
-        const body = document.body;
-
-        const ui = {
-            selectTema: document.getElementById('selectTema'),
-            fontSize: document.getElementById('fontSize'),
-            switchCompactMode: document.getElementById('switchCompactMode'),
-            selectAnimacao: document.getElementById('selectAnimacao'),
-            rangeQuantidade: document.getElementById('rangeQuantidade'),
-            labelQuantidade: document.getElementById('labelQuantidade'),
-            rangeVelocidade: document.getElementById('rangeVelocidade'),
-            labelVelocidade: document.getElementById('labelVelocidade'),
-            btnSalvarConfigs: document.getElementById('btnSalvarConfigs')
-        };
-        
-        // --- FUNÇÕES DE CONFIGURAÇÃO ---
-        const applyTheme = (theme) => {
-            const isDark = (theme === 'dark') || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            body.classList.toggle('theme-dark', isDark);
-            highlightStyle.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github${isDark ? '-dark' : ''}.min.css`;
-        };
-
-        const applyFontSize = (size) => {
-            body.style.setProperty('--font-size-base', size);
-        };
-
-        const applyBgAnimation = (mode) => {
-            if (typeof window.mudarAnimacao === 'function') {
-                window.mudarAnimacao(mode);
-            }
-        };
-
-        // --- CARREGAMENTO INICIAL DAS CONFIGS ---
-        const loadSettings = () => {
-            const settings = {
-                theme: localStorage.getItem('ld_theme') || 'light',
-                fontSize: localStorage.getItem('ld_fontSize') || '1rem',
-                bgAnimation: localStorage.getItem('ld_bgAnimation') || 'colisao',
-                bgQuantity: localStorage.getItem('ld_bg_quantity') || '50',
-                bgSpeed: localStorage.getItem('ld_bg_speed') || '1.0'
-            };
-            
-            applyTheme(settings.theme);
-            applyFontSize(settings.fontSize);
-            applyBgAnimation(settings.bgAnimation);
-
-            // Preenche os inputs do modal
-            if (ui.selectTema) { // Verifica se os elementos existem antes de usá-los
-                ui.selectTema.value = settings.theme;
-                ui.fontSize.value = settings.fontSize;
-                ui.selectAnimacao.value = settings.bgAnimation;
-                ui.rangeQuantidade.value = settings.bgQuantity;
-                ui.labelQuantidade.textContent = settings.bgQuantity;
-                ui.rangeVelocidade.value = settings.bgSpeed;
-                ui.labelVelocidade.textContent = `${settings.bgSpeed}x`;
-            }
-            
-            // Ativa highlight.js e Viewer.js
-            hljs.highlightAll();
-            const viewerEl = document.getElementById('main-content');
-            if (viewerEl) {
-                new Viewer(viewerEl, {
-                    filter(image) { return image.parentElement.classList.contains('modulo-conteudo'); }, // Visualizar apenas imagens no conteúdo
-                    toolbar: true, navbar: false, title: false, movable: true, zoomable: true,
-                    rotatable: false, scalable: false, transition: true, fullscreen: true,
-                });
-            }
-        };
-        
-        // --- EVENT LISTENERS ---
-        if(ui.btnSalvarConfigs) {
-            ui.btnSalvarConfigs.addEventListener('click', () => {
-                const newSettings = { theme: ui.selectTema.value, fontSize: ui.fontSize.value, bgAnimation: ui.selectAnimacao.value, bgQuantity: ui.rangeQuantidade.value, bgSpeed: ui.rangeVelocidade.value };
-                Object.entries(newSettings).forEach(([key, value]) => { localStorage.setItem(`ld_${key}`, value); });
-                localStorage.setItem('ld_bg_quantity', newSettings.bgQuantity);
-                localStorage.setItem('ld_bg_speed', newSettings.bgSpeed);
-                applyTheme(newSettings.theme);
-                applyFontSize(newSettings.fontSize);
-                applyBgAnimation(newSettings.bgAnimation);
-                configToast.show();
-                bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
-            });
-
-            // Sliders de range
-            ui.rangeQuantidade.addEventListener('input', e => ui.labelQuantidade.textContent = e.target.value);
-            ui.rangeVelocidade.addEventListener('input', e => ui.labelVelocidade.textContent = `${e.target.value}x`);
-        }
-
-        // Gatilho para features em desenvolvimento
-        document.querySelectorAll('.dev-feature').forEach(el => {
-            const eventType = el.type === 'checkbox' ? 'change' : 'click';
-            el.addEventListener(eventType, (e) => {
-                if ( (el.type === 'checkbox' && e.target.checked) || (el.type !== 'checkbox') ) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    devModal.show();
-                    if (el.type === 'checkbox') e.target.checked = false; // Desfaz a ação
-                    if(el.hasAttribute('data-bs-toggle')) {
-                        const previousTab = document.querySelector('.nav-tabs .nav-link.active');
-                        if(previousTab) bootstrap.Tab.getOrCreateInstance(previousTab).show();
-                    }
-                }
-            });
-        });
-
-        // --- INICIALIZAÇÃO ---
-        loadSettings();
-    });
-    </script>
     
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <script>
         const LIA_API_URLS = {
             get_modules: "{{ url_for('ia_bp.get_modules_list') }}",
             ask_llm: "{{ url_for('ia_bp.ask_llm_api') }}",
             submit_feedback: "{{ url_for('ia_bp.submit_feedback_api') }}"
         };
+
+        // Passa a lista de módulos para o JavaScript, necessário para o formulário de report.
+        const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
+        
+        // Define a URL para o fetch do formulário de report.
+        const bugReportURL = "{{ url_for('index.report_bug') }}";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referência para o elemento <img> do logo
+            const logoImage = document.getElementById('logo-image');
+            
+            // Caminhos para as imagens dos logos
+            const logoLight = "{{ url_for('static', filename='assets/logo-claro-remove-m.png') }}";
+            const logoDark = "{{ url_for('static', filename='assets/logo-escuro-remove-m.png') }}";
+
+            // Função para atualizar o logo com base no tema
+            function updateLogo(isDark) {
+                if (logoImage) {
+                    logoImage.src = isDark ? logoDark : logoLight;
+                }
+            }
+            
+            // Obtenha a referência ao elemento body
+            const body = document.body;
+
+            // Crie um MutationObserver para observar mudanças nos atributos do body
+            const observer = new MutationObserver(function(mutationsList) {
+                for (let mutation of mutationsList) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const isDark = body.classList.contains('theme-dark');
+                        updateLogo(isDark);
+                    }
+                }
+            });
+
+            // Inicie o observer
+            observer.observe(body, { attributes: true });
+
+            // Chame a função de atualização uma vez para definir o logo inicial
+            updateLogo(body.classList.contains('theme-dark'));
+        });
+
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="{{ url_for('static', filename='js/lia_chat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lia_proactive_assistant.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     
     {% endblock %}
 </body>

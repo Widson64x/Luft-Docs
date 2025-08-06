@@ -1,7 +1,7 @@
 # utils/db_utils.py
 
 import os
-from config import DB_PATH
+from Config import DB_PATH
 import sqlite3
 
 def connect_db():

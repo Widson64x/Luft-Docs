@@ -4,9 +4,10 @@ from functools import wraps
 from flask import session, request, redirect, url_for, render_template, current_app
 import requests
 
-from utils.auth.user_provider import get_user_by_credentials, get_user_by_token
-from config import USER_API_URL
-from utils.auth.user_field_map import USER_FIELD_MAP
+from Utils.auth.user_provider import get_user_by_credentials, get_user_by_token
+from Config import USER_API_URL
+from Utils.auth.user_field_map import USER_FIELD_MAP
+
 
 # -----------------------------------------
 # Autenticação e Sessão de Usuário
@@ -41,7 +42,7 @@ def _populate_user_session(user_data_api):
     }
 
     # --- Permissões ---
-    from routes.permissions import load_permissions
+    from Routes.api.permissions import load_permissions
     perms_def = load_permissions()
     grupo = session['user_group']['acronym']
     usuario = session['user_name']
@@ -90,8 +91,7 @@ def authenticate_initial_request():
             return redirect(f"/?token={token}")
         return True
     # Falha
-    return render_template("info_login.html"), 403
-
+    return render_template("auth/info_login.html"), 403
 
 def login_required(f):
     @wraps(f)

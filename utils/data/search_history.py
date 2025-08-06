@@ -2,7 +2,7 @@
 
 import json
 import os
-from config import SEARCH_HISTORY_FILE, MAX_SEARCH_HISTORY, TOP_MOST_SEARCHED
+from Config import SEARCH_HISTORY_FILE, MAX_SEARCH_HISTORY, TOP_MOST_SEARCHED
 
 def load_search_history():
     if not os.path.exists(SEARCH_HISTORY_FILE):

@@ -10,10 +10,9 @@ import os
 
 # --- CHAVES DAS APIS DE IA (HARDCODED) ---
 AI_KEYS = {
-    'GEMINI_API_KEY': '',
+    'GEMINI_API_KEY': 'AIzaSyCq_L0tTa6nFZOlStwfcZJBkb2kkhRzys8',
     'GROQ_API_KEY': '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',
     'OPENAI_API_KEY': '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'
-    # Adicione outras chaves de IA conforme necessário
 }
 
 # --- CONFIGURAÇÃO DE AMBIENTE E API ---
@@ -24,7 +23,7 @@ ACTIVE_ENVIRONMENT = 'real'  # Opções: 'local', 'render', 'real'
 _URLS = {
     'local': "http://localhost:8000/api",
     'render': "https://api-wikidocs.onrender.com/api",
-    'real': "http://172.16.200.80:8000/api"
+    'real': "http://172.16.200.80:8005/api"
 }
 
 # Define a URL da API com base no ambiente ativo
@@ -39,13 +38,12 @@ USER_API_URL = _URLS.get(ACTIVE_ENVIRONMENT, _URLS['real'])
 BASE_DIR = Path(__file__).parent.resolve()
 
 # Dados e módulos
-DATA_DIR  = BASE_DIR / 'data' / 'modules'
-GLOBAL_DATA_DIR = BASE_DIR / 'data' / 'global'
-CONFIG_FILE = BASE_DIR / 'data' / 'config.json'
+DATA_DIR  = BASE_DIR / 'DATA' / 'modules'
+GLOBAL_DATA_DIR = BASE_DIR / 'DATA' / 'global'
+CONFIG_FILE = BASE_DIR / 'DATA' / 'config.json'
+VECTOR_DB_DIR = BASE_DIR / 'DATA' / 'LUFTDOCS_VECTOR_STORAGE'
+PERMISSION_PATH = BASE_DIR / 'DATA' / 'permission.json'
 
-# JSONs de controle
-MODULE_ACCESS_FILE = DATA_DIR / 'module_access.json'
-SEARCH_HISTORY_FILE = DATA_DIR / 'search_history.json'
 
 # Limites e defaults
 MAX_SEARCH_HISTORY = 20
@@ -57,16 +55,11 @@ USER_API_CREDENTIAL_PARAMS = ["login_usuario"]
 USER_API_TOKEN_PARAMS = ["token"]
 
 # Configuração do SQLite
-DB_FILE = BASE_DIR / 'users.db'
+DB_FILE = BASE_DIR / 'DATA' / 'luftdocs.db'
 DB_PATH = str(DB_FILE) # caminho para sqlite3.connect()
 # Se em futuro migrar para SQLAlchemy, poderia usar:
 # DB_URI  = f"sqlite:///{DB_FILE}"
 
-# Variáveis globais usadas em utils/
-# (Adicione as linhas abaixo)
-
-# Para utils/data/module_access.py
-ARQ = MODULE_ACCESS_FILE # Usado como caminho do arquivo de acesso de módulos
 
 # Para utils/data/module_utils.py
 # DATA_DIR, CONFIG_FILE, GLOBAL_DATA_DIR já definidos acima

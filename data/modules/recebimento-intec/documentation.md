@@ -44,31 +44,29 @@ Após o controle manual, as informações são inseridas no sistema.
     * É altamente recomendável realizar uma segunda contagem das notas para evitar esquecimentos.
     * Após a seleção, é necessário clicar em **"Processar XML"** para validação.
 
-## Etapa 3: Geração do Romaneio e Fluxo de Documentos
+## Etapa 3: Geração do Documento de Conferência
 
 Com a carga registrada, o próximo passo é consolidar as informações em um documento formal.
 
-* **Geração do Romaneio:**
-    * O **Romaneio** é o documento que consolida a carga, sendo diferente de um manifesto.
+* **Geração do Documento de Conferência:**
+    * O **Documento de Conferência** que permite a conferência da carga.
     * Ele contém:
         * Números das notas fiscais
         * Dados do cliente e do destinatário
         * Peso e volumetria (quantidade de caixas)
         * **Pallet:** A informação de pallet só aparece para o processo de transferência.
-* **Processo Manual de Controle:**
-    * Uma folha de controle manual é preenchida com o número do romaneio e a placa do veículo.
-    * Esta folha e as notas fiscais são entregues ao setor de **Emissão**.
-    * A Emissão carimba os documentos e os devolve para a Administração de Recebimento.
+
+![Documento de Conferência](/data/img/recebimento-intec/img1.jpeg)
 
 ## Etapa 4: Conferência Física da Carga
 
 A verificação física da mercadoria é uma etapa crítica e **inteiramente manual**.
 
 * **Procedimento de Conferência:**
-    * O conferente utiliza o romaneio e a nota fiscal para verificar a quantidade de volumes descrita e realiza a contagem física da carga.
+    * O conferente utiliza o Documento de Conferência e as notas fiscais para verificar a quantidade de volumes descrita e realiza a contagem física da carga.
     * A conferência é feita pallet a pallet.
 * **Tratamento de Divergências:**
-    * Se houver divergência (falta ou sobra), o conferente anota o ocorrido no campo de observações do romaneio.
+    * Se houver divergência (falta ou sobra), o conferente anota o ocorrido no campo de observações do Documento de Conferência.
     * Posteriormente, essa informação é lançada no sistema para gerar a Ocorrência **33**.
 
 ## Etapa 5: Finalização Sistêmica (Confirmação do Veículo)
@@ -139,7 +137,7 @@ Com todos os dados preenchidos, o último passo é registrar as notas fiscais.
 
 ![Processar XML](/data/img/recebimento-intec/img7.png)
 
-### Tela de Consulta e confirmação de Agendamento
+### Tela de Consulta e confirmação de Recebimento
 
 Confirmação Final do Recebimento
 

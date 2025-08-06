@@ -1,98 +1,102 @@
-# /utils/recommendation_service.py
+# /utils/recommendation_service.py (Refatorado com SQLAlchemy)
 from datetime import datetime
 import re
-import json # Importa a biblioteca json para serializar a lista de fontes
-from .database_utils import get_db
+import json
+from sqlalchemy import func
+
+# Importe o objeto 'db' e os modelos necessários
+from models import db, DocumentAccess, SearchLog, IAFeedback
 
 def log_document_access(document_id: str):
-    """Registra um acesso a um documento."""
+    """Registra um acesso a um documento usando o ORM."""
     if not document_id: return
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT document_id FROM document_access WHERE document_id = ?", (document_id,))
-    if cursor.fetchone():
-        cursor.execute("UPDATE document_access SET access_count = access_count + 1, last_access = ? WHERE document_id = ?", (datetime.now(), document_id))
-    else:
-        cursor.execute("INSERT INTO document_access (document_id) VALUES (?)", (document_id,))
-    db.commit()
+    
+    try:
+        # Tenta encontrar o registro existente
+        doc = DocumentAccess.query.get(document_id)
+        
+        if doc:
+            # Se existe, incrementa o contador
+            doc.access_count += 1
+        else:
+            # Se não existe, cria um novo registro
+            doc = DocumentAccess(document_id=document_id, access_count=1)
+            db.session.add(doc)
+        
+        # Salva as alterações no banco de dados
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao registrar acesso ao documento: {e}")
 
 def log_search_term(query_term: str):
-    """Registra um termo de busca."""
+    """Registra um termo de busca usando o ORM."""
     if not query_term: return
     normalized_term = query_term.strip().lower()
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT query_term FROM search_log WHERE query_term = ?", (normalized_term,))
-    if cursor.fetchone():
-        cursor.execute("UPDATE search_log SET search_count = search_count + 1, last_searched = ? WHERE query_term = ?", (datetime.now(), normalized_term))
-    else:
-        cursor.execute("INSERT INTO search_log (query_term) VALUES (?)", (normalized_term,))
-    db.commit()
+    
+    try:
+        # Tenta encontrar o termo de busca existente
+        search = SearchLog.query.get(normalized_term)
+        
+        if search:
+            # Se existe, incrementa o contador
+            search.search_count += 1
+        else:
+            # Se não existe, cria um novo registro
+            search = SearchLog(query_term=normalized_term, search_count=1)
+            db.session.add(search)
+        
+        # Salva as alterações
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao registrar termo de busca: {e}")
 
 def get_access_counts(document_ids: list) -> dict:
     """Busca a contagem de acessos para uma lista de IDs de documentos."""
     if not document_ids: return {}
-    db = get_db()
-    placeholders = ','.join('?' for _ in document_ids)
-    query = f"SELECT document_id, access_count FROM document_access WHERE document_id IN ({placeholders})"
-    rows = db.execute(query, document_ids).fetchall()
-    return {row['document_id']: row['access_count'] for row in rows}
+    
+    # Executa uma consulta para buscar os registros cujos IDs estão na lista
+    rows = DocumentAccess.query.filter(DocumentAccess.document_id.in_(document_ids)).all()
+    return {row.document_id: row.access_count for row in rows}
 
 def get_most_accessed(limit: int = 5) -> list:
     """Retorna os documentos mais acessados, ordenados por contagem de acessos."""
-    db = get_db()
-    query = "SELECT document_id, access_count FROM document_access ORDER BY access_count DESC LIMIT ?"
-    rows = db.execute(query, (limit,)).fetchall()
-    return [dict(row) for row in rows]
+    # Ordena os resultados pela coluna 'access_count' em ordem decrescente e limita o resultado
+    rows = DocumentAccess.query.order_by(DocumentAccess.access_count.desc()).limit(limit).all()
+    return [{'document_id': row.document_id, 'access_count': row.access_count} for row in rows]
 
 def get_autocomplete_suggestions(term: str, limit: int = 5) -> list:
     """Retorna sugestões de busca que começam com o termo fornecido."""
     if not term: return []
-    db = get_db()
     search_term = f"{term.strip().lower()}%"
-    query = "SELECT query_term FROM search_log WHERE query_term LIKE ? ORDER BY search_count DESC LIMIT ?"
-    rows = db.execute(query, (search_term, limit)).fetchall()
-    return [row['query_term'] for row in rows]
+    
+    # Usa o método 'like' para busca de padrões e ordena pela popularidade
+    rows = SearchLog.query.filter(SearchLog.query_term.like(search_term)).order_by(SearchLog.search_count.desc()).limit(limit).all()
+    return [row.query_term for row in rows]
 
 def get_popular_searches(limit: int = 5) -> list:
     """Retorna os termos de busca mais populares."""
-    db = get_db()
-    query = "SELECT query_term, search_count FROM search_log ORDER BY search_count DESC LIMIT ?"
-    rows = db.execute(query, (limit,)).fetchall()
-    return [dict(row) for row in rows]
+    rows = SearchLog.query.order_by(SearchLog.search_count.desc()).limit(limit).all()
+    return [{'query_term': row.query_term, 'search_count': row.search_count} for row in rows]
 
-# --- Algoritmo de Recomendação Híbrida ---
 def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, search_weight: float = 0.4) -> list:
-    """
-    Gera uma lista de documentos recomendados com base em um algoritmo híbrido.
-    Este algoritmo combina a popularidade de acesso direto de um documento com a
-    relevância de buscas populares que se relacionam com o ID do documento.
-
-    :param limit: O número máximo de recomendações a serem retornadas.
-    :param access_weight: O peso a ser dado à popularidade de acesso (0.0 a 1.0).
-    :param search_weight: O peso a ser dado à relevância de busca (0.0 a 1.0).
-    :return: Uma lista de dicionários, cada um contendo 'document_id' e 'score'.
-    """
-    db = get_db()
-
+    """Gera uma lista de documentos recomendados com base em um algoritmo híbrido."""
     # 1. Obter todos os documentos e suas contagens de acesso
-    all_docs = db.execute("SELECT document_id, access_count FROM document_access").fetchall()
+    all_docs = DocumentAccess.query.all()
     if not all_docs:
         return []
 
     # 2. Obter os termos de busca mais populares
-    popular_searches = db.execute("SELECT query_term, search_count FROM search_log").fetchall()
+    popular_searches = SearchLog.query.all()
 
-    # 3. Normalizar os scores para que fiquem entre 0 e 1, evitando divisão por zero
-    max_access_count = max(doc['access_count'] for doc in all_docs) if all_docs else 1
-    max_search_count = max(search['search_count'] for search in popular_searches) if popular_searches else 1
-
-    if max_access_count == 0: max_access_count = 1
-    if max_search_count == 0: max_search_count = 1
-
-    # Pre-processar os termos de busca populares para busca eficiente
+    # 3. Normalizar os scores, usando func.max do SQLAlchemy para eficiência
+    max_access_count = db.session.query(func.max(DocumentAccess.access_count)).scalar() or 1
+    max_search_count = db.session.query(func.max(SearchLog.search_count)).scalar() or 1
+    
+    # Pre-processar os termos de busca
     search_scores = {
-        search['query_term']: search['search_count'] / max_search_count
+        search.query_term: search.search_count / max_search_count
         for search in popular_searches
     }
 
@@ -100,56 +104,39 @@ def get_hybrid_recommendations(limit: int = 5, access_weight: float = 0.6, searc
 
     # 4. Calcular o score final para cada documento
     for doc in all_docs:
-        doc_id = doc['document_id']
-
-        # Score base da popularidade de acesso
-        normalized_access_score = doc['access_count'] / max_access_count
+        normalized_access_score = doc.access_count / max_access_count
         score = normalized_access_score * access_weight
-
-        # Adicionar score com base na relevância das buscas
+        
         relevance_score = 0
         for term, normalized_search_score in search_scores.items():
             search_words = set(re.split(r'\s|_|-', term))
-            if any(word in doc_id.lower() for word in search_words if len(word) > 2):
+            if any(word in doc.document_id.lower() for word in search_words if len(word) > 2):
                 relevance_score += normalized_search_score
-
+        
         if len(search_scores) > 0:
             normalized_relevance_score = relevance_score / len(search_scores)
             score += normalized_relevance_score * search_weight
+        
+        final_scores[doc.document_id] = score
 
-        final_scores[doc_id] = score
-
-    # 5. Classificar os documentos pelo score final e retornar o top 'limit'
+    # 5. Classificar e retornar as recomendações
     sorted_docs = sorted(final_scores.items(), key=lambda item: item[1], reverse=True)
+    return [{'document_id': doc_id, 'score': score} for doc_id, score in sorted_docs[:limit]]
 
-    recommendations = [
-        {'document_id': doc_id, 'score': score}
-        for doc_id, score in sorted_docs[:limit]
-    ]
-
-    return recommendations
-
-# NEW: Função para registrar feedback da IA com informações adicionais
+# A função log_ai_feedback permanece a mesma, pois já estava refatorada
 def log_ai_feedback(response_id: str, user_id: str, rating: int, comment: str = None,
                     user_question: str = None, model_used: str = None, context_sources: list = None):
-    """
-    Registra o feedback de um usuário para uma resposta da IA, incluindo a pergunta original,
-    o modelo usado e as fontes de contexto.
-    """
-    db = get_db()
-    cursor = db.cursor()
-
-    # Serializa a lista de fontes de contexto para uma string JSON
-    serialized_context_sources = json.dumps(context_sources) if context_sources else None
-
-    cursor.execute(
-        """
-        INSERT INTO ia_feedback (
-            response_id, user_id, user_question, model_used, context_sources, rating, comment, timestamp
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (response_id, user_id, user_question, model_used, serialized_context_sources, rating, comment, datetime.now())
-    )
-    db.commit()
-    print(f"Feedback registrado para response_id: {response_id} pelo usuário: {user_id} com rating: {rating}. "
-          f"Questão: '{user_question}', Modelo: '{model_used}'. Fontes: {context_sources}")
+    try:
+        serialized_context_sources = json.dumps(context_sources) if context_sources else None
+        novo_feedback = IAFeedback(
+            response_id=response_id, user_id=user_id, user_question=user_question,
+            model_used=model_used, context_sources=serialized_context_sources,
+            rating=rating, comment=comment
+        )
+        db.session.add(novo_feedback)
+        db.session.commit()
+        print(f"Feedback registrado via SQLAlchemy para response_id: {response_id} pelo usuário: {user_id}")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao registrar feedback da IA via SQLAlchemy: {e}")
+        raise e

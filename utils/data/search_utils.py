@@ -2,7 +2,7 @@
 import os
 import re
 from flask import current_app
-from utils.data.module_utils import carregar_modulos, carregar_markdown, carregar_markdown_tecnico
+from Utils.data.module_utils import carregar_modulos, carregar_markdown, carregar_markdown_tecnico
 
 # Lista de pastas de submódulos com acesso restrito.
 RESTRICTED_SUBMODULE_FOLDERS = ['Integradores']

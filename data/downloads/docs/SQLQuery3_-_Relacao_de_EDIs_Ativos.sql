@@ -1,4 +1,4 @@
-/****** Script final com a separação de até 7 e-mails em colunas distintas ******/
+/****** Script de Busca de EDIs Ativos ******/
 
 SELECT
     C.Nome_FantasiaCliente,
@@ -37,6 +37,6 @@ WHERE
         CEA.Nome_ClienteEdiAgenda LIKE '%OCOREN%' OR
         CEA.Nome_ClienteEdiAgenda LIKE '%DOCCOB%'
     )
-    AND CEA.Opcao_StatusAgenda = 1
+    AND CEA.Opcao_StatusAgenda = 1 -- Define se é EDI ativo com '1' se quiser os inativos inserir '0'.
 ORDER BY
     C.Nome_FantasiaCliente, CEA.Nome_ClienteEdiAgenda;

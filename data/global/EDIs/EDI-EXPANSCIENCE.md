@@ -8,7 +8,7 @@ A tabela responde às perguntas: "Mando ou não mando?", "Destino?" e "Como é e
 
 | Tipo de EDI | Mando? | Destino | Detalhes do Envio |
 | :---------- | :----: | :-------: | :--------------------------------------------------- |
-| `CONENB`    | **Sim**| Cliente   | Envio por E-mail.|
+| `CONEMB`    | **Sim**| Cliente   | Envio por E-mail.|
 | `DOCCOB`    | Não    | N/A       | - |
 | `OCOREN`    | **Sim**| Cliente   | Envio por E-mail.|
 

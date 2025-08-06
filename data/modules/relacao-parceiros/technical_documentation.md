@@ -28,3 +28,4 @@ A ideia desta documentação é centralizar e fornecer acesso fácil às referê
 * [[Toccato]] - Fornecedora  do sistema de BI Qlik Sense.
 * [[Consultas_Públicas]] - Urls de sites de consulta de sistema públicos.
 * [[Desk-Manager]] - Portal de chamados do time de TI.
+* [[Azul_Cargo]] - Companhia aérea parceira para transporte de cargas.

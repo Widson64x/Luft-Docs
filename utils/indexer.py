@@ -1,8 +1,14 @@
 import os
-import re # <-- 1. MÓDULO ADICIONADO
+import re 
 import chromadb
 import google.generativeai as genai
 from dotenv import load_dotenv
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from Config import VECTOR_DB_DIR
 
 print("Carregando variáveis de ambiente...")
 load_dotenv()
@@ -20,7 +26,7 @@ except Exception as e:
 
 def create_vector_db():
     print("Iniciando cliente ChromaDB...")
-    client = chromadb.PersistentClient(path="./chroma_db")
+    client = chromadb.PersistentClient(path=str(VECTOR_DB_DIR))
 
     collection_name = "luftdocs_collection"
     if collection_name in [c.name for c in client.list_collections()]:
@@ -57,7 +63,7 @@ def create_vector_db():
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
-                        # --- 2. MUDANÇA NA LÓGICA DE DIVISÃO ---
+    
                         # Em vez de dividir por parágrafos, dividimos pelo início de cada título (linhas que começam com #, ##, etc.)
                         # Isso cria blocos maiores e com mais contexto.
                         # O '(?=...)' garante que o título não seja removido na divisão, mas sim que faça parte do bloco.

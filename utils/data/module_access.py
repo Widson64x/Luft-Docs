@@ -4,9 +4,8 @@ import json
 from pathlib import Path # 1. Importe a classe Path
 import os
 from collections import Counter
-from config import DATA_DIR, CONFIG_FILE, GLOBAL_DATA_DIR, MODULE_ACCESS_FILE
 # ou importe ARQ se necessário
-from config import ARQ
+from Config import ARQ
 
 def load_access():
     if not os.path.exists(ARQ):

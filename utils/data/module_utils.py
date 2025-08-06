@@ -1,24 +1,86 @@
-# utils/modulo_utils.py
+# utils/module_utils.py (Refatorado com SQLAlchemy)
 
 import os
-import json
 import string
 import markdown
-from pathlib import Path
-from config import DATA_DIR, CONFIG_FILE, GLOBAL_DATA_DIR, MODULE_ACCESS_FILE
+from Config import DATA_DIR, GLOBAL_DATA_DIR
 
-def carregar_config():
-    with open(CONFIG_FILE, encoding='utf-8') as f:
-        return json.load(f)
+# Importa os novos modelos do SQLAlchemy
+from models import db, Modulo, PalavraGlobal
+
+def _format_modulo_to_dict(modulo: Modulo) -> dict:
+    """
+    Converte um objeto Modulo do SQLAlchemy para o formato de dicionário aninhado
+    que a aplicação espera, usando os relacionamentos do ORM.
+    """
+    if not modulo:
+        return None
+        
+    modulo_dict = {c.name: getattr(modulo, c.name) for c in modulo.__table__.columns}
+    
+    # Usa os relacionamentos para preencher os dados aninhados
+    modulo_dict['palavras_chave'] = [p.palavra for p in modulo.palavras_chave]
+    modulo_dict['relacionados'] = [r.id for r in modulo.relacionados]
+    modulo_dict['edit_history'] = [
+        {
+            'event': h.event, 'version': h.version, 'editor': h.editor,
+            'approver': h.approver, 'timestamp': h.timestamp,
+            'backup_file_doc': h.backup_file_doc, 'backup_file_tech': h.backup_file_tech
+        } for h in modulo.edit_history
+    ]
+    
+    # Recria as estruturas aninhadas para compatibilidade com o frontend
+    modulo_dict['ultima_edicao'] = {
+        "user": modulo.ultima_edicao_user,
+        "data": modulo.ultima_edicao_data
+    }
+    modulo_dict['pending_edit_info'] = {
+        "user": modulo.pending_edit_user,
+        "data": modulo.pending_edit_data
+    }
+    modulo_dict['version_info'] = {
+        "current_version": modulo.current_version,
+        "last_approved_by": modulo.last_approved_by,
+        "last_approved_on": modulo.last_approved_on
+    }
+    
+    # Remove as chaves "achatadas" que agora estão aninhadas
+    for key in ['ultima_edicao_user', 'ultima_edicao_data', 'pending_edit_user', 'pending_edit_data', 'current_version', 'last_approved_by', 'last_approved_on']:
+        del modulo_dict[key]
+        
+    return modulo_dict
 
 def carregar_modulos():
-    config = carregar_config()
-    return config["modulos"], config["palavras_globais"]
+    """Carrega todos os módulos e palavras-chave globais do banco de dados usando o ORM."""
+    # Carregar módulos
+    modulos_obj = Modulo.query.all()
+    modulos = [_format_modulo_to_dict(mod) for mod in modulos_obj]
+    
+    # Carregar palavras globais
+    palavras_globais_obj = PalavraGlobal.query.all()
+    palavras_globais = {p.palavra: p.descricao for p in palavras_globais_obj}
+    
+    return modulos, palavras_globais
 
 def carregar_modulos_aprovados():
-    config = carregar_config()
-    modulos_aprovados = [m for m in config["modulos"] if m.get("status") == "aprovado"]
-    return modulos_aprovados, config["palavras_globais"]
+    """Carrega módulos com status 'aprovado' e palavras-chave globais usando o ORM."""
+    # Carregar módulos aprovados
+    modulos_aprovados_obj = Modulo.query.filter_by(status='aprovado').all()
+    modulos_aprovados = [_format_modulo_to_dict(mod) for mod in modulos_aprovados_obj]
+
+    # Carregar palavras globais
+    palavras_globais_obj = PalavraGlobal.query.all()
+    palavras_globais = {p.palavra: p.descricao for p in palavras_globais_obj}
+    
+    return modulos_aprovados, palavras_globais
+
+def get_modulo_by_id(mid: str):
+    """Busca um único módulo pelo seu ID usando o ORM."""
+    # .get() é a forma mais eficiente de buscar pela chave primária
+    modulo_obj = Modulo.query.get(mid)
+    return _format_modulo_to_dict(modulo_obj)
+
+# --- Funções que não precisam de alteração ---
 
 def carregar_markdown(modulo_id):
     path = os.path.join(DATA_DIR, modulo_id, 'documentation.md')
@@ -36,34 +98,11 @@ def carregar_markdown_tecnico(modulo_id):
         return f.read()
     
 def carregar_markdown_submodulo(nome: str) -> str | None:
-    """
-    Lê o arquivo <nome>.md dentro de data/global ou de qualquer uma de suas subpastas.
-    A busca é feita recursivamente.
-    """
     nome_arquivo = nome.replace(" ", "_") + ".md"
-
-    # --- INÍCIO DA DEPURAÇÃO ---
-    print("\n--- [DEBUG] Iniciando busca por submódulo ---")
-    print(f"Nome do arquivo procurado: '{nome_arquivo}'")
-    print(f"Diretório de busca (caminho absoluto): '{GLOBAL_DATA_DIR.resolve()}'")
-
-    found_files = list(GLOBAL_DATA_DIR.rglob(nome_arquivo))
-    print(f"Arquivos encontrados na busca: {found_files}")
-
-    path_arquivo = next(iter(found_files), None)
-    # --- FIM DA DEPURAÇÃO ---
-
+    path_arquivo = next(iter(GLOBAL_DATA_DIR.rglob(nome_arquivo)), None)
     if path_arquivo:
-        print(f"Arquivo correspondente selecionado: '{path_arquivo}'")
-        print("--- [DEBUG] Fim da busca ---\n")
         return path_arquivo.read_text(encoding='utf-8')
-
-    print("Nenhum arquivo correspondente foi encontrado.")
-    print("--- [DEBUG] Fim da busca ---\n")
     return None
-
-def get_modulo_by_id(modulos, mid):
-    return next((m for m in modulos if m["id"] == mid), None)
 
 def limpar_texto(texto):
     texto = texto.lower()

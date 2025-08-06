@@ -1,6 +1,6 @@
 import requests
 import os
-from config import USER_API_URL, USER_API_CREDENTIAL_PARAMS, USER_API_TOKEN_PARAMS
+from Config import USER_API_URL, USER_API_CREDENTIAL_PARAMS, USER_API_TOKEN_PARAMS
 
 print(f"[INFO] Usando USER_API_URL: {USER_API_URL}")
 

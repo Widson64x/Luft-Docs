@@ -1,5 +1,5 @@
 from waitress import serve
-from app import app # Garanta que 'app' é a instância do Flask no seu arquivo app.py
+from App import app # Garanta que 'app' é a instância do Flask no seu arquivo app.py
 
 # run_prod.py
 # Este script inicia o servidor de produção usando Waitress

@@ -8,14 +8,14 @@ A tabela responde às perguntas: "Mando ou não mando?", "Destino?" e "Como é e
 
 | Tipo de EDI | Mando? | Destino | Detalhes do Envio |
 | :---------- | :----: | :-------: | :--------------------------------------------------- |
-| `CONENB`    | **Sim**| Cliente   | Envio por E-mail.|
+| `CONEMB`    | **Sim**| Cliente   | Envio por E-mail.|
 | `DOCCOB`    | **Sim**| Cliente   | Envio por E-mail.|
 | `OCOREN`    | **Sim**| Cliente   | Envio por E-mail.|
 
 ### Regras de Negócio e Observações
 1.  Todos os arquivos são gerados e enviados.
 2.  O método de envio para todos os arquivos é **E-mail Automático**.
-3.  O processo do `CONENB` é executado **todos os dias, às 08:00**.
+3.  O processo do `CONEMB` é executado **todos os dias, às 08:00**.
 4.  O processo do `DOCCOB` é executado **a cada 1 hora, todos os dias**.
 5.  O processo do `OCOREN` é executado **todos os dias, às 15:53**.
 
