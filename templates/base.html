@@ -14,24 +14,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.css"/>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Lia_Chat.css') }}">
+    
+    {% block page_styles %}{% endblock %}
 </head>
-<body>
+<body {% if modulo %}data-modulo-id="{{ modulo.id }}"{% endif %}>
     <canvas id="background-animation-canvas"></canvas>
     <nav class="navbar">
-        <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-wiki d-flex align-items-center">
-            <img src="{{ url_for('static', filename='assets/logo-claro.png') }}" alt="LuftDocs Logo" class="me-2" id="logo-image">
+        <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-container">
+            <img src="{{ url_for('static', filename='assets/logo-claro.png') }}" alt="LuftDocs Logo" id="logo-image">
         </a>
         <div class="d-flex align-items-center">
             
-            <a href="{{ url_for('search.perform_search', token=request.args.get('token')) }}"  class="btn btn-outline-dark fw-bold me-3">
+            <a href="{{ url_for('search.perform_search', token=request.args.get('token')) }}"
+            class="action-btn action-btn-outline" 
+            style="margin-right: 1rem; font-weight: bold;">
+
                 <i class="bi bi-search"></i>
-                <span class="d-none d-sm-inline">Buscar</span>
+                <span class="btn-responsive-text">Buscar</span>
+                
             </a>
             
             <div class="dropdown">
-                <a class="btn btn-link text-dark p-0 dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="btn-drop dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle" style="font-size: 1.8rem;"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -90,7 +97,7 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="visuais">
                             <form id="formVisuais" class="row g-4">
-                                <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="dark">Escuro</option><option value="auto">Automático</option></select></div>
+                                <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="dark">Escuro</option><option value="luft">Luft</option><option value="auto">Automático</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="fontSize" class="form-label">Tamanho da Fonte</label><select id="fontSize" class="form-select"><option value="0.85rem">Pequena</option><option value="1rem">Média</option><option value="1.15rem">Grande</option><option value="1.3rem">Extra Grande</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="selectAnimacao" class="form-label">Animação de Fundo</label><select id="selectAnimacao" class="form-select"><option value="colisao">Nova</option><option value="original">Clássica</option></select></div>
                                 <div class="col-md-6"><label for="rangeQuantidade" class="form-label">(BETA) Ícones: <span id="labelQuantidade">50</span></label><input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade"></div>
@@ -173,11 +180,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
                         style="position: absolute; top: 20px; right: 20px; z-index: 4;"></button>
                 
-                <div class="modal-body">
-                    <div id="liaResponseContainer" class="lia-response-container">
+                <div class="modal-body lia-chat">
+                    <div id="liaResponseContainer" class="lia-chat__messages">
                         </div>
 
-                    <div class="lia-input-area">
+                    <div class="lia-input-area lia-chat__input-area">
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col"><h5 class="modal-title" id="liaModalLabel">🤖 Fale com a Lia</h5></div>
                             <div class="col-auto">
@@ -290,6 +297,43 @@
 
     </script>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+    const logoContainer = document.querySelector('.logo-container');
+    if (!logoContainer) return; // Se o logo não existir na página, não faz nada
+
+    const logoImage = document.getElementById('logo-image');
+    
+    // A intensidade do efeito. Valores maiores = mais inclinação.
+    const tiltIntensity = 15;
+
+    logoContainer.addEventListener('mousemove', (e) => {
+        const rect = logoContainer.getBoundingClientRect();
+        
+        // Calcula a posição do mouse de -1 a 1 no eixo X e Y dentro do logo
+        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+
+        // Calcula a rotação e aplica o transform
+        const rotateX = -y * tiltIntensity;
+        const rotateY = x * tiltIntensity;
+
+        // Para a animação de "respiro" para dar prioridade ao efeito 3D
+        logoImage.style.animation = 'none';
+        
+        logoImage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
+    });
+
+    logoContainer.addEventListener('mouseleave', () => {
+        // Quando o mouse sai, a transição suave do CSS cuida do retorno
+        logoImage.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        // Retoma a animação de "respiro"
+        logoImage.style.animation = 'logo-breathing 5s infinite ease-in-out';
+    });
+
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="{{ url_for('static', filename='js/lia_chat.js') }}"></script>

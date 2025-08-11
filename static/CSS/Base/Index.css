@@ -1,0 +1,321 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === INDEX.CSS - ESTILOS ESPECÍFICOS DA PÁGINA INICIAL === */
+/* =================================================================== */
+
+/* --- 1. LAYOUT E FUNDO DA PÁGINA --- */
+.page-wrapper {
+    perspective: 1500px;
+}
+
+body {
+    background: var(--theme-bg);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+}
+
+/* =================================================================== */
+/* === NOVOS COMPONENTES PERSONALIZADOS (INOVAÇÃO) === */
+/* =================================================================== */
+
+/* --- 2.1 CAMPO DE FILTRO PERSONALIZADO --- */
+.filter-container {
+  position: relative;
+  min-width: 250px;
+}
+
+.filter-input {
+  background-color: var(--theme-surface);
+  color: var(--theme-text);
+  border: 1.5px solid var(--theme-border);
+  border-radius: 0.5rem; /* Levemente mais arredondado */
+  padding: 0.6rem 1rem 0.6rem 2.5rem; /* Espaço para o ícone */
+  width: 100%;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  transition: all 0.3s ease;
+  box-shadow: var(--theme-shadow);
+}
+
+.filter-input::placeholder {
+  color: var(--theme-text-secondary);
+  opacity: 0.8;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--theme-primary-btn);
+  box-shadow: 0 0 0 3px var(--theme-primary-btn-bg-subtle), var(--theme-shadow);
+}
+
+.filter-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: var(--theme-text-secondary);
+  pointer-events: none; /* Garante que o clique vá para o input */
+  transition: color 0.3s ease;
+}
+
+.filter-input:focus ~ .filter-icon {
+  color: var(--theme-primary-btn);
+}
+
+
+/* --- 2.2 ALERTAS PERSONALIZADOS --- */
+.custom-alert {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid transparent;
+  font-weight: 500;
+  box-shadow: var(--theme-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-alert .alert-icon {
+  font-size: 1.25rem;
+  margin-right: 0.8rem;
+  line-height: 1;
+}
+
+.custom-alert .btn-close {
+  --bs-btn-close-color: var(--alert-text-color); /* Usa a variável que definimos abaixo */
+  filter: grayscale(1) opacity(0.7);
+  transition: all 0.2s ease;
+}
+
+.custom-alert .btn-close:hover {
+  filter: grayscale(0) opacity(1);
+  transform: scale(1.1);
+}
+
+/* Variações de Cor dos Alertas */
+.alert-success {
+  --alert-bg-color: color-mix(in srgb, var(--theme-color-success) 15%, transparent);
+  --alert-border-color: var(--theme-color-success);
+  --alert-text-color: var(--theme-color-success);
+}
+.alert-danger {
+  --alert-bg-color: color-mix(in srgb, var(--theme-color-danger) 15%, transparent);
+  --alert-border-color: var(--theme-color-danger);
+  --alert-text-color: var(--theme-color-danger);
+}
+.alert-warning {
+    --alert-bg-color: color-mix(in srgb, var(--theme-color-warning) 15%, transparent);
+    --alert-border-color: var(--theme-color-warning);
+    --alert-text-color: var(--theme-color-warning);
+}
+.alert-info {
+    --alert-bg-color: color-mix(in srgb, var(--theme-color-info) 15%, transparent);
+    --alert-border-color: var(--theme-color-info);
+    --alert-text-color: var(--theme-color-info);
+}
+
+/* Aplicando as variáveis */
+.custom-alert {
+  background-color: var(--alert-bg-color);
+  border-color: var(--alert-border-color);
+  color: var(--alert-text-color);
+}
+
+
+/* =================================================================== */
+/* === 3. CARDS E BOTÕES (ESTILOS UNIFICADOS) === */
+/* =================================================================== */
+
+/* --- 3.1 CARDS MODERNOS --- */
+.modern-card {
+    min-height: 370px;
+    max-height: 370px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 1.25rem;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    border: 1.5px solid var(--theme-border);
+    background: var(--theme-surface);
+    box-shadow: var(--theme-shadow);
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+    animation: cardFadeIn 0.7s forwards;
+    animation-delay: calc(var(--card-index) * 0.08s);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.modern-card:hover {
+    box-shadow: var(--card-hover-shadow);
+    border-color: var(--theme-primary-btn);
+    transform: translateY(-8px) scale(1.04) rotate(-1deg);
+}
+
+.modern-card::after { /* Efeito de brilho */
+    content: "";
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent-glow) 33%, transparent) 40%, transparent 80%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    z-index: 2;
+}
+
+.modern-card:hover::after {
+    opacity: 0.7;
+    animation: shine 1.2s linear;
+}
+
+/* Conteúdo do Card */
+.modern-card .card-body {
+    flex: 1 1 auto; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 1; position: relative;
+}
+
+.modern-card .card-title {
+    color: var(--theme-text);
+    font-size: 1.15rem;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.modern-card:hover .card-title {
+    color: var(--theme-primary-btn);
+    text-shadow: 0 2px 12px var(--theme-accent-glow);
+}
+
+.modern-card .card-text {
+    color: var(--theme-text-secondary);
+    font-size: 0.98rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+}
+
+.modern-card:hover .card-text {
+    color: var(--theme-text);
+}
+
+/* Ícone animado do Card */
+.modern-card .display-4 {
+    transition: transform 0.3s cubic-bezier(.4,2,.3,1), color 0.2s, filter 0.3s;
+    filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--theme-primary-btn) 13%, transparent));
+    animation: pulseIcon 2.2s infinite;
+}
+
+/* Adicionado para ícones temáticos nos cards */
+.modern-card .card-icon {
+    color: var(--theme-primary-btn); /* Cor principal do tema */
+}
+
+.modern-card:hover .display-4 {
+    transform: scale(1.18) rotate(6deg);
+    filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--theme-primary-btn) 27%, transparent));
+    animation: pulseIconHover 0.8s;
+}
+
+/* Card para "Adicionar Novo" */
+.add-new-card {
+    background: transparent !important;
+    border: 2px dashed var(--theme-border) !important;
+    color: var(--theme-text-secondary) !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.add-new-card:hover {
+    border-color: var(--theme-primary-btn) !important;
+    color: var(--theme-primary-btn) !important;
+    background: var(--theme-surface-hover) !important;
+}
+
+
+/* --- 3.2 BOTÕES DE AÇÃO (UNIFICADOS) --- */
+/* Contêiner para alinhar os botões de topo */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+
+/* Específico para botões de card para espaçamento */
+.card-button-container {
+    padding: 0 1rem 1.25rem 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+
+/* --- 3.3 PAGINAÇÃO (Baseada em variáveis) --- */
+.pagination .page-link {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+    border-color: var(--theme-border);
+    box-shadow: none;
+}
+
+.pagination .page-link:hover,
+.pagination .page-link:focus {
+    background-color: var(--theme-surface-hover);
+    color: var(--theme-text);
+    border-color: var(--theme-primary-btn);
+}
+
+.page-item.active .page-link {
+    background-color: var(--theme-primary-btn);
+    border-color: var(--theme-primary-btn);
+    color: var(--theme-primary-btn-text);
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--theme-surface-hover);
+    color: var(--theme-text-secondary);
+    border-color: var(--theme-border);
+}
+
+
+/* =================================================================== */
+/* === 4. DECORAÇÕES E ANIMAÇÕES === */
+/* =================================================================== */
+.bg-icons {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none; overflow: hidden;
+    z-index: -1;
+}
+
+.bg-icons .bg-icon {
+    position: absolute;
+    color: color-mix(in srgb, var(--theme-primary-btn) 13%, transparent);
+}
+
+body.page-transition-out .container {
+    transform: translateY(50px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-out;
+}
+
+/* Keyframes */
+@keyframes cardFadeIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes shine { 0% { transform: scale(0.8) rotate(0deg); } 100% { transform: scale(1.2) rotate(30deg); } }
+@keyframes pulseIcon { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes pulseIconHover { 0% { transform: scale(1.18) rotate(6deg); } 50% { transform: scale(1.28) rotate(8deg); } 100% { transform: scale(1.18) rotate(6deg); } }
+@keyframes ripple { to { width: 220px; height: 220px; opacity: 0; } }
+@keyframes iconRise { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+
+/* Media Query */
+@media (max-width: 575px) {
+    .modern-card { min-height: 320px; max-height: 320px; }
+}

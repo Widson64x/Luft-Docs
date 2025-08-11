@@ -1,93 +1,60 @@
 {% extends "base.html" %}
 {% block title %}Gerenciar Submódulos{% endblock %}
 
-{% block head %}
-{{ super() }}
-<style>
-    /* CSS do modal da árvore de pastas (sem alterações) */
-    .tree-view { list-style: none; padding-left: 0; }
-    .tree-view ul { list-style: none; padding-left: 1.5rem; display: none; }
-    .tree-view .tree-item { padding: 0.25rem 0; }
-    .tree-toggle { cursor: pointer; transition: transform 0.2s ease-in-out; display: inline-block; width: 1rem; }
-    .tree-toggle.expanded { transform: rotate(90deg); }
-    .tree-node-label { cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.25rem; transition: background-color 0.2s ease, color 0.2s ease; }
-    .tree-node-label:hover { background-color: #f0f0f0; }
-    .tree-node-label.selected { background-color: var(--bs-primary); color: white; font-weight: 500; }
-
-    /* Estilo para quebra de linha em nomes de arquivo nos cards */
-    .card-title-path {
-        word-wrap: break-word;
-        word-break: break-all;
-    }
-
-    #noResultsMessage {
-        display: none; /* Oculto por padrão */
-    }
-</style>
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub_Index.css') }}">
 {% endblock %}
 
-
 {% block content %}
-<a href="javascript:history.back()" class="btn btn-outline-secondary me-3">
-    <i class="bi bi-arrow-left"></i> Voltar
-</a>
-<main class="container py-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-itecms-center">
-            <h1 class="h4 mb-0"><i class="bi bi-grid-3x3-gap me-2"></i>Submódulos</h1>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubmoduleModal">
+<main class="container-fluid page-container py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-grid-3x3-gap"></i>Submódulos</h1>
+        <div class="header-actions">
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome do arquivo...">
+            </div>
+            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createSubmoduleModal">
                 <i class="bi bi-plus-circle me-1"></i> Criar Novo
             </button>
         </div>
+    </div>
+    
+    <div id="submodulesGrid">
+        {% for submodulo in submodulos %}
+        <div class="submodule-card" style="--delay: {{ loop.index0 }};">
+            <div class="card h-100 submodule-item-card">
+                <div class="card-body d-flex flex-column">
+                    <div class="card-icon-display mb-3">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h5 class="card-title card-title-path" title="{{ submodulo.path }}">{{ submodulo.path }}</h5>
+                    <p class="card-text small text-muted mt-1">
+                        Modificado: {{ submodulo.modified }}
+                    </p>
+                    <div class="card-actions text-end pt-3">
+                        <a href="{{ url_for('editor.editar_submodulo', submodulo_path=submodulo.path, token=token) }}" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil-fill"></i> Editar</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-1" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-path="{{ submodulo.path }}" title="Deletar">
+                            <i class="bi bi-trash-fill"></i> Deletar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div id="noResultsMessage" class="empty-state-container">
+            <i class="bi bi-search display-3"></i>
+            <h4 class="mt-3">Nenhum resultado encontrado</h4>
+            <p>Tente refinar os termos da sua busca.</p>
+        </div>
 
-        <div class="card-body">
-            <div class="mb-4">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome do arquivo...">
-                </div>
-            </div>
-            
-            <div id="submodulesGrid" class="row g-4">
-                {% for submodulo in submodulos %}
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3 submodule-card">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body d-flex flex-column">
-                            <div class="text-center mb-3">
-                                <i class="bi bi-file-earmark-text display-4 text-primary"></i>
-                            </div>
-                            <h5 class="card-title card-title-path" title="{{ submodulo.path }}">{{ submodulo.path }}</h5>
-                            <p class="card-text small text-muted">
-                                Modificado: {{ submodulo.modified }}
-                            </p>
-                            <div class="card-footer bg-transparent border-0 p-0 mt-auto text-end">
-                                <a href="{{ url_for('editor.editar_submodulo', submodulo_path=submodulo.path, token=token) }}" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil-fill"></i> Editar</a>
-                                <button type="button" class="btn btn-sm btn-outline-danger ms-1" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-path="{{ submodulo.path }}" title="Deletar">
-                                    <i class="bi bi-trash-fill"></i> Deletar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div id="noSubmodulesMessage" class="col-12 text-center py-5">
-                    <div class="text-muted">
-                        <i class="bi bi-journal-x display-3"></i>
-                        <h4 class="mt-3">Nenhum submódulo encontrado</h4>
-                        <p>Comece criando um novo submódulo no botão acima.</p>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                <div id="noResultsMessage" class="col-12 text-center py-5">
-                    <div class="text-muted">
-                        <i class="bi bi-search display-3"></i>
-                        <h4 class="mt-3">Nenhum resultado encontrado</h4>
-                        <p>Tente refinar os termos da sua busca.</p>
-                    </div>
-                </div>
-            </div>
-            </div>
+        {% if not submodulos %}
+        <div id="noSubmodulesMessage" class="empty-state-container" style="display: block;">
+            <i class="bi bi-journal-x display-3"></i>
+            <h4 class="mt-3">Nenhum submódulo encontrado</h4>
+            <p>Comece criando um novo submódulo no botão "Criar Novo".</p>
+        </div>
+        {% endif %}
     </div>
 </main>
 

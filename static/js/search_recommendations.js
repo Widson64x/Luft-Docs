@@ -1,11 +1,15 @@
 /**
  * search_recommendations.js
- * Gerencia as funcionalidades interativas da página de busca, incluindo recomendações paginadas.
+ * Gerencia as funcionalidades interativas da página de busca, incluindo
+ * recomendações paginadas e autocomplete, usando componentes de UI customizados.
  */
 document.addEventListener('DOMContentLoaded', function() {
     const token = document.body.dataset.token || '';
     const recommendationsContainer = document.getElementById('recommendations-container');
-    
+    const searchInput = document.getElementById('q');
+    const autocompleteResults = document.getElementById('autocomplete-results');
+    const searchForm = document.getElementById('search-form');
+
     // --- Variáveis de Estado para Paginação ---
     let allRecommendations = [];
     let popularSearches = [];
@@ -24,18 +28,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Armazena os dados recebidos
                 allRecommendations = data.hybrid_recommendations || [];
-                // Limita as buscas populares aos 10 primeiros, garantindo o requisito
                 popularSearches = (data.popular_searches || []).slice(0, 10);
-                
-                // Define a página inicial para 1 e exibe
                 currentPage = 1;
                 displayPage();
             })
             .catch(error => {
                 console.error('Erro ao buscar recomendações:', error);
-                recommendationsContainer.innerHTML = "<div class='alert alert-danger'>Não foi possível carregar as recomendações.</div>";
+                // ATUALIZADO: Usando o componente .custom-alert
+                recommendationsContainer.innerHTML = `
+                    <div class='custom-alert alert-danger'>
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                        <span>Não foi possível carregar as recomendações.</span>
+                    </div>`;
             });
     }
 
@@ -46,8 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!recommendationsContainer) return;
 
         if (allRecommendations.length === 0 && popularSearches.length === 0) {
-             recommendationsContainer.innerHTML = "<div class='no-results'><h5>Nenhuma recomendação disponível.</h5><p class='text-muted'>Comece a usar o sistema para gerarmos sugestões para você.</p></div>";
-             return;
+            recommendationsContainer.innerHTML = "<div class='no-results'><h5>Nenhuma recomendação disponível.</h5><p>Comece a usar o sistema para gerarmos sugestões para você.</p></div>";
+            return;
         }
 
         let finalHtml = '';
@@ -58,9 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const paginatedItems = allRecommendations.slice(startIndex, endIndex);
 
         if (paginatedItems.length > 0) {
-            let hybridHtml = `<h4 class="results-summary">Recomendado para Você</h4>`;
-            paginatedItems.forEach(result => {
-                hybridHtml += buildResultCard(result);
+            // ATUALIZADO: Usando a classe .search-summary
+            let hybridHtml = `<h4 class="search-summary">Recomendado para Você</h4>`;
+            paginatedItems.forEach((result, index) => {
+                // Adicionando um delay de animação para o efeito escalonado
+                hybridHtml += buildResultCard(result, index * 100);
             });
             finalHtml += hybridHtml;
         }
@@ -68,54 +75,42 @@ document.addEventListener('DOMContentLoaded', function() {
         // 2. Constrói e adiciona a barra de navegação da paginação
         finalHtml += buildPagination();
 
-        // 3. Renderiza as buscas populares (sempre as mesmas, abaixo da paginação)
+        // 3. Renderiza as buscas populares
         if (popularSearches.length > 0) {
+            // ATUALIZADO: Usando a classe .recommendation-list
             let popularHtml = `
                 <div class="recommendations-section">
                     <h5><i class="fas fa-chart-line me-2 text-success"></i>Buscas Populares</h5>
-                    <div class="list-group list-group-flush recommendations-list">`;
+                    <div class="recommendation-list">`;
             popularSearches.forEach(item => {
                 const searchUrl = `/search?q=${encodeURIComponent(item.query_term)}&token=${token}`;
-                popularHtml += `<a href="${searchUrl}" class="list-group-item list-group-item-action"><i class="fas fa-search me-2 text-muted"></i>${item.query_term}</a>`;
+                // ATUALIZADO: Usando a classe .recommendation-item
+                popularHtml += `<a href="${searchUrl}" class="recommendation-item"><i class="fas fa-search me-2"></i>${item.query_term}</a>`;
             });
             popularHtml += `</div></div>`;
             finalHtml += popularHtml;
         }
         
-        // 4. Insere todo o HTML gerado no contêiner
         recommendationsContainer.innerHTML = finalHtml;
         setupPaginationListener();
     }
     
     /**
-     * Constrói o HTML para a barra de navegação da paginação.
+     * Constrói o HTML para a barra de navegação da paginação customizada.
      */
     function buildPagination() {
         const totalPages = Math.ceil(allRecommendations.length / itemsPerPage);
-        if (totalPages <= 1) return ''; // Não mostra paginação se houver apenas 1 página ou menos
+        if (totalPages <= 1) return '';
 
-        let paginationHtml = '<nav aria-label="Paginação de recomendações" class="pagination-nav"><ul class="pagination">';
+        // ATUALIZADO: Usando a classe .custom-pagination e estrutura simplificada
+        let paginationHtml = '<nav aria-label="Paginação de recomendações"><ul class="custom-pagination">';
 
-        // Botão "Anterior"
-        paginationHtml += `
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a>
-            </li>`;
-
-        // Botões de página numerados
+        paginationHtml += `<li class="${currentPage === 1 ? 'disabled' : ''}"><a href="#" data-page="${currentPage - 1}">Anterior</a></li>`;
         for (let i = 1; i <= totalPages; i++) {
-            paginationHtml += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>`;
+            paginationHtml += `<li class="${i === currentPage ? 'active' : ''}"><a href="#" data-page="${i}">${i}</a></li>`;
         }
-
-        // Botão "Próxima"
-        paginationHtml += `
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">Próxima</a>
-            </li>`;
-
+        paginationHtml += `<li class="${currentPage === totalPages ? 'disabled' : ''}"><a href="#" data-page="${currentPage + 1}">Próxima</a></li>`;
+        
         paginationHtml += '</ul></nav>';
         return paginationHtml;
     }
@@ -124,19 +119,18 @@ document.addEventListener('DOMContentLoaded', function() {
      * Adiciona o listener de eventos para os cliques na paginação.
      */
     function setupPaginationListener() {
-        const paginationElement = recommendationsContainer.querySelector('.pagination');
+        // ATUALIZADO: Selecionando pela nova classe customizada
+        const paginationElement = recommendationsContainer.querySelector('.custom-pagination');
         if (paginationElement) {
             paginationElement.addEventListener('click', function(e) {
                 e.preventDefault();
                 const target = e.target;
-
                 if (target.tagName === 'A' && !target.parentElement.classList.contains('disabled') && !target.parentElement.classList.contains('active')) {
                     const newPage = parseInt(target.dataset.page, 10);
                     if (newPage !== currentPage) {
                         currentPage = newPage;
                         displayPage();
-                        // Opcional: rolar para o topo da lista
-                        recommendationsContainer.scrollIntoView({ behavior: 'smooth' });
+                        recommendationsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 }
             });
@@ -144,9 +138,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Constrói o HTML para um único card de resultado/recomendação. (Função inalterada)
+     * Constrói o HTML para um único card de resultado/recomendação.
+     * Adiciona um delay de animação para um efeito de entrada escalonado.
      */
-    function buildResultCard(result) {
+    function buildResultCard(result, animationDelay = 0) {
         let previewHtml = '';
         if (result.preview && result.preview.path) {
             const mediaTag = result.preview.type === 'image'
@@ -158,11 +153,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultUrl = `${result.url}&token=${token}`;
         return `
             <a href="${resultUrl}" class="text-decoration-none">
-                <div class="result-card">
+                <div class="result-card" style="animation-delay: ${animationDelay}ms">
                     ${previewHtml}
                     <div class="result-content">
                         <div class="result-card-header">
-                            <i class="${result.module_icon} icon"></i>
+                            <i class="${result.module_icon || 'fas fa-file-alt'} icon"></i>
                             <span class="module-name">${result.module_nome}</span>
                             <span class="doc-type-badge">${result.doc_type}</span>
                             <span class="ms-auto access-indicator" title="Visualizações">
@@ -177,12 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Configura a funcionalidade de auto-complete. (Função inalterada)
+     * Configura a funcionalidade de auto-complete para a barra de busca principal.
      */
     function setupAutocomplete() {
-        // ... (seu código de autocomplete existente vai aqui, sem alterações)
-        const searchInput = document.getElementById('q');
-        const autocompleteResults = document.getElementById('autocomplete-results');
         if (!searchInput || !autocompleteResults) return;
 
         let debounceTimer;
@@ -200,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         let html = '';
                         if (suggestions && suggestions.length > 0) {
                             suggestions.forEach(suggestion => {
+                                // A classe .autocomplete-item é estilizada pelo nosso CSS
                                 html += `<a href="#" class="autocomplete-item" data-suggestion="${suggestion}">${suggestion}</a>`;
                             });
                             autocompleteResults.innerHTML = html;
@@ -217,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target.classList.contains('autocomplete-item')) {
                 searchInput.value = e.target.dataset.suggestion;
                 autocompleteResults.style.display = 'none';
-                document.getElementById('search-form').submit();
+                if(searchForm) searchForm.submit();
             }
         });
 
@@ -228,9 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Inicialização ---
-    // Chama a função inicial que busca os dados e renderiza a primeira página
+    // --- INICIALIZAÇÃO DAS FUNÇÕES DA PÁGINA ---
+    // Inicia a busca por recomendações se o container existir.
     fetchAndDisplayData();
-    // Configura o autocomplete
+    // Inicia o autocomplete se o campo de busca existir.
     setupAutocomplete();
 });

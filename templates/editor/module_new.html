@@ -1,76 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Criar Novo Módulo{% endblock %}
-{% block content %}
-<style>
-  body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    font-family: 'Inter', sans-serif;
-  }
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  .page-title {
-    font-weight: 700;
-    color: #2c3e50;
-  }
-  .main-form-card {
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 8px 40px rgba(44, 62, 80, 0.1);
-    padding: 2.5rem;
-    border: 1px solid #e0e7f1;
-    max-width: 800px; /* Limitando a largura do formulário */
-    margin: 0 auto;   /* Centralizando o formulário */
-  }
-  .form-label {
-    font-weight: 600;
-    color: #34495e;
-  }
-  .form-control, .form-select {
-    border-radius: 10px;
-    border: 1px solid #ced4da;
-    background-color: #f8f9fa;
-    padding: 0.8rem 1rem;
-    transition: all 0.2s ease-in-out;
-  }
-  .form-control:focus {
-    border-color: #86b7fe;
-    background-color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.2);
-  }
-  #icon-preview-box {
-    width: 60px;
-    height: 60px;
-    background: #f8f9fa;
-    border: 1px dashed #ced4da;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  #icon-preview-box:hover {
-    border-color: #0d6efd;
-    color: #0d6efd;
-  }
-  .icon-grid-btn {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    font-size: 1.8rem;
-  }
-  .icon-grid-btn:hover, .icon-grid-btn.selected {
-    background-color: #e7f1ff;
-    color: #0d6efd;
-    transform: scale(1.1);
-  }
-</style>
 
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_New.css') }}">
+{% endblock %}
+
+{% block content %}
 <div class="container-fluid py-4">
   <form method="post" id="create-module-form">
     <input type="hidden" name="token" value="{{ token }}">
@@ -122,13 +57,13 @@
             <div class="col-md-6 mb-3">
                 <label for="inputPalavras" class="form-label">Palavras-chave</label>
                 <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" placeholder="Separadas por vírgula">
-                <small class="form-text text-muted">Ex: cliente, cadastro, novo</small>
+                <small class="text_place">Ex: cliente, cadastro, novo</small>
             </div>
           </div>
           <div class="mb-3">
               <label for="inputRelacionados" class="form-label">Módulos Relacionados</label>
               <input type="text" class="form-control" id="inputRelacionados" name="relacionados" placeholder="IDs separados por vírgula">
-              <small class="form-text text-muted">Ex: vendas, faturamento</small>
+              <small class="text_place">Ex: vendas, faturamento</small>
           </div>
         </div>
       </div>

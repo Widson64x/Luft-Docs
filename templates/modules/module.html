@@ -2,306 +2,388 @@
 {% block title %}{{ modulo.nome }} - LuftDocs{% endblock %}
 
 {% block content %}
-<style>
-    tbody, td, tfoot, th, thead, tr{
-    color: white;
-    }
-    
-    /* --- Estilos do Cabeçalho e Busca --- */
-    .module-header {
-        text-align: center;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid #e0e0e0;
-        margin-bottom: 2rem;
-        position: relative;
-        padding-left: 95px;     
-    }
-    body.theme-dark .module-header {
-        border-bottom-color: #343a40;
-    }
-    .module-header h1 .icon-title {
-        color: var(--primary-color, #0d6efd);
-        margin-right: 0.5rem;
-    }
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Module.css') }}">
+{% endblock %}
 
-    .header-back-button {
-    position: absolute;
-    top: 0;
-    left: 0;
-    }
-    .module-description {
-        font-size: 1.1rem;
-        color: #6c757d;
-        max-width: 700px;
-        margin: 0.5rem auto 1.5rem auto;
-    }
-    body.theme-dark .module-description {
-        color: #adb5bd;
-    }
-    .search-in-module-container {
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .search-form {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-    .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        padding-right: 3rem; 
-        font-size: 1rem;
-        border: 1px solid #ced4da;
-        border-radius: 50px;
-        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-    }
-    .search-input:focus {
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
-    }
-    body.theme-dark .search-input {
-        background-color: #2c2c2c;
-        border-color: #555;
-        color: #f1f1f1;
-    }
-    .search-button {
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        padding: 0.5rem 0.8rem;
-        cursor: pointer;
-        color: #6c757d;
-    }
-    body.theme-dark .search-button {
-        color: #adb5bd;
-    }
-
-    /* --- Estilos de Destaque e Autocomplete (Mantidos) --- */
-    .markdown-body mark  {
-        background-color: #FFDC74;
-        color: #1c1c1c;
-        font-weight: 600;
-        padding: 0.1em 0.3em;
-        margin: 0 -0.3em;
-        border-radius: 4px;
-        box-decoration-break: clone;
-        -webkit-box-decoration-break: clone;
-    }
-    .autocomplete-list {
-        position: absolute;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        z-index: 1000;
-        width: 100%;
-        max-width: 400px;
-        margin-top: 5px;
-        padding: 0;
-        list-style: none;
-        display: none;
-    }
-    .autocomplete-list li {
-        padding: 8px 16px;
-        cursor: pointer;
-        transition: background 0.15s;
-        color: #333;
-    }
-    .autocomplete-list li:hover, .autocomplete-list li.active {
-        background: #e6f7ff;
-    }
-
-    .meta-info{
-        justify-content: left;
-    }
-    
-    body.theme-dark .autocomplete-list {
-        background: #2d2d2d;
-        border-color: #444;
-    }
-    body.theme-dark .autocomplete-list li {
-        color: #f1f1f1;
-    }
-    body.theme-dark .autocomplete-list li:hover,
-    body.theme-dark .autocomplete-list li.active {
-        background: #3a3a3a;
-    }
-
-    /* --- Estilos do Conteúdo Markdown (Mantidos) --- */
-    .markdown-body {
-        box-sizing: border-box;
-        min-width: 200px;
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 45px;
-        color: #1e1e1e;
-        background-color: transparent;
-    }
-    
-    body.theme-dark .markdown-body {
-        color: white;
-    }
-    .markdown-body table {
-        border-radius: 10px;
-    }
-    tbody, td, tfoot, th, thead, tr{
-        color: white;
-        background-color: black;
-    }
-
-    body.theme-dark .markdown-body tbody,
-    body.theme-dark .markdown-body td,
-    body.theme-dark .markdown-body tfoot,
-    body.theme-dark .markdown-body th,
-    body.theme-dark .markdown-body thead,
-    body.theme-dark .markdown-body tr {
-        color: rgb(0, 0, 0);
-        background-color: white;
-    }
-    .markdown-body ol ol,
-    .markdown-body ul ol {
-        list-style-type: upper-roman;
-    }
-    .markdown-body ol ol li::marker,
-    .markdown-body ul ol li::marker {
-        font-weight: bold;
-    }
-    @media (max-width: 767px) {
-        .markdown-body {
-            padding: 15px;
-        }
-    }
-</style>
-
-    <div class="module-container">
-        <div class="module-header">
-
-            <h1><i class="{{ modulo.icon }} icon-title"></i> {{ modulo.nome }}</h1>
-            <p class="module-description">{{ modulo.descricao }}</p>
-
-
-            <div class="search-in-module-container">
-                <form method="GET" action="{{ request.path }}" class="search-form">
-                    {% if request.args.get('modulo') %}
-                        <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
-                    {% elif request.args.get('modulo_tecnico') %}
-                        <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
-                    {% endif %}
-                    
-                    <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
-                    <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
-                    <button type="submit" class="search-button" aria-label="Buscar">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                    <ul id="autocomplete-list" class="autocomplete-list"></ul>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="markdown-body">
-        {% if resultado_highlight %}
-            <div class="alert alert-info">
-                Mostrando resultados para: <strong>{{ query }}</strong>
-            </div>
-        {% endif %}
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container" style="position: relative; z-index: 1050;">
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
-        {% endwith %}
-        <div class="modulo-conteudo" id="imagem-viewer">
-            {% set html_bruto = conteudo %}
-            {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
-            {% set prefix = '/downloads/docs/' %}
-            {% set replace_prefix = url_for('download.download_pela_raiz', token=request.args.get('token', '')) ~ '&file=' %}
-            {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
-            {{ conteudo_final | safe }}
-        </div>
-    </div>
-    <a href="{{ url_for('evaluation.evaluation', document_id=id_do_modulo, token=token) }}" class="btn btn-primary">Avaliar</a>
-    {% if relacionados %}
-    <hr>
-    <div class="related-modules-container" style="max-width: 980px; margin: 2rem auto; padding: 0 20px;">
-        <h3 class="mb-3">Módulos Relacionados</h3>
-        <div class="relacionados mb-4">
-            {% for rel in relacionados %}
-                <a class="btn btn-outline-primary btn-sm me-1 mb-1"
-                   href="{{ url_for('modulo.ver_modulo_pela_raiz', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
-                    <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
+<div class="module-container">
+    <div class="module-header">
+            <div class="header-title-container">
+                <h1><i class="{{ modulo.icone }} icon-title"></i> {{ modulo.nome }}</h1>
+                <a href="{{ url_for('evaluation.evaluation', document_id=id_do_modulo, token=token) }}" 
+                   class="btn btn-outline-secondary btn-evaluate-icon" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="top" 
+                   title="Avaliar este documento">
+                    <i class="bi bi-star-fill"></i>
                 </a>
-            {% endfor %}
+            </div>
+        <p class="module-description">{{ modulo.descricao }}</p>
+
+        <div class="search-in-module-container">
+            <form method="GET" action="{{ request.path }}" class="search-form">
+                {% if request.args.get('modulo') %}
+                    <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
+                {% elif request.args.get('modulo_tecnico') %}
+                    <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
+                {% endif %}
+                
+                <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
+                <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
+                <button type="submit" class="search-button" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+                <ul id="autocomplete-list" class="autocomplete-list"></ul>
+            </form>
         </div>
     </div>
-    {% endif %}
+</div>
 
-    <!-- Modal para Imagens -->
-    <div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
+<div class="content-wrapper">
+    <aside id="toc-sidebar" class="toc-sidebar" style="display: none;">
+        <div class="toc-header">
+            <h3>Nesta página</h3>
+        </div>
+        <div class="toc-progress-container">
+            <div id="toc-progress-bar" class="toc-progress-bar"></div>
+        </div>
+        <div class="toc-list-container">
+            <ul id="toc-list">
+                </ul>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="markdown-body">
+            {% if resultado_highlight %}
+                <div class="alert alert-info">
+                    Mostrando resultados para: <strong>{{ query }}</strong>
+                </div>
+            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container" style="position: relative; z-index: 1050;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="modulo-conteudo" id="imagem-viewer">
+                {% set html_bruto = conteudo %}
+                {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+                {% set prefix = '/downloads/docs/' %}
+                {% set replace_prefix = url_for('download.download_pela_raiz', token=request.args.get('token', '')) ~ '&file=' %}
+                {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
+                {{ conteudo_final | safe }}
+            </div>
+        </div>
+        
+        {% if relacionados %}
+        <hr>
+        <div class="related-modules-container" style="max-width: 980px; margin: 2rem auto; padding: 0 20px;">
+            <h3 class="mb-3">Módulos Relacionados</h3>
+            <div class="relacionados mb-4">
+                {% for rel in relacionados %}
+                    <a class="btn btn-outline-primary btn-sm me-1 mb-1"
+                       href="{{ url_for('modulo.ver_modulo_pela_raiz', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
+                        <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+    <aside id="roteiros-sidebar" class="roteiros-sidebar">
+        <div class="roteiros-header">
+            <h3>
+                <i class="bi bi-journal-richtext"></i> Roteiros
+            </h3>
+            {% if can_edit_scripts %}
+            <button class="btn btn-sm btn-outline-primary" id="btn-criar-roteiro" data-bs-toggle="tooltip" title="Criar novo Roteiro">
+                <i class="bi bi-plus-lg"></i> Criar
+            </button>
+            {% endif %}
+        </div>
+        
+        <ul id="roteiros-list" class="roteiros-list">
+            </ul>
+
+        <script type="application/json" id="roteiros-data">
+            {
+                "roteiros": {{ roteiros_data | tojson | safe }},
+                "can_edit": {{ can_edit_scripts | tojson | safe }}
+            }
+        </script>
+    </aside>
+</div>
+
+<div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content bg-dark border-0">
-        <div class="modal-body text-center p-0">
-            <img id="imagemExpandida"
-                src=""
-                alt="Imagem ampliada"
-                style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
-        </div>
+            <div class="modal-body text-center p-0">
+                <img id="imagemExpandida" src="" alt="Imagem ampliada" style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
+            </div>
         </div>
     </div>
+</div>
+<div class="modal fade" id="roteiroModal" tabindex="-1" aria-labelledby="roteiroModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roteiroModalLabel">Criar Novo Roteiro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roteiroForm">
+                    <input type="hidden" id="roteiroId" name="id">
+                    <div class="mb-3">
+                        <label for="roteiroTitulo" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="roteiroTitulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roteiroTipo" class="form-label">Tipo</label>
+                        <select class="form-select" id="roteiroTipo">
+                            <option value="link">Link Externo</option>
+                            <option value="modal">Vídeo (Modal)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roteiroConteudo" class="form-label">Conteúdo (URL)</label>
+                        <input type="url" class="form-control" id="roteiroConteudo" required placeholder="https://exemplo.com ou https://youtube.com/embed/...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                             <label for="roteiroIcone" class="form-label">Ícone (Opcional)</label>
+                            <input type="text" class="form-control" id="roteiroIcone" placeholder="ex: bi-file-earmark-play">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="roteiroOrdem" class="form-label">Ordem</label>
+                            <input type="number" class="form-control" id="roteiroOrdem" value="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="roteiroForm">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #000;">
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="videoPlayer" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja excluir o roteiro "<strong id="roteiroNameToDelete"></strong>"? Esta ação não pode ser desfeita.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Excluir</button>
+            </div>
+        </div>
     </div>
 </div>
 {% if versao_info and versao_info.versao_atual != "N/A" %}
 <div class="meta-info" style="color: #adb5bd; font-size: 0.9em; margin-bottom: 220px; text-align: right;">
-
-    {# 1. Exibe a versão atual do documento #}
-    <span>
-        <i class="fas fa-tag"></i> 
-        <strong>Versão:</strong> {{ versao_info.versao_atual }}
-    </span>
-
-    {# 2. Exibe o usuário que editou esta versão #}
-    <span style="margin-left: 15px;">
-        <i class="fas fa-user-edit"></i> 
-        <strong>Editado por:</strong> {{ versao_info.editor }}
-    </span>
-
-    {# 3. Exibe a data em que esta versão foi aprovada #}
-    <span style="margin-left: 15px;">
-        <i class="fas fa-calendar-check"></i> 
-        <strong>Aprovado em:</strong> {{ versao_info.data_aprovacao }}
-    </span>
-
+    <span><i class="fas fa-tag"></i> <strong>Versão:</strong> {{ versao_info.versao_atual }}</span>
+    <span style="margin-left: 15px;"><i class="fas fa-user-edit"></i> <strong>Editado por:</strong> {{ versao_info.editor }}</span>
+    <span style="margin-left: 15px;"><i class="fas fa-calendar-check"></i> <strong>Aprovado em:</strong> {{ versao_info.data_aprovacao }}</span>
 </div>
 {% endif %}
 
+
 <script>
-// Zoom de Imagem
 document.addEventListener('DOMContentLoaded', () => {
-  // Seleciona todas as imagens dentro do seu conteúdo
+    // --- 1. SELETORES E VARIÁVEIS ---
+    const contentArea = document.querySelector('.modulo-conteudo');
+    const tocSidebar = document.getElementById('toc-sidebar');
+    const tocList = document.getElementById('toc-list');
+    const tocProgressBar = document.getElementById('toc-progress-bar');
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    
+    // Inicializa tooltips do Bootstrap
+    [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    // Validação inicial
+    if (!contentArea || !tocSidebar || !tocList || !tocProgressBar) {
+        console.warn('Elementos essenciais para o TOC 2.0 não foram encontrados.');
+        return;
+    }
+
+    const headings = Array.from(contentArea.querySelectorAll('h1, h2, h3, h4'));
+
+    if (headings.length < 2) { // Não mostrar TOC para menos de 2 tópicos
+        tocSidebar.style.display = 'none';
+        return;
+    }
+    
+    tocSidebar.style.display = 'flex'; // Usar 'flex' por conta do novo layout CSS
+
+    // --- 2. GERAÇÃO DINÂMICA DO TOC ---
+    const slugify = (text) => text.toString().toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '').replace(/-+$/, '');
+
+    const createTocItem = (heading, index) => {
+        const level = parseInt(heading.tagName.substring(1));
+        const text = heading.textContent.trim();
+        const id = heading.id || `${slugify(text)}-${index}`;
+        heading.id = id;
+
+        const li = document.createElement('li');
+        li.classList.add('toc-level-' + level);
+        
+        const itemWrapper = document.createElement('div');
+        itemWrapper.className = 'toc-item';
+
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.textContent = text;
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Atualiza o hash na URL sem pular a página
+            history.pushState(null, null, `#${id}`);
+        });
+
+        itemWrapper.appendChild(link);
+        li.appendChild(itemWrapper);
+        return li;
+    };
+    
+    // Constrói a estrutura de árvore aninhada
+    const fragment = document.createDocumentFragment();
+    let parentStack = [{el: fragment, level: 0}];
+
+    headings.forEach((heading, index) => {
+        const li = createTocItem(heading, index);
+        const level = parseInt(heading.tagName.substring(1));
+        
+        while (level <= parentStack[parentStack.length - 1].level) {
+            parentStack.pop();
+        }
+
+        let parent = parentStack[parentStack.length - 1].el;
+        
+        // Se o elemento pai for um LI, precisamos criar um UL dentro dele
+        if (parent.tagName === 'LI') {
+            let ul = parent.querySelector('ul');
+            if (!ul) {
+                ul = document.createElement('ul');
+                ul.classList.add('hidden'); // Começa recolhido
+                parent.appendChild(ul);
+                
+                // Adiciona o botão de toggle
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toc-toggle';
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                toggleBtn.innerHTML = `<i class="bi bi-chevron-down icon-chevron"></i>`;
+                parent.querySelector('.toc-item').insertBefore(toggleBtn, parent.querySelector('a'));
+            }
+            parent = ul;
+        }
+
+        parent.appendChild(li);
+        parentStack.push({el: li, level});
+    });
+
+    tocList.appendChild(fragment);
+
+    // --- 3. FUNCIONALIDADE DE RECOLHER/EXPANDIR (ACCORDION) ---
+    tocList.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('.toc-toggle');
+        if (toggleBtn) {
+            const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+            toggleBtn.setAttribute('aria-expanded', !isExpanded);
+            const sublist = toggleBtn.closest('.toc-item').nextElementSibling;
+            if (sublist && sublist.tagName === 'UL') {
+                sublist.classList.toggle('hidden', isExpanded);
+            }
+        }
+    });
+
+    // --- 4. DESTAQUE DE SEÇÃO ATIVA (INTERSECTION OBSERVER) ---
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            const id = entry.target.getAttribute('id');
+            const tocLink = tocList.querySelector(`a[href="#${id}"]`);
+            if (tocLink) {
+                 const tocItem = tocLink.closest('.toc-item');
+                 if (entry.isIntersecting && entry.intersectionRatio > 0) {
+                     tocItem.classList.add('is-active');
+                     // Expande pais se um filho ficar ativo
+                     let parentLi = tocItem.closest('ul')?.parentElement;
+                     while(parentLi && parentLi.tagName === 'LI'){
+                         parentLi.querySelector('.toc-toggle')?.setAttribute('aria-expanded', 'true');
+                         parentLi.querySelector('ul')?.classList.remove('hidden');
+                         parentLi = parentLi.closest('ul')?.parentElement;
+                     }
+                 } else {
+                     tocItem.classList.remove('is-active');
+                 }
+            }
+        });
+    }, { 
+        rootMargin: '0px 0px -80% 0px', // Ativa quando o título está no topo da tela
+        threshold: 0.1 
+    });
+
+    headings.forEach(heading => observer.observe(heading));
+
+    // --- 5. BARRA DE PROGRESSO DE LEITURA ---
+    const updateProgressBar = () => {
+        const contentRect = contentArea.getBoundingClientRect();
+        const scrollableHeight = contentArea.scrollHeight - window.innerHeight;
+        const scrolled = window.scrollY - contentArea.offsetTop;
+        const progress = Math.max(0, Math.min(100, (scrolled / scrollableHeight) * 100));
+        
+        tocProgressBar.style.width = `${progress}%`;
+        requestAnimationFrame(updateProgressBar);
+    };
+
+    requestAnimationFrame(updateProgressBar);
+});
+</script>
+<script>
+// Zoom de Imagem (Mantido como estava)
+document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.markdown-body img').forEach(img => {
-    img.style.cursor = 'pointer';  // mostra que é clicável
+    img.style.cursor = 'pointer';
     img.addEventListener('click', () => {
-      // Define a mesma src da imagem clicada no modal
       document.getElementById('imagemExpandida').src = img.src;
-      // Instancia e exibe o modal
       const modal = new bootstrap.Modal(document.getElementById('imagemModal'));
       modal.show();
     });
   });
 });
 </script>
+
 <script>
+// Scripts anteriores de autocomplete e navegação entre destaques (Mantidos como estavam)
 document.addEventListener('DOMContentLoaded', function() {
     // --- Lógica de Autocomplete (Mantida) ---
     const buscaInput = document.getElementById('busca-input');
@@ -314,7 +396,6 @@ document.addEventListener('DOMContentLoaded', function() {
             autocompleteList.style.display = 'none';
             return;
         }
-        // ATENÇÃO: Substitua pela sua rota de API real para o autocomplete
         fetch(`/api/autocomplete?q=${encodeURIComponent(val)}`)
             .then(response => response.json())
             .then(sugestoes => {
@@ -378,72 +459,45 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // --- LÓGICA DE ROLAGEM E NAVEGAÇÃO ENTRE DESTAQUES ---
-
     const marks = document.querySelectorAll('.markdown-body mark');
     let currentMarkIndex = 0;
 
-    // Só executa a lógica se houver resultados da busca (tags <mark>)
     if (marks.length > 0) {
-        
-        // Função para rolar e destacar a marcação atual
         function scrollToMark(index) {
-            // Remove o destaque da marcação anterior
             marks.forEach(mark => mark.classList.remove('current-mark'));
-            
-            // Adiciona o destaque na marcação atual
             const currentMark = marks[index];
             currentMark.classList.add('current-mark');
-            
-            // Rola a tela até a marcação
             currentMark.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
             });
         }
-
-        // Rola para a primeira marcação ao carregar a página
         scrollToMark(currentMarkIndex);
 
-        // Adiciona o listener de eventos de teclado no documento inteiro
         document.addEventListener('keydown', function(e) {
-            // Navega para o próximo com "Enter"
             if (e.key === 'Enter') {
-                // Previne o comportamento padrão (ex: submeter um formulário)
                 e.preventDefault();
-
-                // Evita que a navegação funcione enquanto digita no campo de busca
                 if (document.activeElement === buscaInput) {
                     return;
                 }
-
-                // Avança para o próximo índice, voltando ao início se chegar ao fim
                 currentMarkIndex = (currentMarkIndex + 1) % marks.length;
                 scrollToMark(currentMarkIndex);
             }
-
-            // Limpa a busca com "Esc"
             if (e.key === 'Escape') {
                 e.preventDefault();
-                
-                // Cria uma URL baseada na atual
                 const url = new URL(window.location.href);
-                // Remove o parâmetro de busca 'q'
                 url.searchParams.delete('q');
-                // Redireciona para a página sem a busca, limpando os destaques
                 window.location.href = url.toString();
             }
         });
     }
 });
 </script>
-{# ====================================================================== #}
-{# NOVA LÓGICA DO ASSISTENTE PROATIVO #}
-{# ====================================================================== #}
+
+{# LÓGICA DO ASSISTENTE PROATIVO (Mantido) #}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof initializeProactiveAssistant === 'function') {
-
-        // "banco de frases" para a Lia.
         const possibleMessages = [
             {
                 toast: "Psiu! Quer uma ajuda?",
@@ -463,23 +517,248 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         ];
         
-        // 2. O contexto agora passa a lista inteira de possibilidades.
         const proactiveContext = {
             type: 'module_page',
             moduleId: '{{ modulo.id }}',
             moduleName: '{{ modulo.nome }}',
-            messages: possibleMessages // Passamos o array de mensagens
+            messages: possibleMessages
         };
 
-        // 3. As configurações do timer continuam as mesmas.
         const timerConfig = {
             timeout: 120000, // 2 minutos
             promptTimeout: 300000 // 5 minutos
         };
 
-        // 4. Inicia o assistente com o novo contexto.
         initializeProactiveAssistant(proactiveContext, timerConfig);
     }
+});
+</script>
+<script>
+// Roteiros Management Script
+document.addEventListener('DOMContentLoaded', () => {
+    const roteirosList = document.getElementById('roteiros-list');
+    if (!roteirosList) return;
+
+    // --- 1. SETUP ---
+    const moduloId = document.body.dataset.moduloId;
+    const roteiroModal = new bootstrap.Modal(document.getElementById('roteiroModal'));
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    const roteiroForm = document.getElementById('roteiroForm');
+    const roteiroModalLabel = document.getElementById('roteiroModalLabel');
+    const roteiroIdField = document.getElementById('roteiroId');
+    const roteiroTituloField = document.getElementById('roteiroTitulo');
+    const roteiroTipoField = document.getElementById('roteiroTipo');
+    const roteiroConteudoField = document.getElementById('roteiroConteudo');
+    const roteiroIconeField = document.getElementById('roteiroIcone');
+    const roteiroOrdemField = document.getElementById('roteiroOrdem');
+    const btnCriarRoteiro = document.getElementById('btn-criar-roteiro');
+    const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    const permissionsData = JSON.parse(document.getElementById('roteiros-data').textContent);
+    let roteiros = permissionsData.roteiros || [];
+    const canEdit = permissionsData.can_edit;
+
+    // --- 2. FUNÇÕES ---
+    const fmt = (iso) => {
+        if (!iso) return null;
+        const d = new Date(iso);
+        if (isNaN(d)) return null;
+        return d.toLocaleString(); // ou formata como preferir
+    };
+
+    const hasEdition = (createdISO, updatedISO) => {
+        if (!createdISO || !updatedISO) return false;
+        const c = new Date(createdISO).getTime();
+        const u = new Date(updatedISO).getTime();
+        if (isNaN(c) || isNaN(u)) return false;
+        return u > c;
+    };
+
+    const dateLabel = (r) => {
+        const created = r.created_at ? new Date(r.created_at) : null;
+        const updated = r.updated_at ? new Date(r.updated_at) : null;
+
+        if (created && updated && updated > created) {
+            return `<small class="text-muted">Editado em ${fmt(r.updated_at)}</small>`;
+        }
+        if (created) {
+            return `<small class="text-muted">Criado em ${fmt(r.created_at)}</small>`;
+        }
+        return '';
+    };
+
+    const renderRoteiros = () => {
+        roteirosList.innerHTML = '';
+        if (roteiros.length === 0) {
+            roteirosList.innerHTML = '<li class="roteiro-vazio">Nenhum roteiro encontrado.</li>';
+            return;
+        }
+        roteiros
+            .slice()
+            .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
+            .forEach(roteiro => {
+                const li = document.createElement('li');
+
+                const actionsHtml = canEdit ? `
+                    <div class="roteiro-actions btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary btn-edit-roteiro" data-id="${roteiro.id}" title="Editar"><i class="bi bi-pencil-fill"></i></button>
+                        <button class="btn btn-outline-danger btn-delete-roteiro" data-id="${roteiro.id}" data-titulo="${roteiro.titulo}" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                    </div>
+                ` : '';
+
+                li.innerHTML = `
+                    <div class="roteiro-item-wrapper">
+                        <div class="d-flex flex-column flex-grow-1">
+                            <a href="${roteiro.conteudo}" data-tipo="${roteiro.tipo}" data-id="${roteiro.id}" class="roteiro-item">
+                                <i class="${roteiro.icone || 'bi-play-circle'}"></i>
+                                <span>${roteiro.titulo}</span>
+                            </a>
+                            <div class="mt-1">${dateLabel(roteiro)}</div>
+                        </div>
+                        ${actionsHtml}
+                    </div>`;
+                roteirosList.appendChild(li);
+            });
+    };
+
+    const apiCall = async (url, method = 'GET', body = null) => {
+        try {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Erro na requisição.');
+            }
+            const contentType = response.headers.get("content-type");
+            return contentType?.includes("application/json") ? response.json() : {};
+        } catch (error) {
+            alert('Erro: ' + error.message);
+            return null;
+        }
+    };
+
+    // --- 3. EVENTOS ---
+    if (btnCriarRoteiro) {
+        btnCriarRoteiro.addEventListener('click', () => {
+            roteiroModalLabel.textContent = 'Criar Novo Roteiro';
+            roteiroForm.reset();
+            roteiroIdField.value = '';
+            roteiroOrdemField.value = 0;
+            roteiroModal.show();
+        });
+    }
+
+    roteiroForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = roteiroIdField.value;
+        const url = id ? `/api/roteiros/${id}` : '/api/roteiros/';
+        const method = id ? 'PUT' : 'POST';
+        const payload = {
+            titulo: roteiroTituloField.value,
+            tipo: roteiroTipoField.value,
+            conteudo: roteiroConteudoField.value,
+            icone: roteiroIconeField.value,
+            ordem: parseInt(roteiroOrdemField.value || '0', 10)
+        };
+
+        const result = await apiCall(url, method, payload);
+        if (!result) return;
+
+        if (!id && result.roteiro) {
+            // vincula ao módulo e já guarda timestamps do backend
+            await apiCall('/api/roteiros/vincular', 'POST', { roteiro_id: result.roteiro.id, modulo_ids: [moduloId] });
+            roteiros.push({
+                ...payload,
+                id: result.roteiro.id,
+                created_at: result.roteiro.created_at || null,
+                updated_at: result.roteiro.updated_at || null
+            });
+        } else if (id && result.roteiro) {
+            // merge mantendo timestamps atualizados do backend
+            const index = roteiros.findIndex(r => String(r.id) === String(id));
+            if (index > -1) {
+                roteiros[index] = {
+                    ...roteiros[index],
+                    ...payload,
+                    created_at: result.roteiro.created_at ?? roteiros[index].created_at ?? null,
+                    updated_at: result.roteiro.updated_at ?? roteiros[index].updated_at ?? null
+                };
+            }
+        } else if (id) {
+            // fallback se API não devolver 'roteiro' (mantém dados locais)
+            const index = roteiros.findIndex(r => String(r.id) === String(id));
+            if (index > -1) roteiros[index] = { ...roteiros[index], ...payload };
+        }
+
+        roteiroModal.hide();
+        renderRoteiros();
+    });
+
+    roteirosList.addEventListener('click', async (e) => {
+        const target = e.target.closest('a.roteiro-item, button.btn-edit-roteiro, button.btn-delete-roteiro');
+        if (!target) return;
+        const id = target.dataset.id;
+
+        if (target.matches('a.roteiro-item')) {
+            e.preventDefault();
+            if (target.dataset.tipo === 'modal') {
+                document.getElementById('videoPlayer').src = target.getAttribute('href');
+                videoModal.show();
+            } else {
+                window.open(target.getAttribute('href'), '_blank');
+            }
+        }
+
+        if (target.matches('button.btn-edit-roteiro')) {
+            const data = await apiCall(`/api/roteiros/${id}`);
+            if (data) {
+                roteiroModalLabel.textContent = 'Editar Roteiro';
+                roteiroIdField.value = data.id;
+                roteiroTituloField.value = data.titulo;
+                roteiroTipoField.value = data.tipo;
+                roteiroConteudoField.value = data.conteudo;
+                roteiroIconeField.value = data.icone || '';
+                roteiroOrdemField.value = data.ordem ?? 0;
+
+                // atualiza o item na lista local com timestamps mais recentes, se vierem
+                const idx = roteiros.findIndex(r => String(r.id) === String(id));
+                if (idx > -1) {
+                    roteiros[idx] = {
+                        ...roteiros[idx],
+                        created_at: data.created_at ?? roteiros[idx].created_at ?? null,
+                        updated_at: data.updated_at ?? roteiros[idx].updated_at ?? null
+                    };
+                    renderRoteiros();
+                }
+
+                roteiroModal.show();
+            }
+        }
+
+        if (target.matches('button.btn-delete-roteiro')) {
+            document.getElementById('roteiroNameToDelete').textContent = target.dataset.titulo;
+            btnConfirmDelete.dataset.id = id;
+            confirmDeleteModal.show();
+        }
+    });
+
+    btnConfirmDelete.addEventListener('click', async () => {
+        const id = btnConfirmDelete.dataset.id;
+        const result = await apiCall(`/api/roteiros/${id}`, 'DELETE');
+        if (result) {
+            roteiros = roteiros.filter(r => String(r.id) !== String(id));
+            confirmDeleteModal.hide();
+            renderRoteiros();
+        }
+    });
+
+    document.getElementById('videoModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('videoPlayer').src = '';
+    });
+
+    // --- 4. INICIALIZAÇÃO ---
+    renderRoteiros();
 });
 </script>
 {% endblock %}

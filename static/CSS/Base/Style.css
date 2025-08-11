@@ -1,0 +1,235 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === STYLE.CSS - ESTILOS GLOBAIS E DE COMPONENTES === */
+/* =================================================================== */
+
+/* --- CANVAS DE FUNDO --- */
+#background-animation-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    display: block;
+    pointer-events: none;
+    background-color: var(--theme-bg);
+    transition: background-color 0.3s;
+}
+
+/* --- ESTILOS BASE --- */
+body {
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s, font-size 0.3s;
+}
+
+/* --- LAYOUT --- */
+.navbar, .footer-LuftDocs {
+    background-color: var(--theme-surface);
+    color: var(--theme-surface-text);
+    padding: 1rem clamp(1rem, 4vw, 6rem);
+    box-shadow: 0 2px 12px var(--theme-shadow);
+    transition: background-color 0.3s, color 0.3s;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.main {
+    padding: 2rem clamp(1rem, 4vw, 6rem);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.footer-LuftDocs {
+    margin-top: 0rem;
+    padding-top: 0rem;
+    padding-bottom: 1.5rem;
+    text-align: center;
+    box-shadow: 0 -2px 10px var(--theme-shadow);
+}
+
+/* =================================================================== */
+/* === LOGO INTERATIVO E ANIMADO === */
+/* =================================================================== */
+
+/* --- 1. O Contêiner do Logo (prepara o palco 3D) --- */
+.logo-container {
+  display: inline-flex; /* Substitui d-flex e alinha o item interno */
+  align-items: center; /* Substitui align-items-center */
+  text-decoration: none;
+  /* A 'perspective' é essencial para o efeito 3D funcionar! */
+  perspective: 800px;
+}
+
+/* --- 2. A Imagem do Logo (o ator principal) --- */
+#logo-image {
+  width: 94px;
+  height: auto; /* Altura automática para manter a proporção */
+  
+  /* Transição suave para quando o mouse sai de cima */
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  
+  /* Sombra para dar profundidade, usando variáveis de tema */
+  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--theme-shadow) 50%, transparent));
+
+  /* Animação ambiente que roda o tempo todo */
+  animation: logo-breathing 5s infinite ease-in-out;
+}
+
+/* --- 3. Efeito de Clique (feedback imediato) --- */
+.logo-container:active #logo-image {
+  /* Remove a animação ambiente e aplica a de clique */
+  animation: none; 
+  transform: scale(0.92); /* Aperta o logo rapidamente */
+  transition: transform 0.1s ease; /* Transição rápida para o clique */
+}
+
+/* =================================================================== */
+/* === KEYFRAMES (As Animações) === */
+/* =================================================================== */
+
+/**
+ * Animação 1: 'logo-breathing'
+ * Faz o logo pulsar sutilmente, como se estivesse "vivo".
+ */
+@keyframes logo-breathing {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--theme-primary-btn) 15%, transparent));
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/**
+ * Animação 2: Efeito de Brilho no Hover (agora no tema escuro)
+ * Mantivemos uma versão melhorada do brilho apenas para o tema escuro, onde ele se destaca mais.
+ */
+body.theme-dark .logo-container:hover #logo-image {
+    animation: logo-glow-dark 3s infinite ease-in-out;
+}
+
+@keyframes logo-glow-dark {
+    0%, 100% { 
+        filter: drop-shadow(0 4px 10px #00000080); 
+    }
+    50% { 
+        filter: drop-shadow(0 4px 20px var(--theme-accent-glow)); 
+    }
+}
+
+.modulo-conteudo img, .modulo-conteudo video {
+    max-width: 440px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px var(--theme-shadow);
+    transition: box-shadow 0.2s, filter 0.2s;
+    cursor: pointer;
+}
+.modulo-conteudo img:hover, .modulo-conteudo video:hover {
+    box-shadow: 0 6px 24px #00b4d820, 0 2px 12px #0000001a;
+    filter: brightness(1.04);
+}
+/* Base para TODOS os botões de ação (antigo .action-btn e .modern-btn) */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-family-base);
+  font-size: 0.95rem; /* Leve ajuste de tamanho */
+  font-weight: 600; /* Mais destaque */
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  border: 1.5px solid; /* Borda um pouco mais grossa */
+  border-radius: 2rem; /* Borda totalmente arredondada como padrão */
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn .bi {
+  font-size: 1.1em;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.action-btn:hover .bi {
+    transform: translateY(-2px) scale(1.1);
+}
+
+/* Efeito Ripple (agora em todos os botões) */
+.action-btn:active::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 0; height: 0; background: var(--ripple-color);
+    border-radius: 50%; transform: translate(-50%, -50%);
+    animation: ripple 0.5s linear;
+}
+
+
+/* Variação: PRIMÁRIO */
+.action-btn-primary {
+  color: var(--theme-primary-btn-text);
+  background-color: var(--theme-primary-btn);
+  border-color: var(--theme-primary-btn);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--theme-primary-btn) 25%, transparent);
+}
+.action-btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--theme-primary-btn) 35%, transparent);
+  transform: translateY(-2px);
+}
+.action-btn-primary:active {
+  transform: translateY(0);
+  filter: brightness(1);
+}
+
+/* Variação: SECUNDÁRIO (OUTLINE) */
+.action-btn-outline {
+  color: var(--theme-text);
+  background-color: transparent;
+  border-color: var(--theme-border);
+}
+
+.action-btn-outline:hover {
+  background-color: var(--theme-surface-hover);
+  border-color: var(--theme-text);
+  color: var(--theme-text);
+  transform: translateY(-2px);
+}
+
+/* --- Texto responsivo para botões --- */
+/* Oculta o texto por padrão */
+.btn-responsive-text {
+  display: none;
+}
+
+/* Exibe o texto em telas com 576px de largura ou mais (ponto de quebra 'sm' do Bootstrap) */
+@media (min-width: 576px) {
+  .btn-responsive-text {
+    display: inline;
+  }
+}
+.btn-drop{
+    color: var(--theme-text);
+    border-color: var(--theme-text);
+}
+

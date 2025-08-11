@@ -5,13 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================
     const backgroundAnimation = (() => {
         const canvas = document.getElementById('background-animation-canvas');
-        if (!canvas) return null; // Não executa se o canvas não existir
+        if (!canvas) return null;
 
         const ctx = canvas.getContext('2d');
         let particles = [];
         let animationFrameId;
 
-        // Configurações padrão
         let config = {
             quantity: 50,
             speed: 1.0,
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         const start = () => {
-            stop(); // Garante que não haja animações duplicadas
+            stop();
             resizeCanvas();
             createParticles();
             animate();
@@ -80,17 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
              createParticles();
         });
 
-        // Interface pública do módulo de animação
         return {
             start,
             stop,
             setQuantity: (newQuantity) => {
                 config.quantity = parseInt(newQuantity, 10);
-                createParticles(); // Recria as partículas com a nova quantidade
+                createParticles();
             },
             setSpeed: (newSpeed) => {
                 config.speed = parseFloat(newSpeed);
-                // Atualiza a velocidade das partículas existentes
                 particles.forEach(p => {
                     p.vx = (Math.random() - 0.5) * config.speed;
                     p.vy = (Math.random() - 0.5) * config.speed;
@@ -128,14 +125,37 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- FUNÇÕES DE APLICAÇÃO DE ESTILOS ---
+    
+    // =========================================================================
+    // === FUNÇÃO CORRIGIDA ====================================================
+    // =========================================================================
     const applyTheme = (theme) => {
-        const isDark = (theme === 'dark') || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        body.classList.toggle('theme-dark', isDark);
+        // Primeiro, remove todas as classes de tema para garantir um estado limpo
+        body.classList.remove('theme-light', 'theme-dark', 'theme-luft');
+    
+        let finalTheme = theme;
+    
+        // Se o tema for 'automático', decide qual tema usar com base no sistema operacional
+        if (theme === 'auto') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            finalTheme = prefersDark ? 'dark' : 'light';
+        }
+    
+        // Adiciona a classe de tema correta (ex: 'theme-light', 'theme-dark', 'theme-luft')
+        body.classList.add(`theme-${finalTheme}`);
+    
+        // Define o tema do highlight.js. O tema 'luft' é claro, então usará o tema 'github'.
+        const isDark = (finalTheme === 'dark');
         highlightStyle.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github${isDark ? '-dark' : ''}.min.css`;
+        
+        // Atualiza a cor da animação de fundo, se existir
         if (backgroundAnimation) {
             backgroundAnimation.setColor(isDark);
         }
     };
+    // =========================================================================
+    // === FIM DA FUNÇÃO CORRIGIDA =============================================
+    // =========================================================================
 
     const applyFontSize = (size) => {
         body.style.setProperty('--font-size-base', size);
@@ -143,10 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyBgAnimationType = (type) => {
         if (backgroundAnimation) {
-            // Se a animação for "Clássica" (o canvas), mostra e inicia. Senão, esconde.
             backgroundAnimation.setVisibility(type === 'original');
         }
-        // Aqui você pode adicionar a lógica para a animação 'colisao' se for diferente
     };
 
     const applyBgQuantity = (quantity) => {
@@ -165,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CARREGAMENTO E SALVAMENTO NO LOCALSTORAGE ---
     const loadSettings = () => {
-        // Carrega os valores ou usa padrões
         const settings = {
             theme: localStorage.getItem('ld_theme') || 'light',
             fontSize: localStorage.getItem('ld_fontSize') || '1rem',
@@ -174,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bgSpeed: localStorage.getItem('ld_bg_speed') || '1.0'
         };
 
-        // Atualiza os controles da UI com os valores carregados
         if (ui.selectTema) {
             ui.selectTema.value = settings.theme;
             ui.fontSize.value = settings.fontSize;
@@ -183,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ui.rangeVelocidade.value = settings.bgSpeed;
         }
 
-        // Aplica as configurações carregadas na página
         applyTheme(settings.theme);
         applyFontSize(settings.fontSize);
         applyBgAnimationType(settings.bgAnimation);
@@ -213,17 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS PARA ATUALIZAÇÃO EM TEMPO REAL E SALVAMENTO ---
     if(ui.btnSalvarConfigs) {
-        // Listeners para aplicar mudanças em tempo real
         ui.selectTema.addEventListener('change', (e) => applyTheme(e.target.value));
         ui.fontSize.addEventListener('change', (e) => applyFontSize(e.target.value));
         ui.selectAnimacao.addEventListener('change', (e) => applyBgAnimationType(e.target.value));
         ui.rangeQuantidade.addEventListener('input', (e) => applyBgQuantity(e.target.value));
         ui.rangeVelocidade.addEventListener('input', (e) => applyBgSpeed(e.target.value));
-
-        // Listener para o botão de salvar
         ui.btnSalvarConfigs.addEventListener('click', saveSettings);
     }
-
 
     // --- LÓGICA ANTIGA (DEV FEATURES, BUG REPORT) ---
     // Esta parte foi mantida como estava
@@ -314,6 +325,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- INICIALIZAÇÃO GERAL ---
     loadSettings();
 });

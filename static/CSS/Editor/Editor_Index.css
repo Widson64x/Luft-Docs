@@ -1,0 +1,258 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === EDITOR_INDEX.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE MÓDULOS === */
+/* =================================================================== */
+
+/* --- 1. ANIMAÇÕES GERAIS --- */
+@keyframes fadeIn-scaleUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes bgMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+    to { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+}
+
+@keyframes iconRise {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
+
+/* --- 2. ESTILOS DE CORPO E FUNDO --- */
+body {
+    background: var(--theme-bg);
+    background-size: 200% 200%;
+    animation: bgMove 12s ease-in-out infinite;
+}
+
+/* --- 3. ESTRUTURA DA PÁGINA E CABEÇALHO --- */
+.module-editor-container {
+    padding: 2rem 0;
+}
+
+.module-header-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.module-header-bar h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--theme-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.modulo-filtro-box .form-control {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 4px 12px var(--theme-shadow);
+    transition: all 0.2s;
+}
+
+.modulo-filtro-box .form-control::placeholder {
+    color: var(--theme-text-secondary);
+}
+.modulo-filtro-box .form-control:focus {
+    box-shadow: 0 0 0 3px var(--theme-primary-btn);
+    border-color: var(--theme-primary-btn);
+}
+
+/* --- 4. GRID E CARDS DE MÓDULOS --- */
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.75rem;
+}
+
+.module-item {
+    opacity: 0;
+    animation: fadeIn-scaleUp 0.5s ease-out forwards;
+    animation-delay: calc(var(--delay) * 60ms);
+}
+
+.module-card {
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 32px var(--theme-shadow);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.module-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%);
+    transform: skewX(-25deg);
+    transition: left 0.5s ease-in-out;
+    z-index: 2;
+}
+body.theme-dark .module-card::before {
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.05) 50%, transparent 80%);
+}
+
+.module-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 48px var(--theme-shadow);
+    border-color: var(--theme-primary-btn);
+}
+.module-card:hover::before {
+    left: 150%;
+}
+
+.module-card .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Conteúdo do Card */
+.module-icon {
+    font-size: 2.25rem;
+    background: linear-gradient(135deg, var(--theme-primary-btn), #0558ca); /* Mantido gradiente específico */
+    color: var(--theme-primary-btn-text);
+    border-radius: 0.85rem;
+    padding: 0.75rem;
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+    margin-bottom: 1rem;
+    display: inline-flex;
+}
+.module-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--theme-text);
+    margin-bottom: 0.5rem;
+}
+.module-desc {
+    color: var(--theme-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+.module-badge {
+    font-size: 0.8rem;
+    padding: 0.25em 0.75em;
+    border-radius: 2em;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.module-approval-info {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--theme-text-secondary);
+}
+.module-actions {
+    border-top: 1px solid var(--theme-border);
+    padding-top: 1rem;
+}
+
+/* --- 5. CARD "ADICIONAR NOVO" E BOTÕES --- */
+.add-new-card {
+    background: transparent;
+    border: 2px dashed var(--theme-border);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--theme-text-secondary);
+    min-height: 320px;
+    box-shadow: none;
+    transition: all 0.2s ease;
+}
+.add-new-card:hover {
+    border-color: var(--theme-primary-btn);
+    color: var(--theme-primary-btn);
+    background: var(--theme-primary-btn-bg-subtle);
+    box-shadow: 0 8px 32px var(--theme-shadow);
+    transform: translateY(-8px) scale(1.02);
+}
+.add-new-card .icon { font-size: 3rem; }
+.add-new-card .text { font-size: 1.1rem; font-weight: 500; }
+
+.pending-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    color: var(--theme-text-secondary);
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+.pending-button:hover {
+    color: var(--theme-primary-btn);
+    border-color: var(--theme-primary-btn);
+    box-shadow: 0 0 16px var(--theme-primary-btn-bg-subtle);
+}
+.pending-button .notification-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 20px; 
+    height: 20px;
+    width: auto; 
+    padding: 0 6px;
+    background-color: var(--bs-danger); /* Usando variável do Bootstrap */
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 10px;
+    border: 2px solid var(--theme-surface); /* Usa a cor de fundo do botão para a borda */
+    animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+    box-shadow: 0 0 0 rgba(220, 53, 69, 0.4);
+}
+
+/* --- 6. ÍCONES DECORATIVOS --- */
+.bg-icons {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+.bg-icons .bg-icon {
+    position: absolute;
+    color: color-mix(in srgb, var(--theme-primary-btn) 13%, transparent);
+    bottom: -2rem;
+    animation-name: iconRise;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}

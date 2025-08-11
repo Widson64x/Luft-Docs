@@ -1,0 +1,229 @@
+@import url('Themes.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* =================================================================== */
+/* === EVALUATION.CSS - ESTILOS DA PÁGINA DE AVALIAÇÃO === */
+/* =================================================================== */
+
+/* --- 1. LAYOUT E ANIMAÇÃO GERAL --- */
+.evaluation-body-wrapper {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--theme-bg);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px); /* Ajuste conforme altura do seu header/footer */
+    transition: background-color 0.4s ease;
+}
+
+.evaluation-container {
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    box-shadow: 0 10px 30px var(--theme-shadow);
+    border-radius: 16px;
+    padding: 2.5rem 3rem;
+    width: 100%;
+    max-width: 750px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 1s ease 0.2s forwards;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.evaluation-container h1 {
+    color: var(--theme-text);
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+/* --- 2. BOTÕES DE SELEÇÃO DE PROPÓSITO --- */
+.purpose-selector {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.purpose-button {
+    background: transparent;
+    border: 2px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--theme-text);
+    transition: all 0.3s ease;
+}
+.purpose-button i { margin-right: 0.5rem; }
+
+.purpose-button:hover {
+    border-color: var(--theme-primary-btn);
+    color: var(--theme-primary-btn);
+    transform: translateY(-3px);
+}
+ 
+.purpose-selector.selection-made .purpose-button:not(.active) {
+    opacity: 0.6;
+}
+
+.purpose-button.active {
+    background-image: linear-gradient(45deg, var(--lia-grad-1), var(--lia-grad-2)); 
+    color: var(--theme-primary-btn-text);
+    border-color: transparent;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 20px var(--card-hover-shadow);
+}
+
+/* --- 3. CAMPOS DO FORMULÁRIO --- */
+.form-group {
+    position: relative;
+    margin-bottom: 0.5rem; /* Reduzido para acomodar o contador */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.7s ease, opacity 0.5s ease;
+}
+ 
+.form-group.visible {
+    max-height: 300px;
+    opacity: 1;
+}
+
+.form-group label {
+    position: absolute;
+    top: 0.85rem;
+    left: 1rem;
+    color: var(--theme-text-secondary);
+    font-weight: 500;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 1.5rem 1rem 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--theme-border);
+    font-size: 1rem;
+    color: var(--theme-text);
+    background: var(--theme-bg);
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+ 
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--theme-primary-btn);
+}
+ 
+.form-group textarea:focus + label,
+.form-group textarea:not(:placeholder-shown) + label {
+    top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--theme-primary-btn);
+}
+
+.char-counter-wrapper {
+    text-align: right;
+    margin-top: 5px;
+    margin-bottom: 2rem;
+    height: 1.2rem;
+}
+
+.char-counter {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--theme-color-danger);
+    transition: all 0.3s ease;
+}
+
+.char-counter.valid {
+    color: var(--theme-color-success);
+    font-weight: 600;
+}
+ 
+/* --- 4. AVALIAÇÃO POR ESTRELAS --- */
+#rating-group { margin-bottom: 2.5rem; }
+ 
+.rating-label {
+    color: var(--theme-text);
+    margin-bottom: 1rem;
+    display: block;
+    font-weight: 500;
+}
+
+.star-rating { 
+    font-size: 2.5rem; 
+    cursor: pointer; 
+}
+.star-rating .star {
+    color: var(--theme-border);
+    transition: all 0.2s ease-in-out;
+    display: inline-block;
+}
+.star-rating .star:hover { 
+    transform: scale(1.2); 
+}
+.star-rating .star.hover,
+.star-rating .star.selected { 
+    color: var(--theme-color-warning); 
+}
+
+#rating-text {
+    display: block;
+    margin-top: 1rem;
+    height: 20px;
+    color: var(--theme-color-warning);
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+}
+ 
+#rating { display: none; }
+
+/* --- 5. BOTÃO DE ENVIO --- */
+.submit-btn {
+    background-image: linear-gradient(45deg, var(--lia-grad-1), var(--lia-grad-2));
+    background-size: 200%;
+    background-position: left;
+    color: var(--theme-primary-btn-text);
+    border: none;
+    border-radius: 10px;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.4s ease;
+    position: relative;
+}
+ 
+.submit-btn:hover {
+    background-position: right;
+    box-shadow: 0 8px 25px var(--card-hover-shadow);
+}
+ 
+.submit-btn .spinner { display: none; }
+.submit-btn.loading .btn-text { visibility: hidden; }
+.submit-btn.loading .spinner { display: block; position: absolute; top: 50%; left: 50%; margin-top: -10px; margin-left: -10px; }
+.spinner {
+    border: 3px solid rgba(255,255,255,0.3); 
+    border-radius: 50%; 
+    border-top-color: #fff;
+    width: 20px; 
+    height: 20px; 
+    animation: spin 1s ease-in-out infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

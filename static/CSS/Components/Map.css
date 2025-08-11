@@ -1,0 +1,285 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === MAP.CSS - ESTILOS DO MAPA DE MÓDULOS INTERATIVO === */
+/* =================================================================== */
+
+.filter-container {
+  position: relative;
+  min-width: 250px;
+}
+
+.filter-input {
+  background-color: var(--theme-surface);
+  color: var(--theme-text);
+  border: 1.5px solid var(--theme-border);
+  border-radius: 0.5rem; /* Levemente mais arredondado */
+  padding: 0.6rem 1rem 0.6rem 2.5rem; /* Espaço para o ícone */
+  width: 100%;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  transition: all 0.3s ease;
+  box-shadow: var(--theme-shadow);
+}
+
+.filter-input::placeholder {
+  color: var(--theme-text-secondary);
+  opacity: 0.8;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--theme-primary-btn);
+  box-shadow: 0 0 0 3px var(--theme-primary-btn-bg-subtle), var(--theme-shadow);
+}
+
+.filter-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: var(--theme-text-secondary);
+  pointer-events: none; /* Garante que o clique vá para o input */
+  transition: color 0.3s ease;
+}
+
+.filter-input:focus ~ .filter-icon {
+  color: var(--theme-primary-btn);
+}
+
+
+/* --- 0. LAYOUT DA PÁGINA (Substitui .container, etc.) --- */
+/* Substitui a classe .container do Bootstrap */
+.page-container {
+    width: 100%;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    margin-right: auto;
+    margin-left: auto;
+}
+@media (min-width: 576px) { .page-container { max-width: 540px; } }
+@media (min-width: 768px) { .page-container { max-width: 720px; } }
+@media (min-width: 992px) { .page-container { max-width: 960px; } }
+@media (min-width: 1200px) { .page-container { max-width: 1140px; } }
+@media (min-width: 1400px) { .page-container { max-width: 1320px; } }
+
+/* Substitui as classes d-flex, justify-content-between, etc. do cabeçalho */
+.page-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem; /* Substitui mb-4 */
+}
+
+/* Adiciona o padding que estava como .pb-5 */
+.container-mapa {
+    padding-bottom: 3rem; 
+}
+
+/* Componente para a mensagem de "Nenhum resultado" */
+.no-results-message {
+    width: 100%; /* Substitui col-12 */
+    text-align: center; /* Substitui text-center */
+    padding-top: 3rem; /* Substitui py-5 */
+    padding-bottom: 3rem; /* Substitui py-5 */
+}
+.no-results-message i {
+    font-size: 3rem; /* Substitui fs-1 */
+    color: var(--theme-text-secondary); /* Substitui text-muted */
+}
+.no-results-message h4 {
+    margin-top: 1rem; /* Substitui mt-3 */
+}
+
+
+/* --- 1. CONTAINER DO GRAFO (NEBULOSA + ESTRELAS) --- */
+.graph-container {
+    border-radius: 1.25rem;
+    width: 100%;
+    height: 80vh;
+    min-height: 650px;
+    position: relative;
+    cursor: grab;
+    background-color: var(--graph-bg);
+    border: 1px solid var(--theme-border);
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+}
+
+/* Efeito Nebulosa */
+.graph-container::before {
+    content: '';
+    position: absolute;
+    width: 200%; height: 200%;
+    top: -50%; left: -50%;
+    z-index: 0;
+    background: radial-gradient(circle, var(--graph-nebula-color) 0%, transparent 60%);
+    animation: rotateBackground 25s linear infinite;
+}
+
+/* Efeito Estrelas (visível apenas no fundo escuro) */
+.graph-container::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px; height: 1px;
+    background: transparent;
+    z-index: 0;
+    box-shadow: var(--stars-small), var(--stars-medium);
+    animation: twinkle 5s linear infinite;
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.5s;
+}
+body.theme-dark .graph-container::after {
+    opacity: 1; /* Aparece no tema escuro */
+}
+
+/* --- 2. NÓS (NODES) E LINKS --- */
+.link {
+    stroke: var(--graph-link-color);
+    stroke-opacity: 0.7;
+    stroke-width: 1.5px;
+    transition: all 0.3s ease;
+}
+.link.active {
+    stroke: url(#link-gradient);
+    stroke-opacity: 1;
+    stroke-width: 3px;
+}
+.link.faded { stroke-opacity: 0.1; }
+
+.node { cursor: pointer; transition: opacity 0.3s ease; }
+.node.faded { opacity: 0.15; }
+
+.node-background {
+    stroke: var(--graph-node-stroke);
+    stroke-width: 2px;
+    fill: url(#node-gradient); /* O gradiente interno é definido no SVG */
+    transition: all 0.3s ease-out;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.node:hover .node-background, .node.hovered .node-background {
+    transform: scale(1.15);
+    stroke: var(--theme-primary-btn);
+    filter: drop-shadow(0 0 10px var(--theme-primary-btn))
+            drop-shadow(0 0 20px color-mix(in srgb, var(--theme-primary-btn) 50%, transparent));
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.node.filtered .node-background {
+    stroke: var(--theme-color-warning);
+    stroke-width: 4px;
+    animation-play-state: paused;
+}
+.node.related .node-background {
+    stroke: var(--theme-color-info);
+    stroke-width: 3px;
+    animation-play-state: paused;
+}
+.node.visited .node-background {
+    stroke: var(--theme-color-warning);
+    stroke-width: 3px;
+}
+
+.foreign-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: var(--graph-icon-color);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+.node:hover .foreign-icon-wrapper, .node.hovered .foreign-icon-wrapper {
+    color: var(--theme-surface);
+    transform: scale(1.1);
+}
+ 
+.node-label {
+    pointer-events: none;
+    font-size: 14px;
+    font-weight: 600;
+    fill: var(--graph-node-label-fill);
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: var(--graph-node-label-stroke);
+    stroke-width: 4px;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+}
+
+/* --- 3. UI: MENU DE CONTEXTO E TOOLTIP --- */
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    min-width: 220px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    border-radius: .75rem;
+    border: 1px solid var(--menu-glass-border);
+    background-color: var(--menu-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0; /* Remove padding padrão da lista */
+    overflow: hidden; /* Garante que os itens respeitem o border-radius */
+}
+/* Estilo para a lista (ul) dentro do menu, substitui .list-group */
+.context-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+/* Estilo para os itens (a) do menu, substitui .list-group-item e .list-group-item-action */
+.context-menu-action {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    font-weight: 500;
+    background-color: transparent;
+    color: var(--menu-glass-text);
+    border-bottom: 1px solid var(--menu-glass-border);
+    transition: all 0.2s ease-in-out;
+}
+.context-menu ul li:last-child .context-menu-action { 
+    border-bottom: none; 
+}
+.context-menu-action:hover {
+    background-color: var(--menu-glass-hover-bg);
+    color: var(--menu-glass-text-hover);
+}
+
+.graph-tooltip {
+    position: absolute;
+    max-width: 280px;
+    padding: 0.75rem 1rem;
+    background-color: var(--tooltip-bg);
+    color: var(--theme-text);
+    border: 1px solid var(--tooltip-border);
+    border-radius: .5rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1001;
+}
+.graph-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- 4. ANIMAÇÕES --- */
+@keyframes rotateBackground {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes twinkle {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0.8; }
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}

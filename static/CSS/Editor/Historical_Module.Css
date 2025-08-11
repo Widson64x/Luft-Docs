@@ -1,0 +1,145 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === HISTORICAL_MODULE.CSS - ESTILOS DA PÁGINA DE HISTÓRICO === */
+/* =================================================================== */
+
+/* --- 1. LAYOUT GERAL E CABEÇALHO --- */
+.page-header h2 .text-primary {
+    color: var(--theme-primary-btn) !important;
+}
+
+.page-header .text-muted {
+    color: var(--theme-text-secondary) !important;
+}
+
+/* --- 2. ABAS DE NAVEGAÇÃO --- */
+.tab-content {
+    /* Adiciona um preenchimento para separar as abas da timeline */
+    padding-top: 1.5rem;
+}
+
+/* --- 3. COMPONENTE DE TIMELINE --- */
+.timeline {
+    position: relative;
+    padding-left: 4rem;
+    margin: 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--theme-border);
+    border-radius: 2px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: -28px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--theme-surface);
+    border: 4px solid var(--theme-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--theme-primary-btn-text);
+    z-index: 1;
+}
+
+/* Cores dos ícones baseadas no status */
+.timeline-icon.approved { background-color: var(--theme-color-success); }
+.timeline-icon.restored { background-color: var(--theme-color-warning); }
+.timeline-icon.created { background-color: var(--theme-color-primary); }
+
+.timeline-card {
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px var(--theme-shadow);
+}
+
+.timeline-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--theme-border);
+}
+
+.timeline-body {
+    padding: 1.25rem;
+}
+
+.version-badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.3em 0.8em;
+    border-radius: 2em;
+}
+
+/* --- 4. ESTILOS DO CONTEÚDO NO MODAL --- */
+#viewVersionModal .modal-content {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+}
+
+#viewVersionModal .modal-header {
+    border-bottom-color: var(--theme-border);
+}
+
+#viewVersionModalBody img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+}
+
+#viewVersionModalBody table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+#viewVersionModalBody th, 
+#viewVersionModalBody td {
+    border: 1px solid var(--theme-border);
+    padding: 8px;
+    color: var(--theme-text);
+}
+
+#viewVersionModalBody th {
+    background-color: var(--theme-surface-hover);
+}
+
+#viewVersionModalBody pre {
+    background-color: var(--theme-surface-hover);
+    color: var(--theme-text);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Estilos para o modal de diff */
+#diffModal .modal-content {
+    background-color: var(--theme-surface);
+}
+
+.text_place {
+    opacity: 0.7;
+    font-size: 0.8rem;
+    color: var(--theme-text) !important; /* Garantindo que o texto seja visível */
+}

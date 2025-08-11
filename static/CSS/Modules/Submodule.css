@@ -1,0 +1,77 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === SUBMODULE.CSS - ESTILOS PARA CONTEÚDO MARKDOWN === */
+/* =================================================================== */
+
+/* --- 1. Corpo Principal do Conteúdo --- */
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+    color: var(--theme-text);
+    background-color: transparent;
+}
+
+/* --- 2. Elementos Dentro do Conteúdo --- */
+
+/* Estilo de Realce (Highlight) */
+.markdown-body mark {
+    background-color: var(--highlight-bg);
+    color: var(--highlight-text);
+    font-weight: 600;
+    padding: 0.1em 0.3em;
+    margin: 0 -0.3em;
+    border-radius: 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* Tabelas */
+.markdown-body table {
+    border-radius: 10px;
+    width: 100%; /* Garante que a tabela use o espaço disponível */
+    overflow: hidden; /* Garante que o border-radius seja aplicado nas células */
+}
+
+.markdown-body tbody,
+.markdown-body td,
+.markdown-body tfoot,
+.markdown-body th,
+.markdown-body thead,
+.markdown-body tr {
+    /* Usando as variáveis de override para o estilo de alto contraste da tabela */
+    color: var(--table-text-override);
+    background-color: var(--table-bg-override);
+    border: 1px solid var(--theme-border);
+}
+
+/* Listas Ordenadas Aninhadas */
+.markdown-body ol ol,
+.markdown-body ul ol {
+    list-style-type: upper-roman;
+}
+
+.markdown-body ol ol li::marker,
+.markdown-body ul ol li::marker {
+    font-weight: bold;
+}
+
+/* --- 3. Sobrescritas para o Tema Escuro --- */
+/* As variáveis já são trocadas automaticamente pelo `body.theme-dark` no Themes.css, 
+   então não precisamos de muitas regras específicas aqui, a não ser que o comportamento
+   seja drasticamente diferente, como é o caso das tabelas. 
+   O seletor abaixo é mantido para garantir a aplicação correta.
+*/
+body.theme-dark .markdown-body {
+    color: var(--theme-text);
+}
+
+/* --- 4. Responsividade --- */
+@media (max-width: 767px) {
+    .markdown-body {
+        padding: 15px;
+    }
+}

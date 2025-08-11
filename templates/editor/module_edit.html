@@ -1,138 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Editar Módulo: {{ modulo.nome }}{% endblock %}
 
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Module.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
-  /* --- GERAL E LAYOUT --- */
-  body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    font-family: 'Inter', sans-serif;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .page-title {
-    font-weight: 700;
-    color: #2c3e50;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-
-  .main-form-card {
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 8px 40px rgba(44, 62, 80, 0.1);
-    padding: 2.5rem;
-    border: 1px solid #e0e7f1;
-  }
-
-  /* --- ABAS DOS EDITORES --- */
-  .nav-tabs .nav-link {
-    font-weight: 600;
-    color: #495057;
-    border-radius: 8px 8px 0 0 !important;
-    padding: 0.8rem 1.5rem;
-    border-width: 1px;
-    border-bottom-width: 0;
-  }
-
-  .nav-tabs .nav-link.active {
-    background-color: #fff;
-    color: #0d6efd;
-    border-color: #dee2e6 #dee2e6 #fff;
-  }
-  
-  .tab-content {
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 0 0 12px 12px;
-    padding: 1.5rem;
-    min-height: 800px;
-  }
-
-  /* --- ELEMENTOS DE FORMULÁRIO --- */
-  .form-label, .editor-label {
-    font-weight: 600;
-    color: #34495e;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-  }
-
-  .form-control, .form-select {
-    border-radius: 10px;
-    border: 1px solid #ced4da;
-    background-color: #f8f9fa;
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .form-control[readonly] {
-      background-color: #e9ecef;
-      opacity: 1;
-  }
-
-  .form-control:focus, .form-select:focus {
-    border-color: #86b7fe;
-    background-color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.2);
-  }
-
-  /* --- SELETOR DE ÍCONE --- */
-  #icon-preview-box {
-    width: 60px;
-    height: 60px;
-    background: #f8f9fa;
-    border: 1px dashed #ced4da;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  #icon-preview-box:hover {
-    border-color: #0d6efd;
-    background-color: #e9ecef;
-    color: #0d6efd;
-  }
-
-  .icon-grid-btn {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    font-size: 1.8rem;
-    transition: all 0.2s ease;
-  }
-  .icon-grid-btn:hover, .icon-grid-btn.selected {
-    background-color: #e7f1ff;
-    color: #0d6efd;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
-  }
-  
-  /* --- EDITOR TOASTUI --- */
-  .toastui-editor-defaultUI {
-    border-radius: 12px !important;
-    border: 1px solid #d0d9e2 !important;
-    min-height: 700px !important;
-  }
-
-  .editor-toolbar-btns {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-bottom: 0.8rem;
-  }
-</style>
-
 <div class="container-fluid py-4">
   <form method="post" id="editor-form">
     <input type="hidden" name="token" value="{{ token }}">
@@ -278,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             previewStyle: 'tab',
             height: '700px',
             usageStatistics: false,
-            theme: editorTheme,
+            theme: 'light',
             markdown: { breaks: true, linkify: true, html: true },
             hooks: {
                 addImageBlobHook: (blob, callback) => {

@@ -1,0 +1,246 @@
+/* =================================================================== */
+/* === THEMES.CSS - ARQUIVO CENTRAL DE VARIÁVEIS DE ESTILO === */
+/* =================================================================== */
+
+:root {
+    /* --- FONTES E TAMANHOS --- */
+    --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-size-base: 1rem;
+
+    /* --- TEMA CLARO --- */
+    /* Cores Globais */
+    --theme-bg: #f9f9fb;
+    --theme-text: #212529;
+    --theme-text-secondary: #6c757d;
+    --theme-surface: #ffffff;
+    --theme-surface-text: #23263b;
+    --theme-surface-hover: #f0f2f5;
+    --theme-accent: #1a237e;
+    --theme-accent-bg-light: #e6f7ff;
+    --theme-border: #dee2e6;
+    --theme-shadow: 0 4px 16px #0000000a;
+    
+    /* Cores de Destaque Primário */
+    --theme-primary-btn: #0d6efd;
+    --theme-primary-btn-text: #ffffff;
+    --theme-primary-btn-bg-light: #0d6efd15;
+    --theme-primary-btn-bg-subtle: rgba(13, 110, 253, 0.05);
+
+    /* Cores de Destaque Secundário */
+    --theme-secondary-accent: #6f42c1;
+    --theme-secondary-accent-bg-light: #6f42c115;
+
+    /* Gradientes e Efeitos */
+    --theme-bg-gradient-start: #e0e7ff;
+    --theme-bg-gradient-end: #c3cfe2;
+    --theme-accent-glow: #b6d0ff; /* <-- ADICIONE ESTA LINHA */
+    --ripple-color: rgba(13, 110, 253, 0.18); /* <-- ADICIONE ESTA LINHA */
+    
+    --lia-grad-1: #0077ff; 
+    --lia-grad-2: #00eaff; 
+
+    /* Cores Específicas LIA AI */
+    --lia-bg-color: #f0f2f5;
+    --lia-surface-color: rgba(255, 255, 255, 0.5);
+    --lia-glow-color: #0d6efd;
+    --lia-border-color: rgba(255, 255, 255, 0.2);
+
+    /* Cores de Formulários e Componentes */
+    --placeholder-color: #6c757d;
+    --panel-header-bg: #f1f3f4;
+    --diff-deletion-bg: #ffe6e6;
+    --diff-insertion-bg: #e6ffec;
+    --theme-color-success: #198754;
+    --theme-color-warning: #fd7e14;
+    --theme-color-primary: #0d6efd;
+    --theme-color-danger: #dc3545;
+    --theme-color-info: #0dcaf0; /* <-- ADICIONE ESTA LINHA */
+    --input-readonly-bg: #e9ecef;
+    --form-focus-border-color: #86b7fe;
+    --form-focus-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+    --highlight-bg: #FFDC74;
+    --highlight-text: #1c1c1c;
+    --scrollbar-thumb-color: #ccc;
+    --scrollbar-thumb-hover-color: #aaa;
+    --table-text-override: #ffffff;
+    --table-bg-override: #000000;
+    --card-hover-shadow: 0 8px 32px #0d6efd25;
+
+    /* NOVO: Variáveis para o Mapa de Módulos */
+    --graph-bg: #f8f9fa; /* Fundo claro para o mapa */
+    --graph-nebula-color: rgba(0, 123, 255, 0.1); /* Nebulosa azul bem sutil */
+    --graph-link-color: rgba(108, 117, 125, 0.5); /* Links acinzentados */
+    --graph-node-stroke: #dee2e6; /* Borda dos nós */
+    --graph-node-label-fill: #000000; /* Cor do texto do nó */
+    --graph-node-label-stroke: #f8f9fa; /* Contorno do texto do nó */
+    --graph-icon-color: #ffffff; /* Cor do ícone */
+
+    /* NOVO: Variáveis para UI (Tooltip, Menu de Contexto) */
+    --tooltip-bg: var(--theme-surface);
+    --tooltip-border: var(--theme-border);
+    --menu-glass-bg: rgba(255, 255, 255, 0.7);
+    --menu-glass-border: rgba(0, 0, 0, 0.1);
+    --menu-glass-text: var(--theme-text);
+    --menu-glass-text-hover: var(--theme-primary-btn);
+    --menu-glass-hover-bg: rgba(0, 0, 0, 0.05);
+
+}
+
+/* --- TEMA ESCURO --- */
+body.theme-dark {
+    /* Cores Globais */
+    --theme-bg: #1e1e1e;
+    --theme-text: #e7eaf1;
+    --theme-text-secondary: #adb5bd;
+    --theme-surface: #2b2b3a;
+    --theme-surface-text: #f8f9fa;
+    --theme-surface-hover: #3a3a3a;
+    --theme-accent: #f5f5f5;
+    --theme-accent-bg-light: #3a3a3a;
+    --theme-border: #444444;
+    --theme-shadow: 0 4px 16px #00000026;
+    
+    /* Cores de Destaque Primário */
+    --theme-primary-btn: #8ab4f8;
+    --theme-primary-btn-text: #0A0A10;
+    --theme-primary-btn-bg-light: #8ab4f820;
+    --theme-primary-btn-bg-subtle: rgba(138, 180, 248, 0.1);
+
+    /* Cores de Destaque Secundário */
+    --theme-secondary-accent: #d1c4e9;
+    --theme-secondary-accent-bg-light: #d1c4e930;
+    
+    /* Gradientes e Efeitos */
+    --theme-bg-gradient-start: #23263b;
+    --theme-bg-gradient-end: #212529;
+    --theme-accent-glow: color-mix(in srgb, var(--theme-primary-btn) 40%, transparent); /* <-- ADICIONE ESTA LINHA */
+    --ripple-color: rgba(138, 180, 248, 0.2); /* <-- ADICIONE ESTA LINHA */
+    --lia-grad-1: #0077ff; 
+    --lia-grad-2: #339dff; 
+    /* Cores Específicas LIA AI */
+    --lia-bg-color: #0A0A10;
+    --lia-surface-color: rgba(25, 28, 41, 0.5);
+    --lia-glow-color: #339dff;
+    --lia-border-color: rgba(50, 50, 80, 0.3);
+
+    /* Cores de Formulários e Componentes */
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+    --panel-header-bg: var(--theme-border); 
+    --diff-deletion-bg: rgba(220, 53, 69, 0.2);
+    --diff-insertion-bg: rgba(25, 135, 84, 0.2);
+    --theme-color-success: #20c997;
+    --theme-color-warning: #ffc107;
+    --theme-color-primary: var(--theme-primary-btn);
+    --theme-color-danger: #f17c7c;
+    --theme-color-info: #22d3ee; /* <-- ADICIONE ESTA LINHA */
+    --input-readonly-bg: var(--theme-surface-hover);
+    --form-focus-border-color: #8ab4f8;
+    --form-focus-shadow: 0 0 0 0.25rem rgba(138, 180, 248, 0.25);
+    --highlight-bg: #FFDC74;
+    --highlight-text: #1c1c1c;
+    --highlight-accent-bg: rgba(138, 180, 248, 0.2); 
+    --highlight-accent-text: var(--theme-primary-btn);    
+    --highlight-accent-bg: rgba(13, 110, 253, 0.15); 
+    --highlight-accent-text: #0b5ed7; 
+    --scrollbar-thumb-color: #4e4e4e;
+    --scrollbar-thumb-hover-color: #6a6a6a;
+    --table-text-override: #000000;
+    --table-bg-override: #ffffff;
+    --card-hover-shadow: 0 8px 32px #8ab4f830;
+
+    /* NOVO: Variáveis para o Mapa de Módulos */
+    --graph-bg: #0d1117;
+    --graph-nebula-color: rgba(29, 78, 216, 0.15);
+    --graph-link-color: rgba(100, 116, 139, 0.5);
+    --graph-node-stroke: #475569;
+    --graph-node-label-fill: #cbd5e1;
+    --graph-node-label-stroke: #0d1117;
+    --graph-icon-color: #ffffff;
+
+    /* NOVO: Variáveis para UI (Tooltip, Menu de Contexto) */
+    --tooltip-bg: #111827;
+    --tooltip-border: #4b5563;
+    --menu-glass-bg: rgba(31, 41, 55, 0.7);
+    --menu-glass-border: rgba(255, 255, 255, 0.1);
+    --menu-glass-text: #d1d5db;
+    --menu-glass-text-hover: #ffffff;
+    --menu-glass-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* --- TEMA LUFT LOGISTICS (REVAMPED) --- */
+body.theme-luft {
+    /* Cores Globais */
+    --theme-bg: #F0F2F5; /* Cinza mais frio, com tom azulado */
+    --theme-text: #002F6C; /* AZUL ESCURO da Luft como cor principal de texto */
+    --theme-text-secondary: #5D6D7E; /* Azul acinzentado para texto secundário */
+    --theme-surface: #FFFFFF;
+    --theme-surface-text: #002F6C;
+    --theme-surface-hover: #EAECEE;
+    --theme-accent: #00A9E0; /* Azul claro para acentos visuais */
+    --theme-accent-bg-light: rgba(0, 169, 224, 0.1);
+    --theme-border: #C5D2E3; /* Borda em tom de azul-acinzentado */
+    --theme-shadow: 0 4px 16px rgba(0, 47, 108, 0.08);
+    
+    /* Cores de Destaque Primário (Botões, etc.) */
+    --theme-primary-btn: #002F6C;
+    --theme-primary-btn-text: #FFFFFF;
+    --theme-primary-btn-bg-light: rgba(0, 47, 108, 0.1);
+    --theme-primary-btn-bg-subtle: rgba(0, 47, 108, 0.05);
+
+    /* Cores de Destaque Secundário */
+    --theme-secondary-accent: #5D6D7E;
+    --theme-secondary-accent-bg-light: rgba(93, 109, 126, 0.1);
+
+    /* Gradientes e Efeitos */
+    --theme-bg-gradient-start: #EAECEE;
+    --theme-bg-gradient-end: #F0F2F5;
+    --theme-accent-glow: rgba(0, 169, 224, 0.3);
+    --ripple-color: rgba(0, 47, 108, 0.2);
+    
+    /* Cores Específicas LIA AI */
+    --lia-grad-1: #002F6C; 
+    --lia-grad-2: #00A9E0; 
+    --lia-bg-color: #EAECEE;
+    --lia-surface-color: rgba(255, 255, 255, 0.6);
+    --lia-glow-color: #002F6C;
+    --lia-border-color: rgba(0, 47, 108, 0.2);
+
+    /* Cores de Formulários e Componentes */
+    --placeholder-color: #6c757d;
+    --panel-header-bg: #D6E0EA; /* Cabeçalho de painel com azul claro da identidade */
+    --diff-deletion-bg: #FADBD8;
+    --diff-insertion-bg: #D4EFDF;
+    --theme-color-success: #28A745;
+    --theme-color-warning: #FFC107;
+    --theme-color-primary: #002F6C;
+    --theme-color-danger: #E30613; /* Vermelho/Laranja da Luft */
+    --theme-color-info: #00A9E0;
+    --input-readonly-bg: #EAECEE;
+    --form-focus-border-color: #00A9E0;
+    --form-focus-shadow: 0 0 0 0.25rem rgba(0, 47, 108, .25);
+    --highlight-bg: rgba(0, 169, 224, 0.2); /* Fundo da seleção com o azul claro */
+    --highlight-text: #002F6C;
+    --scrollbar-thumb-color: #BDC3C7;
+    --scrollbar-thumb-hover-color: #99A3A4;
+    --table-text-override: #FFFFFF; /* Texto branco para cabeçalho de tabela */
+    --table-bg-override: #002F6C; /* Cabeçalho de tabela com azul escuro */
+    --card-hover-shadow: 0 8px 32px rgba(0, 47, 108, 0.2);
+
+    /* Variáveis para o Mapa de Módulos */
+    --graph-bg: #FFFFFF;
+    --graph-nebula-color: rgba(0, 47, 108, 0.05);
+    --graph-link-color: rgba(93, 109, 126, 0.5);
+    --graph-node-stroke: #D5D8DC;
+    --graph-node-label-fill: #002F6C;
+    --graph-node-label-stroke: #FFFFFF;
+    --graph-icon-color: #FFFFFF;
+
+    /* Variáveis para UI (Tooltip, Menu de Contexto) */
+    --tooltip-bg: var(--theme-surface);
+    --tooltip-border: var(--theme-border);
+    --menu-glass-bg: rgba(255, 255, 255, 0.8);
+    --menu-glass-border: rgba(0, 0, 0, 0.1);
+    --menu-glass-text: var(--theme-text);
+    --menu-glass-text-hover: var(--theme-primary-btn);
+    --menu-glass-hover-bg: rgba(0, 0, 0, 0.05);
+}

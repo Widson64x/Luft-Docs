@@ -1,0 +1,202 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === MG_PERMISSIONS.CSS - ESTILOS DO PAINEL DE PERMISSÕES === */
+/* =================================================================== */
+
+/* --- 0. LAYOUT GERAL --- */
+.permission-dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* --- 1. CABEÇALHO --- */
+.permission-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: var(--theme-surface);
+    color: var(--theme-surface-text);
+    border: 1px solid var(--theme-border);
+    border-radius: 1.25rem;
+    box-shadow: var(--theme-shadow);
+}
+
+.permission-header h1 {
+    font-size: 1.75rem; /* Ajustado para rem */
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* --- 2. ALERTAS (Componente Reutilizado) --- */
+.custom-alert {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid transparent;
+  font-weight: 500;
+  box-shadow: var(--theme-shadow);
+}
+.custom-alert .alert-icon { font-size: 1.25rem; margin-right: 0.8rem; }
+.custom-alert .btn-close { --bs-btn-close-color: var(--alert-text-color); filter: grayscale(1) opacity(0.7); transition: all 0.2s ease; }
+.custom-alert .btn-close:hover { filter: grayscale(0) opacity(1); transform: scale(1.1); }
+.alert-success { --alert-bg-color: color-mix(in srgb, var(--theme-color-success) 15%, transparent); --alert-border-color: var(--theme-color-success); --alert-text-color: var(--theme-color-success); }
+.alert-danger { --alert-bg-color: color-mix(in srgb, var(--theme-color-danger) 15%, transparent); --alert-border-color: var(--theme-color-danger); --alert-text-color: var(--theme-color-danger); }
+.custom-alert { background-color: var(--alert-bg-color); border-color: var(--alert-border-color); color: var(--alert-text-color); }
+
+/* --- 3. LISTA E CARDS DE PERMISSÃO --- */
+.permissions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.permission-card {
+    background: var(--theme-surface);
+    border: 1.5px solid var(--theme-border);
+    border-radius: 1.25rem;
+    box-shadow: var(--theme-shadow);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.permission-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--card-hover-shadow);
+    border-color: var(--theme-primary-btn);
+}
+
+.permission-icon {
+    font-size: 2.25rem;
+    color: var(--theme-primary-btn);
+    margin-bottom: 1rem;
+}
+
+.permission-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--theme-text);
+}
+
+.permission-desc {
+    color: var(--theme-text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    flex-grow: 1; /* Empurra os metas e ações para baixo */
+}
+
+.permission-meta { margin-bottom: 0.75rem; }
+.permission-meta-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--theme-text-secondary);
+    margin-right: 0.5rem;
+}
+
+.permission-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.2rem;
+    background-color: var(--theme-primary-btn-bg-light);
+    color: var(--theme-primary-btn);
+}
+.permission-badge.user {
+    background-color: var(--theme-secondary-accent-bg-light);
+    color: var(--theme-secondary-accent);
+}
+/* Novo estilo para badges vazios */
+.permission-badge--empty {
+    background-color: var(--theme-surface-hover);
+    color: var(--theme-text-secondary);
+    font-style: italic;
+}
+
+.permission-actions {
+    border-top: 1px solid var(--theme-border);
+    padding-top: 1rem;
+    margin-top: auto; /* Garante que fique sempre no final */
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* --- 4. BOTÕES (Componente Reutilizado com Variações) --- */
+.action-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5em; padding: 0.6rem 1.2rem; font-family: var(--font-family-base); font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; user-select: none; border: 1.5px solid; border-radius: 0.5rem; transition: all 0.25s ease; }
+.action-btn .bi { font-size: 1.1em; }
+/* Variação de Tamanho */
+.action-btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 0.375rem; }
+
+/* Cores */
+.action-btn-primary { color: var(--theme-primary-btn-text); background-color: var(--theme-primary-btn); border-color: var(--theme-primary-btn); }
+.action-btn-primary:hover { filter: brightness(1.1); }
+.action-btn-outline { color: var(--theme-text); background-color: transparent; border-color: var(--theme-border); }
+.action-btn-outline:hover { background-color: var(--theme-surface-hover); border-color: var(--theme-text); }
+/* Nova Variação de Cor */
+.action-btn-outline-danger { color: var(--theme-color-danger); background-color: transparent; border-color: var(--theme-color-danger); }
+.action-btn-outline-danger:hover { background-color: color-mix(in srgb, var(--theme-color-danger) 15%, transparent); color: var(--theme-color-danger); }
+
+
+/* --- 5. COMPONENTES DE FORMULÁRIO (Novos) --- */
+.search-bar { margin-bottom: 2rem; }
+
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--theme-text-secondary); font-size: 0.9rem; }
+.form-input, .form-textarea { width: 100%; padding: 0.75rem 1rem; font-size: 1rem; background-color: var(--theme-surface); color: var(--theme-text); border: 1.5px solid var(--theme-border); border-radius: 0.5rem; transition: all 0.2s ease-in-out; }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--placeholder-color); }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--form-focus-border-color); box-shadow: var(--form-focus-shadow); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+
+/* --- 6. ESTILOS DO MODAL (Sobrescrevendo o Bootstrap) --- */
+.modal-content {
+    background-color: var(--theme-surface);
+    border: 1.5px solid var(--theme-border);
+    border-radius: 1rem;
+    box-shadow: var(--theme-shadow);
+    color: var(--theme-text);
+}
+.modal-header {
+    border-bottom: 1px solid var(--theme-border);
+    padding: 1.25rem 1.5rem;
+}
+.modal-title { font-weight: 600; font-size: 1.25rem; }
+.modal-body { padding: 1.5rem; }
+.modal-footer {
+    border-top: 1px solid var(--theme-border);
+    background-color: var(--theme-surface-hover);
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+}
+.btn-close { filter: brightness(0.8); }
+body.theme-dark .btn-close { filter: invert(1) brightness(0.8); }
+
+/* --- 7. MENSAGEM DE "NENHUMA PERMISSÃO" --- */
+.no-permissions-message {
+    grid-column: 1 / -1; /* Ocupa todas as colunas do grid */
+    text-align: center;
+    color: var(--theme-text-secondary);
+    padding: 4rem 0;
+}
+.no-permissions-message i { font-size: 2.5rem; }
+.no-permissions-message div { margin-top: 0.75rem; }
+
+/* --- FUNDO DECORATIVO --- */
+.bg-icons { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: -1; }
+.bg-icons .bg-icon { position: absolute; color: color-mix(in srgb, var(--theme-primary-btn) 10%, transparent); }

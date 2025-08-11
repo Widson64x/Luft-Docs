@@ -1,0 +1,154 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === PENDING.CSS - ESTILOS DO DASHBOARD DE PENDÊNCIAS === */
+/* =================================================================== */
+
+/* --- 1. ANIMAÇÕES E LAYOUT GERAL --- */
+@keyframes fadeIn-slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+body { 
+    background-color: var(--theme-bg); 
+    transition: background-color 0.3s; 
+}
+
+.pending-dashboard {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.pending-header h1 {
+    color: var(--theme-text);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pending-header .count-badge {
+    background-color: var(--theme-primary-btn);
+    color: var(--theme-primary-btn-text);
+}
+
+/* --- 2. LISTA DE ITENS PENDENTES --- */
+.pending-list .pending-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.25rem;
+    align-items: center;
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px var(--theme-shadow);
+    transition: all 0.2s ease;
+    opacity: 0;
+    animation: fadeIn-slideUp 0.4s ease-out forwards;
+    animation-delay: calc(var(--delay) * 70ms);
+}
+
+.pending-list .pending-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--theme-shadow);
+    border-color: var(--theme-primary-btn);
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--theme-primary-btn);
+    color: var(--theme-primary-btn-text);
+    display: grid;
+    place-content: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    position: relative;
+}
+
+.user-avatar::before {
+    content: var(--initial);
+}
+
+.item-info .module-name {
+    color: var(--theme-text);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.item-info .module-meta {
+    color: var(--theme-text-secondary);
+    font-size: 0.85rem;
+}
+
+.item-actions .btn { 
+    border-radius: 0.5rem; 
+}
+
+/* Estado de "Nenhuma Pendência" */
+.no-pending-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--theme-surface);
+    border: 2px dashed var(--theme-border);
+    border-radius: 1rem;
+    color: var(--theme-text-secondary);
+}
+
+/* --- 3. MODAL DE COMPARAÇÃO --- */
+.modal-xxl { 
+    max-width: 95vw; 
+}
+
+#diffModal .modal-content {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+}
+
+#diffModal .modal-header {
+    background-color: var(--panel-header-bg);
+    border-bottom: 1px solid var(--theme-border);
+}
+
+.panel-header {
+    font-weight: 500;
+    background-color: var(--panel-header-bg);
+    color: var(--theme-text);
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 0.5rem 1rem;
+    margin-bottom: -1px;
+    border-bottom: 1px solid var(--theme-border);
+    transition: background-color .3s, color .3s;
+}
+
+.comparison-panel {
+    border: 1px solid var(--theme-border);
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding: 1rem;
+    background: var(--theme-surface); /* Ajustado para surface normal */
+    min-height: 350px;
+    max-height: 65vh;
+    overflow: auto;
+    font-size: 1.08rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: background-color .3s, border-color .3s;
+}
+
+/* Estilos para diff (inserção/remoção) */
+.comparison-panel mark {
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+}
+
+.comparison-panel del, .comparison-panel mark[style*="line-through"] {
+    background: var(--diff-deletion-bg);
+    text-decoration: none;
+}
+.comparison-panel ins {
+    background: var(--diff-insertion-bg);
+    text-decoration: none;
+}

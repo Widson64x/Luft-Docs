@@ -1,46 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Editar Submódulo: {{ path }}{% endblock %}
 
-{% block content %}
-<style>
-    /* --- CSS EXATAMENTE COMO VOCÊ FORNECEU --- */
-    body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        font-family: 'Inter', sans-serif;
-    }
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    .page-title {
-        font-weight: 700;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-    .main-form-card {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 8px 40px rgba(44, 62, 80, 0.1);
-        padding: 2.5rem;
-        border: 1px solid #e0e7f1;
-    }
-    .toastui-editor-defaultUI {
-        border-radius: 12px !important;
-        border: 1px solid #d0d9e2 !important;
-        min-height: 700px !important;
-    }
-    .editor-toolbar-btns {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        margin-bottom: 0.8rem;
-    }
-</style>
+{% block page_styles %}
+    {# Carrega os estilos específicos para esta página #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub.css') }}">
+{% endblock %}
 
+{% block content %}
 <div class="container-fluid py-4">
     <form method="post" id="editor-form">
         <input type="hidden" name="token" value="{{ token }}">
@@ -88,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             previewStyle: 'vertical',
             height: '700px',
             usageStatistics: false,
-            theme: editorTheme,
+            theme: 'light',
             initialValue: initialContent,
             markdown: { breaks: true, linkify: true, html: true },
             hooks: {

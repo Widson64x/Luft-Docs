@@ -1,0 +1,501 @@
+@import url('Themes.css');
+
+/* =================================================================== */
+/* === MODULE.CSS - ESTILOS DA PÁGINA DE MÓDULO === */
+/* =================================================================== */
+
+/* --- 1. LAYOUT DE DUAS COLUNAS (ÍNDICE + CONTEÚDO) --- */
+.content-wrapper {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* =================================================================== */
+/* === 2. ÍNDICE LATERAL (TOC - TABLE OF CONTENTS) - VERSÃO 2.0 === */
+/* =================================================================== */
+
+.toc-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    display: flex; /* Usamos flexbox para o layout interno */
+    flex-direction: column; /* Organiza os filhos verticalmente */
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 8px;
+    transition: box-shadow 0.2s;
+}
+
+body.theme-light .toc-sidebar {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.toc-header {
+    padding: 1rem 1.5rem;
+    flex-shrink: 0; /* Impede que o header encolha */
+    border-bottom: 1px solid var(--theme-border);
+}
+
+.toc-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* --- Barra de Progresso --- */
+.toc-progress-container {
+    width: 100%;
+    height: 4px;
+    background-color: var(--theme-accent-bg-light);
+    flex-shrink: 0;
+}
+
+.toc-progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--theme-primary-btn);
+    transition: width 0.1s linear;
+}
+
+/* --- Lista de Tópicos --- */
+.toc-list-container {
+    padding: 0.75rem;
+    overflow-y: auto; /* Apenas esta área terá scroll */
+    flex-grow: 1; /* Permite que a lista ocupe o espaço restante */
+}
+
+#toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* --- Itens da Lista --- */
+.toc-item {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.toc-item a {
+    flex-grow: 1;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    color: var(--theme-text-secondary);
+    font-size: 0.9em;
+    font-weight: 500;
+    border-left: 3px solid transparent; /* Borda para o estado ativo */
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.toc-item:hover {
+    background-color: var(--theme-surface-hover);
+}
+
+/* --- Botão de Recolher/Expandir --- */
+.toc-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--theme-text-secondary);
+    opacity: 0.7;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.toc-toggle:hover {
+    opacity: 1;
+}
+
+.toc-toggle[aria-expanded="false"] .icon-chevron {
+    transform: rotate(-90deg);
+}
+
+/* --- Estado Ativo (Scroll Spy) --- */
+.toc-item.is-active a {
+    color: var(--theme-primary-btn);
+    font-weight: 600;
+    border-left-color: var(--theme-primary-btn);
+}
+
+.toc-item.is-active {
+    background-color: var(--theme-accent-bg-light);
+}
+
+body.theme-dark .toc-item.is-active {
+    background-color: var(--theme-surface-hover);
+}
+
+
+/* --- Níveis e Indentação --- */
+#toc-list ul {
+    list-style: none;
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+#toc-list ul.hidden {
+    display: none; /* Simplificamos para display none para compatibilidade */
+}
+
+/* --- Barra de Rolagem Customizada --- */
+.toc-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+.toc-list-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+.toc-list-container::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-color);
+    border-radius: 20px;
+    border: 2px solid var(--theme-surface); 
+}
+.toc-list-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover-color);
+}
+
+/* --- 3. CABEÇALHO DO MÓDULO --- */
+.module-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-border);
+    margin-bottom: 2rem;
+    position: relative;
+}
+.header-back-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.header-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+.header-title-container h1 {
+    margin-bottom: 0;
+}
+.module-header h1 .icon-title {
+    color: var(--theme-primary-btn);
+    margin-right: 0.5rem;
+}
+.btn-evaluate-icon {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    padding: 0;
+}
+.module-description {
+    font-size: 1.1rem;
+    color: var(--theme-text-secondary);
+    max-width: 700px;
+    margin: 0.5rem auto 1.5rem auto;
+}
+
+/* --- 4. BUSCA E AUTOCOMPLETE --- */
+.search-in-module-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+.search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 3rem; 
+    font-size: 1rem;
+    border: 1px solid var(--theme-border);
+    border-radius: 50px;
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.search-input:focus {
+    border-color: var(--form-focus-border-color);
+    outline: 0;
+    box-shadow: var(--form-focus-shadow);
+}
+.search-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    color: var(--theme-text-secondary);
+}
+.autocomplete-list {
+    position: absolute;
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px var(--theme-shadow);
+    z-index: 1000;
+    width: 100%;
+    margin-top: 5px;
+    padding: 0.5rem;
+    list-style: none;
+    display: none;
+}
+.autocomplete-list li {
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    color: var(--theme-text);
+    border-radius: 5px;
+}
+.autocomplete-list li:hover, .autocomplete-list li.active {
+    background: var(--theme-accent-bg-light);
+    color: var(--theme-primary-btn);
+}
+body.theme-dark .autocomplete-list li:hover,
+body.theme-dark .autocomplete-list li.active {
+    background-color: var(--theme-surface-hover);
+    color: var(--theme-primary-btn);
+}
+
+
+/* --- 5. CONTEÚDO MARKDOWN --- */
+.markdown-body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2rem 45px 45px 45px; /* Adicionado padding no topo */
+    color: var(--theme-text);
+    background-color: transparent;
+}
+.markdown-body mark {
+    background-color: var(--highlight-bg);
+    color: var(--highlight-text);
+    font-weight: 600;
+    padding: 0.1em 0.3em;
+    margin: 0 -0.3em;
+    border-radius: 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+.markdown-body table {
+    border-radius: 10px;
+    width: 100%;
+}
+.markdown-body tbody,
+.markdown-body td,
+.markdown-body tfoot,
+.markdown-body th,
+.markdown-body thead,
+.markdown-body tr {
+    color: var(--table-text-override);
+    background-color: var(--table-bg-override);
+    border: 1px solid var(--theme-border); /* Adicionado para consistência */
+}
+.markdown-body ol ol,
+.markdown-body ul ol {
+    list-style-type: upper-roman;
+}
+.markdown-body ol ol li::marker,
+.markdown-body ul ol li::marker {
+    font-weight: bold;
+}
+.meta-info {
+    justify-content: left;
+}
+
+
+/* --- 6. RESPONSIVIDADE --- */
+@media (max-width: 992px) {
+    .toc-sidebar {
+        display: none;
+    }
+}
+@media (max-width: 767px) {
+    .markdown-body {
+        padding: 15px;
+    }
+}
+
+/* =================================================================== */
+/* === 7. EXPANSÃO DA LARGURA DA PÁGINA (CUSTOMIZAÇÃO) === */
+/* =================================================================== */
+
+/* * A classe .main (de Style.css) define um max-width de 1200px.
+ * Para a página de módulo, queremos mais espaço. Vamos sobrescrever
+ * esse comportamento para o .content-wrapper e o .module-container.
+ * Usamos !important para garantir que nossa regra tenha prioridade.
+*/
+.main {
+    max-width: 100%; /* Remove a limitação de 1200px e ocupa o espaço disponível */
+    padding: 2rem 2.5rem; /* Ajusta os preenchimentos laterais para um valor mais adequado */
+}
+
+.module-container,
+.content-wrapper {
+    max-width: 1600px; /* Aumente este valor se desejar mais espaço */
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* * Remove o padding lateral da classe .main para que o nosso
+ * novo container possa ocupar o espaço completo.
+*/
+.main {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Ajusta o corpo do markdown para alinhar com a nova largura */
+.markdown-body {
+    /* O padding já existente funciona bem, não precisa de alterações aqui. */
+    /* Apenas garantimos que ele não tenha uma largura máxima limitante. */
+    max-width: none; 
+}
+
+/* =================================================================== */
+/* === 8. ÍNDICE DE ROTEIROS (NOVO) === */
+/* =================================================================== */
+
+.roteiros-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px; /* Alinha com o topo do outro sidebar */
+    
+    /* Vamos adicionar um espaço entre os dois sidebars */
+    margin-left: 2rem; 
+    
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    border-radius: 8px;
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+}
+
+.roteiros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--theme-border);
+}
+
+.roteiros-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#btn-criar-roteiro {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.roteiros-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.roteiros-list a.roteiro-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem;
+    text-decoration: none;
+    color: var(--theme-text);
+    border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+.roteiros-list a.roteiro-item:hover {
+    background-color: var(--theme-accent-bg-light);
+    color: var(--theme-primary-btn);
+}
+
+body.theme-dark .roteiros-list a.roteiro-item:hover {
+    background-color: var(--theme-surface-hover);
+}
+
+.roteiros-list a.roteiro-item i {
+    font-size: 1.1rem;
+    color: var(--theme-primary-btn);
+}
+
+.roteiros-list .roteiro-vazio {
+    font-style: italic;
+    color: var(--theme-text-secondary);
+    padding: 1rem 0.5rem;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.roteiro-meta { margin-top: 0rem; }
+.roteiro-meta small { opacity: .9; }
+
+.small, small {
+    font-size: .700em;
+}
+
+/* Ajustes de layout para acomodar o novo sidebar */
+.content-wrapper {
+    /* Sobrescreve a regra anterior para usar 'flex-start' */
+    justify-content: flex-start;
+    /* Adicionamos um flex-wrap para melhor responsividade */
+    flex-wrap: wrap;
+}
+
+.main-content {
+    /* Garante que o conteúdo principal possa diminuir se não houver espaço */
+    min-width: 300px;
+}
+
+@media (max-width: 1280px) {
+    .roteiros-sidebar {
+        /* Oculta a barra de roteiros em telas menores para não poluir */
+        display: none;
+    }
+}
+
+/* Adicione este CSS dentro do bloco <style> ou <link> existente */
+.roteiro-actions {
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.roteiro-item-wrapper:hover .roteiro-actions {
+    opacity: 1;
+}
+.roteiro-item-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+#videoModal .modal-dialog { max-width: 800px; }
+#videoModal .modal-content { background-color: #000; }

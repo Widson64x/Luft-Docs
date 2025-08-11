@@ -1,0 +1,92 @@
+@import url('../Themes.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* =================================================================== */
+/* === SUBMODULE.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE SUBMÓDULO === */
+/* =================================================================== */
+
+/* --- 1. GERAL E LAYOUT --- */
+body {
+    background-color: var(--theme-bg);
+    font-family: var(--font-family-base);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-weight: 700;
+    color: var(--theme-text);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.main-form-card {
+    background: var(--theme-surface);
+    border-radius: 20px;
+    box-shadow: var(--theme-shadow);
+    padding: 2.5rem;
+    border: 1px solid var(--theme-border);
+}
+
+/* --- 2. EDITOR TOASTUI E BARRA DE FERRAMENTAS --- */
+.toastui-editor-defaultUI {
+    border-radius: 12px !important;
+    border: 1px solid var(--theme-border) !important;
+    min-height: 700px !important;
+}
+
+.editor-toolbar-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+/* =================================================================== */
+/* === 3. AJUSTES DO EDITOR NO TEMA ESCURO === */
+/* Força o fundo branco no editor mesmo quando a página está escura */
+/* =================================================================== */
+
+body.theme-dark .toastui-editor-defaultUI {
+    /* Garante um fundo branco sólido para o contêiner principal do editor */
+    background-color: #ffffff;
+}
+
+body.theme-dark .toastui-editor-toolbar {
+    /* Garante que a barra de ferramentas também tenha um fundo claro */
+    background-color: #fcfcfc;
+}
+
+body.theme-dark .toastui-editor-md-container,
+body.theme-dark .toastui-editor-ww-container {
+    /* Garante que a área de digitação (Markdown) tenha fundo branco */
+    background-color: #ffffff;
+}
+
+body.theme-dark .toastui-editor-md-preview,
+body.theme-dark .toastui-editor-ww-preview {
+    /* Garante que a área de pré-visualização também tenha fundo branco */
+    background-color: #ffffff;
+}
+    
+body.theme-dark .toastui-editor-contents {
+    /* Força a cor do texto a ser escura dentro do editor */
+    color: #333333;
+}
+    
+body.theme-dark .toastui-editor-popup {
+    /* Garante que os pop-ups (como o de adicionar link) também sejam claros */
+    background-color: #ffffff !important;
+    color: #333333;
+}
+
+body.theme-dark .toastui-editor-popup-body,
+body.theme-dark .toastui-editor-popup-body label {
+    color: #333333 !important;
+}

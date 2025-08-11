@@ -89,7 +89,7 @@ Esta seção detalha os processos de apoio que conectam o recebimento à expedi�
     * **Finalidade:** Agrupar um conjunto de volumes ou notas em pallets, gerando uma etiqueta única de identificação no sistema.
     * **Responsabilidade:** Embora seja uma tarefa dos conferentes, muitas vezes é executada pelo administrativo do recebimento. Esta prática é considerada "arriscada", pois qualquer erro fica registrado no login de quem executou a tarefa.
 
-## Telas no sistema Luft Informa
+## Telas Luft Informa
 
 ### Acessar a Seção de Operação
 
@@ -147,3 +147,125 @@ Após o processamento das notas (etapa anterior), o passo final é confirmar a c
 - **Diferença:** Enquanto a tela anterior registra a **chegada** do veículo na doca, esta confirma a **conclusão** de todo o processo de recebimento.
 
 ![Tela de Confirmação de Recebimento](/data/img/recebimento-intec/img8.png)
+
+Com certeza. Segue o documento ajustado com os espaçamentos solicitados na seção das telas, conforme o modelo.
+
+-----
+
+## Visão Geral do Processo de Passagem de Carga
+
+Este documento estabelece o fluxo de trabalho para a **Passagem de Carga** da INTEC. O processo inicia-se após o recebimento físico e documental da carga vinda da FARMA, que encerra sua responsabilidade com a entrega de um documento de "check-out".
+
+O fluxo da INTEC é projetado para garantir a conferência, consolidação, planejamento e expedição correta das mercadorias, sendo dividido em quatro etapas principais:
+
+1.  **Conferência de Recebimento:** Validação inicial de todos os volumes recebidos.
+2.  **Montagem de Etiqueta de Pallet:** Consolidação de volumes/notas em unidades logísticas (pallets).
+3.  **Planejamento de Embarque:** Alocação estratégica das cargas nos veículos de transporte.
+4.  **Conferência de Embarque:** Verificação final no momento do carregamento do veículo.
+
+## Etapa 1: Recebimento e Conferência Inicial
+
+A operação começa com a conferência de todos os volumes que a FARMA passou para a responsabilidade da INTEC.
+
+  * **Validação por Volume:**
+      * O operador utiliza um coletor de dados para escanear ("bipar") individualmente cada caixa.
+      * O sistema valida a sequência (ex: 1 de 20, 2 de 20) e aponta especificamente qualquer volume faltante. O processo não avança até que a divergência seja resolvida.
+
+## Etapa 2: Montagem de Etiqueta de Pallet
+
+Após a conferência, as cargas podem ser agrupadas para otimizar o manuseio e o transporte.
+
+  * **Finalidade:** Agrupar um conjunto de volumes ou notas em pallets, gerando uma etiqueta única de identificação para facilitar o rastreamento e a movimentação.
+  * **Processo de Consolidação:**
+      * O operador seleciona no sistema as notas fiscais que serão agrupadas em um mesmo pallet.
+      * O sistema gera uma nova etiqueta de pallet, que consolida todas as informações das notas selecionadas.
+  * **Impressão e Afixação:**
+      * A nova etiqueta é impressa. Uma cópia é afixada no pallet de forma visível e outra é anexada à documentação da carga.
+
+## Etapa 3: Planejamento de Embarque
+
+Esta é a fase estratégica onde se decide como a carga será transportada.
+
+  * **Criação de Veículos Virtuais:**
+      * A equipe de planejamento monta "viagens" ou "veículos virtuais" no sistema, definindo as rotas e destinos.
+  * **Alocação de Carga:**
+      * Com base em critérios como prazo de entrega (TT), cliente, valor e tipo de carga (perecível), o planejador aloca as etiquetas de pallet geradas na etapa anterior aos veículos virtuais.
+      * Esta etapa é crucial para garantir o cumprimento de prazos e a otimização da capacidade dos veículos.
+
+## Etapa 4: Conferência de Embarque e Expedição
+
+A verificação final antes da saída do veículo.
+
+  * **Procedimento:**
+      * No momento de carregar o caminhão, o operador utiliza o coletor para escanear a etiqueta de cada pallet que está sendo embarcado.
+  * **Validação Sistêmica:**
+      * O sistema confirma se o pallet lido pertence de fato àquela viagem planejada.
+      * Isso previne erros de expedição, garantindo que apenas a carga correta seja enviada para o destino certo.
+
+## Telas Luft Informa
+
+### Acessar a Seção de Operação
+
+Para começar, localize e acesse a seção **Operação [14]** na árvore de módulos do sistema. Aqui se encontram todas as ferramentas para a passagem, montagem e expedição da carga.
+
+![Acesso ao Seção de Operação](/data/img/recebimento-intec/img1.png)
+
+-----
+
+### Iniciar o Processo em "Recebimento Diversos"
+
+Dentro da seção de Operação, a primeira ação é definir o tipo de recebimento.
+
+- **Ação:** Selecione a opção **Armazém**. 
+
+![Tela de Recebimento Diversos](/data/img/recebimento-intec/img2.png)
+
+-----
+
+Você está absolutamente correto. Peço sinceras desculpas pela confusão e pela interpretação incorreta das imagens. Agradeço a sua paciência e a correção.
+
+Analisando novamente com base nos nomes corretos das abas que você forneceu, aqui está a descrição precisa da tela **"Recebimento Farma x Intec"** e suas funcionalidades.
+
+### **Tela de Recebimento Farma x Intec**
+
+Esta tela é a ferramenta central para a gestão do recebimento de cargas da Farma, dividida em cinco abas funcionais, cada uma com um propósito específico no processo.
+
+#### **Aba 1: Dados do Recebimento**
+
+Esta é a principal tela de operação para a entrada de mercadorias.
+
+  * **Função:** É aqui que o operador realiza o registro inicial da carga no sistema.
+  * **Operação:** O processo é feito através da leitura do código de barras ("bipagem") da `ChaveNFe`, Após a leitura de todos os itens, a sessão é finalizada com o botão `Encerrar`.
+
+![/data/img/recebimento-intec/img10.png](/data/img/recebimento-intec/img10.png)
+
+-----
+
+#### **Aba 2: Resumo dos Recebimentos**
+
+Esta aba oferece uma visão geral e consolidada dos processos em andamento.
+
+  * **Função:** Funciona como um painel de controle para monitorar o status de todos os pallets que foram recebidos.
+  * **Visibilidade:** A grade exibe informações cruciais como `Nº Pallet`, data e hora do recebimento, o `Status` atual (ex: "Aguardando Armazenagem"), o `Recebedor` e o `Conferente`.
+  
+ ![/data/img/recebimento-intec/img11.png](/data/img/recebimento-intec/img11.png)
+-----
+
+#### **Aba 3: Estornar notas já recebidas**
+
+Esta é uma ferramenta para correção de erros no processo de recebimento.
+
+  * **Função:** Permite cancelar ou reverter o recebimento de uma nota ou pallet que foi registrado incorretamente.
+  * **Operação:** O usuário utiliza os campos `Chave NFe` ou `Pallet` para localizar o item a ser revertido e clica no botão `Estornar Recebimento`.
+  
+![/data/img/recebimento-intec/img12.png](/data/img/recebimento-intec/img12.png)
+-----
+
+#### **Aba 4: Retorno de Paletes Armazém**
+
+Esta aba gerencia a etapa final do ciclo de vida dos pallets dentro do armazém.
+
+  * **Função:** Controlar o fluxo de retorno dos pallets após a finalização da conferência.
+  * **Visibilidade:** A grade exibe os pallets cujo status já é "Conferência Finalizada", indicando que estão prontos para serem movimentados ou retornados.
+
+![/data/img/recebimento-intec/img13.png](/data/img/recebimento-intec/img13.png)

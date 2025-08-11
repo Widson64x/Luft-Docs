@@ -1,0 +1,217 @@
+@import url('../Themes.css'); /* Ajustado caminho para subir um nível */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* =================================================================== */
+/* === EDITOR_MODULE.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE MÓDULO === */
+/* =================================================================== */
+
+/* --- 1. GERAL E LAYOUT --- */
+body {
+    background-color: var(--theme-bg);
+    font-family: var(--font-family-base);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-weight: 700;
+    color: var(--theme-text);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.main-form-card {
+    background: var(--theme-surface);
+    border-radius: 20px;
+    box-shadow: var(--theme-shadow);
+    padding: 2.5rem;
+    border: 1px solid var(--theme-border);
+}
+
+/* --- 2. ABAS DOS EDITORES --- */
+.nav-tabs {
+    border-bottom-color: var(--theme-border); /* Garante consistência na borda */
+}
+
+.nav-tabs .nav-link {
+    font-weight: 600;
+    color: var(--theme-text-secondary);
+    border-radius: 8px 8px 0 0 !important;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid transparent; /* Começa transparente */
+    border-bottom-width: 0;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--theme-border);
+    isolation: isolate; /* Evita que o fundo vaze */
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--theme-surface);
+    color: var(--theme-primary-btn);
+    border-color: var(--theme-border) var(--theme-border) var(--theme-surface);
+}
+ 
+.tab-content {
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-top: none; /* A borda superior é controlada pela aba ativa */
+    border-radius: 0 0 12px 12px;
+    padding: 1.5rem;
+    min-height: 800px;
+}
+
+/* --- 3. ELEMENTOS DE FORMULÁRIO E TÍTULOS --- */
+h5.text-primary {
+    color: var(--theme-primary-btn) !important;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--theme-text);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid var(--theme-border);
+    background-color: var(--theme-surface-hover);
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    color: var(--theme-text);
+    transition: all 0.2s ease-in-out;
+}
+ 
+.form-control[readonly] {
+    background-color: var(--input-readonly-bg, var(--theme-surface-hover)); /* Usa a nova var com fallback */
+    opacity: 1;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--form-focus-border-color);
+    background-color: var(--theme-surface);
+    box-shadow: var(--form-focus-shadow);
+}
+
+.form-text.text-muted {
+    color: var(--theme-text-secondary) !important;
+}
+
+/* --- 4. SELETOR DE ÍCONE (MODAL) --- */
+#icon-preview-box {
+    width: 60px;
+    height: 60px;
+    background: var(--theme-surface-hover);
+    border: 1px dashed var(--theme-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--theme-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#icon-preview-box:hover {
+    border-color: var(--theme-primary-btn);
+    background-color: var(--theme-accent-bg-light);
+    color: var(--theme-primary-btn);
+}
+
+.icon-grid-btn {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    font-size: 1.8rem;
+    color: var(--theme-text-secondary);
+    background-color: var(--theme-surface-hover);
+    border: 1px solid var(--theme-border);
+    transition: all 0.2s ease;
+}
+
+.icon-grid-btn:hover, .icon-grid-btn.selected {
+    background-color: var(--theme-accent-bg-light);
+    color: var(--theme-primary-btn);
+    border-color: var(--theme-primary-btn);
+    transform: scale(1.1);
+    box-shadow: var(--card-hover-shadow);
+}
+ 
+/* --- 5. EDITOR TOASTUI E BARRA DE FERRAMENTAS --- */
+.toastui-editor-defaultUI {
+    border-radius: 12px !important;
+    border: 1px solid var(--theme-border) !important;
+    min-height: 700px !important;
+}
+
+.editor-toolbar-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+/* --- 6. ESTILOS DO MODAL --- */
+.modal-content {
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
+}
+
+.modal-header {
+    border-bottom-color: var(--theme-border);
+}
+
+.btn-close {
+    filter: var(--bs-btn-close-white-filter); /* Garante que o botão de fechar se adapte */
+}
+
+/* =================================================================== */
+/* === 7. AJUSTES DO EDITOR NO TEMA ESCURO === */
+/* Força o fundo branco no editor mesmo quando a página está escura */
+/* =================================================================== */
+
+body.theme-dark .toastui-editor-defaultUI {
+    /* Garante um fundo branco sólido para o contêiner principal do editor */
+    background-color: #ffffff;
+}
+
+body.theme-dark .toastui-editor-toolbar {
+    /* Garante que a barra de ferramentas também tenha um fundo claro */
+    background-color: #fcfcfc;
+}
+
+body.theme-dark .toastui-editor-md-container,
+body.theme-dark .toastui-editor-ww-container {
+    /* Garante que a área de digitação (Markdown) tenha fundo branco */
+    background-color: #ffffff;
+}
+
+body.theme-dark .toastui-editor-md-preview {
+    /* Garante que a área de pré-visualização também tenha fundo branco */
+    background-color: #ffffff;
+}
+
+body.theme-dark .toastui-editor-contents {
+    /* Força a cor do texto a ser escura dentro do editor */
+    color: #333333;
+}
+
+body.theme-dark .toastui-editor-popup {
+     /* Garante que os pop-ups (como o de adicionar link) também sejam claros */
+    background-color: #ffffff !important;
+    color: #333333;
+}
+
+body.theme-dark .toastui-editor-popup-body,
+body.theme-dark .toastui-editor-popup-body label {
+    color: #333333 !important;
+}

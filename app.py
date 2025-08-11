@@ -3,20 +3,24 @@
 import click
 from flask import Flask
 from flask.cli import with_appcontext
+from flask_migrate import Migrate
 import os # Importe o módulo
 
 from models import db
 
 # Seus imports de rotas existentes
+from LIA_Services.LIA import ia_bp
 from Routes.core.main import index_bp, inject_global_permissions 
 from Routes.core.module import modulo_bp
 from Routes.core.submodule import submodulo_bp
 from Routes.services.download import download_bp
 from Routes.services.editor import editor_bp
+from Routes.services.roteiros import roteiros_bp
 from Routes.api.permissions import permissions_bp 
-from Routes.components.search import search_bp
 from Routes.api.api_index import api_bp
-from Routes.services.ia import ia_bp
+from Routes.components.search import search_bp
+
+
 from Routes.services.evaluation import evaluation_bp
 
 app = Flask(__name__)
@@ -62,6 +66,7 @@ app.register_blueprint(editor_bp, url_prefix='/editor')
 app.register_blueprint(permissions_bp, url_prefix='/permissions')
 app.register_blueprint(search_bp, url_prefix='/search')
 app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(roteiros_bp)
 app.register_blueprint(ia_bp)
 app.register_blueprint(evaluation_bp)
 

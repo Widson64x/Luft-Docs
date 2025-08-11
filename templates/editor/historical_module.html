@@ -1,77 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Histórico: {{ modulo.nome }}{% endblock %}
 
+{% block page_styles %}
+    {# Adiciona o CSS externo para esta página #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Historical_Module.css') }}">
+{% endblock %}
+
 {% block content %}
 {# Dependências para o Diff Visual e Ícones #}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
 
-<style>
-    :root {
-        --timeline-line-color: #dee2e6;
-        --timeline-icon-bg: #e9ecef;
-        --timeline-card-bg: #fff;
-        --timeline-card-border: #e9ecef;
-        --timeline-card-shadow: rgba(0, 0, 0, 0.04);
-        --timeline-text-muted: #6c757d;
-        --color-aprovado: #198754;
-        --color-restaurado: #fd7e14;
-        --color-criado: #0d6efd;
-    }
-
-    body[data-bs-theme="dark"] {
-        --timeline-line-color: #495057;
-        --timeline-icon-bg: #343a40;
-        --timeline-card-bg: #2b3035;
-        --timeline-card-border: #495057;
-        --timeline-card-shadow: rgba(0, 0, 0, 0.2);
-    }
-
-    .timeline { position: relative; padding-left: 4rem; margin: 2rem 0; }
-    .timeline::before {
-        content: ''; position: absolute; left: 20px;
-        top: 0; bottom: 0; width: 4px;
-        background: var(--timeline-line-color); border-radius: 2px;
-    }
-    .timeline-item { position: relative; margin-bottom: 2.5rem; }
-    .timeline-item:last-child { margin-bottom: 0; }
-    .timeline-icon {
-        position: absolute; left: -28px; top: 0;
-        width: 40px; height: 40px; border-radius: 50%;
-        background: var(--timeline-card-bg);
-        border: 4px solid var(--timeline-line-color);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem; color: #fff; z-index: 1;
-    }
-    .timeline-icon.approved { background-color: var(--color-aprovado); }
-    .timeline-icon.restored { background-color: var(--color-restaurado); }
-    .timeline-icon.created { background-color: var(--color-criado); }
-    .timeline-card {
-        background-color: var(--timeline-card-bg);
-        border: 1px solid var(--timeline-card-border);
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 12px var(--timeline-card-shadow);
-    }
-    .timeline-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--timeline-card-border); }
-    .timeline-body { padding: 1.25rem; }
-    .version-badge {
-        font-size: 0.9rem; font-weight: 600;
-        padding: 0.3em 0.8em; border-radius: 2em;
-    }
-    /* Estilos para o conteúdo formatado no modal */
-    #viewVersionModalBody img { max-width: 100%; height: auto; border-radius: 0.5rem; }
-    #viewVersionModalBody table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1rem; }
-    #viewVersionModalBody th, #viewVersionModalBody td { border: 1px solid var(--timeline-card-border); padding: 8px; }
-    #viewVersionModalBody th { background-color: var(--timeline-icon-bg); }
-    #viewVersionModalBody pre { background-color: var(--timeline-icon-bg); padding: 1rem; border-radius: 0.5rem; white-space: pre-wrap; word-break: break-all; }
-</style>
-
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1"><i class="bi bi-clock-history text-primary"></i> Histórico de Versões</h2>
-            <p class="text-muted mb-0">Módulo: <strong>{{ modulo.nome }}</strong> (ID: {{ modulo.id }})</p>
+            <p class="text_place">Módulo: <strong>{{ modulo.nome }}</strong> (ID: {{ modulo.id }})</p>
         </div>
         <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
     </div>
@@ -173,7 +118,7 @@
         const compareFromModalBtn = document.getElementById('compare-from-modal-btn');
 
         // 1. Prepara e abre o modal de visualização
-        viewModalTitle.innerHTML = `Visualizando v${version} <br><small class="text-muted" style="font-size: 0.7em;">${filename}</small>`;
+        viewModalTitle.innerHTML = `Visualizando v${version} <br><small class="text_place" style="font-size: 0.7em;">${filename}</small>`;
         viewModalBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2">Carregando...</p></div>';
         viewModal.show();
 

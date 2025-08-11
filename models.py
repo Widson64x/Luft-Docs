@@ -15,6 +15,12 @@ permissoes_usuarios = db.Table('Lft_Tb_Perm_Rel_Usuarios',
     db.Column('usuario_id', db.Integer, db.ForeignKey('Lft_Tb_Perm_Usuarios.id'), primary_key=True)
 )
 
+# Tabela de associação para o relacionamento N:N entre Roteiros e Módulos
+roteiros_modulos = db.Table('Lft_Tb_Doc_Rel_RoteirosModulos',
+    db.Column('roteiro_id', db.Integer, db.ForeignKey('Lft_Tb_Doc_Roteiros.id'), primary_key=True),
+    db.Column('modulo_id', db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), primary_key=True)
+)
+
 class Permissao(db.Model):
     __tablename__ = 'Lft_Tb_Perm_Permissoes'
     id = db.Column(db.Integer, primary_key=True)
@@ -126,7 +132,10 @@ class Modulo(db.Model):
 
     palavras_chave = db.relationship('PalavraChave', back_populates='modulo', cascade="all, delete-orphan", lazy='joined')
     edit_history = db.relationship('HistoricoEdicao', back_populates='modulo', cascade="all, delete-orphan", lazy='joined')
-    
+
+    roteiros = db.relationship('Roteiro', secondary=roteiros_modulos,
+                               back_populates='modulos', lazy='joined')
+      
     # CORREÇÃO APLICADA AQUI: A sintaxe de 'primaryjoin' e 'secondaryjoin' foi corrigida.
     relacionados = db.relationship(
         'Modulo',
@@ -261,3 +270,75 @@ class Evaluation(db.Model):
         self.suggestions = suggestions
         self.techos = techos
         self.changes = changes
+
+
+class Roteiro(db.Model):
+    __tablename__ = 'Lft_Tb_Doc_Roteiros'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    titulo = db.Column(db.String(255), nullable=False)
+    descricao = db.Column(db.Text, nullable=True)
+    tipo = db.Column(db.String(50), nullable=False, default='link')
+    conteudo = db.Column(db.Text, nullable=False)
+    icone = db.Column(db.String(50), nullable=True, default='bi-play-circle')
+    ordem = db.Column(db.Integer, default=0)
+
+    # existem no SQLite + triggers; manter no model pra mapear:
+    created_at = db.Column(db.DateTime(timezone=True))
+    updated_at = db.Column(db.DateTime(timezone=True))
+
+    modulos = db.relationship(
+        'Modulo', secondary=roteiros_modulos, back_populates='roteiros', lazy='subquery'
+    )
+
+    audit_logs = db.relationship(
+        'RoteiroAuditLog', back_populates='roteiro', cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return f'<Roteiro {self.id}: {self.titulo}>'
+
+    @staticmethod
+    def _iso(dt):
+        """Converte datetime ou string do SQLite em ISO-8601 (UTC) para o front."""
+        if not dt:
+            return None
+        if isinstance(dt, str):
+            # SQLite geralmente retorna 'YYYY-MM-DD HH:MM:SS'
+            return dt.replace(' ', 'T') + 'Z'
+        # datetime -> ISO, normalizando 'Z' se UTC
+        iso = dt.isoformat()
+        return iso.replace('+00:00', 'Z')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'titulo': self.titulo,
+            'descricao': self.descricao,
+            'tipo': self.tipo,
+            'conteudo': self.conteudo,
+            'icone': self.icone,
+            'ordem': self.ordem,
+            'created_at': self._iso(self.created_at),
+            'updated_at': self._iso(self.updated_at),
+        }
+    
+class RoteiroAuditLog(db.Model):
+    """
+    Tabela de log para registrar criações e edições na tabela de Roteiros.
+    """
+    __tablename__ = 'Lft_Tb_Log_RoteirosAudit'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # Chave estrangeira para o roteiro que foi modificado
+    roteiro_id = db.Column(db.Integer, db.ForeignKey('Lft_Tb_Doc_Roteiros.id'), nullable=False)
+    # Informações do usuário que realizou a ação
+    user_id = db.Column(db.Integer, nullable=False)
+    user_name = db.Column(db.String(100), nullable=False)
+    # Ação realizada ('CREATE' ou 'UPDATE')
+    action = db.Column(db.String(50), nullable=False)
+    # Data e hora da ação
+    timestamp = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow)
+    roteiro = db.relationship('Roteiro', back_populates='audit_logs')
+
+    def __repr__(self):
+        return f'<RoteiroAuditLog {self.id} - Ação: {self.action} por {self.user_name}>'

@@ -1,267 +1,50 @@
 {% extends "base.html" %}
 {% block title %}LuftDocs - Início{% endblock %}
 
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Index.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
-    .page-wrapper {
-        perspective: 1500px;
-    }
-    /* Fundo animado com gradiente */
-    body {
-        background: linear-gradient(120deg, #e0e7ff 0%, #f9f9fb 100%);
-        background-size: 200% 200%;
-        animation: bgMove 12s ease-in-out infinite;
-    }
-    @keyframes bgMove {
-        0%   { background-position: 0% 50%; }
-        50%  { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    body.theme-dark {
-        background: linear-gradient(120deg, #23263b 0%, #1e1e2f 100%);
-        background-size: 200% 200%;
-        animation: bgMove 12s ease-in-out infinite;
-    }
-
-    /* Modern Card Animations */
-    .modern-card {
-        min-height: 370px;
-        max-height: 370px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        border-radius: 1.25rem;
-        transition: box-shadow 0.3s cubic-bezier(.4,2,.3,1), border-color 0.2s, transform 0.25s;
-        border: 1.5px solid #e3e6ed;
-        background: #fff;
-        box-shadow: 0 2px 8px rgba(80, 120, 200, 0.08);
-        opacity: 0;
-        transform: translateY(40px) scale(0.97);
-        animation: cardFadeIn 0.7s forwards;
-        animation-delay: calc(var(--card-index) * 0.08s);
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-    }
-    @keyframes cardFadeIn {
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    .modern-card::after {
-        content: "";
-        position: absolute;
-        top: -80px; left: -80px;
-        width: 160px; height: 160px;
-        background: radial-gradient(circle, #b6d0ff55 40%, transparent 80%);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.5s;
-        z-index: 2;
-    }
-    .modern-card:hover::after {
-        opacity: 0.7;
-        animation: shine 1.2s linear;
-    }
-    @keyframes shine {
-        0%   { transform: scale(0.8) rotate(0deg); }
-        100% { transform: scale(1.2) rotate(30deg); }
-    }
-    body.theme-dark .modern-card {
-        background: #23263b;
-        box-shadow: 0 2px 16px rgba(13,110,253,0.10), 0 2px 12px rgba(0,0,0,0.28) !important;
-        border-color: #23263b !important;
-    }
-    body.theme-dark .modern-card:hover {
-        box-shadow: 0 12px 36px rgba(13,110,253,0.18), 0 2px 8px rgba(0,0,0,0.18) !important;
-        border-color: #0d6efd !important;
-    }
-    .modern-card:hover {
-        box-shadow: 0 16px 48px rgba(80, 120, 200, 0.22), 0 2px 8px rgba(80, 120, 200, 0.04);
-        border-color: #0d6efd;
-        transform: translateY(-8px) scale(1.04) rotate(-1deg);
-    }
-    .modern-card .display-4 {
-        transition: transform 0.3s cubic-bezier(.4,2,.3,1), color 0.2s;
-        filter: drop-shadow(0 2px 8px #0d6efd22);
-        animation: pulseIcon 2.2s infinite;
-    }
-    .modern-card:hover .display-4 {
-        transform: scale(1.18) rotate(6deg);
-        color: #0d6efd;
-        filter: drop-shadow(0 4px 16px #0d6efd44);
-        animation: pulseIconHover 0.8s;
-    }
-    @keyframes pulseIcon {
-        0%,100% { transform: scale(1); }
-        50%      { transform: scale(1.08); }
-    }
-    @keyframes pulseIconHover {
-        0%   { transform: scale(1.18) rotate(6deg); }
-        50%  { transform: scale(1.28) rotate(8deg); }
-        100% { transform: scale(1.18) rotate(6deg); }
-    }
-
-    /* Ripple nos botões */
-    .modern-btn {
-        min-width: 140px;
-        margin: 0.25rem;
-        font-weight: 500;
-        border-radius: 2rem;
-        transition: background 0.15s, color 0.15s, box-shadow 0.2s;
-        box-shadow: 0 1px 4px rgba(13,110,253,0.04);
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-    }
-    .modern-btn:active::after {
-        content: "";
-        position: absolute;
-        left: 50%; top: 50%;
-        width: 0; height: 0;
-        background: rgba(13,110,253,0.18);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        animation: ripple 0.5s linear;
-        z-index: 2;
-    }
-    @keyframes ripple {
-        to {
-            width: 220px;
-            height: 220px;
-            opacity: 0;
-        }
-    }
-
-    /* --- Ícones decorativos flutuantes --- */
-    .bg-icons {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        pointer-events: none;
-        height: 2100px;
-        overflow: hidden;
-        z-index: 0;
-    }
-    .bg-icons .bg-icon {
-        position: absolute;
-        color: rgba(13,110,253,0.13);
-        /* As propriedades de animação são definidas pelo JS */
-    }
-    body.theme-dark .bg-icons .bg-icon {
-        color: rgba(255,255,255,0.13);
-    }
-    @keyframes iconRise {
-        0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-        50%  { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; }
-        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-    }
-
-    /* Restante dos estilos originais */
-    .modern-card .card-body {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 1;
-        position: relative;
-    }
-    .modern-card .card-title {
-        color: var(--primary-accent-color, #0d6efd);
-        font-size: 1.15rem;
-        margin-bottom: 1.2rem;
-        letter-spacing: 0.01em;
-        font-weight: 600;
-        transition: color 0.2s;
-    }
-    .modern-card:hover .card-title {
-        color: #0d6efd;
-        text-shadow: 0 2px 12px #b6d0ff55;
-    }
-    .modern-card .card-text {
-        color: #6c757d;
-        font-size: 0.98rem;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        transition: color 0.2s;
-    }
-    .modern-card:hover .card-text {
-        color: #495057;
-    }
-    .modern-btn i {
-        margin-right: 0.4em;
-        transition: transform 0.2s;
-    }
-    .modern-btn:hover i {
-        transform: translateY(-2px) scale(1.1) rotate(-8deg);
-    }
-    .modern-btn:active {
-        box-shadow: 0 0 0 2px #0d6efd33;
-    }
-    .add-new-card {
-        background: transparent !important;
-        border: 2px dashed var(--border-color, #ced4da) !important;
-        color: #6c757d !important;
-        box-shadow: none !important;
-        transition: border-color 0.2s, color 0.2s, background 0.2s;
-    }
-    .add-new-card:hover {
-        border-color: #0d6efd !important;
-        color: #0d6efd !important;
-        background: #f8f9fa !important;
-    }
-
-    body.page-transition-out .container {
-        transform: translateY(50px) scale(0.95);
-        opacity: 0;
-        transition: transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-out;
-    }
-
-    body.theme-dark .add-new-card {
-        background: transparent !important;
-        border-color: #3b405f !important;
-        color: #b6d0ff !important;
-    }
-    body.theme-dark .add-new-card:hover {
-        border-color: #0d6efd !important;
-        color: #0d6efd !important;
-        background: #23263b !important;
-    }
-    @media (max-width: 575px) {
-        .modern-card {
-            min-height: 320px;
-            max-height: 320px;
-        }
-    }
-</style>
-
 <div class="bg-icons"></div>
 
 <div class="container my-5 position-relative" style="z-index:2;">
-    <div class="mb-4 text-end d-flex justify-content-end gap-2">
-        <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" class="btn btn-primary modern-btn page-transition-btn">
-            <i class="bi bi-diagram-3"></i> Ver Mapa
+
+    <div class="button-container">
+        <a href="{{ url_for('index.mapa_conhecimento', token=request.args.get('token')) }}" 
+           class="action-btn action-btn-primary page-transition-btn">
+           <i class="bi bi-diagram-3"></i>
+           <span>Ver Mapa</span>
         </a>
+
         {% if can_access_editor %}
-            <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn page-transition-btn">
-                <i class="bi bi-pencil-square"></i> Acessar editor
-            </a>
+        <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" 
+           class="action-btn action-btn-outline page-transition-btn">
+           <i class="bi bi-pencil-square"></i>
+           <span>Acessar editor</span>
+        </a>
         {% endif %}
+
         {% if can_access_permissions_menu %}
-            <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" class="btn btn-outline-dark modern-btn page-transition-btn">
-                <i class="bi bi-shield-lock"></i> Gerenciar permissões
-            </a>
+        <a href="{{ url_for('permissions.manage_permissions', token=request.args.get('token')) }}" 
+           class="action-btn action-btn-outline page-transition-btn">
+           <i class="bi bi-shield-lock"></i>
+           <span>Gerenciar permissões</span>
+        </a>
         {% endif %}
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="custom-alert alert-{{ category }}" role="alert">
+                    {% if category == 'success' %}<i class="bi bi-check-circle-fill alert-icon"></i>
+                    {% elif category == 'danger' %}<i class="bi bi-x-octagon-fill alert-icon"></i>
+                    {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                    {% else %}<i class="bi bi-info-circle-fill alert-icon"></i>{% endif %}
+                    
+                    <span>{{ message }}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -269,9 +52,10 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="Title mb-0">Módulos do LuftDocs</h1>
-        <div class="position-relative" style="min-width: 250px;">
-            <input type="text" id="filterInput" class="form-control ps-4" placeholder="Filtrar módulos...">
-            <i class="bi bi-search position-absolute top-50 translate-middle-y" style="left: 10px; color: #6c757d;"></i>
+        
+        <div class="filter-container">
+            <input type="text" id="filterInput" class="filter-input" placeholder="Filtrar módulos...">
+            <i class="bi bi-search filter-icon"></i>
         </div>
     </div>
 
@@ -291,7 +75,7 @@
 
 <script>
 // =========================================================================
-// LÓGICA DE BUSCA, PAGINAÇÃO E RENDERIZAÇÃO (NOVO)
+// LÓGICA DE BUSCA, PAGINAÇÃO E RENDERIZAÇÃO
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     const filterInput = document.getElementById('filterInput');
@@ -337,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (m.type === 'create_card') {
                 cardHtml = `
                     <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-                        <a href="/editor/novo?token=${token}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: ${index}">
+                        <a href="/editor/novo?token=${token}" class="card modern-card add-new-card w-100 text-decoration-none" style="--card-index: ${index}">
                             <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
                                 <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>
                                 <h5 class="card-title">Criar Novo Módulo</h5>
@@ -348,20 +132,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 cardHtml = `
                     <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-                        <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: ${index}">
+                        <div class="card modern-card w-100" style="--card-index: ${index}">
                             <div class="card-body">
-                                <i class="bi ${m.icone || 'bi-box'} display-4 text-primary mb-3"></i>
+                                <i class="bi ${m.icone || 'bi-box'} display-4 mb-3 card-icon"></i>
                                 <h5 class="card-title">${m.nome}</h5>
                                 <p class="card-text">${m.descricao}</p>
                             </div>
-                            <div class="pb-3 text-center">
+                            <div class="card-button-container">
                                 ${m.has_content ? `
-                                <a class="btn btn-outline-primary modern-btn me-2 page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
-                                    <i class="bi bi-search"></i> Ver módulo
+                                <a class="action-btn action-btn-primary page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
+                                    <i class="bi bi-book"></i> Ver módulo
                                 </a>` : ''}
                                 ${m.show_tecnico_button ? `
-                                <a class="btn btn-outline-secondary modern-btn ms-2 page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
-                                    <i class="bi bi-tools"></i> Módulo Técnico
+                                <a class="action-btn action-btn-outline page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
+                                    <i class="bi bi-tools"></i> Técnico
                                 </a>` : ''}
                             </div>
                         </div>
@@ -420,14 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderCards();
 
     // =========================================================================
-    // LÓGICA DE TRANSIÇÃO DE PÁGINA (ATUALIZADO)
+    // LÓGICA DE TRANSIÇÃO DE PÁGINA
     // =========================================================================
     function setupPageTransitionListeners() {
-        // Seleciona todos os links que devem ter a transição
         document.querySelectorAll('.page-transition-btn').forEach(btn => {
-            // Remove listener antigo para evitar duplicação
             btn.removeEventListener('click', handleTransitionClick); 
-            // Adiciona o novo listener
             btn.addEventListener('click', handleTransitionClick);
         });
     }
@@ -447,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =========================================================================
-// LÓGICA DA ANIMAÇÃO DE FUNDO (ORIGINAL)
+// LÓGICA DA ANIMAÇÃO DE FUNDO
 // =========================================================================
 const bgContainer = document.querySelector('.bg-icons');
 let bgAnimationFrameId = null;
@@ -468,13 +249,14 @@ function iniciarAnimacaoComColisao() {
     fetch('{{ url_for("static", filename="data/icons.json") }}')
         .then(res => res.json())
         .then(availableIcons => {
+            bgContainer.innerHTML = ''; // Limpa antes de adicionar novos
             for (let i = 0; i < quantity; i++) {
                 const el = document.createElement('i');
                 const size = (Math.random() * 32 * randomnessFactor + 16);
 
                 el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
                 el.style.fontSize = `${size}px`;
-                el.style.position = 'absolute'; // Garantir posicionamento absoluto
+                el.style.position = 'absolute';
                 bgContainer.appendChild(el);
 
                 iconsData.push({
@@ -508,6 +290,7 @@ function iniciarAnimacaoOriginal() {
     fetch('{{ url_for("static", filename="data/icons.json") }}')
         .then(res => res.json())
         .then(icons => {
+            bgContainer.innerHTML = ''; // Limpa antes de adicionar novos
             for (let i = 0; i < quantity; i++) {
                 const cls = icons[Math.floor(Math.random() * icons.length)];
                 const el = document.createElement('i');
@@ -533,8 +316,7 @@ window.mudarAnimacao = function(modo) {
         cancelAnimationFrame(bgAnimationFrameId);
         bgAnimationFrameId = null;
     }
-    bgContainer.innerHTML = '';
-
+    
     if (modo === 'original') {
         iniciarAnimacaoOriginal();
     } else {
@@ -550,17 +332,18 @@ mudarAnimacao(savedAnimation);
 <script>
     // Espera o documento carregar completamente para apagar as mensagens de flash
     document.addEventListener('DOMContentLoaded', (event) => {
-        // Seleciona todos os elementos com a classe 'alert'
-        const alerts = document.querySelectorAll('.alert');
-
-        // Define o tempo em milissegundos (aqui, 5000ms = 5 segundos)
-        const aletTimeout = 5000;
+        // Seleciona todos os elementos com a classe 'custom-alert'
+        const alerts = document.querySelectorAll('.custom-alert');
+        const alertTimeout = 5000;
 
         alerts.forEach((alert) => {
             // Define um timer para cada alerta
             setTimeout(() => {
-                new bootstrap.Alert(alert).close();
-            }, aletTimeout);
+                // new bootstrap.Alert(alert) ainda depende do JS do Bootstrap
+                if (bootstrap && bootstrap.Alert) {
+                    new bootstrap.Alert(alert).close();
+                }
+            }, alertTimeout);
         });
     });
 </script>
