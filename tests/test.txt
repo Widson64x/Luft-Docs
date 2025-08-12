@@ -1,8 +1,0 @@
-Luft Informa
-    1 Gerar Randomico
-
-    2 Fazer um post API Randomico.
-
-portal help
-
-    3 Get api para obter infos do user
