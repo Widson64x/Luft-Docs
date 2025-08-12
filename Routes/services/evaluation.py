@@ -37,4 +37,4 @@ def evaluation(document_id):
             # A mensagem de erro continua igual.
             flash(f'Erro ao enviar avaliação: {e}', 'error')
             
-    return render_template('components/evaluation.html', form=form, document_id=document_id)
+    return render_template('Components/evaluation.html', form=form, document_id=document_id)

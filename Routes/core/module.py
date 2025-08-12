@@ -49,7 +49,7 @@ def ver_modulo_pela_raiz():
         if query and md_content:
             md_content = filter_service.filter_submodule_content(md_content, query)
         conteudo_html = parser_wikilinks(md_content, modulos_lista_dict, palavras_globais)
-        return render_template('modules/submodule.html', nome=param_sub, conteudo=conteudo_html, modulos=modulos_lista_dict, query=query)
+        return render_template('Modules/SubModule.html', nome=param_sub, conteudo=conteudo_html, modulos=modulos_lista_dict, query=query)
 
     # --- Bloco 3: Lógica para Módulo Principal (Com todas as Correções) ---
     if not param_mod and not param_tech:
@@ -65,7 +65,7 @@ def ver_modulo_pela_raiz():
         tem_permissao = user_perms.get('can_view_tecnico', False)
         eh_modulo_de_excecao = modulo_id in MODULOS_TECNICOS_VISIVEIS
         if not tem_permissao and not eh_modulo_de_excecao:
-            return render_template('auth/access_denied.html'), 403
+            return render_template('Auth/AccessDenied.html'), 403
 
     # --- Busca de Dados Corrigida ---
     # Busca o objeto Modulo e seus relacionamentos diretamente do banco.
@@ -116,7 +116,7 @@ def ver_modulo_pela_raiz():
             md_content = filter_service.filter_documentation(md_content, query)
 
     if not md_content:
-        return render_template('auth/em_desenvolvimento.html'), 404
+        return render_template('Auth/Dev.html'), 404
 
     log_document_access(f"tech_{modulo_id}" if is_tech else modulo_id)
 
@@ -140,7 +140,7 @@ def ver_modulo_pela_raiz():
 
     # 3. RENDERIZA O TEMPLATE - ENVIANDO OS DADOS E A FLAG SEPARADAMENTE
     return render_template(
-        'modules/module.html',
+        'Modules/Module.html',
         modulo=modulo,
         conteudo=conteudo_html,
         relacionados=relacionados,

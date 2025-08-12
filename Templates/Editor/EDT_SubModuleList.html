@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Submódulos{% endblock %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub_Index.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="container-fluid page-container py-4">
+    <div class="page-header">
+        <h1><i class="bi bi-grid-3x3-gap"></i>Submódulos</h1>
+        <div class="header-actions">
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome do arquivo...">
+            </div>
+            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createSubmoduleModal">
+                <i class="bi bi-plus-circle me-1"></i> Criar Novo
+            </button>
+        </div>
+    </div>
+    
+    <div id="submodulesGrid">
+        {% for submodulo in submodulos %}
+        <div class="submodule-card" style="--delay: {{ loop.index0 }};">
+            <div class="card h-100 submodule-item-card">
+                <div class="card-body d-flex flex-column">
+                    <div class="card-icon-display mb-3">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h5 class="card-title card-title-path" title="{{ submodulo.path }}">{{ submodulo.path }}</h5>
+                    <p class="card-text small text-muted mt-1">
+                        Modificado: {{ submodulo.modified }}
+                    </p>
+                    <div class="card-actions text-end pt-3">
+                        <a href="{{ url_for('editor.editar_submodulo', submodulo_path=submodulo.path, token=token) }}" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil-fill"></i> Editar</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-1" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-path="{{ submodulo.path }}" title="Deletar">
+                            <i class="bi bi-trash-fill"></i> Deletar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div id="noResultsMessage" class="empty-state-container">
+            <i class="bi bi-search display-3"></i>
+            <h4 class="mt-3">Nenhum resultado encontrado</h4>
+            <p>Tente refinar os termos da sua busca.</p>
+        </div>
+
+        {% if not submodulos %}
+        <div id="noSubmodulesMessage" class="empty-state-container" style="display: block;">
+            <i class="bi bi-journal-x display-3"></i>
+            <h4 class="mt-3">Nenhum submódulo encontrado</h4>
+            <p>Comece criando um novo submódulo no botão "Criar Novo".</p>
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<div class="modal fade" id="createSubmoduleModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('editor.criar_submodulo') }}" method="POST">
+                <input type="hidden" name="token" value="{{ token }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel"><i class="bi bi-file-earmark-plus me-2"></i>Criar Novo Submódulo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Pasta de Destino</label>
+                        <div id="folderTreeContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto;"></div>
+                        <input class="form-control mt-2" id="folderPathInput" name="folder_path" placeholder="Selecione acima ou digite um novo caminho">
+                        <div class="form-text">Ex: `nova-pasta/outra-pasta`</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fileNameInput" class="form-label">Nome do Arquivo <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fileNameInput" name="file_name" placeholder="nome-do-arquivo" required>
+                            <span class="input-group-text">.md</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Criar e Editar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="deleteForm" action="{{ url_for('editor.deletar_submodulo') }}" method="POST">
+        <input type="hidden" name="token" value="{{ token }}">
+        <input type="hidden" name="path_to_delete" id="pathToDeleteInput">
+        <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="deleteModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Você tem certeza que deseja deletar o submódulo permanentemente?</p>
+          <p class="text-danger"><strong>Arquivo:</strong> <code id="fileToDeleteText" class="fw-bold"></code></p>
+          <p class="small text-muted">Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill me-1"></i>Sim, Deletar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- LÓGICA DA BUSCA ADAPTADA PARA CARDS ---
+    const searchInput = document.getElementById('searchInput');
+    const gridContainer = document.getElementById('submodulesGrid');
+    const cards = gridContainer.querySelectorAll('.submodule-card');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    const noSubmodulesMessage = document.getElementById('noSubmodulesMessage');
+
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            const pathElement = card.querySelector('.card-title-path');
+            const pathText = pathElement ? pathElement.textContent.toLowerCase() : '';
+            const isVisible = pathText.includes(filter);
+            
+            card.style.display = isVisible ? '' : 'none';
+            if (isVisible) {
+                visibleCount++;
+            }
+        });
+
+        if (noResultsMessage) {
+            noResultsMessage.style.display = (visibleCount === 0 && !noSubmodulesMessage) ? 'block' : 'none';
+        }
+    });
+    
+    // --- LÓGICA DOS MODAIS (sem alterações) ---
+    const deleteModal = document.getElementById('deleteConfirmModal');
+    if(deleteModal) {
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const path = button.getAttribute('data-path');
+            document.getElementById('pathToDeleteInput').value = path;
+            document.getElementById('fileToDeleteText').textContent = path;
+        });
+    }
+
+    // --- LÓGICA DA ÁRVORE DE PASTAS (sem alterações) ---
+    const dirTreeData = JSON.parse('{{ dir_tree_json|safe }}');
+    const treeContainer = document.getElementById('folderTreeContainer');
+    const pathInput = document.getElementById('folderPathInput');
+
+    function buildTree(nodes, pathPrefix = '') {
+        const ul = document.createElement('ul');
+        ul.className = 'tree-view';
+        if (pathPrefix === '') ul.style.display = 'block';
+        for (const [folder, children] of Object.entries(nodes)) {
+            const currentPath = pathPrefix ? `${pathPrefix}/${folder}` : folder;
+            const hasChildren = Object.keys(children).length > 0;
+            const li = document.createElement('li');
+            li.className = 'tree-item';
+            if (hasChildren) {
+                const toggle = document.createElement('i');
+                toggle.className = 'bi bi-chevron-right tree-toggle';
+                li.appendChild(toggle);
+            } else {
+                const placeholder = document.createElement('span');
+                placeholder.className = 'tree-toggle';
+                li.appendChild(placeholder);
+            }
+            const label = document.createElement('span');
+            label.className = 'tree-node-label';
+            label.dataset.path = currentPath;
+            label.innerHTML = `<i class="bi bi-folder me-1"></i>${folder}`;
+            li.appendChild(label);
+            if (hasChildren) {
+                const childTree = buildTree(children, currentPath);
+                li.appendChild(childTree);
+            }
+            ul.appendChild(li);
+        }
+        return ul;
+    }
+
+    if(treeContainer) {
+        treeContainer.innerHTML = '';
+        treeContainer.appendChild(buildTree(dirTreeData));
+        treeContainer.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target.classList.contains('tree-toggle')) {
+                target.classList.toggle('expanded');
+                const sublist = target.closest('.tree-item').querySelector('ul');
+                if (sublist) sublist.style.display = sublist.style.display === 'none' ? 'block' : 'none';
+            }
+            const label = target.closest('.tree-node-label');
+            if (label) {
+                treeContainer.querySelectorAll('.tree-node-label.selected').forEach(el => el.classList.remove('selected'));
+                label.classList.add('selected');
+                pathInput.value = label.dataset.path;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

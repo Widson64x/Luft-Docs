@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Editor de Módulos{% endblock %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Index.css') }}">
+{% endblock %}
+{% block content %}
+<div class="bg-icons"></div>
+<div class="container module-editor-container">
+  <div class="module-header-bar">
+    <h1 class="me-auto"><i class="bi bi-stars" style="color: var(--accent-glow);"></i> Editor de Módulos</h1>
+    {% if can_module_control %}
+      <a href="{{ url_for('editor.pendentes', token=token) }}" 
+         class="pending-button" 
+         title="Ver pendências ({{ num_pendencias }})">
+        <i class="bi bi-hourglass-split"></i>
+        {% if num_pendencias > 0 %}
+          <span class="notification-dot">
+            {{ '99+' if num_pendencias > 99 else num_pendencias }}
+          </span>
+        {% endif %}
+      </a>
+    {% endif %}
+        {% if can_module_control %}
+      <a href="{{ url_for('editor.listar_submodulos', token=token) }}" 
+         class="pending-button" 
+         title="Edita Submódulo ({{ num_pendencias }})">
+        <i class="bi bi-substack"></i>
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="modulo-filtro-box mb-4">
+    <input type="text" id="moduloFiltro" class="form-control" placeholder="Filtrar módulos...">
+  </div>
+
+  <div class="module-grid" id="moduloGrid">
+    {% if can_create_modules %}   
+    <div class="module-item" style="--delay: 0;">
+      <a href="{{ url_for('editor.criar_modulo', token=token) }}" class="module-card add-new-card text-decoration-none">
+        <div class="icon"><i class="bi bi-plus-circle-dotted"></i></div>
+        <div class="text mt-3">Criar Novo Módulo</div>
+      </a>
+    </div>
+    {% endif %}
+    {% for m in modulos %}
+    <div class="module-item" style="--delay: {{ loop.index }};" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
+      <div class="module-card">
+        <div class="card-body">
+          <div class="module-icon">
+            <i class="bi {{ m.icone }}"></i>
+          </div>
+          <h5 class="module-title">{{ m.nome }}</h5>
+
+          <div class="module-info-block mb-3">
+            
+            {# Pega o último evento do histórico para análise #}
+            {% set last_event = m.edit_history | last %}
+
+            {# Bloco 1: Mostra os badges de ID e status/versão #}
+            <div class="d-flex align-items-center gap-2">
+              <span class="module-badge module-id-badge">ID: {{ m.id }}</span>
+              {% if m.status == 'pendente' %}
+                <span class="module-badge module-status-badge">Pendente</span>
+              {% elif last_event %}
+                <span class="module-badge module-version-badge">
+                  <i class="bi bi-tag"></i> v{{ last_event.version }}
+                </span>
+              {% endif %}
+            </div>
+
+            {# Bloco 2: Mostra os detalhes da última ação (edição, aprovação, criação) #}
+            <div class="d-flex flex-column gap-1 mt-2">
+              {% if m.status == 'pendente' %}
+                <div class="info-line">
+                  <i class="bi bi-pencil-fill text-warning"></i>
+                  <span>Editado por <strong>{{ m.pending_edit_info.user }}</strong></span>
+                </div>
+                <div class="info-line">
+                  <i class="bi bi-clock"></i>
+                  <span>Em {{ m.pending_edit_info.data.split('T')[0] }}</span>
+                </div>
+              {% elif last_event %}
+                {% if last_event.event == 'aprovado' %}
+                  <div class="info-line">
+                    <i class="bi bi-pencil-fill"></i>
+                    <span>Editado por <strong>{{ last_event.editor }}</strong></span>
+                  </div>
+                  <div class="info-line">
+                      <i class="bi bi-check-circle-fill text-success"></i>
+                      <span>Aprovado por <strong>{{ last_event.approver }}</strong></span>
+                  </div>
+                {% elif last_event.event == 'criado' %}
+                  <div class="info-line">
+                    <i class="bi bi-person-fill-add"></i>
+                    <span>Criado por <strong>{{ last_event.user }}</strong></span>
+                  </div>
+                {% endif %}
+                <div class="info-line">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Em {{ last_event.timestamp.split('T')[0] }}</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <p class="module-desc">{{ m.descricao }}</p>
+
+          <div class="module-actions d-flex justify-content-end gap-2 mt-auto">
+            <a href="{{ url_for('editor.editar_modulo', mid=m.id, token=token) }}" class="btn btn-sm btn-primary">
+              <i class="bi bi-pencil-square"></i> Editar
+            </a>
+            {% if can_versioning_modules %}
+              <a href="{{ url_for('editor.historico_modulo', mid=m.id, token=token) }}" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-clock-history"></i> Versões
+              </a>
+            {% endif %}
+            {% if can_delete_modules %}
+              <form method="post" action="{{ url_for('editor.delete_modulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+      {% if loop.length == 1 %} 
+        <div class="text-center text-muted py-5 col-12">
+          <i class="bi bi-journal-x" style="font-size:3rem; color: var(--text-secondary);"></i>
+          <h4 class="mt-3" style="color: var(--text-primary);">Nenhum módulo encontrado</h4>
+          <p style="color: var(--text-secondary);">Comece criando seu primeiro módulo!</p>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+<script>
+  // Filtro simples de módulos
+  document.getElementById('moduloFiltro').addEventListener('input', function() {
+    const termo = this.value.trim().toLowerCase();
+    document.querySelectorAll('.module-grid .module-item').forEach(function(item) {
+      if (item.querySelector('.add-new-card')) {
+        item.style.display = 'block';
+        return;
+      }
+      const nome = item.getAttribute('data-nome') || '';
+      const id = item.getAttribute('data-id') || '';
+      const desc = item.getAttribute('data-desc') || '';
+      
+      if (nome.includes(termo) || id.includes(termo) || desc.includes(termo)) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+
+  // A lógica de animação dos ícones permanece a mesma
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.bg-icons');
+    let animationFrameId = null;
+
+    function getAnimationParameters() {
+        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
+        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
+        const randomnessFactor = 1 + (speedFactor - 1) * 0.5; 
+        return { quantity, speedFactor, randomnessFactor };
+    }
+
+    function iniciarAnimacaoComColisao() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        const iconsData = [];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(availableIcons => {
+                for (let i = 0; i < quantity; i++) {
+                    const el = document.createElement('i');
+                    const size = (Math.random() * 32 * randomnessFactor + 16);
+                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
+                    el.style.fontSize = `${size}px`;
+                    el.style.animation = 'none';
+                    el.style.bottom = 'auto';
+                    container.appendChild(el);
+                    iconsData.push({
+                        element: el,
+                        x: Math.random() * (screenWidth - size),
+                        y: Math.random() * (screenHeight - size),
+                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
+                        size: size
+                    });
+                }
+                animate();
+            })
+            .catch(console.error);
+
+        function animate() {
+            iconsData.forEach((icon, index) => {
+                icon.x += icon.dx;
+                icon.y += icon.dy;
+                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
+                if (icon.y <= 0 || icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
+                for (let i = index + 1; i < iconsData.length; i++) {
+                    const otherIcon = iconsData[i];
+                    const dist_x = (icon.x + icon.size / 2) - (otherIcon.x + otherIcon.size / 2);
+                    const dist_y = (icon.y + icon.size / 2) - (otherIcon.y + otherIcon.size / 2);
+                    const distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+                    const minDistance = (icon.size / 2) + (otherIcon.size / 2);
+                    if (distance < minDistance) {
+                        [icon.dx, otherIcon.dx] = [otherIcon.dx, icon.dx];
+                        [icon.dy, otherIcon.dy] = [otherIcon.dy, icon.dy];
+                    }
+                }
+                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+    }
+
+    function iniciarAnimacaoOriginal() {
+        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
+        
+        fetch('{{ url_for("static", filename="data/icons.json") }}')
+            .then(res => res.json())
+            .then(icons => {
+                for (let i = 0; i < quantity; i++) {
+                    const cls = icons[Math.floor(Math.random() * icons.length)];
+                    const el = document.createElement('i');
+                    el.className = `bi ${cls} bg-icon`;
+                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
+                    const baseDuration = 10 + Math.random() * 10;
+                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
+                    container.appendChild(el);
+                }
+            })
+            .catch(console.error);
+    }
+
+    window.mudarAnimacao = function(modo) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        container.innerHTML = '';
+        if (modo === 'original') {
+            iniciarAnimacaoOriginal();
+        } else {
+            iniciarAnimacaoComColisao();
+        }
+    }
+
+    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
+    mudarAnimacao(savedAnimation);
+});
+</script>
+{% endblock %}

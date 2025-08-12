@@ -1,5 +1,3 @@
-# **Filtros do Luft Informa**
-
 ## **1. Visão Geral**
 
 A tela de **Relatórios Gerais** é o hub central do sistema **Luft Informa** para a extração e análise de dados. Ela permite que os usuários localizem, configurem, gerem e manipulem relatórios operacionais de forma dinâmica e intuitiva.

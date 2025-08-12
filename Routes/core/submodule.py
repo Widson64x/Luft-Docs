@@ -33,7 +33,7 @@ def ver_submodulo():
     conteudo_html = parser_wikilinks(md_content, modulos, palavras_globais)
 
     return render_template(
-        'modules/submodule.html',
+        'Modules/SubModule.html',
         nome=nome_submodulo,
         conteudo=conteudo_html,
         modulos=modulos

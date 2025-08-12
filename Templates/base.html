@@ -6,7 +6,7 @@
 
     <title>{% block title %}LuftDocs{% endblock %}</title>
 
-    <link rel="icon" href="{{ url_for('static', filename='assets/icon2.png') }}" sizes="32x32" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='Assets/icon2.png') }}" sizes="32x32" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <canvas id="background-animation-canvas"></canvas>
     <nav class="navbar">
         <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-container">
-            <img src="{{ url_for('static', filename='assets/logo-claro.png') }}" alt="LuftDocs Logo" id="logo-image">
+            <img src="{{ url_for('static', filename='Assets/logo-claro.png') }}" alt="LuftDocs Logo" id="logo-image">
         </a>
         <div class="d-flex align-items-center">
             
@@ -225,6 +225,7 @@
             </div>
         </div>
     </div>
+    
     {% if can_view_tools_in_development %}
     <div class="floating-lia-btn" 
         data-bs-toggle="modal" 
@@ -240,6 +241,64 @@
         </div>
         <div class="toast-pointer"></div>
     </div>
+
+    <!-- Overlay de aviso da LIA -->
+    <div id="lia-warning-overlay" class="lia-overlay" aria-hidden="true">
+    <div class="lia-warning-card" role="dialog" aria-modal="true" aria-labelledby="liaWarningTitle">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+        <div class="d-flex align-items-center gap-2">
+            <span aria-hidden="true" class="badge rounded-pill bg-warning text-dark fw-semibold">BETA</span>
+            <h3 id="liaWarningTitle" class="m-0 fs-5">Assistente LIA — Aviso de Uso Responsável</h3>
+        </div>
+        </div>
+
+        <p class="mb-3 text-light">
+        A LIA encontra-se em <strong>fase de desenvolvimento</strong>. As respostas podem conter
+        <strong>imprecisões</strong>, <strong>omissões</strong> ou <strong>interpretações equivocadas</strong>.
+        Utilize-a como apoio inicial, <u>não</u> como fonte única de verdade.
+        </p>
+
+        <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
+        <div class="fw-semibold mb-2"><i class="bi bi-shield-exclamation me-2"></i>Importante</div>
+        <ul class="mb-0 ps-3">
+            <li>Não use a base da IA como <em>parâmetro definitivo</em> para decisões críticas.</li>
+            <li>Sempre confronte o conteúdo com a <strong>Documentação Oficial</strong> e fontes primárias.</li>
+            <li>Ao identificar divergências, priorize a documentação e registre feedback.</li>
+        </ul>
+        </div>
+
+        <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18);">
+        <div class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Boas práticas</div>
+        <ul class="mb-0 ps-3">
+            <li>Peça referências objetivas (arquivos, normas, políticas internas).</li>
+            <li>Solicite passos e critérios de validação, não apenas respostas finais.</li>
+            <li>Registre inconsistências via <em>feedback</em> para acelerar correções.</li>
+        </ul>
+        </div>
+
+        <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="liaDontShowAgain" aria-describedby="liaDontShowAgainHelp">
+        <label class="form-check-label" for="liaDontShowAgain">
+            Não mostrar este aviso novamente neste dispositivo
+        </label>
+        <div id="liaDontShowAgainHelp" class="form-text text-secondary">
+            Esta preferência é salva localmente (navegador).
+        </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <small class="text-secondary">
+            Precisa de base normativa? Consulte a <a id="liaDocLink" href="" class="link-light text-decoration-underline" target="_blank" rel="noopener">Documentação Oficial</a>.
+        </small>
+        <div class="d-flex gap-2">
+            <button id="liaWarningConfirm" class="btn btn-light btn-sm">
+            <i class="bi bi-check2-circle me-1"></i> Prosseguir entendendo os riscos
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
+
     {% endif %}
 
     {% block scripts %}
@@ -265,8 +324,8 @@
             const logoImage = document.getElementById('logo-image');
             
             // Caminhos para as imagens dos logos
-            const logoLight = "{{ url_for('static', filename='assets/logo-claro-remove-m.png') }}";
-            const logoDark = "{{ url_for('static', filename='assets/logo-escuro-remove-m.png') }}";
+            const logoLight = "{{ url_for('static', filename='Assets/logo-claro-remove-m.png') }}";
+            const logoDark = "{{ url_for('static', filename='Assets/logo-escuro-remove-m.png') }}";
 
             // Função para atualizar o logo com base no tema
             function updateLogo(isDark) {

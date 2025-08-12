@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Histórico: {{ modulo.nome }}{% endblock %}
+
+{% block page_styles %}
+    {# Adiciona o CSS externo para esta página #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Historical_Module.css') }}">
+{% endblock %}
+
+{% block content %}
+{# Dependências para o Diff Visual e Ícones #}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-clock-history text-primary"></i> Histórico de Versões</h2>
+            <p class="text_place">Módulo: <strong>{{ modulo.nome }}</strong> (ID: {{ modulo.id }})</p>
+        </div>
+        <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+    </div>
+
+    <ul class="nav nav-tabs nav-pills flex-nowrap" id="versionTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="doc-tab" data-bs-toggle="tab" data-bs-target="#doc-pane" type="button">Documentação</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tech-tab" data-bs-toggle="tab" data-bs-target="#tech-pane" type="button">Técnica</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="doc-pane" role="tabpanel">
+            <div class="timeline">
+                {% for evento in historico_eventos %}
+                    {% if evento.backup_file_doc or (evento.event == 'criado' and not historico_eventos | selectattr('backup_file_doc') | list) %}
+                        {% set prev_evento = loop.previtem %}
+                        {% set doc_type = 'doc' %}
+                        {% include 'Components/Timeline_Item.html' %}
+                    {% endif %}
+                {% else %}
+                    <p class="ms-3">Nenhum histórico para esta documentação.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tech-pane" role="tabpanel">
+            <div class="timeline">
+                {% for evento in historico_eventos %}
+                     {% if evento.backup_file_tech or (evento.event == 'criado' and not historico_eventos | selectattr('backup_file_tech') | list) %}
+                        {% set prev_evento = loop.previtem %}
+                        {% set doc_type = 'tech' %}
+                        {% include 'Components/Timeline_Item.html' %}
+                    {% endif %}
+                {% else %}
+                    <p class="ms-3">Nenhum histórico para esta documentação.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewVersionModal" tabindex="-1" aria-labelledby="viewVersionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewVersionModalLabel">Visualizando Versão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" id="viewVersionModalBody">
+                </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-info" id="compare-from-modal-btn" style="display: none;">
+                        <i class="bi bi-subtract"></i> Comparar com Anterior
+                    </button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diffModalLabel">Comparando Versões</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body p-0" id="diffOutput">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função global que é chamada diretamente pelo 'onclick' dos botões "Visualizar"
+    function showVersionModal(buttonElement) {
+        // Pega os dados do próprio elemento do botão que foi clicado
+        const filename = buttonElement.dataset.filename;
+        const version = buttonElement.dataset.version;
+        const prevFilename = buttonElement.dataset.prevFilename;
+        const prevVersion = buttonElement.dataset.prevVersion;
+        const moduloId = '{{ modulo.id }}';
+
+        if (!filename || filename === 'None') {
+            alert("Erro: Não foi possível encontrar o nome do arquivo para esta versão.");
+            return;
+        }
+
+        const viewModalEl = document.getElementById('viewVersionModal');
+        const viewModal = bootstrap.Modal.getOrCreateInstance(viewModalEl);
+        const viewModalTitle = viewModalEl.querySelector('.modal-title');
+        const viewModalBody = viewModalEl.querySelector('.modal-body');
+        const compareFromModalBtn = document.getElementById('compare-from-modal-btn');
+
+        // 1. Prepara e abre o modal de visualização
+        viewModalTitle.innerHTML = `Visualizando v${version} <br><small class="text_place" style="font-size: 0.7em;">${filename}</small>`;
+        viewModalBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2">Carregando...</p></div>';
+        viewModal.show();
+
+        // 2. Controla a visibilidade e os dados do botão de comparar
+        if (prevFilename) {
+            compareFromModalBtn.style.display = 'inline-block';
+            compareFromModalBtn.dataset.file1 = filename;
+            compareFromModalBtn.dataset.file2 = prevFilename;
+            compareFromModalBtn.dataset.version1 = version;
+            compareFromModalBtn.dataset.version2 = prevVersion;
+        } else {
+            compareFromModalBtn.style.display = 'none';
+        }
+
+        // 3. Busca o conteúdo formatado no backend
+        const url = `{{ url_for("editor.get_historical_content") }}?mid=${moduloId}&filename=${filename}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                viewModalBody.innerHTML = data.html || `<div class="alert alert-danger">${data.error || 'Conteúdo não encontrado.'}</div>`;
+            }).catch(err => {
+                viewModalBody.innerHTML = `<div class="alert alert-danger">Erro de rede ao carregar o conteúdo.</div>`;
+            });
+    }
+
+    // Listener para o botão "Comparar" que está DENTRO do modal de visualização
+    document.getElementById('compare-from-modal-btn').addEventListener('click', function() {
+        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewVersionModal'));
+        viewModal.hide(); 
+        
+        const file_new = this.dataset.file1;
+        const file_old = this.dataset.file2;
+        const version_new = this.dataset.version1;
+        const version_old = this.dataset.version2;
+
+        const diffModalEl = document.getElementById('diffModal');
+        const diffModal = bootstrap.Modal.getOrCreateInstance(diffModalEl);
+        const diffModalTitle = diffModalEl.querySelector('.modal-title');
+        const diffOutput = document.getElementById('diffOutput');
+
+        diffModalTitle.textContent = `Comparando v${version_old} (anterior) com v${version_new} (selecionada)`;
+        diffOutput.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+        diffModal.show();
+        
+        const url = `{{ url_for("editor.diff_historico") }}?mid={{ modulo.id }}&file1=${file_old}&file2=${file_new}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error || !data.diff) {
+                    diffOutput.innerHTML = `<div class="alert alert-danger m-3">${data.error || 'Não foi possível gerar a comparação (conteúdo pode ser idêntico).'}</div>`;
+                    return;
+                }
+                new Diff2HtmlUI(diffOutput, data.diff, { 
+                    drawFileList: false, matching: 'lines', outputFormat: 'side-by-side'
+                }).draw();
+            }).catch(err => {
+                diffOutput.innerHTML = `<div class="alert alert-danger m-3">Erro ao carregar a comparação.</div>`;
+            });
+    });
+</script>
+{% endblock %}

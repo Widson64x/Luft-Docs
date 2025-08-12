@@ -19,7 +19,7 @@
  * 7.0 - KEYFRAMES DE ANIMAÇÃO
  *
 */
-
+@import url('Themes.css');
 /* =================================================================== */
 /* === 1.0 - BOTÃO DE AÇÃO FLUTUANTE (FAB) =========================== */
 /* =================================================================== */
@@ -385,6 +385,39 @@ body.theme-dark .form-check-input {
     border-color: var(--theme-border);
 }
 
+/* Overlay de tela cheia para aviso da LIA */
+.lia-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 20, 30, 0.55);
+  z-index: 2000; /* acima do modal do Bootstrap */
+  backdrop-filter: blur(2px);
+}
+
+.lia-overlay.show { display: flex; }
+
+.lia-warning-card {
+  max-width: 720px;
+  width: calc(100% - 32px);
+  background: rgba(25, 30, 40, 0.92);
+  color: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+/* Efeito de blur no conteúdo quando o overlay abre */
+body.lia-blur .navbar,
+body.lia-blur #main-content,
+body.lia-blur .footer-LuftDocs {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
 
 /* --- KEYFRAMES DAS ANIMAÇÕES --- */
 @keyframes logo-glow {

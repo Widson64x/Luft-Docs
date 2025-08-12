@@ -73,7 +73,7 @@ def perform_search():
     
     # Passa a lista JÁ FILTRADA para o template
     return render_template(
-        'components/search_results.html', 
+        'Pages/SearchPage.html', 
         query=query, 
         results=processed_results, 
         total_results=len(processed_results), 

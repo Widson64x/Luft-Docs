@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ nome }} - Submódulo{% endblock %}
+{% block content %}
+{% block page_styles %}
+    {# Este link carrega os estilos apenas para esta página #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Submodule.css') }}">
+{% endblock %}
+
+    {# Usamos javascript:history.back() para voltar à página anterior do histórico #}
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+        ← Voltar
+    </a>
+    <div class="markdown-body">
+        <h1>{{ nome }}</h1>
+        <div class="submodulo-conteudo">
+            {# 1) Recebemos aqui o HTML bruto em “conteudo”, que contém "__TOKEN_PLACEHOLDER__" #}
+            {% set html_bruto = conteudo %}
+
+            {# 2) Substituímos “__TOKEN_PLACEHOLDER__” pelo token real vindo de request.args #}
+            {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+
+            {# 3) Renderizamos o resultado final #}
+            {{ conteudo_corrigido | safe }}
+        </div>
+    </div>
+    <hr>
+
+{% endblock %}

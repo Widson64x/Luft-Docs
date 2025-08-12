@@ -91,7 +91,7 @@ def authenticate_initial_request():
             return redirect(f"/?token={token}")
         return True
     # Falha
-    return render_template("auth/info_login.html"), 403
+    return render_template("Auth/InfoLogin.html"), 403
 
 def login_required(f):
     @wraps(f)

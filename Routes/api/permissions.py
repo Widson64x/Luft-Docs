@@ -186,7 +186,7 @@ def manage_permissions():
     permissions_data = load_permissions()
 
     return render_template(
-        'modules/manage_permissions.html',
+        'Pages/MG_Permissions.html',
         permissions=permissions_data,
         token=token
     )

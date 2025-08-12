@@ -46,7 +46,7 @@ def index():
     can_view_tools_in_development = user_perms.get('can_view_tools_in_development', False)
 
     return render_template(
-        'index.html',
+        'Index.html',
         can_access_editor=can_access_editor,
         can_access_permissions_menu=can_access_permissions_menu,
         can_create_modules=can_create_modules, 
@@ -81,7 +81,7 @@ def mapa_conhecimento():
         m['show_tecnico_button'] = m['id'] in MODULOS_TECNICOS_VISIVEIS or can_view_tecnico
 
     return render_template(
-        'components/mapa.html', 
+        'Components/mapa.html', 
         modulos=modulos_visiveis,
         can_access_editor=can_access_editor,
         can_access_permissions_menu=can_access_permissions_menu,
@@ -142,4 +142,4 @@ def report_bug():
 def logout():
     """Realiza o logout do usuário e redireciona para a tela de logout."""
     logout_user()
-    return render_template('auth/logout.html')
+    return render_template('Auth/Logout.html')

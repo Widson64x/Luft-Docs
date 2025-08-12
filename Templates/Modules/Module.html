@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}{{ modulo.nome }} - LuftDocs{% endblock %}
+
+{% block content %}
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Module.css') }}">
+{% endblock %}
+
+<div class="module-container" 
+     data-module-id="{{ modulo.id or id_do_modulo }}" 
+     data-module-name="{{ modulo.nome }}" 
+     data-related-count="{{ relacionados|length }}">
+    <div class="module-header">
+        <div class="header-title-container">
+            <h1><i class="{{ modulo.icone }} icon-title"></i> {{ modulo.nome }}</h1>
+            <a href="{{ url_for('evaluation.evaluation', document_id=id_do_modulo, token=token) }}" 
+               class="btn btn-outline-secondary btn-evaluate-icon" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="Avaliar este documento">
+                <i class="bi bi-star-fill"></i>
+            </a>
+        </div>
+
+        <button id="sr-toggle-icon" class="step-reader-toggle" title="Ler em passos">
+            <i class="bi bi-eye-fill"></i>
+        </button>
+
+        <p class="module-description">{{ modulo.descricao }}</p>
+
+        <div class="search-in-module-container">
+            <form method="GET" action="{{ request.path }}" class="search-form">
+                {% if request.args.get('modulo') %}
+                    <input type="hidden" name="modulo" value="{{ request.args.get('modulo') }}">
+                {% elif request.args.get('modulo_tecnico') %}
+                    <input type="hidden" name="modulo_tecnico" value="{{ request.args.get('modulo_tecnico') }}">
+                {% endif %}
+                
+                <input type="hidden" name="token" value="{{ request.args.get('token', '') }}">
+                <input type="search" id="busca-input" name="q" value="{{ query or '' }}" placeholder="Buscar em {{ modulo.nome }}..." class="search-input" autocomplete="off">
+                <button type="submit" class="search-button" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+                <ul id="autocomplete-list" class="autocomplete-list"></ul>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <aside id="toc-sidebar" class="toc-sidebar" style="display: none;">
+        <div class="toc-header">
+            <h3>Nesta página</h3>
+        </div>
+        <div class="toc-progress-container">
+            <div id="toc-progress-bar" class="toc-progress-bar"></div>
+        </div>
+        <div class="toc-list-container">
+            <ul id="toc-list"></ul>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="markdown-body">
+            {% if resultado_highlight %}
+                <div class="alert alert-info">
+                    Mostrando resultados para: <strong>{{ query }}</strong>
+                </div>
+            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container" style="position: relative; z-index: 1050;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="modulo-conteudo" id="imagem-viewer" data-doc-id="{{ modulo.id or id_do_modulo }}">
+                {% set html_bruto = conteudo %}
+                {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+                {% set prefix = '/downloads/docs/' %}
+                {% set replace_prefix = url_for('download.download_pela_raiz', token=request.args.get('token', '')) ~ '&file=' %}
+                {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
+                {{ conteudo_final | safe }}
+            </div>
+        </div>
+        
+        {% if relacionados %}
+        <hr>
+        <div class="related-modules-container" style="max-width: 980px; margin: 2rem auto; padding: 0 20px;">
+            <h3 class="mb-3">Módulos Relacionados</h3>
+            <div class="relacionados mb-4">
+                {% for rel in relacionados %}
+                    <a class="btn btn-outline-primary btn-sm me-1 mb-1"
+                       href="{{ url_for('modulo.ver_modulo_pela_raiz', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
+                        <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+    <aside id="roteiros-sidebar" class="roteiros-sidebar">
+        <div class="roteiros-header">
+            <h3>
+                <i class="bi bi-journal-richtext"></i> Roteiros
+            </h3>
+            {% if can_edit_scripts %}
+            <button class="btn btn-sm btn-outline-primary" id="btn-criar-roteiro" data-bs-toggle="tooltip" title="Criar novo Roteiro">
+                <i class="bi bi-plus-lg"></i> Criar
+            </button>
+            {% endif %}
+        </div>
+        
+        <ul id="roteiros-list" class="roteiros-list">
+            </ul>
+
+        <script type="application/json" id="roteiros-data">
+            {
+                "roteiros": {{ roteiros_data | tojson | safe }},
+                "can_edit": {{ can_edit_scripts | tojson | safe }}
+            }
+        </script>
+    </aside>
+</div>
+
+<div class="modal fade" id="imagemModal" tabindex="-1" aria-labelledby="imagemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-body text-center p-0">
+                <img id="imagemExpandida" src="" alt="Imagem ampliada" style="width:100%; height:auto; max-height:85vh; border-radius: 8px;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="roteiroModal" tabindex="-1" aria-labelledby="roteiroModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roteiroModalLabel">Criar Novo Roteiro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roteiroForm">
+                    <input type="hidden" id="roteiroId" name="id">
+                    <div class="mb-3">
+                        <label for="roteiroTitulo" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="roteiroTitulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roteiroTipo" class="form-label">Tipo</label>
+                        <select class="form-select" id="roteiroTipo">
+                            <option value="link">Link Externo</option>
+                            <option value="modal">Vídeo (Modal)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roteiroConteudo" class="form-label">Conteúdo (URL)</label>
+                        <input type="url" class="form-control" id="roteiroConteudo" required placeholder="https://exemplo.com ou https://youtube.com/embed/...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                             <label for="roteiroIcone" class="form-label">Ícone (Opcional)</label>
+                            <input type="text" class="form-control" id="roteiroIcone" placeholder="ex: bi-file-earmark-play">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="roteiroOrdem" class="form-label">Ordem</label>
+                            <input type="number" class="form-control" id="roteiroOrdem" value="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="roteiroForm">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #000;">
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="videoPlayer" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja excluir o roteiro "<strong id="roteiroNameToDelete"></strong>"? Esta ação não pode ser desfeita.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="step-reader" role="dialog" aria-modal="true" aria-labelledby="sr-title" hidden>
+    <div class="sr-backdrop" aria-hidden="true"></div>
+    <div class="sr-panel" role="document" aria-describedby="sr-region">
+        <header class="sr-header">
+            <h2 id="sr-title">Ler em passos</h2>
+            <div class="sr-progress"><div class="sr-bar"></div></div>
+            <div class="sr-count" aria-live="polite">1/1</div>
+            <button class="sr-close" type="button" aria-label="Fechar (Esc)">✕</button>
+        </header>
+        <main id="sr-region" class="sr-body" tabindex="0" aria-live="polite"></main>
+        <footer class="sr-footer">
+            <label class="sr-checkbox">
+                <input type="checkbox" id="sr-mark-reviewed">
+                Marcar este passo como “entendi”
+            </label>
+            <div class="sr-actions">
+                <button class="sr-prev" type="button">‹ Anterior</button>
+                <button class="sr-next" type="button">Próximo ›</button>
+                <button class="sr-done" type="button" hidden>Concluir ✓</button>
+            </div>
+        </footer>
+    </div>
+</div>
+
+{% if versao_info and versao_info.versao_atual != "N/A" %}
+<div class="meta-info" style="color: #adb5bd; font-size: 0.9em; margin-bottom: 220px; text-align: right;">
+    <span><i class="fas fa-tag"></i> <strong>Versão:</strong> {{ versao_info.versao_atual }}</span>
+    <span style="margin-left: 15px;"><i class="fas fa-user-edit"></i> <strong>Editado por:</strong> {{ versao_info.editor }}</span>
+    <span style="margin-left: 15px;"><i class="fas fa-calendar-check"></i> <strong>Aprovado em:</strong> {{ versao_info.data_aprovacao }}</span>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/step-reader.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/Modules/tocHandler.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/Modules/imageZoom.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/Modules/searchHandler.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/Modules/proactiveAssistantInitializer.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/Modules/roteirosManager.js') }}"></script>
+{% endblock %}

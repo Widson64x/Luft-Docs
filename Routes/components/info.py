@@ -8,4 +8,4 @@ def login_info():
     """
     Página que informa que só é possível acessar via Luft Informa.
     """
-    return render_template('auth/info_login.html')
+    return render_template('Auth/InfoLogin.html')

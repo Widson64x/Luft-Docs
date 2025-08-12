@@ -94,7 +94,7 @@ def editor_index():
     user_perms = session.get('permissions', {})
 
     return render_template(
-        'editor/editor_index.html',
+        'Editor/EDT_ModuleList.html',
         modulos=modulos,
         token=token,
         num_pendencias=num_pendencias,
@@ -160,7 +160,7 @@ def criar_modulo():
             db.session.rollback()
             flash(f"Erro ao criar o módulo: {e}", "danger")
 
-    return render_template('editor/module_new.html', token=token, 
+    return render_template('Editor/EDT_ModuleNew.html', token=token, 
         doc_content=carregar_template_documentacao(), tech_content=carregar_template_tecnico())
 
 @editor_bp.route('/modulo/<mid>', methods=['GET', 'POST'])
@@ -216,7 +216,7 @@ def editar_modulo(mid):
     elif os.path.exists(tech_official_path):
         with open(tech_official_path, encoding='utf-8') as f: tech_content = f.read()
         
-    return render_template('editor/module_edit.html', modulo=get_modulo_by_id(mid), doc_content=doc_content, tech_content=tech_content, token=token)
+    return render_template('Editor/EDT_ModuleEdit.html', modulo=get_modulo_by_id(mid), doc_content=doc_content, tech_content=tech_content, token=token)
 
 @editor_bp.route('/delete/<mid>', methods=['POST'])
 def delete_modulo(mid):
@@ -258,7 +258,7 @@ def pendentes():
             "editor": modulo.pending_edit_user or 'N/A'
         })
 
-    return render_template('editor/pending.html', pendentes=lista_pendentes, token=token)
+    return render_template('Editor/EDT_Pendings.html', pendentes=lista_pendentes, token=token)
 
 @editor_bp.route('/aprovar/<mid>', methods=['POST'])
 def aprovar(mid):
@@ -408,7 +408,7 @@ def historico_modulo(mid):
         return redirect(url_for('.historico_modulo', mid=mid, token=token))
 
     historico_eventos = sorted(modulo_dict.get('edit_history', []), key=lambda x: x['timestamp'], reverse=True)
-    return render_template('editor/historical_module.html', modulo=modulo_dict, historico_eventos=historico_eventos, token=token)
+    return render_template('Editor/HistoricalModule.html', modulo=modulo_dict, historico_eventos=historico_eventos, token=token)
 
 @editor_bp.route('/options', methods=['GET'])
 def editor_options():
@@ -483,7 +483,7 @@ def listar_submodulos():
         submodulos_info.append({'path': p.relative_to(global_dir).as_posix(), 'modified': mod_time_str})
     submodulos_info.sort(key=lambda x: x['path'])
     dir_tree = build_dir_tree(global_dir)
-    return render_template('editor/submodule_list.html', submodulos=submodulos_info, dir_tree_json=json.dumps(dir_tree), token=token)
+    return render_template('Editor/EDT_SubModuleList.html', submodulos=submodulos_info, dir_tree_json=json.dumps(dir_tree), token=token)
 
 @editor_bp.route('/deletar_submodulo', methods=['POST'])
 def deletar_submodulo():
@@ -556,7 +556,7 @@ def editar_submodulo(submodulo_path):
         return redirect(url_for('.listar_submodulos', token=token))
 
     content = file_path.read_text(encoding='utf-8') if file_path.exists() else ""
-    return render_template('editor/submodule_edit.html', path=submodulo_path, content=content, token=token)
+    return render_template('Editor/EDT_SubModuleEdit.html', path=submodulo_path, content=content, token=token)
 
 @editor_bp.route('/diff_pendente')
 def diff_pendente():
