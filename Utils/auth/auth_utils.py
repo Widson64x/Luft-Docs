@@ -42,7 +42,7 @@ def _populate_user_session(user_data_api):
     }
 
     # --- Permissões ---
-    from Routes.api.permissions import load_permissions
+    from Routes.API.Permissions import load_permissions
     perms_def = load_permissions()
     grupo = session['user_group']['acronym']
     usuario = session['user_name']

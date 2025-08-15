@@ -6,7 +6,7 @@ from Utils.data.search_utils import search_all_documents, extract_media_preview
 from Utils.data.module_utils import carregar_modulos, carregar_markdown 
 from Utils.text.service_filter import ContentFilterService
 from Utils.auth.auth_utils import login_required
-from Routes.api.permissions import get_user_group
+from Routes.API.Permissions import get_user_group
 from Utils.recommendation_service import (
     log_search_term, 
     get_hybrid_recommendations, 

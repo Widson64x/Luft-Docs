@@ -18,7 +18,7 @@ from models import db, Modulo, PalavraChave, HistoricoEdicao
 # Importa as funções de utilitários já refatoradas
 from Utils.data.module_utils import get_modulo_by_id, carregar_modulos
 # Importa a função de verificação de permissão refatorada
-from Routes.api.permissions import check_permission as has_perm
+from Routes.API.Permissions import check_permission as has_perm
 from Config import DATA_DIR, BASE_DIR
 
 editor_bp = Blueprint('editor', __name__, url_prefix='/editor')

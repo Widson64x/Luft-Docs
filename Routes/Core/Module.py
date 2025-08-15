@@ -17,7 +17,7 @@ from Utils.text.markdown_utils import parser_wikilinks
 from Utils.auth.auth_utils import login_required
 from Utils.text.service_filter import ContentFilterService
 from Utils.recommendation_service import log_document_access
-from Routes.api.permissions import get_user_group
+from Routes.API.Permissions import get_user_group
 from Utils.permissions_config import MODULOS_TECNICOS_VISIVEIS
 
 # Criação do Blueprint e do serviço de filtro

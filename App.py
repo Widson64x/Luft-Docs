@@ -10,18 +10,17 @@ from models import db
 
 # Seus imports de rotas existentes
 from LIA_Services.LIA import ia_bp
-from Routes.core.main import index_bp, inject_global_permissions 
-from Routes.core.module import modulo_bp
-from Routes.core.submodule import submodulo_bp
-from Routes.services.download import download_bp
-from Routes.services.editor import editor_bp
-from Routes.services.roteiros import roteiros_bp
-from Routes.api.permissions import permissions_bp 
-from Routes.api.api_index import api_bp
-from Routes.components.search import search_bp
+from Routes.Core.Main import index_bp, inject_global_permissions 
+from Routes.Core.Module import modulo_bp
+from Routes.Core.SubModule import submodulo_bp
+from Routes.Services.Download import download_bp
+from Routes.Services.Editor import editor_bp
+from Routes.Services.Roteiros import roteiros_bp
+from Routes.Services.Evaluation import evaluation_bp
+from Routes.API.Permissions import permissions_bp 
+from Routes.API.API import api_bp
+from Routes.Components.Search import search_bp
 
-
-from Routes.services.evaluation import evaluation_bp
 
 app = Flask(__name__)
 app.secret_key = 'LUFT@123'
