@@ -68,7 +68,7 @@ function initializeProactiveAssistant(context, config) {
 
     /**
      * ATUALIZADO: Usa a mensagem que foi previamente escolhida.
-     */
+    */
     const handleLiaButtonClick = () => {
         if (liaFloatingButton.classList.contains('lia-proactive')) {
             exitProactiveMode();

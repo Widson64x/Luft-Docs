@@ -37,7 +37,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="custom-alert alert-{{ category }}" role="alert">
+                <div class="alert custom-alert alert-{{ category }} alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
                     {% if category == 'success' %}<i class="bi bi-check-circle-fill alert-icon"></i>
                     {% elif category == 'danger' %}<i class="bi bi-x-octagon-fill alert-icon"></i>
                     {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill alert-icon"></i>
@@ -330,20 +330,48 @@ mudarAnimacao(savedAnimation);
 
 </script>
 <script>
-    // Espera o documento carregar completamente para apagar as mensagens de flash
-    document.addEventListener('DOMContentLoaded', (event) => {
-        // Seleciona todos os elementos com a classe 'custom-alert'
-        const alerts = document.querySelectorAll('.custom-alert');
+    // Autoclose + clique no "X" com fallback quando o Bootstrap JS não está presente
+    document.addEventListener('DOMContentLoaded', () => {
+        // Seleciona todos os alerts renderizados (flash)
+        const alerts = document.querySelectorAll('.alert.custom-alert');
         const alertTimeout = 5000;
 
         alerts.forEach((alert) => {
-            // Define um timer para cada alerta
-            setTimeout(() => {
-                // new bootstrap.Alert(alert) ainda depende do JS do Bootstrap
-                if (bootstrap && bootstrap.Alert) {
+            // Timer de autoclose; salvo no elemento pra poder cancelar ao clicar no X
+            alert._timeoutId = setTimeout(() => {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
                     new bootstrap.Alert(alert).close();
+                } else {
+                    // Fallback sem Bootstrap JS
+                    alert.classList.add('closing');
+                    const done = () => alert.remove();
+                    alert.addEventListener('transitionend', done, { once: true });
+                    const dur = getComputedStyle(alert).transitionDuration;
+                    if (!dur || dur === '0s') done();
                 }
             }, alertTimeout);
+        });
+
+        // Delegação: funciona para qualquer botão de fechar (renderizado agora ou depois)
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-bs-dismiss="alert"], .btn-close');
+            if (!btn) return;
+
+            const alert = btn.closest('.alert.custom-alert, .alert');
+            if (!alert) return;
+
+            // Cancela o autoclose, se existir
+            if (alert._timeoutId) { clearTimeout(alert._timeoutId); alert._timeoutId = null; }
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                new bootstrap.Alert(alert).close();
+            } else {
+                alert.classList.add('closing');
+                const done = () => alert.remove();
+                alert.addEventListener('transitionend', done, { once: true });
+                const dur = getComputedStyle(alert).transitionDuration;
+                if (!dur || dur === '0s') done();
+            }
         });
     });
 </script>

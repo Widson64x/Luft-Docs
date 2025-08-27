@@ -186,6 +186,7 @@ _DEVTOOLS/
 
 # Ruff stuff:
 .ruff_cache/
+DATA/
 
 # PyPI configuration file
 .pypirc

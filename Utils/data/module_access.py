@@ -20,9 +20,9 @@ def load_access():
 
 def save_access(data):
     # 2. Adicione esta linha para criar os diretórios
-    # .parent pega o caminho do diretório do arquivo (ex: 'daqta/modules')
+    # .parent pega o caminho do diretório do arquivo (ex: 'data/modules')
     # .mkdir() cria o diretório.
-    #    - parents=True: cria diretórios intermediários (como criar 'daqta' e 'modules' de uma vez)
+    #    - parents=True: cria diretórios intermediários (como criar 'data' e 'modules' de uma vez)
     #    - exist_ok=True: não dá erro se o diretório já existir
     Path(ARQ).parent.mkdir(parents=True, exist_ok=True)
 

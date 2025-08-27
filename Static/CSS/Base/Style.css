@@ -50,12 +50,16 @@ body {
 }
 .footer-LuftDocs {
     margin-top: 0rem;
-    padding-top: 0rem;
+    padding-top: 10px;
     padding-bottom: 1.5rem;
     text-align: center;
     box-shadow: 0 -2px 10px var(--theme-shadow);
 }
 
+.footer-LuftDocs p {
+    margin: 0;
+    padding: 0;
+}
 /* =================================================================== */
 /* === LOGO INTERATIVO E ANIMADO === */
 /* =================================================================== */
