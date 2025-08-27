@@ -126,6 +126,9 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Ignorar a pasta de dados
+DATA/
+
 # Environments
 .env
 .venv
@@ -186,7 +189,6 @@ _DEVTOOLS/
 
 # Ruff stuff:
 .ruff_cache/
-DATA/
 
 # PyPI configuration file
 .pypirc
