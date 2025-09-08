@@ -63,6 +63,22 @@ def _populate_user_session(user_data_api):
 
     return True
 
+'''
+### Validação de Usuário por Credenciais com Código de Usuario
+def validate_user_by_credentials():
+    # Pega os dois parâmetros da URL
+    user_name = request.args.get('user_name', '').strip()
+    codigo_usuario = request.args.get('codigo_usuario', '').strip() # <-- Adicionado
+
+    # Valida se ambos foram fornecidos
+    if not user_name or not codigo_usuario: # <-- Modificado
+        return False
+    
+    # Passa os dois argumentos na ordem correta definida no config.py
+    user_data = get_user_by_credentials(user_name, codigo_usuario) # <-- Modificado
+    
+    return _populate_user_session(user_data)
+'''
 
 def validate_user_by_credentials():
     user_name = request.args.get('user_name', '').strip()
@@ -70,7 +86,6 @@ def validate_user_by_credentials():
         return False
     user_data = get_user_by_credentials(user_name)
     return _populate_user_session(user_data)
-
 
 def validate_user_by_token():
     token_raw = request.args.get('token', '').strip()

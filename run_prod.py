@@ -1,23 +1,17 @@
-from waitress import serve
-from App import app # Garanta que 'app' é a instância do Flask no seu arquivo app.py
-
 # run_prod.py
-# Este script inicia o servidor de produção usando Waitress
-local = False
+from waitress import serve
+try:
+    # Se seu arquivo é app.py, use "from app import app"
+    from app import app
+except ImportError:
+    # Se você REALMENTE tem App.py / pacote App, deixe esta linha:
+    from App import app
 
-def localhost():
-    if local:
-        host = 'localhost'
-    else:
-        host = '172.16.200.80'
-    return host
+import os
+
+HOST = os.getenv("LUFTDOCS_HOST", "127.0.0.1")  # loopback para Nginx
+PORT = int(os.getenv("LUFTDOCS_PORT", "8001"))
 
 if __name__ == "__main__":
-    # Define o host e a porta para o servidor de produção
-    host = localhost()
-    port = 8001
-
-    print(f"INFO: Iniciando servidor Waitress em http://{host}:{port}")
-    
-    # Inicia a aplicação 'app' usando o servidor Waitress
-    serve(app, host=host, port=port)
+    print(f"INFO: Iniciando servidor Waitress em http://{HOST}:{PORT}")
+    serve(app, host=HOST, port=PORT, threads=100)

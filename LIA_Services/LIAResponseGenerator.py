@@ -53,14 +53,14 @@ DOCUMENTOS:
 
     try:
         # Usamos um modelo poderoso para esta tarefa de raciocínio.
-        print("Usando Groq (Llama 3 70b) como reranker...")
+        print("Usando Groq (Llama 3.3 70b) como reranker...")
         groq_client = get_client('groq_client')
         if not groq_client:
             raise ConnectionError("Cliente Groq não disponível para re-ranking.")
 
         chat_completion = groq_client.chat.completions.create(
             messages=[{"role": "user", "content": reranker_prompt}],
-            model="llama3-70b-8192",
+            model="llama-3.3-70b-versatile", # <-- NOVA CORREÇÃO 1
             temperature=0.0, # Baixa temperatura para uma resposta focada e determinística
         )
         response_text = chat_completion.choices[0].message.content
@@ -71,7 +71,7 @@ DOCUMENTOS:
 
         print(f"Ordem de relevância definida pelo reranker: {[i+1 for i in ranked_indices]}")
 
-        # Pega os 3 melhores documentos, conforme a ordem do reranker
+        # Pega os 4 melhores documentos, conforme a ordem do reranker
         top_k = 4
         final_docs = []
         final_metas = []
@@ -105,11 +105,13 @@ def generate_llm_answer(model_name, context, question):
     """Gera uma resposta usando o modelo de linguagem selecionado e o contexto já refinado."""
     human_prompt = f"**Contexto da Documentação:**\n{context}\n\n**Pergunta do Usuário:** \"{question}\""
     answer = ""
+    
+    print(f"Gerando resposta com {model_name}...")
 
     if model_name == 'groq-70b':
-        print("Gerando resposta com Groq (Llama 3 70b - Poderoso)...")
+        print("Gerando resposta com Groq (Llama 3.3 70b - Poderoso)...")
         groq_client = get_client('groq_client')
-        chat_completion = groq_client.chat.completions.create(messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": human_prompt}], model="llama3-70b-8192")
+        chat_completion = groq_client.chat.completions.create(messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": human_prompt}], model="llama-3.3-70b-versatile") # <-- NOVA CORREÇÃO 2
         answer = chat_completion.choices[0].message.content
 
     elif model_name == 'kimi':
@@ -139,12 +141,6 @@ def generate_llm_answer(model_name, context, question):
 
     else:
         raise ValueError(f"Modelo '{model_name}' inválido ou não configurado.")
-    
-    # Placeholder para a lógica de chamada de modelo
-    print(f"Gerando resposta com {model_name}...")
-    groq_client = get_client('groq_client') # Exemplo
-    chat_completion = groq_client.chat.completions.create(messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": human_prompt}], model="llama3-70b-8192")
-    answer = chat_completion.choices[0].message.content
     
     return _force_image_formatting(answer)
 

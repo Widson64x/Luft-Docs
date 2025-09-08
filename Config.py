@@ -3,11 +3,6 @@ from pathlib import Path
 # o 'import os' não é mais necessário para as URLs, mas pode ser usado por outras partes do projeto.
 import os 
 
-# -----------------------------------------------------------------------------
-# AVISO DE SEGURANÇA: As chaves abaixo estão diretamente no código.
-# NUNCA envie este arquivo para um repositório público (GitHub, GitLab, etc.).
-# -----------------------------------------------------------------------------
-
 # --- CHAVES DAS APIS DE IA (HARDCODED) ---
 AI_KEYS = {
     'GEMINI_API_KEY': 'AIzaSyCq_L0tTa6nFZOlStwfcZJBkb2kkhRzys8',
@@ -21,9 +16,9 @@ ACTIVE_ENVIRONMENT = 'real'  # Opções: 'local', 'render', 'real'
 
 # URLs para os diferentes ambientes
 _URLS = {
-    'local': "http://localhost:8000/api",
+    'local': "http://localhost:5000/api",
     'render': "https://api-wikidocs.onrender.com/api",
-    'real': "http://172.16.200.80:8005/api"
+    'real': "http://172.16.200.80:9002/api"
 }
 
 # Define a URL da API com base no ambiente ativo
@@ -51,7 +46,8 @@ TOP_MOST_ACCESSED = 7
 TOP_MOST_SEARCHED = 7
 
 # Parâmetros da API de usuário
-USER_API_CREDENTIAL_PARAMS = ["login_usuario"]
+# passados para get_user_by_credentials
+USER_API_CREDENTIAL_PARAMS = ["login_usuario", "codigo_usuario"] 
 USER_API_TOKEN_PARAMS = ["token"]
 
 # Configuração do SQLite
