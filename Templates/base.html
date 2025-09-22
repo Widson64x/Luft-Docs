@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Themes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Lia_Chat.css') }}">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ctrlk.css') }}">
     {% block page_styles %}{% endblock %}
 </head>
 <body {% if modulo %}data-modulo-id="{{ modulo.id }}"{% endif %}>
@@ -97,7 +97,7 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="visuais">
                             <form id="formVisuais" class="row g-4">
-                                <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="dark">Escuro</option><option value="luft">Luft</option><option value="auto">Automático</option></select></div>
+                                <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="luft">Luft</option><option value="dark">Escuro</option><option value="emerald">Esmeralda</option><option value="auto">Automático</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="fontSize" class="form-label">Tamanho da Fonte</label><select id="fontSize" class="form-select"><option value="0.85rem">Pequena</option><option value="1rem">Média</option><option value="1.15rem">Grande</option><option value="1.3rem">Extra Grande</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="selectAnimacao" class="form-label">Animação de Fundo</label><select id="selectAnimacao" class="form-select"><option value="colisao">Nova</option><option value="original">Clássica</option></select></div>
                                 <div class="col-md-6"><label for="rangeQuantidade" class="form-label">(BETA) Ícones: <span id="labelQuantidade">50</span></label><input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade"></div>
@@ -299,6 +299,32 @@
     </div>
     </div>
 
+  <!-- ⌨️ Command Palette -->
+  <div id="kp-backdrop" class="kp-backdrop" aria-hidden="true">
+    <div role="dialog" aria-modal="true" aria-labelledby="kp-title" class="kp-dialog">
+      <div class="kp-header">
+        <h3 id="kp-title">Busca e Acessos Rápidos</h3>
+        <span class="kp-hint"><kbd>Ctrl/Cmd + K</kbd> • <kbd>Esc</kbd> fecha</span>
+      </div>
+
+      <div class="kp-input-wrap">
+        <input id="kp-input" type="text" placeholder="Digite para buscar…"
+               autocomplete="off" spellcheck="false" />
+        <button id="kp-close" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+
+      <!-- Chips (pesquisas populares) -->
+      <div id="kp-chips" class="kp-chips" hidden></div>
+
+      <!-- Seções rápidas: Mais acessados / Recomendados -->
+      <div id="kp-sections" class="kp-sections"></div>
+
+      <!-- Resultados -->
+      <ul id="kp-results" class="kp-results" role="listbox" aria-label="Resultados"></ul>
+      <div id="kp-empty" class="kp-empty" hidden>Nada por aqui ainda…</div>
+    </div>
+  </div>
+
     {% endif %}
 
     {% block scripts %}
@@ -306,7 +332,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.5/viewer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
+
     <script>
         const LIA_API_URLS = {
             get_modules: "{{ url_for('ia_bp.get_modules_list') }}",
@@ -398,7 +424,11 @@
     <script src="{{ url_for('static', filename='js/lia_chat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lia_proactive_assistant.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    
+    <script>
+        // base da API (ajuste se seu blueprint NÃO estiver em /search)
+        window.__LUFT_SEARCH_BASE__ = "/search";
+    </script>
+    <script src="{{ url_for('static', filename='js/ctrlk.js') }}"></script>
     {% endblock %}
 </body>
 </html>

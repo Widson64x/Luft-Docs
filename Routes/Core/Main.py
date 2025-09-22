@@ -8,6 +8,7 @@ import os
 from Utils.data.module_utils import carregar_modulos_aprovados
 from Utils.auth.auth_utils import authenticate_initial_request, logout_user, login_required
 from Utils.permissions_config import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
+from Config import IMAGES_DIR, VIDEOS_DIR
 
 # 1. Importe o objeto 'db' e o novo modelo 'BugReport'
 from models import db, BugReport
@@ -25,12 +26,12 @@ def inject_global_permissions():
 
 @index_bp.route('/data/img/<path:nome_arquivo>')
 def serve_imagem_dinamica(nome_arquivo):
-    caminho_base = os.path.join(current_app.root_path, 'data', 'img')
+    caminho_base = IMAGES_DIR 
     return send_from_directory(caminho_base, nome_arquivo)
 
 @index_bp.route('/data/videos/<path:nome_arquivo>')
 def serve_video(nome_arquivo):
-    caminho_base = os.path.join(current_app.root_path, 'data', 'videos')
+    caminho_base = VIDEOS_DIR 
     return send_from_directory(caminho_base, nome_arquivo)
 
 @index_bp.route('/', methods=['GET'])

@@ -3,6 +3,7 @@
 from flask import Blueprint, send_from_directory, current_app, request, abort, session
 import os
 from Utils.auth.auth_utils import login_required
+from Config import DOCS_DOWNLOAD_DIR
 
 # Registre este blueprint em app.py com url_prefix='/download'
 download_bp = Blueprint('download', __name__)
@@ -23,7 +24,7 @@ def download_pela_raiz():
         abort(400, "Nome de arquivo inválido")
 
     # 3) Monta caminho para data/downloads/docs
-    pasta_download = os.path.join(current_app.root_path, 'data', 'downloads', 'docs')
+    pasta_download = DOCS_DOWNLOAD_DIR
     if not os.path.isdir(pasta_download):
         current_app.logger.error(f"Pasta de downloads não existe: {pasta_download}")
         abort(500, "Erro de configuração do servidor")

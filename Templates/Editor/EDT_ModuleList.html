@@ -60,11 +60,13 @@
             {# Bloco 1: Mostra os badges de ID e status/versão #}
             <div class="d-flex align-items-center gap-2">
               <span class="module-badge module-id-badge">ID: {{ m.id }}</span>
+              
               {% if m.status == 'pendente' %}
                 <span class="module-badge module-status-badge">Pendente</span>
-              {% elif last_event %}
+              
+              {% elif m.current_version %}  {# Verifica se a versão atual existe #}
                 <span class="module-badge module-version-badge">
-                  <i class="bi bi-tag"></i> v{{ last_event.version }}
+                  <i class="bi bi-tag"></i> v{{ m.current_version }} {# Usa o dado diretamente #}
                 </span>
               {% endif %}
             </div>

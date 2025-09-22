@@ -19,8 +19,7 @@ from models import db, Modulo, PalavraChave, HistoricoEdicao
 from Utils.data.module_utils import get_modulo_by_id, carregar_modulos
 # Importa a função de verificação de permissão refatorada
 from Routes.API.Permissions import check_permission as has_perm
-from Config import DATA_DIR, BASE_DIR
-
+from Config import DATA_DIR, BASE_DIR, IMAGES_DIR, VIDEOS_DIR, ICONS_FILE, DOCS_DOWNLOAD_DIR
 editor_bp = Blueprint('editor', __name__, url_prefix='/editor')
 
 
@@ -232,7 +231,7 @@ def delete_modulo(mid):
 
         mod_path = os.path.join(DATA_DIR, mid)
         if os.path.isdir(mod_path): shutil.rmtree(mod_path)
-        img_path = os.path.join(BASE_DIR, 'data', 'img', mid)
+        img_path  = IMAGES_DIR / mid
         if os.path.isdir(img_path): shutil.rmtree(img_path)
 
         flash(f"Módulo {mid} deletado com sucesso!", "success")
@@ -415,7 +414,7 @@ def editor_options():
     modules_db = Modulo.query.with_entities(Modulo.id, Modulo.nome).order_by(Modulo.nome).all()
     modules = [{'id': row.id, 'nome': row.nome} for row in modules_db]
 
-    icons_file = os.path.join(BASE_DIR, 'data', 'icons.json')
+    icons_file = ICONS_FILE
     try:
         with open(icons_file, 'r', encoding='utf-8') as f:
             icons = json.load(f)
@@ -433,7 +432,7 @@ def upload_image(modulo_id):
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']: return jsonify({'error': 'Formato não suportado'}), 400
 
-    dest_dir = os.path.join(BASE_DIR, 'data', 'img', modulo_id)
+    dest_dir  = IMAGES_DIR / modulo_id
     os.makedirs(dest_dir, exist_ok=True)
     i = 1
     while True:
@@ -452,7 +451,7 @@ def upload_video(modulo_id):
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ['.mp4', '.webm', '.ogg']: return jsonify({'error': 'Formato de vídeo não suportado'}), 400
 
-    dest_dir = os.path.join(BASE_DIR, 'data', 'videos', modulo_id)
+    dest_dir  = VIDEOS_DIR / modulo_id
     os.makedirs(dest_dir, exist_ok=True)
     filename = secure_filename(file.filename)
     file_path = os.path.join(dest_dir, filename)
@@ -464,7 +463,7 @@ def upload_anexo():
     if 'file' not in request.files: return jsonify({'error': 'Nenhum arquivo enviado'}), 400
     file = request.files['file']
     filename = secure_filename(file.filename)
-    dest_folder = os.path.join(BASE_DIR, 'data', 'downloads', 'docs')
+    dest_folder = DOCS_DOWNLOAD_DIR
     os.makedirs(dest_folder, exist_ok=True)
     file_path = os.path.join(dest_folder, filename)
     file.save(file_path)

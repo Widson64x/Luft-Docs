@@ -54,7 +54,22 @@ def carregar_modulos():
     """Carrega todos os módulos e palavras-chave globais do banco de dados usando o ORM."""
     # Carregar módulos
     modulos_obj = Modulo.query.all()
-    modulos = [_format_modulo_to_dict(mod) for mod in modulos_obj]
+    
+    # Converte cada objeto Modulo em um dicionário, incluindo a 'current_version'
+    modulos = []
+    for mod in modulos_obj:
+        # Assumindo que seu objeto 'mod' tenha os atributos .id, .nome, etc.
+        # e também o .current_version que você quer exibir.
+        modulos.append({ # Cria um dicionário aninhado para cada módulo
+            'id': mod.id,
+            'nome': mod.nome,
+            'descricao': mod.descricao,
+            'icone': mod.icone,
+            'status': mod.status,   
+            'current_version': mod.current_version,  # Inclui a versão atual
+            'edit_history': mod.edit_history, # Mantenha os outros campos necessários
+            'pending_edit_info': mod.pending_edit_info
+        })
     
     # Carregar palavras globais
     palavras_globais_obj = PalavraGlobal.query.all()

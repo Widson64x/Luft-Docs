@@ -5,6 +5,8 @@ import uuid
 from flask import Blueprint, jsonify, request, session
 from LIA_Services.Services import Context_Service, Feedback_Service
 from Utils.auth.auth_utils import login_required
+from Config import MODULES_DIR
+
 
 # --- IMPORTAÇÕES DOS SERVIÇOS DE IA ---
 from LIA_Services import LIAResponseGenerator
@@ -17,7 +19,7 @@ ia_bp = Blueprint('ia_bp', __name__)
 def get_available_modules():
     """Verifica o diretório data/modules e retorna uma lista com os nomes dos módulos."""
     try:
-        modules_path = os.path.join("data", "modules")
+        modules_path = str(MODULES_DIR)
         if not os.path.exists(modules_path):
             print("AVISO: Diretório 'data/modules' não encontrado.")
             return []

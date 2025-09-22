@@ -81,10 +81,10 @@ def validate_user_by_credentials():
 '''
 
 def validate_user_by_credentials():
-    user_name = request.args.get('user_name', '').strip()
-    if not user_name:
+    login_hash = request.args.get('login_hash', '').strip() # <--- Altere aqui para 'login_hash'
+    if not login_hash:
         return False
-    user_data = get_user_by_credentials(user_name)
+    user_data = get_user_by_credentials(login_hash)         # <--- Passe a nova variável
     return _populate_user_session(user_data)
 
 def validate_user_by_token():

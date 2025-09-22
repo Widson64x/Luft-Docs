@@ -244,3 +244,157 @@ body.theme-luft {
     --menu-glass-text-hover: var(--theme-primary-btn);
     --menu-glass-hover-bg: rgba(0, 0, 0, 0.05);
 }
+
+/* --- TEMA EMERALD (clean & produtivo) --- */
+body.theme-emerald {
+    /* Cores Globais */
+    --theme-bg: #F1FAF5;
+    --theme-text: #103329;
+    --theme-text-secondary: #4B6358;
+    --theme-surface: #FFFFFF;
+    --theme-surface-text: #0E2A22;
+    --theme-surface-hover: #E6F4EF;
+    --theme-accent: #10B981; /* Emerald */
+    --theme-accent-bg-light: rgba(16, 185, 129, 0.12);
+    --theme-border: #CDE9DD;
+    --theme-shadow: 0 4px 16px rgba(16, 185, 129, 0.12);
+
+    /* Destaques */
+    --theme-primary-btn: #10B981;
+    --theme-primary-btn-text: #052E1A;
+    --theme-primary-btn-bg-light: rgba(16, 185, 129, 0.12);
+    --theme-primary-btn-bg-subtle: rgba(16, 185, 129, 0.08);
+
+    --theme-secondary-accent: #0EA5A3; /* Teal */
+    --theme-secondary-accent-bg-light: rgba(14, 165, 160, 0.15);
+
+    /* Gradientes / Efeitos */
+    --theme-bg-gradient-start: #D1FAE5;
+    --theme-bg-gradient-end: #ECFEFF;
+    --theme-accent-glow: rgba(16, 185, 129, 0.35);
+    --ripple-color: rgba(16, 185, 129, 0.20);
+
+    /* LIA AI */
+    --lia-grad-1: #0EA5A3;
+    --lia-grad-2: #10B981;
+    --lia-bg-color: #EAF7F2;
+    --lia-surface-color: rgba(255, 255, 255, 0.6);
+    --lia-glow-color: #10B981;
+    --lia-border-color: rgba(16, 185, 129, 0.22);
+
+    /* Formulários/Componentes */
+    --placeholder-color: #6c757d;
+    --panel-header-bg: #DDF3EB;
+    --diff-deletion-bg: #FFE6E6;
+    --diff-insertion-bg: #E6FFEE;
+    --theme-color-success: #16A34A;
+    --theme-color-warning: #F59E0B;
+    --theme-color-primary: #10B981;
+    --theme-color-danger: #DC2626;
+    --theme-color-info: #06B6D4;
+    --input-readonly-bg: #E6F4EF;
+    --form-focus-border-color: #10B981;
+    --form-focus-shadow: 0 0 0 0.25rem rgba(16, 185, 129, .25);
+    --highlight-bg: #A7F3D0;
+    --highlight-text: #0F172A;
+    --scrollbar-thumb-color: #BFDCD0;
+    --scrollbar-thumb-hover-color: #9CC5B3;
+    --table-text-override: #FFFFFF;
+    --table-bg-override: #065F46; /* cabeçalho de tabela verde escuro */
+    --card-hover-shadow: 0 8px 32px rgba(16, 185, 129, 0.22);
+
+    /* Mapa de Módulos */
+    --graph-bg: #F7FBF9;
+    --graph-nebula-color: rgba(16, 185, 129, 0.08);
+    --graph-link-color: rgba(54, 83, 70, 0.5);
+    --graph-node-stroke: #CFE7DD;
+    --graph-node-label-fill: #0E2A22;
+    --graph-node-label-stroke: #F7FBF9;
+    --graph-icon-color: #FFFFFF;
+
+    /* UI (Tooltip, Menu) */
+    --tooltip-bg: var(--theme-surface);
+    --tooltip-border: var(--theme-border);
+    --menu-glass-bg: rgba(255, 255, 255, 0.8);
+    --menu-glass-border: rgba(0, 0, 0, 0.08);
+    --menu-glass-text: var(--theme-text);
+    --menu-glass-text-hover: var(--theme-primary-btn);
+    --menu-glass-hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* --- TEMA SUNSET (quente & vibrante) --- */
+body.theme-sunset {
+    /* Cores Globais */
+    --theme-bg: #FFF7ED; /* pêssego claro */
+    --theme-text: #3A2417;
+    --theme-text-secondary: #6B4B3A;
+    --theme-surface: #FFFFFF;
+    --theme-surface-text: #3A2417;
+    --theme-surface-hover: #FFEEDA;
+    --theme-accent: #F97316; /* Orange 500 */
+    --theme-accent-bg-light: rgba(249, 115, 22, 0.12);
+    --theme-border: #F2D5C3;
+    --theme-shadow: 0 4px 16px rgba(249, 115, 22, 0.10);
+
+    /* Destaques */
+    --theme-primary-btn: #F97316;
+    --theme-primary-btn-text: #2C0F00;
+    --theme-primary-btn-bg-light: rgba(249, 115, 22, 0.12);
+    --theme-primary-btn-bg-subtle: rgba(249, 115, 22, 0.06);
+
+    --theme-secondary-accent: #FB7185; /* Rose 400 */
+    --theme-secondary-accent-bg-light: rgba(251, 113, 133, 0.16);
+
+    /* Gradientes / Efeitos */
+    --theme-bg-gradient-start: #FFF1E6;
+    --theme-bg-gradient-end: #FFE4E6;
+    --theme-accent-glow: rgba(249, 115, 22, 0.35);
+    --ripple-color: rgba(251, 113, 133, 0.22);
+
+    /* LIA AI */
+    --lia-grad-1: #F97316;
+    --lia-grad-2: #FB7185;
+    --lia-bg-color: #FFEFE6;
+    --lia-surface-color: rgba(255, 255, 255, 0.6);
+    --lia-glow-color: #FB7185;
+    --lia-border-color: rgba(249, 115, 22, 0.22);
+
+    /* Formulários/Componentes */
+    --placeholder-color: #7b6a61;
+    --panel-header-bg: #FFE3D1;
+    --diff-deletion-bg: #FFE0E0;
+    --diff-insertion-bg: #E8FFE8;
+    --theme-color-success: #22C55E;
+    --theme-color-warning: #F59E0B;
+    --theme-color-primary: #F97316;
+    --theme-color-danger: #E11D48;
+    --theme-color-info: #38BDF8;
+    --input-readonly-bg: #FFEADA;
+    --form-focus-border-color: #FB7185;
+    --form-focus-shadow: 0 0 0 0.25rem rgba(251, 113, 133, .25);
+    --highlight-bg: #FDE68A;
+    --highlight-text: #1F2937;
+    --scrollbar-thumb-color: #F1C9B2;
+    --scrollbar-thumb-hover-color: #E7B69A;
+    --table-text-override: #FFFFFF;
+    --table-bg-override: #7C2D12; /* marrom queimado */
+    --card-hover-shadow: 0 8px 32px rgba(251, 113, 133, 0.22);
+
+    /* Mapa de Módulos */
+    --graph-bg: #FFF9F4;
+    --graph-nebula-color: rgba(249, 115, 22, 0.08);
+    --graph-link-color: rgba(107, 75, 58, 0.5);
+    --graph-node-stroke: #F4D7C6;
+    --graph-node-label-fill: #3A2417;
+    --graph-node-label-stroke: #FFF9F4;
+    --graph-icon-color: #FFFFFF;
+
+    /* UI (Tooltip, Menu) */
+    --tooltip-bg: var(--theme-surface);
+    --tooltip-border: var(--theme-border);
+    --menu-glass-bg: rgba(255, 255, 255, 0.82);
+    --menu-glass-border: rgba(0, 0, 0, 0.08);
+    --menu-glass-text: var(--theme-text);
+    --menu-glass-text-hover: var(--theme-primary-btn);
+    --menu-glass-hover-bg: rgba(0, 0, 0, 0.05);
+}

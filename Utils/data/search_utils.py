@@ -3,6 +3,7 @@ import os
 import re
 from flask import current_app
 from Utils.data.module_utils import carregar_modulos, carregar_markdown, carregar_markdown_tecnico
+from Config import GLOBAL_DATA_DIR
 
 # Lista de pastas de submódulos com acesso restrito.
 RESTRICTED_SUBMODULE_FOLDERS = ['Integradores']
@@ -108,7 +109,7 @@ def search_all_documents(query: str, token: str, module_filter: str = None, can_
 
     # 2. Busca Dinâmica nos Submódulos Globais
     if not module_filter:
-        global_path = os.path.join(current_app.root_path, 'data', 'global')
+        global_path = GLOBAL_DATA_DIR
         for root, _, files in os.walk(global_path):
             
             if not can_view_tecnico:

@@ -3,9 +3,10 @@
 import re
 import markdown
 from pathlib import Path
+from Config import GLOBAL_DATA_DIR
 
 # Define o diretório base para submódulos para reuso e clareza.
-GLOBAL_DATA_DIR = Path('data', 'global')
+GLOBAL_DATA_DIR = GLOBAL_DATA_DIR  # ou remova a definição local
 
 def parser_wikilinks(conteudo_md, modulos, palavras_globais):
     """

@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     const applyTheme = (theme) => {
         // Primeiro, remove todas as classes de tema para garantir um estado limpo
-        body.classList.remove('theme-light', 'theme-dark', 'theme-luft');
+        body.classList.remove('theme-light', 'theme-dark', 'theme-luft', 'theme-sunset', 'theme-emerald');
     
         let finalTheme = theme;
     
