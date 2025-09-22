@@ -111,10 +111,8 @@ FLASK_RESPONSE_SIZE = Histogram(
 FLASK_APP_INFO = Info("flask_app_info", "Informações da aplicação")
 FLASK_APP_INFO.info({"app_name": APP_NAME, "env": APP_ENV, "version": APP_VERSION})
 
-@app.route("/health")
-def health():
-    return "ok", 200
 
+    
 def _route_template() -> str:
     """Retorna o template da rota (ex.: '/api/<id>') ou o path literal."""
     try:
@@ -196,6 +194,10 @@ def _teardown(exc: Optional[BaseException]):
 def metrics():
     return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
+@app.route("/healthz")
+def healthz():
+    return {"status": "OK", "app": APP_NAME, "env": APP_ENV, "version": APP_VERSION}, 200
+    
 # ---------------------------------------
 # Configuração de Banco (PostgreSQL)
 # ---------------------------------------
@@ -278,5 +280,5 @@ def health():
 # MAIN (dev)
 # ---------------------------------------
 if __name__ == "__main__":
-    # Ajuste PORT para casar com seu Nginx/upstream (ex.: 9001)
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "9001")), debug=True)
+    # Ajuste PORT para casar com seu Nginx/upstream (ex.: 9100)
+    app.run(host="127.0.0.1", port=int(os.getenv("PORT", "9100")), debug=True)
