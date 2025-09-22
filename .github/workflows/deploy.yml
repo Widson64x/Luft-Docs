@@ -1,18 +1,56 @@
-name: Deploy to .80 on push
+name: Deploy LuftDocs Web
 
 on:
+  workflow_dispatch:    # permite rodar manual
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: [ "main" ]
+    paths:
+      - "LuftDocs_Web/**"
+      - "deploy.ps1"
+      - ".github/workflows/deploy.yml"
+
+concurrency:
+  group: luftdocs-web
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+
     steps:
-      - name: Deploy LuftDocs
-        shell: pwsh
+      - name: Checkout (opcional)
+        uses: actions/checkout@v4
+
+      - name: Quem sou eu
+        shell: powershell
+        run: whoami
+
+      - name: Rodar deploy.ps1 (máquina de produção)
+        shell: powershell
         run: |
-          & "C:\ProjetosPython\LuftDocs\deploy.ps1" `
-            -AppDir "C:\ProjetosPython\LuftDocs\LuftDocs_Web" `
-            -ServiceName "LuftDocs" `
-            -HealthUrl "http://127.0.0.1:9001/health"
+          & powershell -NoProfile -ExecutionPolicy Bypass -File "C:\ProjetosPython\LuftDocs\deploy.ps1"
+
+      - name: Health backend (9100)
+        shell: powershell
+        run: |
+          $r = Invoke-WebRequest -Uri 'http://127.0.0.1:9100/healthz' -TimeoutSec 10
+          "Status backend: $($r.StatusCode) $($r.StatusDescription)"
+          $r.Content
+
+      - name: Health via Nginx (9004)
+        shell: powershell
+        run: |
+          $r = Invoke-WebRequest -Uri 'http://172.16.200.80:9004/health' -TimeoutSec 10
+          "Status nginx: $($r.StatusCode) $($r.StatusDescription)"
+          $r.Content
+
+      - name: Anexar logs do serviço
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: luftdocs-logs
+          path: |
+            C:\ProjetosPython\LuftDocs\logs\stdout.log
+            C:\ProjetosPython\LuftDocs\logs\stderr.log
+          if-no-files-found: warn
