@@ -14,7 +14,7 @@ import logging
 from urllib.parse import quote_plus
 from typing import Optional
 
-from flask import Flask, g, request
+from flask import Flask, g, request, Response
 from flask.cli import with_appcontext
 # from flask_migrate import Migrate  # habilite se for usar migrations
 import click
@@ -55,10 +55,21 @@ APP_NAME    = os.getenv("APP_NAME", "luftdocs_web")
 APP_ENV     = os.getenv("APP_ENV", "dev")
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 
+# =============================== PREFIXO ===============================
+# >>> Prefixo OBRIGATÓRIO para TODAS as rotas da aplicação <<<
+BASE_PREFIX = "/luft-docs"
+
 # ================================ APP =================================
-app = Flask(__name__)
+# Estáticos sob /luft-docs/static
+app = Flask(
+    __name__,
+    static_folder="static",
+    static_url_path=f"{BASE_PREFIX}/static"
+)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "CHANGE-ME")
 app.config["SESSION_PERMANENT"] = False
+# Escopo de cookie limitado ao prefixo (evita colisão com outros apps no mesmo domínio)
+app.config["SESSION_COOKIE_PATH"] = BASE_PREFIX
 
 # --------------------------- PROMETHEUS -------------------------------
 # Buckets de latência (ajuste conforme seus SLOs)
@@ -111,8 +122,6 @@ FLASK_RESPONSE_SIZE = Histogram(
 FLASK_APP_INFO = Info("flask_app_info", "Informações da aplicação")
 FLASK_APP_INFO.info({"app_name": APP_NAME, "env": APP_ENV, "version": APP_VERSION})
 
-
-    
 def _route_template() -> str:
     """Retorna o template da rota (ex.: '/api/<id>') ou o path literal."""
     try:
@@ -130,16 +139,16 @@ def _status_class(code: int) -> str:
 @app.before_request
 def _before():
     # Não medir o próprio /metrics para evitar loops
-    if request.path == "/metrics":
+    if request.path == f"{BASE_PREFIX}/metrics":
         return
     g._t0 = time.perf_counter()
     path = _route_template()
     FLASK_REQUEST_INPROGRESS.labels(APP_NAME, request.method, path).inc()
 
 @app.after_request
-def _after(response):
+def _after(response: Response):
     try:
-        if request.path != "/metrics":
+        if request.path != f"{BASE_PREFIX}/metrics":
             dt = time.perf_counter() - getattr(g, "_t0", time.perf_counter())
             path = _route_template()
             method = request.method
@@ -165,7 +174,7 @@ def _after(response):
             # Header auxiliar p/ debug (não influencia as métricas)
             response.headers["X-Process-Time-ms"] = f"{dt * 1000:.2f}"
     finally:
-        if request.path != "/metrics":
+        if request.path != f"{BASE_PREFIX}/metrics":
             path = _route_template()
             FLASK_REQUEST_INPROGRESS.labels(APP_NAME, request.method, path).dec()
     return response
@@ -173,7 +182,7 @@ def _after(response):
 @app.teardown_request
 def _teardown(exc: Optional[BaseException]):
     # Se uma exceção não tratada ocorreu, contabilizamos como 5xx
-    if exc is not None and request.path != "/metrics":
+    if exc is not None and request.path != f"{BASE_PREFIX}/metrics":
         try:
             path = _route_template()
             method = request.method
@@ -189,15 +198,7 @@ def _teardown(exc: Optional[BaseException]):
         except Exception:
             pass
 
-# Endpoint /metrics (Prometheus)
-@app.route("/metrics")
-def metrics():
-    return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
-@app.route("/healthz")
-def healthz():
-    return {"status": "OK", "app": APP_NAME, "env": APP_ENV, "version": APP_VERSION}, 200
-    
 # ---------------------------------------
 # Configuração de Banco (PostgreSQL)
 # ---------------------------------------
@@ -254,27 +255,39 @@ def init_db_command():
 app.cli.add_command(init_db_command)
 
 # ---------------------------------------
-# Blueprints
+# Blueprints (TODOS sob BASE_PREFIX)
 # ---------------------------------------
 app.context_processor(inject_global_permissions)
-app.register_blueprint(index_bp)
-app.register_blueprint(modulo_bp, url_prefix="/modulo")
-app.register_blueprint(submodulo_bp, url_prefix="/submodule")
-app.register_blueprint(download_bp, url_prefix="/download")
-app.register_blueprint(editor_bp, url_prefix="/editor")
-app.register_blueprint(permissions_bp, url_prefix="/permissions")
-app.register_blueprint(search_bp, url_prefix="/search")
-app.register_blueprint(api_bp, url_prefix="/api")
-app.register_blueprint(roteiros_bp)
-app.register_blueprint(ia_bp)
-app.register_blueprint(evaluation_bp)
 
-# ---------------------------------------
-# Health check
-# ---------------------------------------
-@app.route("/healthz")
-def health():
-    return {"status": "OK", "app": APP_NAME, "env": APP_ENV, "version": APP_VERSION}
+def p(suffix: str) -> str:
+    """Concatena BASE + sufixo garantindo barra única."""
+    if not suffix.startswith("/"): suffix = "/" + suffix
+    return (BASE_PREFIX + suffix).replace("//", "/")
+
+# Blueprints SEM url_prefix interno -> definimos subpaths explícitos sob BASE_PREFIX
+app.register_blueprint(index_bp,       url_prefix=p("/"))
+app.register_blueprint(modulo_bp,      url_prefix=p("/modulo"))
+app.register_blueprint(submodulo_bp,   url_prefix=p("/submodule"))
+app.register_blueprint(download_bp,    url_prefix=p("/download"))
+app.register_blueprint(editor_bp,      url_prefix=p("/editor"))
+app.register_blueprint(permissions_bp, url_prefix=p("/permissions"))
+app.register_blueprint(search_bp,      url_prefix=p("/search"))
+app.register_blueprint(api_bp,         url_prefix=p("/api"))               # /luft-docs/api
+app.register_blueprint(roteiros_bp,    url_prefix=p("/api/roteiros"))      # /luft-docs/api/roteiros
+app.register_blueprint(ia_bp,          url_prefix=p("/lia"))
+app.register_blueprint(evaluation_bp,  url_prefix=p("/evaluation"))
+
+
+# Endpoint /metrics (Prometheus) — AGORA com prefixo
+@app.route(p("/metrics"))
+def metrics():
+    return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
+
+# Health check — AGORA com prefixo
+@app.route(p("/metrics"))
+def healthz():
+    return {"status": "OK", "app": APP_NAME, "env": APP_ENV, "version": APP_VERSION}, 200
+
 
 # ---------------------------------------
 # MAIN (dev)

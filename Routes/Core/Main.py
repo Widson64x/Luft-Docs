@@ -26,13 +26,13 @@ def inject_global_permissions():
 
 @index_bp.route('/data/img/<path:nome_arquivo>')
 def serve_imagem_dinamica(nome_arquivo):
-    caminho_base = IMAGES_DIR 
-    return send_from_directory(caminho_base, nome_arquivo)
+    resp = send_from_directory(IMAGES_DIR, nome_arquivo)
+    # resp.cache_control.max_age = 3600  # opcional
+    return resp
 
 @index_bp.route('/data/videos/<path:nome_arquivo>')
 def serve_video(nome_arquivo):
-    caminho_base = VIDEOS_DIR 
-    return send_from_directory(caminho_base, nome_arquivo)
+    return send_from_directory(VIDEOS_DIR, nome_arquivo)
 
 @index_bp.route('/', methods=['GET'])
 def index():

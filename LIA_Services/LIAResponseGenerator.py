@@ -146,8 +146,8 @@ def generate_llm_answer(model_name, context, question):
 
 def _force_image_formatting(text):
     """Garante que os caminhos de imagem sejam formatados corretamente como Markdown."""
-    processed_text = text.replace('/data/img/', '/data/img/')
-    image_pattern = r'(/data/img/[^\s\)<]+\.(png|jpg|jpeg|gif))'
+    processed_text = text.replace('/luft-docs/data/img/', '/luft-docs/data/img/')
+    image_pattern = r'(/luft-docs/data/img/[^\s\)<]+\.(png|jpg|jpeg|gif))'
     replacement_format = r'\n\n![Imagem do Documento](\1)\n\n'
     final_text = re.sub(image_pattern, replacement_format, processed_text)
     return final_text

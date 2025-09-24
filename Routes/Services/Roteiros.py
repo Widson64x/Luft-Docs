@@ -1,17 +1,21 @@
+# routes/Roteiros.py
 from flask import Blueprint, request, jsonify, session
 from models import db, Roteiro, Modulo, RoteiroAuditLog
 from Utils.auth.auth_utils import login_required
 
-roteiros_bp = Blueprint('roteiros', __name__, url_prefix='/api/roteiros')
+# Blueprint SEM prefixo interno; o app.py define /luft-docs/api/roteiros
+roteiros_bp = Blueprint('roteiros', __name__)
+
 
 def serialize_roteiro(roteiro, include_modulos=False):
-    """Serializa um Roteiro para o front, com datas ISO-8601."""
+    """Serializa um Roteiro para o front, com datas ISO-8601 (via to_dict())."""
     data = roteiro.to_dict()
     if include_modulos:
         data['modulos_vinculados'] = [m.id for m in roteiro.modulos]
     return data
 
-# --- CRIAR ---
+
+# ============== CREATE =======================================================
 @roteiros_bp.route('/', methods=['POST'])
 @login_required
 def criar_roteiro():
@@ -19,8 +23,8 @@ def criar_roteiro():
     if not user_perms.get('can_edit_scripts', False):
         return jsonify({'status': 'error', 'message': 'Acesso negado.'}), 403
 
-    data = request.get_json()
-    if not data or not data.get('titulo') or not data.get('conteudo'):
+    data = request.get_json() or {}
+    if not data.get('titulo') or not data.get('conteudo'):
         return jsonify({'status': 'error', 'message': 'Título e conteúdo são obrigatórios.'}), 400
 
     novo_roteiro = Roteiro(
@@ -28,20 +32,18 @@ def criar_roteiro():
         tipo=data.get('tipo', 'link'),
         conteudo=data['conteudo'],
         icone=data.get('icone'),
-        ordem=data.get('ordem', 0)
+        ordem=data.get('ordem', 0),
     )
     db.session.add(novo_roteiro)
 
-    log_entry = RoteiroAuditLog(
+    db.session.add(RoteiroAuditLog(
         roteiro=novo_roteiro,
         user_id=session.get('user_id'),
         user_name=session.get('user_name'),
         action='CREATE'
-    )
-    db.session.add(log_entry)
+    ))
 
     db.session.commit()
-    # IMPORTANTE: recarrega para trazer created_at/updated_at definidos pelos triggers
     db.session.refresh(novo_roteiro)
 
     return jsonify({
@@ -50,7 +52,8 @@ def criar_roteiro():
         'roteiro': serialize_roteiro(novo_roteiro, include_modulos=True)
     }), 201
 
-# --- VINCULAR A MÓDULOS ---
+
+# ============== LINK TO MODULE(S) ===========================================
 @roteiros_bp.route('/vincular', methods=['POST'])
 @login_required
 def vincular_roteiro_a_modulo():
@@ -58,7 +61,7 @@ def vincular_roteiro_a_modulo():
     if not user_perms.get('can_edit_scripts', False):
         return jsonify({'status': 'error', 'message': 'Acesso negado. Você não tem permissão para vincular roteiros.'}), 403
 
-    data = request.get_json()
+    data = request.get_json() or {}
     roteiro_id = data.get('roteiro_id')
     modulo_ids = data.get('modulo_ids')
 
@@ -75,7 +78,6 @@ def vincular_roteiro_a_modulo():
             roteiro.modulos.append(modulo)
 
     db.session.commit()
-    # updated_at pode ter mudado por causa do UPDATE: recarregar
     db.session.refresh(roteiro)
 
     return jsonify({
@@ -84,14 +86,18 @@ def vincular_roteiro_a_modulo():
         'roteiro': serialize_roteiro(roteiro, include_modulos=True)
     }), 200
 
-# --- OBTER (EDIÇÃO/DETALHE) ---
+
+# ============== READ (DETAIL) ===============================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['GET'])
 @login_required
 def get_roteiro(roteiro_id):
-    roteiro = Roteiro.query.get_or_404(roteiro_id)
+    roteiro = Roteiro.query.get(roteiro_id)
+    if not roteiro:
+        return jsonify({'status': 'error', 'message': 'Roteiro não encontrado.'}), 404
     return jsonify(serialize_roteiro(roteiro, include_modulos=True)), 200
 
-# --- ATUALIZAR ---
+
+# ============== UPDATE =======================================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['PUT'])
 @login_required
 def atualizar_roteiro(roteiro_id):
@@ -99,9 +105,11 @@ def atualizar_roteiro(roteiro_id):
     if not user_perms.get('can_edit_scripts', False):
         return jsonify({'status': 'error', 'message': 'Acesso negado.'}), 403
 
-    roteiro = Roteiro.query.get_or_404(roteiro_id)
-    data = request.get_json() or {}
+    roteiro = Roteiro.query.get(roteiro_id)
+    if not roteiro:
+        return jsonify({'status': 'error', 'message': 'Roteiro não encontrado.'}), 404
 
+    data = request.get_json() or {}
     roteiro.titulo = data.get('titulo', roteiro.titulo)
     roteiro.descricao = data.get('descricao', roteiro.descricao)
     roteiro.tipo = data.get('tipo', roteiro.tipo)
@@ -109,16 +117,14 @@ def atualizar_roteiro(roteiro_id):
     roteiro.icone = data.get('icone', roteiro.icone)
     roteiro.ordem = data.get('ordem', roteiro.ordem)
 
-    log_entry = RoteiroAuditLog(
+    db.session.add(RoteiroAuditLog(
         roteiro_id=roteiro.id,
         user_id=session.get('user_id'),
         user_name=session.get('user_name'),
         action='UPDATE'
-    )
-    db.session.add(log_entry)
+    ))
 
     db.session.commit()
-    # triggers atualizam updated_at -> precisamos recarregar
     db.session.refresh(roteiro)
 
     return jsonify({
@@ -127,7 +133,8 @@ def atualizar_roteiro(roteiro_id):
         'roteiro': serialize_roteiro(roteiro, include_modulos=True)
     }), 200
 
-# --- EXCLUIR ---
+
+# ============== DELETE =======================================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['DELETE'])
 @login_required
 def excluir_roteiro(roteiro_id):
@@ -135,15 +142,16 @@ def excluir_roteiro(roteiro_id):
     if not user_perms.get('can_edit_scripts', False):
         return jsonify({'status': 'error', 'message': 'Acesso negado. Você não tem permissão para excluir roteiros.'}), 403
 
-    roteiro = Roteiro.query.get_or_404(roteiro_id)
+    roteiro = Roteiro.query.get(roteiro_id)
+    if not roteiro:
+        return jsonify({'status': 'error', 'message': 'Roteiro não encontrado.'}), 404
 
-    log_entry = RoteiroAuditLog(
+    db.session.add(RoteiroAuditLog(
         roteiro_id=roteiro.id,
         user_id=session.get('user_id'),
         user_name=session.get('user_name'),
         action='DELETE'
-    )
-    db.session.add(log_entry)
+    ))
 
     db.session.delete(roteiro)
     db.session.commit()

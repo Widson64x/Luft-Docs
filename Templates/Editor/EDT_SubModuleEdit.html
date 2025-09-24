@@ -39,8 +39,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const token = '{{ token }}';
+    const BASE_PREFIX = '/luft-docs';
     const initialContent = {{ content|tojson }};
     let editor;
+
+    function withPrefix(path) {
+        if (/^https?:\/\//i.test(path)) return path;
+        return `${BASE_PREFIX}${path.startsWith('/') ? path : '/' + path}`;
+    }
 
     function initializeEditor() {
         if (editor) editor.destroy();
@@ -54,18 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
             previewStyle: 'vertical',
             height: '700px',
             usageStatistics: false,
-            theme: 'light',
+            theme: editorTheme,
             initialValue: initialContent,
             markdown: { breaks: true, linkify: true, html: true },
             hooks: {
                 addImageBlobHook: (blob, callback) => {
                     const fd = new FormData();
                     fd.append('file', blob);
-                    fetch(`{{ url_for("editor.upload_submodule_image") }}?token=${token}`, {
+                    fetch(withPrefix(`{{ url_for("editor.upload_submodule_image") }}?token=${token}`), {
                         method: 'POST', body: fd
                     })
                     .then(res => res.json())
-                    .then(data => callback(data.url, data.url))
+                    .then(data => callback(withPrefix(data.url), withPrefix(data.url)))
                     .catch(() => alert('Erro ao enviar imagem!'));
                 }
             }
@@ -77,16 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function attachCustomButtons(editor, toolbarId) {
         const toolbar = document.getElementById(toolbarId);
         toolbar.innerHTML = '';
+
         const attachBtn = document.createElement('button');
         attachBtn.type = 'button';
         attachBtn.className = 'btn btn-outline-secondary btn-sm';
         attachBtn.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
         attachBtn.onclick = () => uploadAttachment(editor);
+
         const videoBtn = document.createElement('button');
         videoBtn.type = 'button';
         videoBtn.className = 'btn btn-outline-danger btn-sm';
         videoBtn.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
         videoBtn.onclick = () => uploadVideo(editor);
+
         const wikilinkBtn = document.createElement('button');
         wikilinkBtn.type = 'button';
         wikilinkBtn.className = 'btn btn-outline-info btn-sm';
@@ -95,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let palavra = editor.getSelectedText() || prompt('Digite a palavra para criar o link:');
             if (palavra) editor.insertText(`[[${palavra}]]`);
         };
+
         toolbar.appendChild(attachBtn);
         toolbar.appendChild(videoBtn);
         toolbar.appendChild(wikilinkBtn);
@@ -107,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = inp.files[0];
             const fd = new FormData();
             fd.append('file', file);
-            fetch(`/editor/upload_anexo?token=${token}`, { method: 'POST', body: fd })
+            fetch(withPrefix(`/editor/upload_anexo?token=${token}`), { method: 'POST', body: fd })
             .then(res => res.json())
-            .then(data => editor.insertText(`\n[${file.name}](${data.url}&token=${token})\n`))
+            .then(data => editor.insertText(`\n[${file.name}](${withPrefix(data.url)}&token=${token})\n`))
             .catch(() => alert('Erro ao enviar anexo!'));
         };
         inp.click();
@@ -123,11 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = inp.files[0];
             const fd = new FormData();
             fd.append('file', file);
-            fetch(`{{ url_for('editor.upload_submodule_video') }}?token=${token}`, { method: 'POST', body: fd })
+            fetch(withPrefix(`{{ url_for('editor.upload_submodule_video') }}?token=${token}`), { method: 'POST', body: fd })
             .then(res => res.json())
             .then(data => {
                 if (data.url) {
-                    const videoTag = `<video width="100%" controls><source src="${data.url}" type="${data.type}"></video>`;
+                    const videoTag = `<video width="100%" controls><source src="${withPrefix(data.url)}" type="${data.type}"></video>`;
                     editor.insertText(`\n${videoTag}\n`);
                 } else {
                     alert(data.error || 'Erro ao enviar vídeo!');
@@ -137,9 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         inp.click();
     }
-    
+
     initializeEditor();
-    
+
     const observer = new MutationObserver(mutations => {
         if (mutations.some(m => m.attributeName === 'class')) {
             initializeEditor();

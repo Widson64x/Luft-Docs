@@ -133,11 +133,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const token = '{{ token }}';
+    const BASE_PREFIX = '/luft-docs';
     let allIcons = [];
     let userEditor, techEditor;
 
     const docInitial = {{ doc_content|tojson }};
     const techInitial = {{ tech_content|tojson }};
+
+    function withPrefix(path) {
+        if (/^https?:\/\//i.test(path)) return path;
+        return `${BASE_PREFIX}${path.startsWith('/') ? path : '/' + path}`;
+    }
 
     function initializeEditors() {
         if (userEditor) userEditor.destroy();
@@ -151,17 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
             previewStyle: 'tab',
             height: '700px',
             usageStatistics: false,
-            theme: 'light',
+            theme: editorTheme,
             markdown: { breaks: true, linkify: true, html: true },
             hooks: {
                 addImageBlobHook: (blob, callback) => {
                     const fd = new FormData();
                     fd.append('file', blob);
-                    fetch(`{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token=${token}`, {
+                    fetch(withPrefix(`{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token=${token}`), {
                         method: 'POST', body: fd
                     })
                     .then(res => res.json())
-                    .then(data => callback(data.url, data.url))
+                    .then(data => callback(withPrefix(data.url), withPrefix(data.url)))
                     .catch(() => alert('Erro ao enviar imagem!'));
                 }
             }
@@ -187,33 +193,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const toolbar = document.getElementById(toolbarId);
         toolbar.innerHTML = '';
 
-        // Botão para anexar arquivo
         const attachBtn = document.createElement('button');
         attachBtn.type = 'button';
         attachBtn.className = 'btn btn-outline-secondary btn-sm';
         attachBtn.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
         attachBtn.onclick = () => uploadAttachment(editor);
 
-        // Botão para inserir vídeo
         const videoBtn = document.createElement('button');
         videoBtn.type = 'button';
         videoBtn.className = 'btn btn-outline-danger btn-sm';
         videoBtn.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
         videoBtn.onclick = () => uploadVideo(editor);
 
-        // Botão para inserir wikilink
         const wikilinkBtn = document.createElement('button');
         wikilinkBtn.type = 'button';
         wikilinkBtn.className = 'btn btn-outline-info btn-sm';
         wikilinkBtn.innerHTML = '<i class="bi bi-link-45deg"></i> Wikilink';
         wikilinkBtn.onclick = () => {
-            let palavra = editor.getSelectedText();
-            if (!palavra) {
-                palavra = prompt('Digite a palavra para criar o link:');
-            }
-            if (palavra) {
-                editor.insertText(`[[${palavra}]]`);
-            }
+            let palavra = editor.getSelectedText() || prompt('Digite a palavra para criar o link:');
+            if (palavra) editor.insertText(`[[${palavra}]]`);
         };
 
         toolbar.appendChild(attachBtn);
@@ -228,9 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = inp.files[0];
             const fd = new FormData();
             fd.append('file', file);
-            fetch(`/editor/upload_anexo?token=${token}`, { method: 'POST', body: fd })
+            fetch(withPrefix(`/editor/upload_anexo?token=${token}`), { method: 'POST', body: fd })
             .then(res => res.json())
-            .then(data => editor.insertText(`\n[${file.name}](${data.url}&token=${token})\n`))
+            .then(data => editor.insertText(`\n[${file.name}](${withPrefix(data.url)}&token=${token})\n`))
             .catch(() => alert('Erro ao enviar anexo!'));
         };
         inp.click();
@@ -244,11 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = inp.files[0];
             const fd = new FormData();
             fd.append('file', file);
-            fetch(`/editor/upload_video/{{ modulo.id }}?token=${token}`, { method: 'POST', body: fd })
+            fetch(withPrefix(`/editor/upload_video/{{ modulo.id }}?token=${token}`), { method: 'POST', body: fd })
             .then(res => res.json())
             .then(data => {
                 if (data.url) {
-                    const videoTag = `<video width="100%" controls><source src="${data.url}" type="${data.type}"></video>`;
+                    const videoTag = `<video width="100%" controls><source src="${withPrefix(data.url)}" type="${data.type}"></video>`;
                     editor.insertText(`\n${videoTag}\n`);
                 } else {
                     alert(data.error || 'Erro ao enviar vídeo!');
@@ -259,13 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.click();
     }
 
-    // Inicializa os editores e busca a lista de ícones
     initializeEditors();
-    fetch(`/editor/options?token=${token}`).then(r => r.json()).then(data => {
-        allIcons = data.icons || [];
-    });
+    fetch(withPrefix(`/editor/options?token=${token}`))
+        .then(r => r.json())
+        .then(data => { allIcons = data.icons || []; });
 
-    // Observador para troca de tema (Dark/Light Mode)
     const observer = new MutationObserver(mutations => {
         if (mutations.some(m => m.attributeName === 'class')) {
             initializeEditors();
@@ -273,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     observer.observe(document.body, { attributes: true });
 
-    // Lógica do Modal de Ícones
     function renderIconGrid(filter = '') {
         const grid = document.getElementById('iconGrid');
         const selectedIcon = document.getElementById('inputIcone').value;
@@ -303,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('iconSearch').addEventListener('input', e => renderIconGrid(e.target.value.trim()));
 
-    // Submissão do Formulário
     document.getElementById('editor-form').addEventListener('submit', e => {
         if (!document.getElementById('inputNome').value) {
             e.preventDefault();

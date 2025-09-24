@@ -28,13 +28,13 @@ def parser_wikilinks(conteudo_md, modulos, palavras_globais):
         # 1) Verifica se é um submódulo (arquivo existe em data/global/**)
         if next(GLOBAL_DATA_DIR.rglob(nome_arquivo), None):
             # --- CORREÇÃO: Gera a URL com o prefixo /submodule e parâmetro 'nome' ---
-            return f'<a href="/submodule?nome={nome}&token=__TOKEN_PLACEHOLDER__">{nome}</a>'
+            return f'<a href="/luft-docs/submodule?nome={nome}&token=__TOKEN_PLACEHOLDER__">{nome}</a>'
 
         # 2) Verifica se é um módulo
         for m in modulos:
             if m['nome'].lower() == nome.lower():
                 # --- CORREÇÃO: Gera a URL com o prefixo /modulo ---
-                return f'<a href="/modulo?modulo={m["id"]}&token=__TOKEN_PLACEHOLDER__">{nome}</a>'
+                return f'<a href="/luft-docs/modulo?modulo={m["id"]}&token=__TOKEN_PLACEHOLDER__">{nome}</a>'
 
         # 3) Se for uma palavra global, cria um tooltip
         if nome in palavras_globais:

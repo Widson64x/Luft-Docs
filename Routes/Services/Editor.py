@@ -427,46 +427,75 @@ def editor_options():
 
 @editor_bp.route('/upload_image/<modulo_id>', methods=['POST'])
 def upload_image(modulo_id):
-    if 'file' not in request.files: return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+    if 'file' not in request.files:
+        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+
     file = request.files['file']
     ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']: return jsonify({'error': 'Formato não suportado'}), 400
+    if ext not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']:
+        return jsonify({'error': 'Formato não suportado'}), 400
 
-    dest_dir  = IMAGES_DIR / modulo_id
+    dest_dir = IMAGES_DIR / modulo_id
     os.makedirs(dest_dir, exist_ok=True)
+
     i = 1
     while True:
         filename = f"img{i}{ext}"
         safe_name = secure_filename(filename)
         file_path = os.path.join(dest_dir, safe_name)
-        if not os.path.exists(file_path): break
+        if not os.path.exists(file_path):
+            break
         i += 1
+
     file.save(file_path)
-    return jsonify({'url': f'/data/img/{modulo_id}/{safe_name}'})
+
+    # >>> AQUI: gera a URL COM prefixo (/luft-docs/data/img/...)
+    img_url = url_for(
+        'index.serve_imagem_dinamica',
+        nome_arquivo=f'{modulo_id}/{safe_name}',
+        _external=False  # path relativo; use True se quiser URL absoluta
+    )
+    return jsonify({'url': img_url})
 
 @editor_bp.route('/upload_video/<modulo_id>', methods=['POST'])
 def upload_video(modulo_id):
-    if 'file' not in request.files: return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+    if 'file' not in request.files:
+        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+
     file = request.files['file']
     ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in ['.mp4', '.webm', '.ogg']: return jsonify({'error': 'Formato de vídeo não suportado'}), 400
+    if ext not in ['.mp4', '.webm', '.ogg']:
+        return jsonify({'error': 'Formato de vídeo não suportado'}), 400
 
-    dest_dir  = VIDEOS_DIR / modulo_id
+    dest_dir = VIDEOS_DIR / modulo_id
     os.makedirs(dest_dir, exist_ok=True)
+
     filename = secure_filename(file.filename)
     file_path = os.path.join(dest_dir, filename)
     file.save(file_path)
-    return jsonify({'url': f'/data/videos/{modulo_id}/{filename}', 'type': f'video/{ext[1:]}'})
+
+    # --- CORRIGIDO: agora respeita a base /luft-docs ---
+    return jsonify({
+        'url': f'/data/videos/{modulo_id}/{filename}',
+        'type': f'video/{ext[1:]}'
+    })
+
 
 @editor_bp.route('/upload_anexo', methods=['POST'])
 def upload_anexo():
-    if 'file' not in request.files: return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+    if 'file' not in request.files:
+        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+
     file = request.files['file']
     filename = secure_filename(file.filename)
+
     dest_folder = DOCS_DOWNLOAD_DIR
     os.makedirs(dest_folder, exist_ok=True)
+
     file_path = os.path.join(dest_folder, filename)
     file.save(file_path)
+
+    # --- CORRIGIDO: inclui /luft-docs na rota de download ---
     url = f'/download?token=__TOKEN_PLACEHOLDER__&download={filename}'
     return jsonify({'url': url})
 
@@ -475,19 +504,32 @@ def listar_submodulos():
     token = request.args.get('token', '')
     global_dir = Path(BASE_DIR) / 'data' / 'global'
     global_dir.mkdir(exist_ok=True)
+
     submodulos_info = []
     for p in global_dir.rglob('*.md'):
         mod_time_unix = os.path.getmtime(p)
         mod_time_str = datetime.fromtimestamp(mod_time_unix).strftime('%d/%m/%Y %H:%M:%S')
-        submodulos_info.append({'path': p.relative_to(global_dir).as_posix(), 'modified': mod_time_str})
+        submodulos_info.append({
+            'path': p.relative_to(global_dir).as_posix(),
+            'modified': mod_time_str
+        })
     submodulos_info.sort(key=lambda x: x['path'])
+
     dir_tree = build_dir_tree(global_dir)
-    return render_template('Editor/EDT_SubModuleList.html', submodulos=submodulos_info, dir_tree_json=json.dumps(dir_tree), token=token)
+    return render_template(
+        'Editor/EDT_SubModuleList.html',
+        submodulos=submodulos_info,
+        dir_tree_json=json.dumps(dir_tree),
+        token=token
+    )
+
 
 @editor_bp.route('/deletar_submodulo', methods=['POST'])
 def deletar_submodulo():
     token = request.form.get('token')
-    if not token: return "Não autorizado", 403
+    if not token:
+        return "Não autorizado", 403
+
     path_to_delete = request.form.get('path_to_delete')
     if not path_to_delete:
         flash('Caminho do arquivo não fornecido.', 'danger')
@@ -495,13 +537,17 @@ def deletar_submodulo():
 
     global_dir = Path(BASE_DIR) / 'data' / 'global'
     full_path = global_dir.joinpath(path_to_delete).resolve()
+
+    # Segurança: impede path traversal
     if global_dir.resolve() not in full_path.parents:
         flash('Tentativa de exclusão de arquivo inválida.', 'danger')
         return redirect(url_for('.listar_submodulos', token=token))
+
     try:
         if full_path.is_file():
             full_path.unlink()
             flash(f'Submódulo "{path_to_delete}" deletado com sucesso.', 'success')
+            # Limpa pastas vazias acima
             parent = full_path.parent
             while parent != global_dir and not any(parent.iterdir()):
                 parent.rmdir()
@@ -510,18 +556,24 @@ def deletar_submodulo():
             flash('O caminho especificado não é um arquivo válido.', 'warning')
     except Exception as e:
         flash(f'Erro ao deletar o arquivo: {e}', 'danger')
+
     return redirect(url_for('.listar_submodulos', token=token))
+
 
 @editor_bp.route('/criar_submodulo', methods=['POST'])
 def criar_submodulo():
     token = request.form.get('token')
-    if not token: return "Não autorizado", 403
+    if not token:
+        return "Não autorizado", 403
+
     folder_path = request.form.get('folder_path', '').strip()
     file_name = request.form.get('file_name', '').strip()
+
     if not file_name:
         flash('O nome do arquivo é obrigatório.', 'danger')
         return redirect(url_for('.listar_submodulos', token=token))
 
+    # Sanitiza nome e caminho
     file_name = file_name.replace('.md', '').replace('/', '').replace('\\', '')
     if '..' in folder_path or folder_path.startswith('/'):
         flash('Caminho de pasta inválido.', 'danger')
@@ -530,16 +582,18 @@ def criar_submodulo():
     global_dir = Path(BASE_DIR) / 'data' / 'global'
     target_dir = global_dir.joinpath(folder_path) if folder_path and folder_path != '.' else global_dir
     target_dir.mkdir(parents=True, exist_ok=True)
+
     final_path = target_dir / f"{file_name}.md"
-    
     if final_path.exists():
         flash(f'O arquivo "{file_name}.md" já existe. Abrindo para edição.', 'info')
     else:
         final_path.touch()
         flash(f'Submódulo "{file_name}.md" criado com sucesso!', 'success')
-    
-    submodule_path = final_path.relative_to(global_dir).as_posix()
-    return redirect(url_for('.editar_submodulo', submodule_path=submodule_path, token=token))
+
+    # ATENÇÃO: padronizado para submodulo_path
+    submodulo_path = final_path.relative_to(global_dir).as_posix()
+    return redirect(url_for('.editar_submodulo', submodulo_path=submodulo_path, token=token))
+
 
 @editor_bp.route('/submodulo/<path:submodulo_path>', methods=['GET', 'POST'])
 def editar_submodulo(submodulo_path):
@@ -555,7 +609,13 @@ def editar_submodulo(submodulo_path):
         return redirect(url_for('.listar_submodulos', token=token))
 
     content = file_path.read_text(encoding='utf-8') if file_path.exists() else ""
-    return render_template('Editor/EDT_SubModuleEdit.html', path=submodulo_path, content=content, token=token)
+    return render_template(
+        'Editor/EDT_SubModuleEdit.html',
+        path=submodulo_path,
+        content=content,
+        token=token
+    )
+
 
 @editor_bp.route('/diff_pendente')
 def diff_pendente():
@@ -564,7 +624,10 @@ def diff_pendente():
 
     mid = request.args.get('mid')
     path_mod = os.path.join(DATA_DIR, mid)
-    def get_text(path): return open(path, encoding='utf-8').read() if os.path.exists(path) else ""
+
+    def get_text(path):
+        return open(path, encoding='utf-8').read() if os.path.exists(path) else ""
+
     doc = get_text(os.path.join(path_mod, "documentation.md"))
     pend_doc = get_text(os.path.join(path_mod, "pending_documentation.md"))
     tech = get_text(os.path.join(path_mod, "technical_documentation.md"))
@@ -577,18 +640,24 @@ def diff_pendente():
         "tech_html_right": render_diff_html(pend_tech, tech)
     })
 
+
 @editor_bp.route('/diff_historico')
 def diff_historico():
     if not has_perm('can_versioning_modules').get_json().get('allowed'):
         return jsonify({'error': 'Acesso negado.'}), 403
 
-    mid, file1, file2 = request.args.get('mid'), request.args.get('file1'), request.args.get('file2')
-    if not all([mid, file1, file2]): return jsonify({'error': 'Parâmetros ausentes.'}), 400
+    mid = request.args.get('mid')
+    file1 = request.args.get('file1')
+    file2 = request.args.get('file2')
+    if not all([mid, file1, file2]):
+        return jsonify({'error': 'Parâmetros ausentes.'}), 400
 
     history_dir = os.path.join(DATA_DIR, mid, "history")
-    path1, path2 = os.path.join(history_dir, secure_filename(file1)), os.path.join(history_dir, secure_filename(file2))
-    if not os.path.exists(path1) or not os.path.exists(path2): return jsonify({'error': 'Arquivos não encontrados.'}), 404
-        
+    path1 = os.path.join(history_dir, secure_filename(file1))
+    path2 = os.path.join(history_dir, secure_filename(file2))
+    if not os.path.exists(path1) or not os.path.exists(path2):
+        return jsonify({'error': 'Arquivos não encontrados.'}), 404
+
     with open(path1, 'r', encoding='utf-8') as f1, open(path2, 'r', encoding='utf-8') as f2:
         content1, content2 = f1.read(), f2.read()
 
@@ -598,17 +667,21 @@ def diff_historico():
     patch = dmp.patch_make(content1, diffs)
     return jsonify({'diff': dmp.patch_toText(patch)})
 
+
 @editor_bp.route('/get_historical_content')
 def get_historical_content():
     if not has_perm('can_versioning_modules').get_json().get('allowed'):
         return jsonify({'error': 'Acesso negado.'}), 403
 
-    mid, filename = request.args.get('mid'), request.args.get('filename')
-    if not mid or not filename: return jsonify({'error': 'Parâmetros ausentes.'}), 400
+    mid = request.args.get('mid')
+    filename = request.args.get('filename')
+    if not mid or not filename:
+        return jsonify({'error': 'Parâmetros ausentes.'}), 400
 
     filepath = os.path.join(DATA_DIR, mid, "history", secure_filename(filename))
-    if not os.path.exists(filepath): return jsonify({'error': 'Arquivo histórico não encontrado.'}), 404
-        
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'Arquivo histórico não encontrado.'}), 404
+
     with open(filepath, 'r', encoding='utf-8') as f:
         html_content = markdown.markdown(f.read(), extensions=['fenced_code', 'tables'])
     return jsonify({'html': html_content})

@@ -230,10 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // As classes do Bootstrap 'list-group' e 'list-group-flush' foram removidas
         const menu = d3.select('body').append('div').attr('class', 'context-menu').style('left', `${event.pageX + 10}px`).style('top', `${event.pageY}px`);
         const list = menu.append('ul'); // Apenas 'ul', sem classes extras
-        
+        const needle = "/luft-docs/";
         const menuItems = [
-            { href: `/modulo/?modulo=${d.id}&token=${token}`, html: `<i class="bi bi-box-arrow-up-right me-2"></i>Abrir Módulo`, condition: true },
-            { href: `/modulo/?modulo_tecnico=${d.id}&token=${token}`, html: `<i class="bi bi-tools me-2"></i>Abrir Módulo Técnico`, condition: d.show_tecnico_button}
+            { href: `${needle}/modulo/?modulo=${d.id}&token=${token}`, html: `<i class="bi bi-box-arrow-up-right me-2"></i>Abrir Módulo`, condition: true },
+            { href: `${needle}/modulo/?modulo_tecnico=${d.id}&token=${token}`, html: `<i class="bi bi-tools me-2"></i>Abrir Módulo Técnico`, condition: d.show_tecnico_button }
         ];
 
         menuItems.forEach(item => {

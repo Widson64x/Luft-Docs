@@ -63,28 +63,12 @@ def _populate_user_session(user_data_api):
 
     return True
 
-'''
-### Validação de Usuário por Credenciais com Código de Usuario
-def validate_user_by_credentials():
-    # Pega os dois parâmetros da URL
-    user_name = request.args.get('user_name', '').strip()
-    codigo_usuario = request.args.get('codigo_usuario', '').strip() # <-- Adicionado
-
-    # Valida se ambos foram fornecidos
-    if not user_name or not codigo_usuario: # <-- Modificado
-        return False
-    
-    # Passa os dois argumentos na ordem correta definida no config.py
-    user_data = get_user_by_credentials(user_name, codigo_usuario) # <-- Modificado
-    
-    return _populate_user_session(user_data)
-'''
 
 def validate_user_by_credentials():
-    login_hash = request.args.get('login_hash', '').strip() # <--- Altere aqui para 'login_hash'
+    login_hash = request.args.get('login_hash', '').strip()  # <--- 'login_hash'
     if not login_hash:
         return False
-    user_data = get_user_by_credentials(login_hash)         # <--- Passe a nova variável
+    user_data = get_user_by_credentials(login_hash)
     return _populate_user_session(user_data)
 
 def validate_user_by_token():
@@ -96,22 +80,27 @@ def validate_user_by_token():
 
 
 def authenticate_initial_request():
-    # Tenta token primeiro
+    # 1) Tenta token primeiro
     if validate_user_by_token():
         return True
-    # Depois credenciais
+
+    # 2) Depois tenta credenciais (login_hash)
     if validate_user_by_credentials():
         token = session.get('token')
         if token:
-            return redirect(f"/?token={token}")
+            # <<< CORREÇÃO AQUI: preserve o prefixo gerando a URL pelo endpoint >>>
+            return redirect(url_for('index.index', token=token))
         return True
-    # Falha
+
+    # 3) Falha -> renderiza tela de login/info
     return render_template("Auth/InfoLogin.html"), 403
+
 
 def login_required(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
         if 'user_name' not in session or 'user_id' not in session:
+            # Já está ok — usa endpoint (gera /luft-docs/).
             return redirect(url_for('index.index'))
         return f(*args, **kwargs)
     return wrapped

@@ -16,7 +16,7 @@ ACTIVE_ENVIRONMENT = os.getenv('ACTIVE_ENVIRONMENT', 'real')  # 'local' | 'rende
 _URLS = {
     'local' : "http://localhost:8005/api",
     'render': "https://api-wikidocs.onrender.com/api",
-    'real'  : "http://172.16.200.80:9002/api",
+    'real'  : "http://b2bi-apps.luftfarma.com.br/luft-api/api",
 }
 USER_API_URL = _URLS.get(ACTIVE_ENVIRONMENT, _URLS['real'])
 

@@ -8,7 +8,7 @@ from Utils.auth.auth_utils import login_required
 from Utils.recommendation_service import log_document_access
 
 # Blueprint registrado com o prefixo /submodule em app.py
-submodulo_bp = Blueprint('submodulo', __name__)
+submodulo_bp = Blueprint('submodulo', __name__, url_prefix="/luft-docs/submodule")
 
 @submodulo_bp.route('/', methods=['GET'])
 @login_required
