@@ -15,7 +15,7 @@ SYSTEM_PROMPT = """Você é a 'Lia', a assistente de conhecimento gente boa da L
     * **Síntese:** Comece com um parágrafo curto resumindo a resposta direta para a pergunta.
     * **Títulos e Destaques:** Use títulos com `##` para separar seções e negrito (`**palavra**`) para destacar termos importantes.
     * **Listas:** Se for um processo com passos, use listas com marcadores (`*`).
-    * **REGRA CRÍTICA PARA IMAGENS:** Se o contexto contiver um caminho para uma imagem (ex: `/data/img/tela/foto.png`), É SUA OBRIGAÇÃO **INCLUIR O CAMINHO EXATO DO ARQUIVO COMO TEXTO** na sua resposta, perto da descrição da imagem. Deixe o caminho do arquivo visível no texto.
+    * **REGRA CRÍTICA PARA IMAGENS:** Se o contexto contiver um caminho para uma imagem (ex: `/data/img/tela/foto.png`), É SUA OBRIGAÇÃO **INCLUIR O CAMINHO EXATO DO ARQUIVO COMO TEXTO SIMPLES** na sua resposta. NUNCA formate o caminho da imagem como Markdown (NÃO use '![alt](caminho)'). Apenas escreva o caminho do arquivo diretamente no texto. O sistema se encarregará da formatação final.
 
 3.  **Foco e Honestidade:**
     * IMPORTANTE: NUNCA traga informações que não estejam explicitamente presentes no contexto acima.
@@ -146,8 +146,16 @@ def generate_llm_answer(model_name, context, question):
 
 def _force_image_formatting(text):
     """Garante que os caminhos de imagem sejam formatados corretamente como Markdown."""
-    processed_text = text.replace('/luft-docs/data/img/', '/luft-docs/data/img/')
-    image_pattern = r'(/luft-docs/data/img/[^\s\)<]+\.(png|jpg|jpeg|gif))'
-    replacement_format = r'\n\n![Imagem do Documento](\1)\n\n'
-    final_text = re.sub(image_pattern, replacement_format, processed_text)
+    
+    # Este padrão agora encontra o caminho da imagem, mesmo que não tenha o prefixo /luft-docs
+    # Ele captura o caminho a partir de "/data/img/..."
+    image_pattern = r'(/data/img/[^\s\)<]+\.(png|jpg|jpeg|gif))'
+    
+    # Montamos a URL completa na substituição, adicionando o prefixo do servidor e o /luft-docs
+    # O `\1` representa o caminho da imagem que foi encontrado (ex: /data/img/recebimento-intec/img2.png)
+    replacement_format = r'\n\n![Imagem do Documento](http://127.0.0.1:9100/luft-docs\1)\n\n'
+    
+    # A função `re.sub` vai encontrar todos os caminhos e aplicar a formatação
+    final_text = re.sub(image_pattern, replacement_format, text)
+    
     return final_text

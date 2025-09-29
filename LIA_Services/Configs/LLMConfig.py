@@ -7,7 +7,14 @@ import openai
 from dotenv import load_dotenv
 from Config import VECTOR_DB_DIR
 
-load_dotenv()
+# --- INÍCIO DA CORREÇÃO ---
+# Constrói o caminho para o arquivo .env na raiz do projeto
+project_root = os.path.join(os.path.dirname(__file__), '..', '..')
+dotenv_path = os.path.join(project_root, '.env')
+load_dotenv(dotenv_path=dotenv_path)
+# --- FIM DA CORREÇÃO ---
+
+# O código original que carrega o .env (load_dotenv()) foi substituído pelo de cima
 
 # Dicionário para armazenar clientes e modelos inicializados
 clients = {}
@@ -18,7 +25,7 @@ try:
     if not gemini_api_key: raise ValueError("Chave da API do Gemini não encontrada.")
     genai.configure(api_key=gemini_api_key)
     clients['embedding_model'] = 'models/text-embedding-004'
-    clients['gemini_model'] = genai.GenerativeModel('gemini-1.5-flash-latest')
+    clients['gemini_model'] = genai.GenerativeModel('gemini-flash-latest')
 
     # Groq
     groq_api_key = os.getenv("GROQ_API_KEY")
