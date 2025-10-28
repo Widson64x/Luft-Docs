@@ -1,7 +1,7 @@
 # Certifique-se de que 'session' está importado para pegar o token no redirecionamento
 from flask import render_template, request, redirect, url_for, Blueprint, flash, session
 from Routes.Components.FormEvaluation import EvaluationForm
-from models import db, Evaluation
+from Models import db, Evaluation
 
 evaluation_bp = Blueprint('evaluation', __name__, url_prefix='/evaluation')
 

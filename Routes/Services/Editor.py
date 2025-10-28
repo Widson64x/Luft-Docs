@@ -14,7 +14,7 @@ import uuid
 
 # --- Importações Refatoradas ---
 # Remove get_db e importa os modelos e a sessão do SQLAlchemy
-from models import db, Modulo, PalavraChave, HistoricoEdicao
+from Models import db, Modulo, PalavraChave, HistoricoEdicao
 # Importa as funções de utilitários já refatoradas
 from Utils.data.module_utils import get_modulo_by_id, carregar_modulos
 # Importa a função de verificação de permissão refatorada

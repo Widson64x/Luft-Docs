@@ -5,7 +5,7 @@ import json
 from sqlalchemy import func
 
 # Importe o objeto 'db' e os modelos necessários
-from models import db, DocumentAccess, SearchLog, IAFeedback
+from Models import db, DocumentAccess, SearchLog, IAFeedback
 
 def log_document_access(document_id: str):
     """Registra um acesso a um documento usando o ORM."""

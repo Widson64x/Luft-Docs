@@ -41,7 +41,7 @@
 ```
 Luft-Docs/
 ├─ app.py / wsgi.py
-├─ models.py
+├─ Models.py
 ├─ LIA_Services/
 │  └─ LIA/
 ├─ Routes/
@@ -140,7 +140,7 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # 4) Banco de dados
-flask db upgrade  # aplica migrations (ou crie as tabelas conforme models)
+flask db upgrade  # aplica migrations (ou crie as tabelas conforme Models)
 ```
 
 > Se estiver migrando dados/estruturas já existentes, revise permissões do schema e ownership antes dos `ALTER TABLE`.

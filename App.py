@@ -11,17 +11,26 @@
 import os
 import time
 import logging
-from urllib.parse import quote_plus
+# from urllib.parse import quote_plus # NÃO É MAIS NECESSÁRIO AQUI
 from typing import Optional
 
 from flask import Flask, g, request, Response
 from flask.cli import with_appcontext
 # from flask_migrate import Migrate  # habilite se for usar migrations
 import click
-from dotenv import load_dotenv
+# from dotenv import load_dotenv # NÃO É MAIS NECESSÁRIO AQUI
 from sqlalchemy.pool import NullPool
 
-from models import db  # mantém seu models.db (Flask-SQLAlchemy)
+# 1. IMPORTAR CONFIGURAÇÕES CENTRALIZADAS
+#    Este import deve vir ANTES de 'Models' e 'db'
+try:
+    import Config as cfg
+except ImportError:
+    print("ERRO CRÍTICO: Não foi possível encontrar o arquivo Config.py")
+    exit(1)
+
+
+from Models import db  # mantém seu Models.db (Flask-SQLAlchemy)
 
 # Blueprints (sem mudanças)
 from LIA_Services.LIA import ia_bp
@@ -43,33 +52,35 @@ from prometheus_client import (
 )
 
 # =============================== LOGGING ===============================
-load_dotenv()
+# load_dotenv() # REMOVIDO
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=os.getenv("LOG_LEVEL", "INFO"),
+    # Usa o LOG_LEVEL do Config.py
+    level=cfg.LOG_LEVEL,
     format="%(asctime)s - %(levelname)s - [%(name)s] - %(message)s",
 )
+logger.info(f"Logging inicializado por App.py. Nível: {cfg.LOG_LEVEL}")
+
 
 # ============================ APP METADATA =============================
-APP_NAME    = os.getenv("APP_NAME", "luftdocs_web")
-APP_ENV     = os.getenv("APP_ENV", "dev")
-APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
+# REMOVIDO - Tudo agora está em Config.py (cfg.APP_NAME, cfg.APP_ENV, cfg.APP_VERSION)
 
 # =============================== PREFIXO ===============================
-# >>> Prefixo OBRIGATÓRIO para TODAS as rotas da aplicação <<<
-BASE_PREFIX = "/luft-docs"
+# REMOVIDO - Tudo agora está em Config.py (cfg.BASE_PREFIX)
 
 # ================================ APP =================================
 # Estáticos sob /luft-docs/static
 app = Flask(
     __name__,
     static_folder="static",
-    static_url_path=f"{BASE_PREFIX}/static"
+    # Usa o BASE_PREFIX do Config.py
+    static_url_path=f"{cfg.BASE_PREFIX}/static"
 )
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "CHANGE-ME")
+# Usa a SECRET_KEY do Config.py
+app.secret_key = cfg.FLASK_SECRET_KEY
 app.config["SESSION_PERMANENT"] = False
 # Escopo de cookie limitado ao prefixo (evita colisão com outros apps no mesmo domínio)
-app.config["SESSION_COOKIE_PATH"] = BASE_PREFIX
+app.config["SESSION_COOKIE_PATH"] = cfg.BASE_PREFIX
 
 # --------------------------- PROMETHEUS -------------------------------
 # Buckets de latência (ajuste conforme seus SLOs)
@@ -120,7 +131,8 @@ FLASK_RESPONSE_SIZE = Histogram(
 
 # Info da aplicação (sinal de vida/versão/ambiente)
 FLASK_APP_INFO = Info("flask_app_info", "Informações da aplicação")
-FLASK_APP_INFO.info({"app_name": APP_NAME, "env": APP_ENV, "version": APP_VERSION})
+# Usa os valores do Config.py
+FLASK_APP_INFO.info({"app_name": cfg.APP_NAME, "env": cfg.APP_ENV, "version": cfg.APP_VERSION})
 
 def _route_template() -> str:
     """Retorna o template da rota (ex.: '/api/<id>') ou o path literal."""
@@ -139,28 +151,31 @@ def _status_class(code: int) -> str:
 @app.before_request
 def _before():
     # Não medir o próprio /metrics para evitar loops
-    if request.path == f"{BASE_PREFIX}/metrics":
+    # Usa o BASE_PREFIX do Config.py
+    if request.path == f"{cfg.BASE_PREFIX}/metrics":
         return
     g._t0 = time.perf_counter()
     path = _route_template()
-    FLASK_REQUEST_INPROGRESS.labels(APP_NAME, request.method, path).inc()
+    # Usa o APP_NAME do Config.py
+    FLASK_REQUEST_INPROGRESS.labels(cfg.APP_NAME, request.method, path).inc()
 
 @app.after_request
 def _after(response: Response):
     try:
-        if request.path != f"{BASE_PREFIX}/metrics":
+        # Usa o BASE_PREFIX do Config.py
+        if request.path != f"{cfg.BASE_PREFIX}/metrics":
             dt = time.perf_counter() - getattr(g, "_t0", time.perf_counter())
             path = _route_template()
             method = request.method
             status_code = response.status_code
             status_cls = _status_class(status_code)
 
-            # Totais
-            FLASK_REQUEST_TOTAL.labels(APP_NAME, method, path).inc()
-            FLASK_REQUEST_STATUS_TOTAL.labels(APP_NAME, status_cls).inc()
+            # Totais (Usa o APP_NAME do Config.py)
+            FLASK_REQUEST_TOTAL.labels(cfg.APP_NAME, method, path).inc()
+            FLASK_REQUEST_STATUS_TOTAL.labels(cfg.APP_NAME, status_cls).inc()
 
             # Duração (gera _sum/_count/_bucket)
-            FLASK_REQUEST_DURATION.labels(APP_NAME, method, path).observe(dt)
+            FLASK_REQUEST_DURATION.labels(cfg.APP_NAME, method, path).observe(dt)
 
             # Tamanho da resposta
             size = response.calculate_content_length()
@@ -169,32 +184,34 @@ def _after(response: Response):
                     size = len(response.get_data())
                 except Exception:
                     size = 0
-            FLASK_RESPONSE_SIZE.labels(APP_NAME, path).observe(float(size or 0))
+            FLASK_RESPONSE_SIZE.labels(cfg.APP_NAME, path).observe(float(size or 0))
 
             # Header auxiliar p/ debug (não influencia as métricas)
             response.headers["X-Process-Time-ms"] = f"{dt * 1000:.2f}"
     finally:
-        if request.path != f"{BASE_PREFIX}/metrics":
+        # Usa o BASE_PREFIX e APP_NAME do Config.py
+        if request.path != f"{cfg.BASE_PREFIX}/metrics":
             path = _route_template()
-            FLASK_REQUEST_INPROGRESS.labels(APP_NAME, request.method, path).dec()
+            FLASK_REQUEST_INPROGRESS.labels(cfg.APP_NAME, request.method, path).dec()
     return response
 
 @app.teardown_request
 def _teardown(exc: Optional[BaseException]):
     # Se uma exceção não tratada ocorreu, contabilizamos como 5xx
-    if exc is not None and request.path != f"{BASE_PREFIX}/metrics":
+    if exc is not None and request.path != f"{cfg.BASE_PREFIX}/metrics": # Usa config
         try:
             path = _route_template()
             method = request.method
-            FLASK_REQUEST_EXCEPTIONS.labels(APP_NAME, type(exc).__name__, path).inc()
+            # Usa o APP_NAME do Config.py
+            FLASK_REQUEST_EXCEPTIONS.labels(cfg.APP_NAME, type(exc).__name__, path).inc()
 
             # Também incrementa classe 5xx e totais (garantia)
-            FLASK_REQUEST_STATUS_TOTAL.labels(APP_NAME, "5xx").inc()
-            FLASK_REQUEST_TOTAL.labels(APP_NAME, method, path).inc()
+            FLASK_REQUEST_STATUS_TOTAL.labels(cfg.APP_NAME, "5xx").inc()
+            FLASK_REQUEST_TOTAL.labels(cfg.APP_NAME, method, path).inc()
 
             # Duração aproximada até o erro (também alimenta _sum/_count/_bucket)
             dt = time.perf_counter() - getattr(g, "_t0", time.perf_counter())
-            FLASK_REQUEST_DURATION.labels(APP_NAME, method, path).observe(dt)
+            FLASK_REQUEST_DURATION.labels(cfg.APP_NAME, method, path).observe(dt)
         except Exception:
             pass
 
@@ -202,33 +219,33 @@ def _teardown(exc: Optional[BaseException]):
 # ---------------------------------------
 # Configuração de Banco (PostgreSQL)
 # ---------------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    DB_DRIVER = os.getenv("DB_DRIVER", "postgresql+psycopg2")
-    DB_USER   = os.getenv("DB_USER")
-    DB_PASS   = quote_plus(os.getenv("DB_PASS", ""))
-    DB_HOST   = os.getenv("DB_HOST", "localhost")
-    DB_PORT   = os.getenv("DB_PORT", "5432")
-    DB_NAME   = os.getenv("DB_NAME")
 
-    _missing = [k for k, v in {
-        "DB_USER": DB_USER, "DB_HOST": DB_HOST, "DB_PORT": DB_PORT, "DB_NAME": DB_NAME
-    }.items() if not v]
-    if _missing:
-        raise RuntimeError(f"Variáveis ausentes no .env: {', '.join(_missing)}")
+# ========= BLOCO INTEIRO REMOVIDO E SUBSTITUÍDO =========
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# if not DATABASE_URL:
+#     DB_DRIVER = ...
+#     ... (toda a lógica de montagem da URL) ...
+#     DATABASE_URL = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+#
+# logger.info("Conectando ao PostgreSQL: %s", DATABASE_URL.split('@')[-1])
+# =======================================================
 
-    DATABASE_URL = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-logger.info("Conectando ao PostgreSQL: %s", DATABASE_URL.split('@')[-1])
+# Nova lógica (lê direto do Config.py)
+logger.info(
+    "Conectando ao PostgreSQL (Ambiente: %s) -> %s",
+    cfg.APP_ENV,
+    cfg.DATABASE_URL.split('@')[-1] # Oculta user/pass do log
+)
 
 app.config.update(
-    SQLALCHEMY_DATABASE_URI=DATABASE_URL,
+    # Usa a DATABASE_URL do Config.py
+    SQLALCHEMY_DATABASE_URI=cfg.DATABASE_URL,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_ENGINE_OPTIONS={
         "poolclass": NullPool,
         "pool_pre_ping": True,
         "connect_args": {
-            "options": "-c search_path=luftdocst"
+            "options": "-c search_path=luftdocst" # Mantido
         }
     }
 )
@@ -262,7 +279,8 @@ app.context_processor(inject_global_permissions)
 def p(suffix: str) -> str:
     """Concatena BASE + sufixo garantindo barra única."""
     if not suffix.startswith("/"): suffix = "/" + suffix
-    return (BASE_PREFIX + suffix).replace("//", "/")
+    # Usa o BASE_PREFIX do Config.py
+    return (cfg.BASE_PREFIX + suffix).replace("//", "/")
 
 # Blueprints SEM url_prefix interno -> definimos subpaths explícitos sob BASE_PREFIX
 app.register_blueprint(index_bp,       url_prefix=p("/"))
@@ -272,8 +290,8 @@ app.register_blueprint(download_bp,    url_prefix=p("/download"))
 app.register_blueprint(editor_bp,      url_prefix=p("/editor"))
 app.register_blueprint(permissions_bp, url_prefix=p("/permissions"))
 app.register_blueprint(search_bp,      url_prefix=p("/search"))
-app.register_blueprint(api_bp,         url_prefix=p("/api"))               # /luft-docs/api
-app.register_blueprint(roteiros_bp,    url_prefix=p("/api/roteiros"))      # /luft-docs/api/roteiros
+app.register_blueprint(api_bp,         url_prefix=p("/api"))              # /luft-docs/api
+app.register_blueprint(roteiros_bp,    url_prefix=p("/api/roteiros"))     # /luft-docs/api/roteiros
 app.register_blueprint(ia_bp,          url_prefix=p("/lia"))
 app.register_blueprint(evaluation_bp,  url_prefix=p("/evaluation"))
 
@@ -284,14 +302,20 @@ def metrics():
     return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 # Health check — AGORA com prefixo
-@app.route(p("/metrics"))
+# (Corrigido: estava apontando para /metrics também)
+@app.route(p("/healthz"))
 def healthz():
-    return {"status": "OK", "app": APP_NAME, "env": APP_ENV, "version": APP_VERSION}, 200
+    return {"status": "OK", "app": cfg.APP_NAME, "env": cfg.APP_ENV, "version": cfg.APP_VERSION}, 200
 
 
 # ---------------------------------------
 # MAIN (dev)
 # ---------------------------------------
 if __name__ == "__main__":
-    # Ajuste PORT para casar com seu Nginx/upstream (ex.: 9100)
-    app.run(host="127.0.0.1", port=int(os.getenv("PORT", "9100")), debug=True)
+    # A porta ainda pode ser definida por var de ambiente (ex: Docker, Gunicorn)
+    port = int(os.getenv("PORT", "9100"))
+    # Debug é ativado se o ambiente for 'Local'
+    is_debug = (cfg.APP_ENV == 'Local')
+    
+    logger.info(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port} (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
+    app.run(host="127.0.0.1", port=port, debug=is_debug)

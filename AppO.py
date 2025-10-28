@@ -11,7 +11,7 @@ import click
 from dotenv import load_dotenv
 from sqlalchemy.pool import NullPool
 
-from models import db  # mantém seu models.db (Flask-SQLAlchemy)
+from Models import db  # mantém seu Models.db (Flask-SQLAlchemy)
 
 # Blueprints (sem mudanças)
 from LIA_Services.LIA import ia_bp

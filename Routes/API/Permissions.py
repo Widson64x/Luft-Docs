@@ -5,8 +5,8 @@ from flask import (
     request, render_template, redirect, url_for, flash
 )
 from Utils.auth.auth_utils import login_required
-# Importa o objeto 'db' e os models do seu novo arquivo de modelos
-from models import db, Permissao, Grupo, Usuario, permissoes_grupos, permissoes_usuarios
+# Importa o objeto 'db' e os Models do seu novo arquivo de modelos
+from Models import db, Permissao, Grupo, Usuario, permissoes_grupos, permissoes_usuarios
 
 permissions_bp = Blueprint('permissions', __name__, url_prefix='/permissions')
 

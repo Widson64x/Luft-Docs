@@ -11,7 +11,7 @@ from Utils.permissions_config import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEI
 from Config import IMAGES_DIR, VIDEOS_DIR
 
 # 1. Importe o objeto 'db' e o novo modelo 'BugReport'
-from models import db, BugReport
+from Models import db, BugReport
 
 # Define o Blueprint
 index_bp = Blueprint('index', __name__)

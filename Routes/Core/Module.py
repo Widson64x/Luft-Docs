@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request, abort, redirect, url_for,
 from sqlalchemy.orm import joinedload
 
 # Importa os modelos do banco de dados e as funções utilitárias
-from models import Modulo
+from Models import Modulo
 from Utils.data.module_utils import (
     carregar_modulos,
     carregar_markdown,

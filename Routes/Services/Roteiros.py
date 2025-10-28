@@ -1,6 +1,6 @@
 # routes/Roteiros.py
 from flask import Blueprint, request, jsonify, session
-from models import db, Roteiro, Modulo, RoteiroAuditLog
+from Models import db, Roteiro, Modulo, RoteiroAuditLog
 from Utils.auth.auth_utils import login_required
 
 # Blueprint SEM prefixo interno; o app.py define /luft-docs/api/roteiros

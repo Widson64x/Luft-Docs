@@ -128,9 +128,12 @@ celerybeat.pid
 
 # Ignorar a pasta de dados
 DATA/
+DATA_LUFTDOCS/
 
 # Environments
 .env
+.env_LOCAL
+.env_PROD
 .venv
 env/
 venv/

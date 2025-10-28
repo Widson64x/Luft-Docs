@@ -6,7 +6,7 @@ import markdown
 from Config import DATA_DIR, GLOBAL_DATA_DIR
 
 # Importa os novos modelos do SQLAlchemy
-from models import db, Modulo, PalavraGlobal
+from Models import db, Modulo, PalavraGlobal
 
 def _format_modulo_to_dict(modulo: Modulo) -> dict:
     """
