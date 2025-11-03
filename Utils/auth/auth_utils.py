@@ -99,8 +99,12 @@ def authenticate_initial_request():
 def login_required(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
+        
+        # O GRANDE OLHO VÊ TUDO.
+        # Ou, no nosso caso, apenas checa se 'user_name' está na sessão.
+        
         if 'user_name' not in session or 'user_id' not in session:
-            # Já está ok — usa endpoint (gera /luft-docs/).
+            # YOU SHALL NOT PASS! (Gandalf, 3018 da Terceira Era)
             return redirect(url_for('index.index'))
         return f(*args, **kwargs)
     return wrapped

@@ -22,7 +22,14 @@ def download_pela_raiz():
     # 2) Bloqueia path traversal simples
     if '..' in nome_arquivo or nome_arquivo.startswith(('/', '\\')):
         abort(400, "Nome de arquivo inválido")
-
+        
+        #
+        # "Onde você pensa que vai com esse '../' ?"
+        #
+        # Esta linha impede que o usuário peça "..\..\..\..\Windows\System32"
+        # e leve o servidor para casa.
+        #
+        
     # 3) Monta caminho para data/downloads/docs
     pasta_download = DOCS_DOWNLOAD_DIR
     if not os.path.isdir(pasta_download):

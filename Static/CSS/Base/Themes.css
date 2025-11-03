@@ -1,7 +1,11 @@
 /* =================================================================== */
 /* === THEMES.CSS - ARQUIVO CENTRAL DE VARIÁVEIS DE ESTILO === */
 /* =================================================================== */
-
+/*
+ * Eu não sei quem decidiu que precisávamos de 5 TEMAS DIFERENTES,
+ * mas aqui estamos. Se o "theme-sunset" estiver muito laranja,
+ * a culpa não é minha.
+ */
 :root {
     /* --- FONTES E TAMANHOS --- */
     --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

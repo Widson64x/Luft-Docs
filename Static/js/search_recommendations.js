@@ -61,6 +61,10 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch((error) => {
         console.error('Erro ao buscar recomendações:', error);
+        /*
+        * "Eu tentei, juro."
+        * - O Código, 2025.
+        */
         recommendationsContainer.innerHTML = `
           <div class='custom-alert alert-danger'>
             <i class="bi bi-exclamation-triangle-fill alert-icon"></i>

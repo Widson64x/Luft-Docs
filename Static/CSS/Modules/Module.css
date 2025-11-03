@@ -24,7 +24,7 @@
     width: 280px;
     flex-shrink: 0;
     position: sticky;
-    top: 80px;
+    top: 80px; /* Se isso aqui quebrar, metade da tela quebra junto */
     max-height: calc(100vh - 100px);
     display: flex; /* Usamos flexbox para o layout interno */
     flex-direction: column; /* Organiza os filhos verticalmente */
@@ -319,6 +319,11 @@ body.theme-dark .autocomplete-list li.active {
     justify-content: left;
 }
 
+.markdown-body pre {
+    background-color: var(--theme-surface);
+    font-size: smaller;
+    font-style: inherit;
+}
 
 /* --- 6. RESPONSIVIDADE --- */
 @media (max-width: 992px) {
@@ -363,8 +368,7 @@ body.theme-dark .autocomplete-list li.active {
 
 /* Ajusta o corpo do markdown para alinhar com a nova largura */
 .markdown-body {
-    /* O padding já existente funciona bem, não precisa de alterações aqui. */
-    /* Apenas garantimos que ele não tenha uma largura máxima limitante. */
+    /* Apenas garantindo que ele não tenha uma largura máxima limitante. */
     max-width: none; 
 }
 

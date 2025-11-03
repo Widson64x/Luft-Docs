@@ -261,6 +261,11 @@ def pendentes():
 
 @editor_bp.route('/aprovar/<mid>', methods=['POST'])
 def aprovar(mid):
+
+    # AVISO: O código abaixo foi escrito às 3 da manhã.
+    # Funciona, mas nem eu sei mais como.
+    # Se quebrar, boa sorte.
+
     if not has_perm('can_module_control').get_json().get('allowed'):
         abort(403, "Você não tem permissão para aprovar alterações.")
 

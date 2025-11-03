@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================
     // === MÓDULO DE ANIMAÇÃO DE FUNDO (CANVAS) ==============
     // =======================================================
+    /*
+    * Sim, isso são partículas flutuando.
+    * Não, elas não ajudam em nada na documentação.
+    * Sim, elas são 100% necessárias para a nossa sanidade.
+    * - A Gerência de Coisas Brilhantes
+    */
+
     const backgroundAnimation = (() => {
         const canvas = document.getElementById('background-animation-canvas');
         if (!canvas) return null;

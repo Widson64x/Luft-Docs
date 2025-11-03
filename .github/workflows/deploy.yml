@@ -34,10 +34,16 @@ jobs:
       - name: Health backend (9100)
         shell: powershell
         run: |
+          #
+          # O momento "tá vivo?" do Frankenstein.
+          # Se isso aqui falhar, vou fechar o notebook e ir tomar um café.
+          #
           $r = Invoke-WebRequest -Uri 'http://127.0.0.1:9100/healthz' -TimeoutSec 10
           "Status backend: $($r.StatusCode) $($r.StatusDescription)"
           $r.Content
 
+          # OBS: FUI TOMAR O CAFÉ!
+          
       - name: Health via Nginx (9004)
         shell: powershell
         run: |

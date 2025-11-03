@@ -11,6 +11,12 @@ def log_document_access(document_id: str):
     """Registra um acesso a um documento usando o ORM."""
     if not document_id: return
     
+    #
+    # "Big Brother" do LuftDocs, 'A Fazenda' é melhor.
+    # Estamos de olho no que você está lendo. 👀
+    # (É para o seu próprio bem, juro. Recomendações...)
+    #
+    
     try:
         # Tenta encontrar o registro existente
         doc = DocumentAccess.query.get(document_id)

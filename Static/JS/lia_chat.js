@@ -153,7 +153,6 @@ class LiaChat {
     }
 
     _initProactiveButton() {
-        // ... (Nenhuma mudança aqui)
         if (this.elements.floatingBtn && this.proactiveModuleName && this.proactiveModuleId) {
             this.elements.floatingBtn.classList.add('lia-proactive');
         }
@@ -164,7 +163,6 @@ class LiaChat {
     // ==========================================================
 
     _handleModalShown() {
-        // ... (Nenhuma mudança aqui)
         this.elements.userQuestion.focus();
         
         if (this.elements.responseContainer.children.length === 0 || this.elements.responseContainer.textContent.trim() === '') {
@@ -189,7 +187,6 @@ class LiaChat {
     }
 
     _handleKeyPress(e) {
-        // ... (Nenhuma mudança aqui)
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             this.handleAsk();
@@ -236,7 +233,6 @@ class LiaChat {
     }
 
     _handleModulesHelperClick() {
-        // ... (Nenhuma mudança aqui)
         if (this.isListVisible) {
             this._hideModulesList();
         } else {
@@ -248,7 +244,6 @@ class LiaChat {
     }
 
     _handleGlobalClick(e) {
-        // ... (Nenhuma mudança aqui)
         if (!this.elements.modulesListDiv.contains(e.target) &&
             e.target !== this.elements.userQuestion &&
             e.target !== this.elements.modulesHelperBtn &&
@@ -319,7 +314,6 @@ class LiaChat {
     }
 
     _setLoading(isLoading) {
-        // ... (Nenhuma mudança aqui)
         this.state.isLoading = isLoading;
         this.elements.askButton.disabled = isLoading;
         this.elements.userQuestion.disabled = isLoading;
@@ -358,7 +352,6 @@ class LiaChat {
     }
 
     _renderContext(files) {
-        // ... (Nenhuma mudança aqui)
         const wrapper = this.elements.contextInfoWrapper;
         if (!wrapper || !Array.isArray(files) || files.length === 0) {
             if (wrapper) wrapper.style.display = 'none';
@@ -383,7 +376,7 @@ class LiaChat {
     // ==========================================================
 
     _renderThinkingMessage() {
-        // ... (Nenhuma mudança aqui)
+        
         const thoughts = [
             "Opa! Deixa eu ver o que encontro...",
             "Analisando sua pergunta...",
@@ -391,6 +384,8 @@ class LiaChat {
             "Filtrando os resultados...",
             "Pedindo ajuda para a IA gerar a resposta...",
             "Quase lá..."
+            // "Será que se eu responder rápido o usuário me dá um 10?"
+            // "O ovo ou a galinha? Deixa eu focar aqui..."
         ];
 
         const thinkingHTML = `
@@ -410,7 +405,7 @@ class LiaChat {
     }
 
     _animateThoughts(thoughts) {
-        // ... (Nenhuma mudança aqui)
+        
         const thoughtElement = document.getElementById('lia-thought-text');
         if (!thoughtElement) return;
 
@@ -425,7 +420,7 @@ class LiaChat {
     }
 
     _stopThinkingAnimation() {
-        // ... (Nenhuma mudança aqui)
+        
         if (this.state.thinkingTimeoutId) {
             clearTimeout(this.state.thinkingTimeoutId);
             this.state.thinkingTimeoutId = null;
@@ -445,7 +440,7 @@ class LiaChat {
     // ==========================================================
     
     async _fetchModules() {
-        // ... (Nenhuma mudança aqui)
+        
         if (this.modulesCache.length > 0) return this.modulesCache;
         try {
             const response = await fetch(this.apiUrls.get_modules);
@@ -460,7 +455,7 @@ class LiaChat {
     }
 
     _showModulesList(filter = '') {
-        // ... (Nenhuma mudança aqui)
+        
         this._fetchModules().then(modules => {
             const filteredModules = modules.filter(m => m.toLowerCase().includes(filter.toLowerCase()));
             if (filteredModules.length === 0) {
@@ -494,7 +489,6 @@ class LiaChat {
     }
 
     _hideModulesList() {
-        // ... (Nenhuma mudança aqui)
         this.elements.modulesListDiv.style.display = 'none';
         this.isListVisible = false;
     }
@@ -504,7 +498,6 @@ class LiaChat {
     // ==========================================================
 
     _createFeedbackHTML() {
-        // ... (Nenhuma mudança aqui)
         return `
           <div class="feedback-section mt-3">
             <div class="feedback-buttons btn-group">
@@ -520,7 +513,6 @@ class LiaChat {
     }
 
     _updateLastResponseState(data, userQuestion) {
-        // ... (Nenhuma mudança aqui)
         this.state.response_id = data.response_id || null;
         this.state.user_id = data.user_id || null;
         this.state.user_question = data.original_user_question || userQuestion;
@@ -529,7 +521,6 @@ class LiaChat {
     }
 
     _resetLastResponseState() {
-        // ... (Nenhuma mudança aqui)
         this.state.response_id = null;
         this.state.user_id = null;
         this.state.user_question = null;
@@ -538,7 +529,6 @@ class LiaChat {
     }
 
     _handleFeedbackClick(e) {
-        // ... (Nenhuma mudança aqui)
         const target = e.target;
         const feedbackSection = target.closest('.feedback-section');
         if (!feedbackSection) return;
@@ -566,7 +556,7 @@ class LiaChat {
     }
 
     async _submitFeedback(feedbackSection, rating, comment = null) {
-        // ... (Nenhuma mudança aqui)
+        
         const { response_id, user_id, user_question, model_used, context_sources_list } = this.state;
         
         const feedbackMessageDiv = feedbackSection.querySelector('.feedback-message');

@@ -80,6 +80,10 @@ def check_permission(permission_name):
     """
     Verifica se o usuário atual tem uma permissão específica usando o ORM.
     """
+    #
+    # "Seu nome não está na lista."
+    # - A Função, provavelmente.
+    #
     group_name, user_name = get_user_group()
     
     # A consulta com 'any' é a forma eficiente do SQLAlchemy de verificar relacionamentos.

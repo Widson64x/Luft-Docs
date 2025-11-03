@@ -9,6 +9,8 @@ RESTRICTED_PATHS = ["data/global/EDIs", "data/global/Integradores"]
 RESTRICTED_FILENAME = "technical_documentation.md"
 
 def _transform_query(user_question):
+    # "Eu não estou entendendo nada, mas vou fingir que sim e perguntar
+    # ao Gemini de 5 formas diferentes. Vai que uma cola."
     """
     Usa um LLM (Gemini) para expandir e gerar variações da pergunta do usuário.
     Esta função só deve ser chamada para buscas GERAIS (sem @).

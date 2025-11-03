@@ -1,3 +1,14 @@
+# app.py — Onde tudo começa e, se algo der errado, onde tudo termina.
+#
+# "Toda grande jornada começa com um simples 'import flask'."
+# - Um Programador Sábio (provavelmente).
+#
+# Se você está aqui para mudar uma rota, boa sorte.
+# Se você está aqui para entender o Prometheus, boa sorte em dobro.
+#
+
+# Coisas que gera pra gente saber quem feza a cagada ou qual é a cagada:
+
 # app.py — Flask + Prometheus (sem StatsD), PostgreSQL (.env) e NullPool
 # Métricas alinhadas ao dashboard "Flask Monitoring":
 #  - flask_request_status_total{app_name, status}
@@ -55,7 +66,12 @@ from prometheus_client import (
 # load_dotenv() # REMOVIDO
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    # Usa o LOG_LEVEL do Config.py
+    #
+    # Nível de Log:
+    # 'INFO'  = Fofoca moderada.
+    # 'DEBUG' = Fofoca com detalhes sórdidos, printa até o que o usuário jantou.
+    # 'E quando vou procurar não acho nem o resto do LOG.'
+    #
     level=cfg.LOG_LEVEL,
     format="%(asctime)s - %(levelname)s - [%(name)s] - %(message)s",
 )
@@ -108,6 +124,11 @@ FLASK_REQUEST_DURATION = Histogram(
     "Duração das requisições (segundos) por método e path",
     ["app_name", "method", "path"],
     buckets=LATENCY_BUCKETS
+    #   
+    # Basicamente, isso aqui é o X9 do sistema.
+    # Ele nos diz exatamente quanto tempo cada rota demorou para fofocar.
+    # Se estourar 1 segundo, a gente já sabe quem culpar.
+    #
 )
 
 FLASK_REQUEST_INPROGRESS = Gauge(
@@ -197,6 +218,12 @@ def _after(response: Response):
 
 @app.teardown_request
 def _teardown(exc: Optional[BaseException]):
+    """
+    # Esta função é o "SAMU" das requisições.
+    # Se 'exc' (a exceção) não for None, significa que algo deu MUITO errado.
+    # A gente anota a tragédia no Prometheus e finge que foi um 5xx controlado.
+    """
+    
     # Se uma exceção não tratada ocorreu, contabilizamos como 5xx
     if exc is not None and request.path != f"{cfg.BASE_PREFIX}/metrics": # Usa config
         try:
@@ -217,14 +244,13 @@ def _teardown(exc: Optional[BaseException]):
 
 
 # ---------------------------------------
-# Configuração de Banco (PostgreSQL)
+# Configuração de Banco (PostgreSQL) - Sendo bem sincero nem sei por isso tá aqui ainda.
 # ---------------------------------------
 
 # ========= BLOCO INTEIRO REMOVIDO E SUBSTITUÍDO =========
 # DATABASE_URL = os.getenv("DATABASE_URL")
 # if not DATABASE_URL:
 #     DB_DRIVER = ...
-#     ... (toda a lógica de montagem da URL) ...
 #     DATABASE_URL = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 #
 # logger.info("Conectando ao PostgreSQL: %s", DATABASE_URL.split('@')[-1])
@@ -242,6 +268,11 @@ app.config.update(
     SQLALCHEMY_DATABASE_URI=cfg.DATABASE_URL,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_ENGINE_OPTIONS={
+        
+        # NullPool = "Cada um por si e Deus por todos."
+        # Não guarda conexões. Abre e fecha na hora.
+        # Para o nosso caso (Waitress/Gunicorn), é o ideal. Não mexa.
+        
         "poolclass": NullPool,
         "pool_pre_ping": True,
         "connect_args": {
@@ -277,6 +308,12 @@ app.cli.add_command(init_db_command)
 app.context_processor(inject_global_permissions)
 
 def p(suffix: str) -> str:
+    """
+    O porteiro dos blueprints.
+    Garante que todo mundo entre pela porta da frente (/luft-docs)
+    e não deixe barra dupla (//) no caminho.
+    """
+    
     """Concatena BASE + sufixo garantindo barra única."""
     if not suffix.startswith("/"): suffix = "/" + suffix
     # Usa o BASE_PREFIX do Config.py
@@ -312,7 +349,14 @@ def healthz():
 # MAIN (dev)
 # ---------------------------------------
 if __name__ == "__main__":
-    # A porta ainda pode ser definida por var de ambiente (ex: Docker, Gunicorn)
+    
+    # Se você está executando este arquivo diretamente (ex: python app.py),
+    # você está no modo "desenvolvimento" (vulgo "modo coragem").
+    # O servidor de produção (Waitress/Gunicorn) NÃO entra aqui.
+    # Se isso estiver rodando em produção, pare o que está fazendo e chame um adulto.
+    
+    # Se bem que to rodando em produção agora..., mas eu posso to sem o de teste ainda.
+    
     port = int(os.getenv("PORT", "9100"))
     # Debug é ativado se o ambiente for 'Local'
     is_debug = (cfg.APP_ENV == 'Local')

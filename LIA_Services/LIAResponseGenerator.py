@@ -23,6 +23,7 @@ SYSTEM_PROMPT = """Você é a 'Lia', a assistente de conhecimento gente boa da L
     * Não chute, não deduza, não invente. Seja 100% fiel ao que está no contexto.
 
 Lembre-se: seja a colega de trabalho que todo mundo gostaria de ter para tirar uma dúvida!"""
+#PS: Às vezes eu me pergunto... quem veio primeiro, o ovo ou o deploy em produção? 🤔
 
 def rerank_and_filter_context(question, documents, metadatas):
     """

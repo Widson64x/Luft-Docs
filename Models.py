@@ -86,6 +86,12 @@ class IAFeedback(db.Model):
     Representa um registro de feedback de um usuário para uma resposta da IA.
     Mapeia para a tabela Lft_Tb_Fbk_IA_Feedback.
     """
+    #
+    # Basicamente, este é o "Livro de Reclamações" da Lia.
+    # É aqui que o usuário diz:
+    # "Eu perguntei sobre WMS e ela me respondeu sobre o jogo do Palmeiras x LDU."
+    # Que cagada do Palmeiras, viraram um 3 x 0 na cagada...
+    #
     __tablename__ = 'Lft_Tb_Fbk_IA_Feedback'
 
     feedback_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -94,8 +100,8 @@ class IAFeedback(db.Model):
     user_question = db.Column(db.Text, nullable=True)
     model_used = db.Column(db.String(100), nullable=True)
     context_sources = db.Column(db.Text, nullable=True) # Armazenado como string JSON
-    rating = db.Column(db.Integer, nullable=True)
-    comment = db.Column(db.Text, nullable=True)
+    rating = db.Column(db.Integer, nullable=True) # 1 = 👍, 0 = 👎
+    comment = db.Column(db.Text, nullable=True) # "Eu não entendi nada"
     timestamp = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):

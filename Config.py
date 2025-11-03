@@ -71,6 +71,11 @@ def get_database_url(env_name: str) -> str:
     logger.info(f"Database para '{env_name}' definida: {db_user}@{db_host}:{db_port}/{db_name}")
     return url
 
+#
+# ATENÇÃO: Se você mudar a linha abaixo sem saber o que está fazendo,
+# a casa cai, o dragão acorda e 500 programadores choram.
+# NÃO MEXA POR QUE FUNCIONA.
+
 # URL de Banco de Dados ATIVA
 DATABASE_URL: str = get_database_url(APP_ENV)
 
@@ -124,7 +129,7 @@ IMAGES_DIR:        Path = DATA_ROOT / 'Img'
 VIDEOS_DIR:        Path = DATA_ROOT / 'Videos'
 DOWNLOADS_DIR:     Path = DATA_ROOT / 'Downloads'
 DOCS_DOWNLOAD_DIR: Path = DOWNLOADS_DIR / 'Docs'
-VECTOR_DB_DIR:     Path = DATA_ROOT / 'LUFTDOCS_VECTOR_STORAGE'
+VECTOR_DB_DIR:     Path = BASE_DIR / 'LUFTDOCS_VECTOR_STORAGE'
 
 # --- Arquivos dentro de DATA_ROOT ---
 CONFIG_FILE:     Path = DATA_ROOT / 'config.json' # -- OBSOLETO / SALVO EM 'DATA_LUFTDOCS\Archive\Private\permission.json'

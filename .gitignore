@@ -134,6 +134,10 @@ DATA_LUFTDOCS/
 .env
 .env_LOCAL
 .env_PROD
+#
+# Basicamente, tudo que tem senha, chave de API ou vergonha,
+# a gente joga aqui e finge que não existe.
+#
 .venv
 env/
 venv/

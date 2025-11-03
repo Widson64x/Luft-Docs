@@ -1,5 +1,5 @@
 /* =================================================================== */
-/* === LIA_CHAT.CSS - VERSÃO 2.2 (COM CORREÇÃO DE COR) ============== */
+/* === LIA_CHAT.CSS - VERSÃO 2.5 (CORREÇÃO FINAL DE ALINHAMENTO) === */
 /* =================================================================== */
 
 /* =================================================================== */
@@ -249,24 +249,7 @@
     box-shadow: var(--form-focus-shadow);
 }
 
-/* Novo Textarea que auto-redimensiona */
-#liaUserQuestion {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--theme-text);
-    box-shadow: none;
-    outline: none;
-    padding: 0.5rem;
-    font-size: 1rem;
-    resize: none; /* Desabilita o resize manual */
-    line-height: 1.5;
-    max-height: 150px; /* Limite de altura */
-    overflow-y: auto; /* Scroll se passar do limite */
-}
-#liaUserQuestion::placeholder {
-    color: var(--placeholder-color);
-}
+/* O estilo do #liaUserQuestion foi MOVIDO para a Seção 11.0 */
 
 /* Botões de Ação no Input */
 .lia-action-btn {
@@ -323,12 +306,12 @@
     background-color: var(--theme-surface);
 }
 
-/* Lógica do Spinner (mesma do JS original) */
+/* Lógica do Spinner */
 #liaAskButton .spinner-border {
-    display: none; /* Começa escondido */
+    display: none; 
 }
 #liaAskButton .bi-send-fill {
-    display: inline-block; /* Começa visível */
+    display: inline-block; 
 }
 #liaAskButton.loading .spinner-border {
     display: inline-block;
@@ -713,62 +696,83 @@ body.lia-blur #liaModal .modal-content {
 }
 
 /* =================================================================== */
-/* === 11.0 - HIGHLIGHT DE @ (CORRIGIDO) =========================== */
+/* === 11.0 - HIGHLIGHT DE @ (ALINHAMENTO 100% CORRIGIDO) ========== */
 /* =================================================================== */
 
-/* Wrapper para empilhar o textarea (frente) e o espelho (fundo) */
+/* 1. O STACK WRAPPER */
 .lia-textarea-stack {
-    flex-grow: 1; /* Faz o stack ocupar o espaço disponível */
+    flex-grow: 1; 
     position: relative;
-    min-height: 40px; /* Altura mínima inicial */
+    min-height: 40px; 
+    width: 1%; /* Truque do form-control para 'flex-grow' funcionar */
 }
 
-/* O Textarea (FRENTE) */
-#liaUserQuestion {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2; /* Fica na frente */
-    background: transparent;
-    color: transparent; /* Esconde o texto, mas mantém o cursor! */
-    caret-color: var(--theme-text); 
-}
-
-/* O Espelho (FUNDO) */
+/* * 2. ESTILO COMPARTILHADO (O SEGREDO)
+ * Ambos (textarea e espelho) DEVEM ter o box-model,
+ * padding e fontes IDÊNTICOS para o alinhamento funcionar.
+ */
+#liaUserQuestion,
 #liaHighlightMirror {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Fica atrás */
-    pointer-events: none;
-    color: var(--theme-text);
+    /* Propriedades Idênticas */
     padding: 0.5rem;
     font-size: 1rem;
     line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
+    
+    /* CORREÇÃO DO BUG: Garantir o mesmo box-model do .form-control */
+    box-sizing: border-box; 
+    
+    /* Geometria */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
-/* O estilo do texto destacado (SOMENTE no Espelho de input) */
+/* 3. O TEXTAREA (FRENTE - INVISÍVEL) */
+#liaUserQuestion {
+    z-index: 2;
+    
+    /* Faz ficar invisível */
+    background: transparent;
+    color: transparent; 
+    caret-color: var(--theme-text); 
+    
+    /* Resets (da Seção 4.0 original) */
+    border: none;
+    box-shadow: none;
+    outline: none;
+    resize: none; 
+    
+    /* Scroll */
+    max-height: 150px; 
+    overflow-y: auto; 
+}
+
+/* 4. O ESPELHO (FUNDO - VISÍVEL) */
+#liaHighlightMirror {
+    z-index: 1;
+    pointer-events: none;
+    color: var(--theme-text);
+    overflow: hidden; /* O scroll é controlado pelo textarea */
+}
+
+/* 5. O HIGHLIGHT (no Espelho) */
 #liaHighlightMirror strong {
-    font-weight: 600;
+    /* font-weight: 600; <- REMOVIDO */
     color: var(--theme-primary-btn);
     background-color: var(--theme-primary-btn-bg-subtle);
     border-radius: 4px;
-    padding: 1px 3px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /* padding: 1px 3px; <- REMOVIDO! Esta era a causa do bug. */
 }
 
-/* Ajuste fino para o balão do usuário (PARA TODOS OS TEMAS) */
+/* 6. O HIGHLIGHT (no Balão de Chat) */
 .user-message strong {
-    color: inherit; /* Herda a cor do balão (branca ou escura) */
-    font-weight: 600; /* Garante o "destaque" em negrito */
-    background-color: rgba(0, 0, 0, 0.12); /* Um fundo sutil que escurece levemente o balão */
+    color: inherit; /* Herda a cor do balão */
+    /* font-weight: 600; <- REMOVIDO */
+    background-color: rgba(0, 0, 0, 0.12); /* Fundo sutil */
     border-radius: 4px;
-    padding: 1px 3px;
+    /* padding: 1px 3px; <- REMOVIDO! Esta era a causa do bug. */
 }

@@ -19,6 +19,9 @@ def serialize_roteiro(roteiro, include_modulos=False):
 @roteiros_bp.route('/', methods=['POST'])
 @login_required
 def criar_roteiro():
+    #
+    # "Acorda cedo ninguém quer, né?"
+    #
     user_perms = session.get('permissions', {})
     if not user_perms.get('can_edit_scripts', False):
         return jsonify({'status': 'error', 'message': 'Acesso negado.'}), 403
