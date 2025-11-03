@@ -102,7 +102,7 @@ logger.info(f"DATA_ROOT ativo para '{APP_ENV}': {DATA_ROOT}")
 AI_KEYS = {
     'GEMINI_API_KEY': os.getenv('GEMINI_API_KEY', ''),
     'GROQ_API_KEY':   os.getenv('GROQ_API_KEY', ''),
-    'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY', ''),
+    'OPEN_ROUTER_API_KEY': os.getenv('OPEN_ROUTER_API_KEY', ''),
 }
 
 # --- API de Usuário (Mapeando Prod/Local para real/local) ---
@@ -118,17 +118,17 @@ USER_API_URL = _URLS.get(active_api_env, _URLS['real'])
 logger.info(f"USER_API_URL definida para '{active_api_env}': {USER_API_URL}")
 
 # --- Subpastas (agora dinâmicas baseadas no DATA_ROOT) ---
-MODULES_DIR:       Path = DATA_ROOT / 'modules'
-GLOBAL_DATA_DIR:   Path = DATA_ROOT / 'global'
-IMAGES_DIR:        Path = DATA_ROOT / 'img'
-VIDEOS_DIR:        Path = DATA_ROOT / 'videos'
-DOWNLOADS_DIR:     Path = DATA_ROOT / 'downloads'
-DOCS_DOWNLOAD_DIR: Path = DOWNLOADS_DIR / 'docs'
+MODULES_DIR:       Path = DATA_ROOT / 'Modules'
+GLOBAL_DATA_DIR:   Path = DATA_ROOT / 'Global'
+IMAGES_DIR:        Path = DATA_ROOT / 'Img'
+VIDEOS_DIR:        Path = DATA_ROOT / 'Videos'
+DOWNLOADS_DIR:     Path = DATA_ROOT / 'Downloads'
+DOCS_DOWNLOAD_DIR: Path = DOWNLOADS_DIR / 'Docs'
 VECTOR_DB_DIR:     Path = DATA_ROOT / 'LUFTDOCS_VECTOR_STORAGE'
 
 # --- Arquivos dentro de DATA_ROOT ---
-CONFIG_FILE:     Path = DATA_ROOT / 'config.json'
-PERMISSION_PATH: Path = DATA_ROOT / 'permission.json'
+CONFIG_FILE:     Path = DATA_ROOT / 'config.json' # -- OBSOLETO / SALVO EM 'DATA_LUFTDOCS\Archive\Private\permission.json'
+PERMISSION_PATH: Path = DATA_ROOT / 'permission.json' # -- OBSOLETO
 ICONS_FILE:      Path = DATA_ROOT / 'icons.json'
 
 # --- Compatibilidade com código existente ---

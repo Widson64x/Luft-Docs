@@ -316,6 +316,6 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", "9100"))
     # Debug é ativado se o ambiente for 'Local'
     is_debug = (cfg.APP_ENV == 'Local')
-    
-    logger.info(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port} (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
+    print(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port}/luft-docs/ (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
+    logger.info(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port}/luft-docs/ (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
     app.run(host="127.0.0.1", port=port, debug=is_debug)

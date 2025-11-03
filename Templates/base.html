@@ -16,12 +16,15 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Themes.css') }}">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Lia_Chat.css') }}">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ctrlk.css') }}">
     {% block page_styles %}{% endblock %}
 </head>
 <body {% if modulo %}data-modulo-id="{{ modulo.id }}"{% endif %}>
     <canvas id="background-animation-canvas"></canvas>
+    
     <nav class="navbar">
         <a href="{{ url_for('index.index', token=request.args.get('token')) }}" class="logo-container">
             <img src="{{ url_for('static', filename='Assets/logo-claro.png') }}" alt="LuftDocs Logo" id="logo-image">
@@ -177,50 +180,54 @@
     <div class="modal fade" id="liaModal" tabindex="-1" aria-labelledby="liaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-                        style="position: absolute; top: 20px; right: 20px; z-index: 4;"></button>
                 
-                <div class="modal-body lia-chat">
-                    <div id="liaResponseContainer" class="lia-chat__messages">
+                <div class="modal-body lia-chat-body">
+
+                    <div class="lia-chat-header">
+                        <h5 class="modal-title" id="liaModalLabel"><i class="bi bi-stars me-2"></i> Fale com a Lia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div id="liaResponseContainer" class="lia-chat-messages">
                         </div>
 
-                    <div class="lia-input-area lia-chat__input-area">
-                        <div class="row g-2 align-items-center mb-2">
-                            <div class="col"><h5 class="modal-title" id="liaModalLabel">🤖 Fale com a Lia</h5></div>
-                            <div class="col-auto">
-                                <label for="liaModelSelector" class="form-label small mb-0 visually-hidden">Modelo:</label>
-                                <select class="form-select form-select-sm" id="liaModelSelector">
+                    <div class="lia-input-area">
+                        {% if can_view_tecnico %}
+                            <div id="context-info-wrapper" style="display: none;">
+                                </div>
+                        {% endif %}
+
+                        <div id="liaModulesList" class="list-group">
+                            </div>
+
+                        <div class="lia-input-wrapper">
+                            <div class="lia-model-selector-wrapper">
+                                <label for="liaModelSelector" class="visually-hidden">Modelo:</label>
+                                <select class="form-select" id="liaModelSelector" title="Selecionar modelo de IA">
                                     <option value="groq-70b" selected>Groq (Llama 3 70b)</option>
                                     <option value="groq-8b">Groq (Llama 3 8b)</option>
                                     <option value="gemini">Gemini (1.5 Flash)</option>
                                     <option value="kimi">Moonshot Kimi (Instruct)</option>
+
+                                    <option value="openrouter-gemini">OpenRouter (Gemini 2.5)</option>
                                 </select>
                             </div>
-                        </div>
-                        
-                        <div class="input-wrapper" style="position: relative;">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="liaUserQuestion" placeholder="Pergunte ou use @ para focar em um módulo...">
-                                
-                                <button class="btn btn-outline-secondary" type="button" id="liaModulesHelperBtn" title="Mencionar módulo">
-                                    <i class="bi bi-at"></i>
-                                </button>
-                                
-                                <button class="btn btn-primary" id="liaAskButton" type="button">
-                                    <span id="liaSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    <i class="bi bi-send-fill"></i>
-                                </button>
+                            
+                            <div class="lia-textarea-stack" id="liaTextareaStack">
+                                <div id="liaHighlightMirror" class="lia-highlight-mirror"></div>
+                                <textarea id="liaUserQuestion" class="form-control" rows="1" placeholder="Pergunte ou use @ para focar em um módulo..."></textarea>
                             </div>
-
-                            <div id="liaModulesList" class="list-group" style="display: none; position: absolute; bottom: 100%; left: 0; right: 0; z-index: 10; max-height: 160px; overflow-y: auto; margin-bottom: 0.5rem; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
-                                </div>
+                            
+                            <button class="btn lia-action-btn" type="button" id="liaModulesHelperBtn" title="Mencionar módulo">
+                                <i class="bi bi-at"></i>
+                            </button>
+                            <button class="btn lia-action-btn primary" id="liaAskButton" type="button" title="Enviar">
+                                <span id="liaSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <i class="bi bi-send-fill"></i>
+                            </button>
                         </div>
-
-                        {% if can_view_tecnico %}
-                            <div id="context-info-wrapper" class="mt-2" style="display: none;">
-                                </div>
-                        {% endif %}
                     </div>
+
                 </div>
             </div>
         </div>
@@ -242,90 +249,84 @@
         <div class="toast-pointer"></div>
     </div>
 
-    <!-- Overlay de aviso da LIA -->
     <div id="lia-warning-overlay" class="lia-overlay" aria-hidden="true">
-    <div class="lia-warning-card" role="dialog" aria-modal="true" aria-labelledby="liaWarningTitle">
-        <div class="d-flex align-items-start justify-content-between mb-2">
-        <div class="d-flex align-items-center gap-2">
-            <span aria-hidden="true" class="badge rounded-pill bg-warning text-dark fw-semibold">BETA</span>
-            <h3 id="liaWarningTitle" class="m-0 fs-5">Assistente LIA — Aviso de Uso Responsável</h3>
-        </div>
-        </div>
+        <div class="lia-warning-card" role="dialog" aria-modal="true" aria-labelledby="liaWarningTitle">
+            <div class="d-flex align-items-start justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span aria-hidden="true" class="badge rounded-pill bg-warning text-dark fw-semibold">BETA</span>
+                    <h3 id="liaWarningTitle" class="m-0 fs-5">Assistente LIA — Aviso de Uso Responsável</h3>
+                </div>
+            </div>
 
-        <p class="mb-3 text-light">
-        A LIA encontra-se em <strong>fase de desenvolvimento</strong>. As respostas podem conter
-        <strong>imprecisões</strong>, <strong>omissões</strong> ou <strong>interpretações equivocadas</strong>.
-        Utilize-a como apoio inicial, <u>não</u> como fonte única de verdade.
-        </p>
+            <p class="mb-3">
+                A LIA encontra-se em <strong>fase de desenvolvimento</strong>. As respostas podem conter
+                <strong>imprecisões</strong>, <strong>omissões</strong> ou <strong>interpretações equivocadas</strong>.
+                Utilize-a como apoio inicial, <u>não</u> como fonte única de verdade.
+            </p>
 
-        <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
-        <div class="fw-semibold mb-2"><i class="bi bi-shield-exclamation me-2"></i>Importante</div>
-        <ul class="mb-0 ps-3">
-            <li>Não use a base da IA como <em>parâmetro definitivo</em> para decisões críticas.</li>
-            <li>Sempre confronte o conteúdo com a <strong>Documentação Oficial</strong> e fontes primárias.</li>
-            <li>Ao identificar divergências, priorize a documentação e registre feedback.</li>
-        </ul>
-        </div>
+            <div class="lia-warning-section">
+                <div class="fw-semibold mb-2"><i class="bi bi-shield-exclamation me-2"></i>Importante</div>
+                <ul class="mb-0 ps-3">
+                    <li>Não use a base da IA como <em>parâmetro definitivo</em> para decisões críticas.</li>
+                    <li>Sempre confronte o conteúdo com a <strong>Documentação Oficial</strong> e fontes primárias.</li>
+                    <li>Ao identificar divergências, priorize a documentação e registre feedback.</li>
+                </ul>
+            </div>
 
-        <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18);">
-        <div class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Boas práticas</div>
-        <ul class="mb-0 ps-3">
-            <li>Peça referências objetivas (arquivos, normas, políticas internas).</li>
-            <li>Solicite passos e critérios de validação, não apenas respostas finais.</li>
-            <li>Registre inconsistências via <em>feedback</em> para acelerar correções.</li>
-        </ul>
-        </div>
+            <div class="lia-warning-section practices">
+                <div class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Boas práticas</div>
+                <ul class="mb-0 ps-3">
+                    <li>Peça referências objetivas (arquivos, normas, políticas internas).</li>
+                    <li>Solicite passos e critérios de validação, não apenas respostas finais.</li>
+                    <li>Registre inconsistências via <em>feedback</em> para acelerar correções.</li>
+                </ul>
+            </div>
 
-        <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="liaDontShowAgain" aria-describedby="liaDontShowAgainHelp">
-        <label class="form-check-label" for="liaDontShowAgain">
-            Não mostrar este aviso novamente neste dispositivo
-        </label>
-        <div id="liaDontShowAgainHelp" class="form-text text-secondary">
-            Esta preferência é salva localmente (navegador).
-        </div>
-        </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="liaDontShowAgain" aria-describedby="liaDontShowAgainHelp">
+                <label class="form-check-label" for="liaDontShowAgain">
+                    Não mostrar este aviso novamente neste dispositivo
+                </label>
+                <div id="liaDontShowAgainHelp" class="form-text text-secondary">
+                    Esta preferência é salva localmente (navegador).
+                </div>
+            </div>
 
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <small class="text-secondary">
-            Precisa de base normativa? Consulte a <a id="liaDocLink" href="" class="link-light text-decoration-underline" target="_blank" rel="noopener">Documentação Oficial</a>.
-        </small>
-        <div class="d-flex gap-2">
-            <button id="liaWarningConfirm" class="btn btn-light btn-sm">
-            <i class="bi bi-check2-circle me-1"></i> Prosseguir entendendo os riscos
-            </button>
-        </div>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <small class="text-secondary">
+                    Precisa de base normativa? Consulte a <a id="liaDocLink" href="" class="link-light" target="_blank" rel="noopener">Documentação Oficial</a>.
+                </small>
+                <div class="d-flex gap-2">
+                    <button id="liaWarningConfirm" class="btn btn-light btn-sm">
+                        <i class="bi bi-check2-circle me-1"></i> Prosseguir entendendo os riscos
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
-
-  <!-- ⌨️ Command Palette -->
-  <div id="kp-backdrop" class="kp-backdrop" aria-hidden="true">
-    <div role="dialog" aria-modal="true" aria-labelledby="kp-title" class="kp-dialog">
-      <div class="kp-header">
-        <h3 id="kp-title">Busca e Acessos Rápidos</h3>
-        <span class="kp-hint"><kbd>Ctrl/Cmd + K</kbd> • <kbd>Esc</kbd> fecha</span>
-      </div>
-
-      <div class="kp-input-wrap">
-        <input id="kp-input" type="text" placeholder="Digite para buscar…"
-               autocomplete="off" spellcheck="false" />
-        <button id="kp-close" title="Fechar" aria-label="Fechar">×</button>
-      </div>
-
-      <!-- Chips (pesquisas populares) -->
-      <div id="kp-chips" class="kp-chips" hidden></div>
-
-      <!-- Seções rápidas: Mais acessados / Recomendados -->
-      <div id="kp-sections" class="kp-sections"></div>
-
-      <!-- Resultados -->
-      <ul id="kp-results" class="kp-results" role="listbox" aria-label="Resultados"></ul>
-      <div id="kp-empty" class="kp-empty" hidden>Nada por aqui ainda…</div>
-    </div>
-  </div>
-
     {% endif %}
+
+    <div id="kp-backdrop" class="kp-backdrop" aria-hidden="true">
+        <div role="dialog" aria-modal="true" aria-labelledby="kp-title" class="kp-dialog">
+          <div class="kp-header">
+            <h3 id="kp-title">Busca e Acessos Rápidos</h3>
+            <span class="kp-hint"><kbd>Ctrl/Cmd + K</kbd> • <kbd>Esc</kbd> fecha</span>
+          </div>
+    
+          <div class="kp-input-wrap">
+            <input id="kp-input" type="text" placeholder="Digite para buscar…"
+                   autocomplete="off" spellcheck="false" />
+            <button id="kp-close" title="Fechar" aria-label="Fechar">×</button>
+          </div>
+    
+          <div id="kp-chips" class="kp-chips" hidden></div>
+    
+          <div id="kp-sections" class="kp-sections"></div>
+    
+          <ul id="kp-results" class="kp-results" role="listbox" aria-label="Resultados"></ul>
+          <div id="kp-empty" class="kp-empty" hidden>Nada por aqui ainda…</div>
+        </div>
+    </div>
 
     {% block scripts %}
     
@@ -334,7 +335,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <script>
-        const LIA_API_URLS = {
+        // ==========================================================
+        // === CORREÇÃO: Definindo LIA_API_URLS no escopo GLOBAL (window) ===
+        // ==========================================================
+        // Isso garante que o lia_chat.js possa encontrar essa variável.
+        window.LIA_API_URLS = {
             get_modules: "{{ url_for('ia_bp.get_modules_list') }}",
             ask_llm: "{{ url_for('ia_bp.ask_llm_api') }}",
             submit_feedback: "{{ url_for('ia_bp.submit_feedback_api') }}"
@@ -386,41 +391,42 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-    const logoContainer = document.querySelector('.logo-container');
-    if (!logoContainer) return; // Se o logo não existir na página, não faz nada
+            const logoContainer = document.querySelector('.logo-container');
+            if (!logoContainer) return; // Se o logo não existir na página, não faz nada
 
-    const logoImage = document.getElementById('logo-image');
-    
-    // A intensidade do efeito. Valores maiores = mais inclinação.
-    const tiltIntensity = 15;
+            const logoImage = document.getElementById('logo-image');
+            
+            // A intensidade do efeito. Valores maiores = mais inclinação.
+            const tiltIntensity = 15;
 
-    logoContainer.addEventListener('mousemove', (e) => {
-        const rect = logoContainer.getBoundingClientRect();
-        
-        // Calcula a posição do mouse de -1 a 1 no eixo X e Y dentro do logo
-        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+            logoContainer.addEventListener('mousemove', (e) => {
+                const rect = logoContainer.getBoundingClientRect();
+                
+                // Calcula a posição do mouse de -1 a 1 no eixo X e Y dentro do logo
+                const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+                const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
 
-        // Calcula a rotação e aplica o transform
-        const rotateX = -y * tiltIntensity;
-        const rotateY = x * tiltIntensity;
+                // Calcula a rotação e aplica o transform
+                const rotateX = -y * tiltIntensity;
+                const rotateY = x * tiltIntensity;
 
-        // Para a animação de "respiro" para dar prioridade ao efeito 3D
-        logoImage.style.animation = 'none';
-        
-        logoImage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
-    });
+                // Para a animação de "respiro" para dar prioridade ao efeito 3D
+                logoImage.style.animation = 'none';
+                
+                logoImage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
+            });
 
-    logoContainer.addEventListener('mouseleave', () => {
-        // Quando o mouse sai, a transição suave do CSS cuida do retorno
-        logoImage.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-        // Retoma a animação de "respiro"
-        logoImage.style.animation = 'logo-breathing 5s infinite ease-in-out';
-    });
+            logoContainer.addEventListener('mouseleave', () => {
+                // Quando o mouse sai, a transição suave do CSS cuida do retorno
+                logoImage.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+                // Retoma a animação de "respiro"
+                logoImage.style.animation = 'logo-breathing 5s infinite ease-in-out';
+            });
 
-    });
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <script src="{{ url_for('static', filename='js/lia_chat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lia_proactive_assistant.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

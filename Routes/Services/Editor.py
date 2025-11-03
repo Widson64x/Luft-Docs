@@ -19,7 +19,7 @@ from Models import db, Modulo, PalavraChave, HistoricoEdicao
 from Utils.data.module_utils import get_modulo_by_id, carregar_modulos
 # Importa a função de verificação de permissão refatorada
 from Routes.API.Permissions import check_permission as has_perm
-from Config import DATA_DIR, BASE_DIR, IMAGES_DIR, VIDEOS_DIR, ICONS_FILE, DOCS_DOWNLOAD_DIR
+from Config import DATA_DIR, IMAGES_DIR, VIDEOS_DIR, ICONS_FILE, DOCS_DOWNLOAD_DIR, DATA_ROOT
 editor_bp = Blueprint('editor', __name__, url_prefix='/editor')
 
 
@@ -502,7 +502,7 @@ def upload_anexo():
 @editor_bp.route('/submodulos')
 def listar_submodulos():
     token = request.args.get('token', '')
-    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    global_dir = Path(DATA_ROOT) / 'global'
     global_dir.mkdir(exist_ok=True)
 
     submodulos_info = []
@@ -535,7 +535,7 @@ def deletar_submodulo():
         flash('Caminho do arquivo não fornecido.', 'danger')
         return redirect(url_for('.listar_submodulos', token=token))
 
-    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    global_dir = Path(DATA_ROOT) / 'global'
     full_path = global_dir.joinpath(path_to_delete).resolve()
 
     # Segurança: impede path traversal
@@ -579,7 +579,7 @@ def criar_submodulo():
         flash('Caminho de pasta inválido.', 'danger')
         return redirect(url_for('.listar_submodulos', token=token))
 
-    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    global_dir = Path(DATA_ROOT) / 'global'
     target_dir = global_dir.joinpath(folder_path) if folder_path and folder_path != '.' else global_dir
     target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -598,7 +598,7 @@ def criar_submodulo():
 @editor_bp.route('/submodulo/<path:submodulo_path>', methods=['GET', 'POST'])
 def editar_submodulo(submodulo_path):
     token = request.args.get('token', '')
-    global_dir = Path(BASE_DIR) / 'data' / 'global'
+    global_dir = Path(DATA_ROOT) / 'global'
     file_path = global_dir / submodulo_path
 
     if request.method == 'POST':
@@ -693,7 +693,7 @@ def _handle_upload(folder_name: str):
     
     ext = Path(file.filename).suffix
     filename = f"{uuid.uuid4().hex}{ext}"
-    upload_folder = os.path.join(BASE_DIR, 'data', folder_name, 'submodulo')
+    upload_folder = os.path.join(DATA_ROOT, folder_name, 'submodulo')
     os.makedirs(upload_folder, exist_ok=True)
     file.save(os.path.join(upload_folder, filename))
     

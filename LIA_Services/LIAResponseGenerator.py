@@ -139,6 +139,23 @@ def generate_llm_answer(model_name, context, question):
         response = gemini_model.generate_content(gemini_prompt)
         answer = response.text
 
+    # --- INÍCIO DA NOVA ADIÇÃO (OPENROUTER) ---
+    # O 'model_name' aqui é o que você vai colocar no <option> do seu HTML
+    elif model_name == 'openrouter-gemini' and get_client('openrouter_client'):
+        print("Gerando resposta com OpenRouter (google/gemini-2.5-flash)...")
+        openrouter_client = get_client('openrouter_client')
+        
+        # A chamada é idêntica à do OpenAI/Groq
+        chat_completion = openrouter_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": human_prompt}
+            ],
+            model="google/gemini-2.5-flash" # Este é o nome do modelo que o OpenRouter espera
+        )
+        answer = chat_completion.choices[0].message.content
+    # --- FIM DA NOVA ADIÇÃO ---
+
     else:
         raise ValueError(f"Modelo '{model_name}' inválido ou não configurado.")
     
