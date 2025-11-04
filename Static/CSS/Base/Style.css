@@ -250,3 +250,29 @@ body.theme-dark .logo-container:hover #logo-image {
     border-color: var(--theme-text);
 }
 
+
+/* =================================================================== */
+/* === AJUSTES DE LAYOUT PARA LIA SIDEBAR (NOVO) === */
+/* =================================================================== */
+
+/*
+ * Em telas grandes (>= 1200px), quando o sidebar abrir
+ * E o modo de exibição for "sidebar",
+ * vamos "empurrar" o conteúdo principal para a esquerda.
+*/
+@media (min-width: 1200px) {
+    /* Adiciona transição ao .main para ele se mover suavemente */
+    .main {
+        transition: padding-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    /* Regra Mágica: Só aplica o padding se o body tiver AMBAS as classes */
+    body.lia-sidebar-open[data-lia-mode="sidebar"] .main {
+        /*
+         * Pega a largura do sidebar (definida em Lia_Chat.css)
+         * e adiciona o padding original da página (clamp(1rem, 4vw, 6rem))
+         * para que o conteúdo não grude no sidebar.
+        */
+        padding-right: calc(var(--lia-sidebar-width, 480px) + clamp(1rem, 4vw, 6rem));
+    }
+}

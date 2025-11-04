@@ -103,6 +103,14 @@
                                 <div class="col-md-6 col-lg-4"><label for="selectTema" class="form-label">Tema</label><select id="selectTema" class="form-select"><option value="light">Claro</option><option value="luft">Luft</option><option value="dark">Escuro</option><option value="emerald">Esmeralda</option><option value="auto">Automático</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="fontSize" class="form-label">Tamanho da Fonte</label><select id="fontSize" class="form-select"><option value="0.85rem">Pequena</option><option value="1rem">Média</option><option value="1.15rem">Grande</option><option value="1.3rem">Extra Grande</option></select></div>
                                 <div class="col-md-6 col-lg-4"><label for="selectAnimacao" class="form-label">Animação de Fundo</label><select id="selectAnimacao" class="form-select"><option value="colisao">Nova</option><option value="original">Clássica</option></select></div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="selectLiaMode" class="form-label">Modo da LIA</label>
+                                    <select id="selectLiaMode" class="form-select">
+                                        <option value="sidebar">Copiloto (Sidebar)</option>
+                                        <option value="modal">Janela (Modal)</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-6"><label for="rangeQuantidade" class="form-label">(BETA) Ícones: <span id="labelQuantidade">50</span></label><input type="range" class="form-range" min="10" max="150" step="5" id="rangeQuantidade"></div>
                                 <div class="col-md-6"><label for="rangeVelocidade" class="form-label">(BETA) Velocidade: <span id="labelVelocidade">1.0x</span></label><input type="range" class="form-range" min="0.2" max="3.0" step="0.1" id="rangeVelocidade"></div>
                                 <div class="col-12 mt-4"><div class="form-check form-switch"><input class="form-check-input dev-feature" type="checkbox" id="switchCompactMode"><label class="form-check-label" for="switchCompactMode">Modo Compacto</label></div></div>
@@ -176,67 +184,85 @@
         </div>
     </div>
 
-
     <div class="modal fade" id="liaModal" tabindex="-1" aria-labelledby="liaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                
                 <div class="modal-body lia-chat-body">
-
                     <div class="lia-chat-header">
                         <h5 class="modal-title" id="liaModalLabel"><i class="bi bi-stars me-2"></i> Fale com a Lia</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <div id="liaResponseContainer" class="lia-chat-messages">
-                        </div>
-
+                    <div id="liaResponseContainer_modal" class="lia-chat-messages"></div>
                     <div class="lia-input-area">
-                        {% if can_view_tecnico %}
-                            <div id="context-info-wrapper" style="display: none;">
-                                </div>
-                        {% endif %}
-
-                        <div id="liaModulesList" class="list-group">
-                            </div>
-
+                        {% if can_view_tecnico %}<div id="context-info-wrapper_modal" style="display: none;"></div>{% endif %}
+                        <div id="liaModulesList_modal" class="list-group"></div>
                         <div class="lia-input-wrapper">
                             <div class="lia-model-selector-wrapper">
-                                <label for="liaModelSelector" class="visually-hidden">Modelo:</label>
-                                <select class="form-select" id="liaModelSelector" title="Selecionar modelo de IA">
+                                <label for="liaModelSelector_modal" class="visually-hidden">Modelo:</label>
+                                <select class="form-select" id="liaModelSelector_modal" title="Selecionar modelo de IA">
                                     <option value="groq-70b" selected>Groq (Llama 3 70b)</option>
                                     <option value="groq-8b">Groq (Llama 3 8b)</option>
                                     <option value="gemini">Gemini (1.5 Flash)</option>
                                     <option value="kimi">Moonshot Kimi (Instruct)</option>
-
                                     <option value="openrouter-gemini">OpenRouter (Gemini 2.5)</option>
                                 </select>
                             </div>
-                            
-                            <div class="lia-textarea-stack" id="liaTextareaStack">
-                                <div id="liaHighlightMirror" class="lia-highlight-mirror"></div>
-                                <textarea id="liaUserQuestion" class="form-control" rows="1" placeholder="Pergunte ou use @ para focar em um módulo..."></textarea>
+                            <div class="lia-textarea-stack" id="liaTextareaStack_modal">
+                                <div id="liaHighlightMirror_modal" class="lia-highlight-mirror"></div>
+                                <textarea id="liaUserQuestion_modal" class="form-control" rows="1" placeholder="Pergunte ou use @ para focar em um módulo..."></textarea>
                             </div>
-                            
-                            <button class="btn lia-action-btn" type="button" id="liaModulesHelperBtn" title="Mencionar módulo">
-                                <i class="bi bi-at"></i>
-                            </button>
-                            <button class="btn lia-action-btn primary" id="liaAskButton" type="button" title="Enviar">
-                                <span id="liaSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <button class="btn lia-action-btn" type="button" id="liaModulesHelperBtn_modal" title="Mencionar módulo"><i class="bi bi-at"></i></button>
+                            <button class="btn lia-action-btn primary" id="liaAskButton_modal" type="button" title="Enviar">
+                                <span id="liaSpinner_modal" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                 <i class="bi bi-send-fill"></i>
                             </button>
                         </div>
                     </div>
+                </div>
+                </div>
+        </div>
+    </div>
 
+    <div id="lia-sidebar-backdrop"></div>
+    <div id="liaSidebar" class="lia-sidebar-container" role="complementary" aria-labelledby="liaSidebarLabel">
+        <div id="lia-sidebar-resizer"></div>
+        
+        <div class="modal-body lia-chat-body">
+            <div class="lia-chat-header">
+                <h5 class="modal-title" id="liaSidebarLabel"><i class="bi bi-stars me-2"></i> Fale com a Lia</h5>
+                <button type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div id="liaResponseContainer_sidebar" class="lia-chat-messages"></div>
+            <div class="lia-input-area">
+                {% if can_view_tecnico %}<div id="context-info-wrapper_sidebar" style="display: none;"></div>{% endif %}
+                <div id="liaModulesList_sidebar" class="list-group"></div>
+                <div class="lia-input-wrapper">
+                    <div class="lia-model-selector-wrapper" style="display: none;">
+                        <label for="liaModelSelector_sidebar" class="visually-hidden">Modelo:</label>
+                        <select class="form-select" id="liaModelSelector_sidebar" title="Selecionar modelo de IA">
+                            <option value="groq-70b" selected>Groq (Llama 3 70b)</option>
+                            <option value="groq-8b">Groq (Llama 3 8b)</option>
+                            <option value="gemini">Gemini (1.5 Flash)</option>
+                            <option value="kimi">Moonshot Kimi (Instruct)</option>
+                            <option value="openrouter-gemini">OpenRouter (Gemini 2.5)</option>
+                        </select>
+                    </div>
+                    <div class="lia-textarea-stack" id="liaTextareaStack_sidebar">
+                        <div id="liaHighlightMirror_sidebar" class="lia-highlight-mirror"></div>
+                        <textarea id="liaUserQuestion_sidebar" class="form-control" rows="1" placeholder="Pergunte ou use @ para focar em um módulo..."></textarea>
+                    </div>
+                    <button class="btn lia-action-btn" type="button" id="liaModulesHelperBtn_sidebar" title="Mencionar módulo"><i class="bi bi-at"></i></button>
+                    <button class="btn lia-action-btn primary" id="liaAskButton_sidebar" type="button" title="Enviar">
+                        <span id="liaSpinner_sidebar" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <i class="bi bi-send-fill"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+        </div>
     
     {% if can_view_tools_in_development %}
     <div class="floating-lia-btn" 
-        data-bs-toggle="modal" 
-        data-bs-target="#liaModal" 
         title="Perguntar à Lia"
         data-proactive-module-name="{{ proactive_module_name or '' }}"
         data-proactive-module-id="{{ proactive_module_id or '' }}">

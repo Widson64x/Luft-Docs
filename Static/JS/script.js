@@ -3,13 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================
     // === MÓDULO DE ANIMAÇÃO DE FUNDO (CANVAS) ==============
     // =======================================================
-    /*
-    * Sim, isso são partículas flutuando.
-    * Não, elas não ajudam em nada na documentação.
-    * Sim, elas são 100% necessárias para a nossa sanidade.
-    * - A Gerência de Coisas Brilhantes
-    */
-
     const backgroundAnimation = (() => {
         const canvas = document.getElementById('background-animation-canvas');
         if (!canvas) return null;
@@ -115,8 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================
     // === LÓGICA DO MODAL DE CONFIGURAÇÕES ===================
     // =======================================================
-    const devModal = new bootstrap.Modal(document.getElementById('modalDev'));
-    const configToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('configToast'));
+    const devModalEl = document.getElementById('modalDev');
+    const devModal = devModalEl ? new bootstrap.Modal(devModalEl) : null;
+    const configToastEl = document.getElementById('configToast');
+    const configToast = configToastEl ? bootstrap.Toast.getOrCreateInstance(configToastEl) : null;
     const highlightStyle = document.getElementById('highlight-theme-style');
     const body = document.body;
 
@@ -124,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectTema: document.getElementById('selectTema'),
         fontSize: document.getElementById('fontSize'),
         selectAnimacao: document.getElementById('selectAnimacao'),
+        selectLiaMode: document.getElementById('selectLiaMode'), // <<< NOVO
         rangeQuantidade: document.getElementById('rangeQuantidade'),
         labelQuantidade: document.getElementById('labelQuantidade'),
         rangeVelocidade: document.getElementById('rangeVelocidade'),
@@ -133,9 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÕES DE APLICAÇÃO DE ESTILOS ---
     
-    // =========================================================================
-    // === FUNÇÃO CORRIGIDA ====================================================
-    // =========================================================================
     const applyTheme = (theme) => {
         // Primeiro, remove todas as classes de tema para garantir um estado limpo
         body.classList.remove('theme-light', 'theme-dark', 'theme-luft', 'theme-sunset', 'theme-emerald');
@@ -149,20 +142,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         // Adiciona a classe de tema correta (ex: 'theme-light', 'theme-dark', 'theme-luft')
-        body.classList.add(`theme-${finalTheme}`);
+        body.classList.add(`theme-${finalTheme || 'light'}`); // Fallback para light
     
         // Define o tema do highlight.js. O tema 'luft' é claro, então usará o tema 'github'.
         const isDark = (finalTheme === 'dark');
-        highlightStyle.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github${isDark ? '-dark' : ''}.min.css`;
+        if (highlightStyle) {
+            highlightStyle.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github${isDark ? '-dark' : ''}.min.css`;
+        }
         
         // Atualiza a cor da animação de fundo, se existir
         if (backgroundAnimation) {
             backgroundAnimation.setColor(isDark);
         }
     };
-    // =========================================================================
-    // === FIM DA FUNÇÃO CORRIGIDA =============================================
-    // =========================================================================
 
     const applyFontSize = (size) => {
         body.style.setProperty('--font-size-base', size);
@@ -170,10 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyBgAnimationType = (type) => {
         if (backgroundAnimation) {
-            backgroundAnimation.setVisibility(type === 'original');
+            // Assumindo que 'colisao' é o padrão (visível) e 'original' é o outro
+            // A lógica original parecia invertida, ajustando:
+            // 'original' (clássica) é a que usa CSS, então canvas 'block' = false
+            // 'colisao' (nova) é a que usa canvas, então canvas 'block' = true
+            const isCanvasAnimation = (type === 'colisao');
+            backgroundAnimation.setVisibility(isCanvasAnimation);
         }
     };
 
+    /**
+     * NOVO: Aplica o modo da LIA no body
+     */
+    const applyLiaMode = (mode) => {
+        body.setAttribute('data-lia-mode', mode || 'sidebar');
+    };
+    
     const applyBgQuantity = (quantity) => {
         if(ui.labelQuantidade) ui.labelQuantidade.textContent = quantity;
         if (backgroundAnimation) {
@@ -194,27 +198,35 @@ document.addEventListener('DOMContentLoaded', () => {
             theme: localStorage.getItem('ld_theme') || 'light',
             fontSize: localStorage.getItem('ld_fontSize') || '1rem',
             bgAnimation: localStorage.getItem('ld_bgAnimation') || 'colisao',
+            liaMode: localStorage.getItem('ld_lia_mode') || 'sidebar', // <<< NOVO
             bgQuantity: localStorage.getItem('ld_bg_quantity') || '50',
             bgSpeed: localStorage.getItem('ld_bg_speed') || '1.0'
         };
 
-        if (ui.selectTema) {
-            ui.selectTema.value = settings.theme;
-            ui.fontSize.value = settings.fontSize;
-            ui.selectAnimacao.value = settings.bgAnimation;
-            ui.rangeQuantidade.value = settings.bgQuantity;
-            ui.rangeVelocidade.value = settings.bgSpeed;
-        }
-
+        // Aplica os valores carregados aos seletores do UI
+        if (ui.selectTema) ui.selectTema.value = settings.theme;
+        if (ui.fontSize) ui.fontSize.value = settings.fontSize;
+        if (ui.selectAnimacao) ui.selectAnimacao.value = settings.bgAnimation;
+        if (ui.selectLiaMode) ui.selectLiaMode.value = settings.liaMode; // <<< NOVO
+        if (ui.rangeQuantidade) ui.rangeQuantidade.value = settings.bgQuantity;
+        if (ui.rangeVelocidade) ui.rangeVelocidade.value = settings.bgSpeed;
+        
+        // Chama as funções para aplicar os estilos
         applyTheme(settings.theme);
         applyFontSize(settings.fontSize);
         applyBgAnimationType(settings.bgAnimation);
+        applyLiaMode(settings.liaMode); // <<< NOVO
         applyBgQuantity(settings.bgQuantity);
         applyBgSpeed(settings.bgSpeed);
         
-        hljs.highlightAll();
+        // Inicializa o highlight.js se ele existir
+        if (typeof hljs !== 'undefined') {
+            hljs.highlightAll();
+        }
+
+        // Inicializa o Viewer.js se ele existir
         const viewerEl = document.getElementById('main-content');
-        if (viewerEl) {
+        if (viewerEl && typeof Viewer !== 'undefined') {
             new Viewer(viewerEl, {
                 filter(image) { return image.parentElement.classList.contains('modulo-conteudo'); },
                 toolbar: true, navbar: false, title: false, movable: true, zoomable: true,
@@ -224,22 +236,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const saveSettings = () => {
+        if (!ui.btnSalvarConfigs) return;
+
         localStorage.setItem('ld_theme', ui.selectTema.value);
         localStorage.setItem('ld_fontSize', ui.fontSize.value);
         localStorage.setItem('ld_bgAnimation', ui.selectAnimacao.value);
+        localStorage.setItem('ld_lia_mode', ui.selectLiaMode.value); // <<< NOVO
         localStorage.setItem('ld_bg_quantity', ui.rangeQuantidade.value);
         localStorage.setItem('ld_bg_speed', ui.rangeVelocidade.value);
-        configToast.show();
-        bootstrap.Modal.getInstance(document.getElementById('modalConfiguracoes')).hide();
+        
+        if (configToast) configToast.show();
+        
+        const configModalEl = document.getElementById('modalConfiguracoes');
+        if (configModalEl) {
+            const configModal = bootstrap.Modal.getInstance(configModalEl);
+            if (configModal) configModal.hide();
+        }
     };
 
     // --- EVENT LISTENERS PARA ATUALIZAÇÃO EM TEMPO REAL E SALVAMENTO ---
     if(ui.btnSalvarConfigs) {
-        ui.selectTema.addEventListener('change', (e) => applyTheme(e.target.value));
-        ui.fontSize.addEventListener('change', (e) => applyFontSize(e.target.value));
-        ui.selectAnimacao.addEventListener('change', (e) => applyBgAnimationType(e.target.value));
-        ui.rangeQuantidade.addEventListener('input', (e) => applyBgQuantity(e.target.value));
-        ui.rangeVelocidade.addEventListener('input', (e) => applyBgSpeed(e.target.value));
+        if (ui.selectTema) ui.selectTema.addEventListener('change', (e) => applyTheme(e.target.value));
+        if (ui.fontSize) ui.fontSize.addEventListener('change', (e) => applyFontSize(e.target.value));
+        if (ui.selectAnimacao) ui.selectAnimacao.addEventListener('change', (e) => applyBgAnimationType(e.target.value));
+        if (ui.selectLiaMode) ui.selectLiaMode.addEventListener('change', (e) => applyLiaMode(e.target.value)); // <<< NOVO
+        if (ui.rangeQuantidade) ui.rangeQuantidade.addEventListener('input', (e) => applyBgQuantity(e.target.value));
+        if (ui.rangeVelocidade) ui.rangeVelocidade.addEventListener('input', (e) => applyBgSpeed(e.target.value));
+        
         ui.btnSalvarConfigs.addEventListener('click', saveSettings);
     }
 
@@ -251,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((el.type === 'checkbox' && e.target.checked) || (el.type !== 'checkbox')) {
                 e.preventDefault();
                 e.stopPropagation();
-                devModal.show();
+                if (devModal) devModal.show();
                 if (el.type === 'checkbox') e.target.checked = false;
                 if(el.hasAttribute('data-bs-toggle')) {
                     const previousTab = document.querySelector('.nav-tabs .nav-link.active');
@@ -311,6 +334,14 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
             reportStatus.innerHTML = '';
 
+            // A variável bugReportURL deve ser definida em 'base.html'
+            if (typeof bugReportURL === 'undefined') {
+                reportStatus.innerHTML = `<div class="alert alert-danger"><b>Falha:</b> URL de report não definida.</div>`;
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-bug-fill me-2"></i>Enviar Feedback';
+                return;
+            }
+
             fetch(bugReportURL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -332,5 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Carrega as configurações na inicialização da página
     loadSettings();
 });

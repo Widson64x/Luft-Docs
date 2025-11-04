@@ -170,8 +170,9 @@ h5.text-primary {
     border-bottom-color: var(--theme-border);
 }
 
-.btn-close {
+.lia-chat-header .btn-close {
     filter: var(--bs-btn-close-white-filter); /* Garante que o botão de fechar se adapte */
+    background-color: var(--theme-text);
 }
 
 /* =================================================================== */

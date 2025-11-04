@@ -66,12 +66,12 @@ from prometheus_client import (
 # load_dotenv() # REMOVIDO
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    #
+
     # Nível de Log:
     # 'INFO'  = Fofoca moderada.
     # 'DEBUG' = Fofoca com detalhes sórdidos, printa até o que o usuário jantou.
     # 'E quando vou procurar não acho nem o resto do LOG.'
-    #
+    
     level=cfg.LOG_LEVEL,
     format="%(asctime)s - %(levelname)s - [%(name)s] - %(message)s",
 )
@@ -362,4 +362,21 @@ if __name__ == "__main__":
     is_debug = (cfg.APP_ENV == 'Local')
     print(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port}/luft-docs/ (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
     logger.info(f"Iniciando servidor de desenvolvimento em http://127.0.0.1:{port}/luft-docs/ (Ambiente: {cfg.APP_ENV}, Debug: {is_debug})")
+    
+    if is_debug == False:
+        # --- O PÂNICO ---
+        print("\n\n" + "!"*70) 
+        print(f"  🚨  PARE. AGORA. ABENÇOADO. 🚨  ".center(70))
+        print("!".center(70))
+        print(f"  VOCÊ ESTÁ RODANDO EM MODO: '{cfg.APP_ENV}'  ".center(70))
+        print(f"  E NÃO EM MODO 'Local'  ".center(70))
+        print("!".center(70)) 
+        print("  VOCÊ TEM 5 SEGUNDOS PARA DAR CTRL+C ".center(70))
+        print("  ANTES DE APAGAR O BANCO DE PRODUÇÃO ".center(70))
+        print("  (brincadeira, mas arruma isso aí) ".center(70))
+        print("!".center(70)) 
+        print("!"*70 + "\n\n")
+    else:
+        print("Você está rodando a aplicação da forma correta") 
+        
     app.run(host="127.0.0.1", port=port, debug=is_debug)

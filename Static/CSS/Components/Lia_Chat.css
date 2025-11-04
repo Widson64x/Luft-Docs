@@ -1,5 +1,5 @@
 /* =================================================================== */
-/* === LIA_CHAT.CSS - VERSÃO 2.5 (CORREÇÃO FINAL DE ALINHAMENTO) === */
+/* === LIA_CHAT.CSS - VERSÃO 3.0 (SUPORTE A MODAL/SIDEBAR) ========= */
 /* =================================================================== */
 
 /* =================================================================== */
@@ -41,8 +41,83 @@
     animation: lia-proactive-breathe 2.5s infinite cubic-bezier(0.45, 0, 0.55, 1);
 }
 
+
 /* =================================================================== */
-/* === 2.0 - MODAL E BACKDROP (EFEITO VIDRO) ======================= */
+/* === 1.5 - LIA SIDEBAR (NOVO) ====================================== */
+/* =================================================================== */
+
+/* Variavel para controlar a largura do sidebar */
+:root {
+    --lia-sidebar-width: 480px;
+    --lia-sidebar-transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* O Backdrop (fundo escuro para telas menores) */
+#lia-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1051; /* Acima do conteúdo, abaixo do sidebar */
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* O Container Principal do Sidebar */
+#liaSidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: var(--lia-sidebar-width); /* <-- MUDANÇA: de max-width para width */
+    min-width: 320px; /* <-- NOVO: Limite mínimo */
+    max-width: 800px; /* <-- NOVO: Limite máximo */
+    height: 100vh;
+    z-index: 1052;
+    transform: translateX(100%);
+    transition: var(--lia-sidebar-transition);
+    background: var(--lia-surface-color);
+    border-left: 1px solid var(--lia-border-color);
+    box-shadow: 0 0 50px -10px var(--theme-shadow);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    overflow: hidden;
+}
+
+/* O corpo do chat agora ocupa 100% da altura do sidebar */
+#liaSidebar .lia-chat-body {
+    height: 100%;
+    max-height: none;
+    padding: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 0;
+    position: relative;
+    /* Fundo de grade sutil */
+    background-image:
+        radial-gradient(circle at center, var(--theme-primary-btn-bg-subtle) 1px, transparent 1.5px);
+    background-size: 35px 35px;
+    animation: lia-grid-pulse 10s linear infinite;
+}
+
+
+/* --- Comportamento de Abrir/Fechar --- */
+
+/* Quando o sidebar abre */
+body.lia-sidebar-open #liaSidebar {
+    transform: translateX(0);
+}
+
+/* Em telas pequenas, o sidebar flutua sobre o conteúdo e mostra o backdrop */
+@media (max-width: 1199.98px) {
+    body.lia-sidebar-open #lia-sidebar-backdrop {
+        display: block;
+        opacity: 1;
+    }
+}
+
+
+/* =================================================================== */
+/* === 2.0 - MODAL (EFEITO VIDRO) ================================== */
 /* =================================================================== */
 
 /* Animação de entrada do Modal */
@@ -87,7 +162,7 @@
     animation: lia-grid-pulse 10s linear infinite;
 }
 
-/* Header do Chat */
+/* Header do Chat (usado por ambos) */
 .lia-chat-header {
     display: flex;
     justify-content: space-between;
@@ -103,7 +178,7 @@
     font-weight: 600;
 }
 .lia-chat-header .btn-close {
-    filter: var(--theme-text) brightness(0.8);
+    filter: var(--theme-surface-text);
     transition: all 0.2s ease;
 }
 .lia-chat-header .btn-close:hover {
@@ -114,7 +189,7 @@
 /* === 3.0 - ÁREA DE CONVERSA (MENSAGENS) ========================== */
 /* =================================================================== */
 
-#liaResponseContainer {
+.lia-chat-messages { /* ID foi removido, agora é uma classe */
     flex-grow: 1;
     overflow-y: auto;
     padding: 1.5rem;
@@ -130,15 +205,15 @@
 }
 
 /* Scrollbar customizada */
-#liaResponseContainer::-webkit-scrollbar { width: 8px; }
-#liaResponseContainer::-webkit-scrollbar-track { background: transparent; }
-#liaResponseContainer::-webkit-scrollbar-thumb {
+.lia-chat-messages::-webkit-scrollbar { width: 8px; }
+.lia-chat-messages::-webkit-scrollbar-track { background: transparent; }
+.lia-chat-messages::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-color);
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: content-box;
 }
-#liaResponseContainer::-webkit-scrollbar-thumb:hover {
+.lia-chat-messages::-webkit-scrollbar-thumb:hover {
     background-color: var(--scrollbar-thumb-hover-color);
 }
 
@@ -249,7 +324,24 @@
     box-shadow: var(--form-focus-shadow);
 }
 
-/* O estilo do #liaUserQuestion foi MOVIDO para a Seção 11.0 */
+/* Novo Textarea que auto-redimensiona (agora classe) */
+.lia-textarea-stack .form-control {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--theme-text);
+    box-shadow: none;
+    outline: none;
+    padding: 0.5rem;
+    font-size: 1rem;
+    resize: none; /* Desabilita o resize manual */
+    line-height: 1.5;
+    max-height: 150px; /* Limite de altura */
+    overflow-y: auto; /* Scroll se passar do limite */
+}
+.lia-textarea-stack .form-control::placeholder {
+    color: var(--placeholder-color);
+}
 
 /* Botões de Ação no Input */
 .lia-action-btn {
@@ -286,7 +378,7 @@
 .lia-model-selector-wrapper {
     flex-shrink: 0;
 }
-#liaModelSelector {
+.lia-model-selector-wrapper .form-select { /* Classe em vez de ID */
     border-radius: 10px;
     background-color: var(--theme-surface-hover);
     border: 1px solid var(--theme-border);
@@ -298,25 +390,25 @@
     text-overflow: ellipsis;
     transition: all 0.2s ease;
 }
-#liaModelSelector:focus {
+.lia-model-selector-wrapper .form-select:focus {
     box-shadow: none;
     border-color: var(--form-focus-border-color);
 }
-#liaModelSelector:hover {
+.lia-model-selector-wrapper .form-select:hover {
     background-color: var(--theme-surface);
 }
 
 /* Lógica do Spinner */
-#liaAskButton .spinner-border {
-    display: none; 
+.lia-action-btn .spinner-border {
+    display: none; /* Começa escondido */
 }
-#liaAskButton .bi-send-fill {
-    display: inline-block; 
+.lia-action-btn .bi-send-fill {
+    display: inline-block; /* Começa visível */
 }
-#liaAskButton.loading .spinner-border {
+.lia-action-btn.loading .spinner-border {
     display: inline-block;
 }
-#liaAskButton.loading .bi-send-fill {
+.lia-action-btn.loading .bi-send-fill {
     display: none;
 }
 
@@ -324,8 +416,8 @@
 /* === 5.0 - AUTOCOMPLETE E CONTEXTO =============================== */
 /* =================================================================== */
 
-/* Lista de Autocomplete de Módulos */
-#liaModulesList {
+/* Lista de Autocomplete de Módulos (agora classe) */
+.lia-input-area .list-group {
     display: none; /* Controlado por JS */
     position: absolute;
     bottom: 100%; /* Flutua acima do input */
@@ -342,7 +434,7 @@
     box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     padding: 0.5rem;
 }
-#liaModulesList .list-group-item {
+.lia-input-area .list-group-item {
     background: transparent;
     border: none;
     color: var(--theme-text);
@@ -350,27 +442,31 @@
     font-weight: 500;
     padding: 0.5rem 0.8rem;
 }
-#liaModulesList .list-group-item:hover,
-#liaModulesList .list-group-item:focus {
+.lia-input-area .list-group-item:hover,
+.lia-input-area .list-group-item:focus {
     background: var(--theme-primary-btn-bg-subtle);
     color: var(--theme-primary-btn);
 }
 
 /* Wrapper de Contexto (Fontes) */
-#context-info-wrapper {
+#context-info-wrapper_modal,
+#context-info-wrapper_sidebar {
     margin-bottom: 0.75rem;
     transition: all 0.3s ease;
 }
-#context-info-wrapper .btn-context {
+#context-info-wrapper_modal .btn-context,
+#context-info-wrapper_sidebar .btn-context {
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--theme-text-secondary);
     text-decoration: none;
 }
-#context-info-wrapper .btn-context:hover {
+#context-info-wrapper_modal .btn-context:hover,
+#context-info-wrapper_sidebar .btn-context:hover {
     color: var(--theme-text);
 }
-#context-info-wrapper .list-group-item {
+#context-info-wrapper_modal .list-group-item,
+#context-info-wrapper_sidebar .list-group-item {
     font-size: 0.8rem;
     background: var(--theme-surface-hover);
     border: none;
@@ -696,83 +792,105 @@ body.lia-blur #liaModal .modal-content {
 }
 
 /* =================================================================== */
-/* === 11.0 - HIGHLIGHT DE @ (ALINHAMENTO 100% CORRIGIDO) ========== */
+/* === 11.0 - HIGHLIGHT DE @ (CORRIGIDO) =========================== */
 /* =================================================================== */
 
-/* 1. O STACK WRAPPER */
+/* Wrapper para empilhar o textarea (frente) e o espelho (fundo) */
 .lia-textarea-stack {
-    flex-grow: 1; 
+    flex-grow: 1; /* Faz o stack ocupar o espaço disponível */
     position: relative;
-    min-height: 40px; 
-    width: 1%; /* Truque do form-control para 'flex-grow' funcionar */
+    min-height: 40px; /* Altura mínima inicial */
 }
 
-/* * 2. ESTILO COMPARTILHADO (O SEGREDO)
- * Ambos (textarea e espelho) DEVEM ter o box-model,
- * padding e fontes IDÊNTICOS para o alinhamento funcionar.
- */
-#liaUserQuestion,
-#liaHighlightMirror {
-    /* Propriedades Idênticas */
-    padding: 0.5rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    
-    /* CORREÇÃO DO BUG: Garantir o mesmo box-model do .form-control */
-    box-sizing: border-box; 
-    
-    /* Geometria */
+/* O Textarea (FRENTE) */
+.lia-textarea-stack .form-control { /* Classe em vez de ID */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-}
-
-/* 3. O TEXTAREA (FRENTE - INVISÍVEL) */
-#liaUserQuestion {
-    z-index: 2;
-    
-    /* Faz ficar invisível */
+    z-index: 2; /* Fica na frente */
     background: transparent;
-    color: transparent; 
+    color: transparent; /* Esconde o texto, mas mantém o cursor! */
     caret-color: var(--theme-text); 
-    
-    /* Resets (da Seção 4.0 original) */
-    border: none;
-    box-shadow: none;
-    outline: none;
-    resize: none; 
-    
-    /* Scroll */
-    max-height: 150px; 
-    overflow-y: auto; 
 }
 
-/* 4. O ESPELHO (FUNDO - VISÍVEL) */
-#liaHighlightMirror {
-    z-index: 1;
+/* O Espelho (FUNDO) */
+.lia-textarea-stack .lia-highlight-mirror { /* Classe em vez de ID */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Fica atrás */
     pointer-events: none;
     color: var(--theme-text);
-    overflow: hidden; /* O scroll é controlado pelo textarea */
+    padding: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-/* 5. O HIGHLIGHT (no Espelho) */
-#liaHighlightMirror strong {
-    /* font-weight: 600; <- REMOVIDO */
+/* O estilo do texto destacado (SOMENTE no Espelho de input) */
+.lia-highlight-mirror strong {
+    font-weight: 600;
     color: var(--theme-primary-btn);
     background-color: var(--theme-primary-btn-bg-subtle);
     border-radius: 4px;
-    /* padding: 1px 3px; <- REMOVIDO! Esta era a causa do bug. */
+    padding: 1px 3px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* 6. O HIGHLIGHT (no Balão de Chat) */
+/* Ajuste fino para o balão do usuário (PARA TODOS OS TEMAS) */
 .user-message strong {
-    color: inherit; /* Herda a cor do balão */
-    /* font-weight: 600; <- REMOVIDO */
-    background-color: rgba(0, 0, 0, 0.12); /* Fundo sutil */
+    color: inherit; /* Herda a cor do balão (branca ou escura) */
+    font-weight: 600; /* Garante o "destaque" em negrito */
+    background-color: rgba(0, 0, 0, 0.12); /* Um fundo sutil que escurece levemente o balão */
     border-radius: 4px;
-    /* padding: 1px 3px; <- REMOVIDO! Esta era a causa do bug. */
+    padding: 1px 3px;
+}
+
+/* =================================================================== */
+/* === 12.0 - SELETOR DE MODO (NOVO) ================================= */
+/* =================================================================== */
+
+/* Esconde o sidebar por padrão se o modo for modal */
+body[data-lia-mode="modal"] #liaSidebar,
+body[data-lia-mode="modal"] #lia-sidebar-backdrop {
+    display: none !important;
+}
+
+/* Esconde o modal por padrão se o modo for sidebar */
+body[data-lia-mode="sidebar"] #liaModal {
+    display: none !important;
+}
+
+/* Garante que o backdrop do modal (nativo do bootstrap) não apareça no modo sidebar */
+body[data-lia-mode="sidebar"] .modal-backdrop {
+    display: none !important;
+}
+
+/* =================================================================== */
+/* === 13.0 - SIDEBAR RESIZER (NOVO) =============================== */
+/* =================================================================== */
+
+#lia-sidebar-resizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 8px; /* Largura da área de clique */
+    cursor: ew-resize; /* Cursor de redimensionamento horizontal */
+    z-index: 100; /* Acima do conteúdo do sidebar, abaixo de outros modais */
+    
+    /* Cria uma "linha" visual sutil */
+    border-left: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+#lia-sidebar-resizer:hover,
+body.lia-sidebar-resizing #lia-sidebar-resizer {
+    border-left: 2px solid var(--theme-primary-btn);
 }
