@@ -129,12 +129,12 @@ IMAGES_DIR:        Path = DATA_ROOT / 'Img'
 VIDEOS_DIR:        Path = DATA_ROOT / 'Videos'
 DOWNLOADS_DIR:     Path = DATA_ROOT / 'Downloads'
 DOCS_DOWNLOAD_DIR: Path = DOWNLOADS_DIR / 'Docs'
-VECTOR_DB_DIR:     Path = BASE_DIR / 'LUFTDOCS_VECTOR_STORAGE'
+VECTOR_DB_DIR:     Path = DATA_ROOT / 'LUFTDOCS_VECTOR_STORAGE'
 
-# --- Arquivos dentro de DATA_ROOT ---
+# --- Arquivos dentro de DATA_ROOT --- Arquivos que não são mais hardcoded, está via banco
 CONFIG_FILE:     Path = DATA_ROOT / 'config.json' # -- OBSOLETO / SALVO EM 'DATA_LUFTDOCS\Archive\Private\permission.json'
 PERMISSION_PATH: Path = DATA_ROOT / 'permission.json' # -- OBSOLETO
-ICONS_FILE:      Path = DATA_ROOT / 'icons.json'
+ICONS_FILE:      Path = DATA_ROOT / 'icons.json' # -- OBSOLETO / SALVO EM 'DATA_LUFTDOCS\Archive\Private\icons.json'
 
 # --- Compatibilidade com código existente ---
 DATA_DIR: Path = MODULES_DIR 

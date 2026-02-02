@@ -197,7 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function withPrefix(path) {
     if (/^https?:\/\//i.test(path)) return path;
-    return `${BASE_PREFIX}${path.startsWith('/') ? path : '/' + path}`;
+    
+    // Normaliza o caminho para garantir que comece com /
+    const safePath = path.startsWith('/') ? path : '/' + path;
+    
+    // CORREÇÃO: Se já começar com o prefixo, retorna como está para evitar duplicação
+    if (safePath.startsWith(BASE_PREFIX)) {
+      return safePath;
+    }
+    
+    return `${BASE_PREFIX}${safePath}`;
   }
 
   /* ---------- ToastUI Editors ---------- */
