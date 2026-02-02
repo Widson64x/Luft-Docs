@@ -17,6 +17,6 @@ if __name__ == "__main__":
     serve(app, host=HOST, port=PORT, threads=100)
     
     # "Se este print apareceu no log de PRODUÇÃO,
-    # significa que alguém rodou com 'python Run_Prod.py'.
+    # significa que alguém rodou com 'python WSGI.py'.
     # Parabéns, você passou o serviço do Windows (NSSM).
     # O estagiário foi promovido a testador de resiliência."
