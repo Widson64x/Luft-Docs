@@ -1,5 +1,6 @@
 # routes/editor.py (Versão Final e Completa com SQLAlchemy)
 
+from annotated_types import doc
 from flask import Blueprint, render_template, request, redirect, url_for, abort, session, flash, jsonify
 from werkzeug.utils import secure_filename
 import os
@@ -55,21 +56,42 @@ def carregar_template_tecnico():
     except FileNotFoundError:
         return "# Documentação Técnica\n"
 
+def render_clean_markdown(text):
+    """Renderiza markdown puro para visualização de referência."""
+    if not text: return ""
+    return markdown.markdown(text, extensions=['fenced_code', 'tables', 'nl2br'])
+
 def render_diff_html(old, new):
-    """Renderiza a diferença entre dois textos como HTML."""
+    """
+    Gera o HTML visual do Diff com classes CSS para controle total.
+    """
     dmp = dmp_module.diff_match_patch()
     diffs = dmp.diff_main(old, new)
     dmp.diff_cleanupSemantic(diffs)
-    html = ""
+    
+    html_parts = []
+    
     for (op, data) in diffs:
-        safe = markdown.markdown(data) if data.strip() else ""
+        if not data: continue
+        
+        # Renderiza o conteúdo (markdown)
+        safe_content = markdown.markdown(data, extensions=['fenced_code', 'tables', 'nl2br'])
+        
+        # Limpa tags <p> soltas para não quebrar o layout do texto corrido
+        if safe_content.startswith('<p>') and safe_content.endswith('</p>'):
+            safe_content = safe_content[3:-4]
+
         if op == dmp.DIFF_INSERT:
-            html += f'<mark style="background:#d4fcbc">{safe}</mark>'
+            # ADICIONADO: Classe diff-add
+            html_parts.append(f'<span class="diff-chunk diff-add">{safe_content}</span>')
         elif op == dmp.DIFF_DELETE:
-            html += f'<mark style="background:#ffe6e6;text-decoration:line-through;">{safe}</mark>'
+            # REMOVIDO: Classe diff-rem
+            html_parts.append(f'<span class="diff-chunk diff-rem">{safe_content}</span>')
         else:
-            html += safe
-    return html
+            # IGUAL: Sem destaque
+            html_parts.append(f'<span class="diff-chunk">{safe_content}</span>')
+            
+    return "".join(html_parts)
 
 def build_dir_tree(path):
     """Cria uma árvore de diretórios em formato de dicionário."""
@@ -635,14 +657,16 @@ def diff_pendente():
 
     doc = get_text(os.path.join(path_mod, "documentation.md"))
     pend_doc = get_text(os.path.join(path_mod, "pending_documentation.md"))
+    
     tech = get_text(os.path.join(path_mod, "technical_documentation.md"))
     pend_tech = get_text(os.path.join(path_mod, "pending_technical_documentation.md"))
 
     return jsonify({
-        "doc_html_left": render_diff_html(doc, pend_doc),
-        "doc_html_right": render_diff_html(pend_doc, doc),
-        "tech_html_left": render_diff_html(tech, pend_tech),
-        "tech_html_right": render_diff_html(pend_tech, tech)
+        "doc_html_left": render_clean_markdown(doc),
+        "doc_html_right": render_diff_html(doc, pend_doc),
+        
+        "tech_html_left": render_clean_markdown(tech),
+        "tech_html_right": render_diff_html(tech, pend_tech)
     })
 
 

@@ -74,6 +74,11 @@
 </div>
 
 <script>
+window.addEventListener('pageshow', (event) => {
+    // Se a página foi carregada do cache (botão voltar) ou apenas exibida,
+    // removemos a classe que a deixa invisível.
+    document.body.classList.remove('page-transition-out');
+});
 // =========================================================================
 // DETECÇÃO DE PREFIXO E HELPERS
 // =========================================================================
@@ -258,12 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleTransitionClick(event) {
-    event.preventDefault();
-    const destinationUrl = event.currentTarget.getAttribute('href');
-    document.body.classList.add('page-transition-out');
-    setTimeout(() => {
-      window.location.href = destinationUrl;
-    }, 500); // Duração da animação
+      event.preventDefault();
+      const destinationUrl = event.currentTarget.getAttribute('href');
+      document.body.classList.add('page-transition-out'); // <--- O problema vinha daqui
+      setTimeout(() => {
+          window.location.href = destinationUrl;
+      }, 500);
   }
 
   // Configuração inicial dos listeners de transição
