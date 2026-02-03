@@ -171,7 +171,7 @@ def _force_image_formatting(text):
     
     # Montamos a URL completa na substituição, adicionando o prefixo do servidor e o /luft-docs
     # O `\1` representa o caminho da imagem que foi encontrado (ex: /data/img/recebimento-intec/img2.png)
-    replacement_format = r'\n\n![Imagem do Documento](http://127.0.0.1:9100/luft-docs\1)\n\n' or r'\n\n![Imagem do Documento](http://b2bi-apps.luftfarma.com.br/luft-docs\1)\n\n'
+    replacement_format = r'\n\n![Imagem do Documento](http://b2bi-apps.luftfarma.com.br/luft-docs\1)\n\n'
     
     # A função `re.sub` vai encontrar todos os caminhos e aplicar a formatação
     final_text = re.sub(image_pattern, replacement_format, text)
