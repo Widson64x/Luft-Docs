@@ -144,47 +144,25 @@
 {% endfor %}
 
 <script>
-    function filterPermissions() {
-        // 1. Pega o campo de busca e o texto digitado (em minúsculas)
-        const input = document.getElementById('searchPerm');
-        const filterText = input.value.toLowerCase().trim();
-
-        // 2. Pega todos os cards da lista de permissões
-        const cards = document.querySelectorAll('#permissions-list .permission-card');
-
-        // 3. Para cada card, verifica se ele deve ser exibido ou não
-        cards.forEach(card => {
-            // Pega o texto de busca que já está pronto no atributo 'data-perm' do card.
-            // Este atributo já contém o nome e a descrição em minúsculas.
-            const searchableText = card.dataset.perm;
-
-            // 4. Compara o texto do card com o texto do filtro
-            if (searchableText.includes(filterText)) {
-                card.style.display = 'flex'; // Se o texto bate, mostra o card
-            } else {
-                card.style.display = 'none'; // Se não bate, esconde o card
-            }
-        });
-    }
-
-    // Opcional, mas recomendado: Chamar o filtro uma vez quando a página carrega
-    // para garantir que tudo esteja sincronizado caso o campo de busca tenha algum valor.
-    document.addEventListener('DOMContentLoaded', () => {
-        filterPermissions();
-        // Aqui você pode colocar a lógica da animação de fundo se desejar
-    });
-    
 function filterPermissions() {
-  const input = document.getElementById('searchPerm');
-  const filter = input.value.toLowerCase();
-  const cards = document.querySelectorAll('#permissions-list .permission-card');
-  cards.forEach(card => {
-    if (card.getAttribute('data-perm').includes(filter)) {
-      card.style.display = 'flex'; // Usar 'flex' para corresponder ao display do card
-    } else {
-      card.style.display = 'none';
-    }
-  });
+    // 1. Pega o campo de busca
+    const input = document.getElementById('searchPerm');
+    const filterText = input.value.toLowerCase().trim();
+
+    // 2. CORREÇÃO: Usando '.' para selecionar pela CLASSE, não ID
+    const cards = document.querySelectorAll('.permissions-list .permission-card');
+
+    // 3. Filtra os cards
+    cards.forEach(card => {
+        // O atributo data-perm já contém nome e descrição em minúsculo
+        const searchableText = card.dataset.perm;
+
+        if (searchableText.includes(filterText)) {
+            card.style.display = 'flex'; // Mostra se bater com a busca
+        } else {
+            card.style.display = 'none'; // Esconde se não bater
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

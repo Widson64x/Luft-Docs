@@ -5,8 +5,7 @@ import uuid
 from flask import Blueprint, jsonify, request, session
 from LIA_Services.Services import Context_Service, Feedback_Service
 from Utils.auth.auth_utils import login_required
-from Config import MODULES_DIR
-
+from Config import MODULES_DIR, BASE_PREFIX
 
 # --- IMPORTAÇÕES DOS SERVIÇOS DE IA ---
 from LIA_Services import LIAResponseGenerator
@@ -14,6 +13,52 @@ from LIA_Services.Configs.LLMConfig import are_components_available
 from Utils.recommendation_service import log_ai_feedback
 
 ia_bp = Blueprint('ia_bp', __name__)
+
+
+def _transform_path_to_url(file_path, token):
+    """
+    Recebe um caminho de arquivo (ex: data/modules/rh/doc.md) e o token,
+    retornando a URL clicável correta para a aplicação.
+    """
+    if not file_path:
+        return "#"
+
+    # 1. Normalizar as barras para evitar problemas entre Windows (\) e Linux (/)
+    clean_path = file_path.replace('\\', '/')
+    
+    # URL Base (ex: /luft-docs)
+    base_url = BASE_PREFIX
+
+    # --- CASO 1: É UM MÓDULO? ---
+    # Estrutura padrão: data/modules/<NOME_DO_MODULO>/...
+    if '/modules/' in clean_path:
+        try:
+            # Quebra o caminho para pegar o nome da pasta logo após 'modules'
+            parts = clean_path.split('/modules/')
+            if len(parts) > 1:
+                sub_parts = parts[1].split('/') # Pega o resto do caminho
+                module_name = sub_parts[0]      # O primeiro item é a pasta do módulo
+                
+                # Retorna link para a rota de Módulo
+                return f"{base_url}/modulo/?modulo={module_name}&token={token}"
+        except Exception as e:
+            print(f"Erro ao gerar link de módulo: {e}")
+
+    # --- CASO 2: É UM SUBMÓDULO OU ARQUIVO GLOBAL? ---
+    # Estrutura: data/global/.../NOME_ARQUIVO.md
+    # A lógica aqui é pegar o nome do arquivo (sem extensão) e passar como ?nome=
+    if clean_path.endswith('.md'):
+        try:
+            filename = os.path.basename(clean_path) # Ex: TORRE_DE_CONTROLE.md
+            name_no_ext = os.path.splitext(filename)[0] # Ex: TORRE_DE_CONTROLE
+            
+            # Retorna link para a rota de Submódulo
+            return f"{base_url}/submodule/?nome={name_no_ext}&token={token}"
+        except Exception as e:
+            print(f"Erro ao gerar link de submódulo: {e}")
+
+    # Fallback: Se não conseguir identificar, retorna '#' ou o próprio caminho
+    return "#"
 
 # --- A LÓGICA DE DESCOBRIR MÓDULOS PERMANECE AQUI ---
 def get_available_modules():
@@ -118,20 +163,43 @@ def ask_llm_api():
             question=original_user_question
         )
 
+        # --- NOVA LÓGICA DE LINKS ---
+        # Pega o token atual da sessão (ou do request se você estiver passando via header)
+        # Como o usuário já está logado para chamar essa rota, pegamos o token que veio no request (query param) ou geramos um novo se necessário.
+        # Mas para facilitar, vamos pegar o que o frontend mandou ou da sessão.
+        
+        # Tenta pegar token do parametro, header ou sessão
+        current_token = request.args.get('token') 
+        if not current_token:
+             # Se não veio na query, tentamos pegar da sessão se você salvou lá, 
+             # ou assumimos que o frontend vai ter que lidar com isso. 
+             # No seu caso, o frontend JS passa o token na URL ao carregar, mas aqui é um POST.
+             # Vamos tentar reconstruir ou usar um placeholder se não tiver.
+             current_token = session.get('token', '')
+
+        # Processa as fontes para criar objetos com Link
+        structured_sources = []
+        for source in final_sources:
+            link = _transform_path_to_url(source, current_token)
+            structured_sources.append({
+                "name": source,  # O caminho original (para exibir texto)
+                "url": link      # O link clicável
+            })
+
         return jsonify({
             "answer": final_answer,
-            "context_files": final_sources,
+            "context_files": final_sources, # Mantém compatibilidade legada se precisar
             "response_id": response_uuid,
             "user_id": user_id,
             "original_user_question": original_user_question,
             "model_used": selected_model,
-            "context_sources_list": final_sources
+            "context_sources_objects": structured_sources # <--- CAMPO NOVO COM LINKS
         })
 
     except Exception as e:
         print(f"ERRO CRÍTICO na API ask_llm: {e}")
-        return jsonify({"error": f"Ocorreu um erro inesperado ao processar sua pergunta: {str(e)}"}), 500
-
+        return jsonify({"error": f"Ocorreu um erro inesperado: {str(e)}"}), 500
+    
 @ia_bp.route('/api/submit_feedback', methods=['POST'])
 @login_required
 def submit_feedback_api():

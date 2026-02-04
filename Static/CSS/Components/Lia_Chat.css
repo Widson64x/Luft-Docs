@@ -448,32 +448,66 @@ body.lia-sidebar-open #liaSidebar {
     color: var(--theme-primary-btn);
 }
 
-/* Wrapper de Contexto (Fontes) */
-#context-info-wrapper_modal,
+/* O Wrapper precisa de posição relativa para o menu flutuar em relação a ele */
+#context-info-wrapper_modal, 
 #context-info-wrapper_sidebar {
-    margin-bottom: 0.75rem;
-    transition: all 0.3s ease;
+    position: relative;
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha o botão à esquerda */
 }
-#context-info-wrapper_modal .btn-context,
-#context-info-wrapper_sidebar .btn-context {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--theme-text-secondary);
-    text-decoration: none;
+
+/* O Menu Flutuante (A Lista de Fontes) */
+.lia-sources-popover {
+    position: absolute;
+    bottom: 120%; /* Fica ACIMA do botão */
+    left: 0;
+    width: 100%;
+    min-width: 300px; /* Largura mínima para leitura */
+    max-height: 250px; /* Altura máxima com scroll */
+    overflow-y: auto;
+    
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 12px;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.15); /* Sombra suave */
+    padding: 0.5rem;
+    z-index: 100; /* Garante que fique por cima de tudo */
+    
+    /* Animação de entrada */
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    pointer-events: none; /* Ignora cliques quando invisível */
 }
-#context-info-wrapper_modal .btn-context:hover,
-#context-info-wrapper_sidebar .btn-context:hover {
-    color: var(--theme-text);
+
+/* Estado Visível (Adicionado pelo JS) */
+.lia-sources-popover.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
 }
-#context-info-wrapper_modal .list-group-item,
-#context-info-wrapper_sidebar .list-group-item {
-    font-size: 0.8rem;
-    background: var(--theme-surface-hover);
+
+/* Estilo da lista dentro do popover */
+.lia-sources-popover .list-group-item {
+    background: transparent;
     border: none;
-    padding: 0.3rem 0.8rem;
-    border-radius: 6px;
-    margin-top: 0.25rem;
+    border-bottom: 1px solid var(--theme-border);
+    color: var(--theme-text);
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
 }
+.lia-sources-popover .list-group-item:last-child {
+    border-bottom: none;
+}
+.lia-sources-popover .list-group-item i {
+    color: var(--theme-primary-btn);
+}
+
+/* Scrollbar bonita para o menu */
+.lia-sources-popover::-webkit-scrollbar { width: 6px; }
+.lia-sources-popover::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 4px; }
 
 /* =================================================================== */
 /* === 6.0 - SEÇÃO DE FEEDBACK (NAS MENSAGENS) ===================== */
@@ -893,4 +927,94 @@ body[data-lia-mode="sidebar"] .modal-backdrop {
 #lia-sidebar-resizer:hover,
 body.lia-sidebar-resizing #lia-sidebar-resizer {
     border-left: 2px solid var(--theme-primary-btn);
+}
+
+/* =================================================================== */
+/* === NOVO: CONTEXTO DE FONTES (SEM CONFLITOS) ==================== */
+/* =================================================================== */
+
+/* O Container Flutuante */
+.lia-sources-box {
+    display: none; /* Controlado via JS */
+    position: absolute;
+    bottom: 110%; /* Fica logo acima do botão */
+    left: 0;
+    width: 100%;
+    min-width: 300px;
+    max-height: 250px;
+    overflow-y: auto;
+    
+    background-color: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 12px;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+    z-index: 9999;
+    padding: 0; /* Reset de padding */
+}
+
+/* O Cabeçalho "Fontes Utilizadas" */
+.lia-sources-header {
+    padding: 10px 15px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--theme-text-secondary);
+    background: var(--theme-primary-btn-bg-subtle);
+    border-bottom: 1px solid var(--theme-border);
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+}
+
+/* A Lista (Substitui o list-group) */
+.lia-sources-list {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important; /* Força visibilidade */
+}
+
+/* O Item da Lista */
+.lia-sources-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--theme-border);
+    font-size: 0.85rem;
+    color: var(--theme-text);
+    display: flex;
+    align-items: flex-start;
+    transition: background 0.2s;
+}
+
+.lia-sources-item:last-child {
+    border-bottom: none;
+}
+
+.lia-sources-item:hover {
+    background-color: var(--theme-surface-hover);
+}
+
+.lia-sources-item i {
+    color: var(--theme-primary-btn);
+    margin-right: 10px;
+    margin-top: 2px; /* Alinhamento fino com o texto */
+}
+
+/* Botão de abrir (Estilização Refinada) */
+.btn-context-trigger {
+    background: transparent;
+    border: none;
+    color: var(--theme-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 0;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.btn-context-trigger:hover {
+    opacity: 1;
+    color: var(--theme-primary-btn);
 }

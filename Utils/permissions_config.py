@@ -11,6 +11,7 @@ Armazena listas e configurações que podem ser compartilhadas por diferentes ro
 MODULOS_RESTRITOS = [
     'template',
     'relacao-parceiros',
+    'testando'
 ]
 
 MODULOS_TECNICOS_VISIVEIS = [
