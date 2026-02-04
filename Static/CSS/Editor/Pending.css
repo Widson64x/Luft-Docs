@@ -198,4 +198,70 @@ body.theme-dark .diff-add {
 body.theme-dark .diff-rem {
     background-color: rgba(239, 68, 68, 0.2);
     color: #fca5a5;
+}.comparison-panel {
+    border: 1px solid var(--theme-border);
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding: 1.5rem;
+    background: var(--theme-surface);
+    min-height: 350px;
+    max-height: 65vh;
+    overflow: auto;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--theme-text);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* =================================================================== */
+/* === ESTILOS VISUAIS DO DIFF (COMPARATIVO DINÂMICO) === */
+/* =================================================================== */
+
+/* Reset básico para os chunks de texto */
+.diff-chunk {
+    display: inline;
+    line-height: 1.6;
+}
+
+/* --- 1. O QUE FOI ADICIONADO (Usa variáveis de Sucesso/Inserção) --- */
+.diff-add {
+    background-color: var(--diff-insertion-bg); /* Fundo dinâmico */
+    color: var(--theme-color-success);          /* Texto verde do tema */
+    border-bottom: 2px solid var(--theme-color-success);
+    text-decoration: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* --- 2. O QUE FOI REMOVIDO (Usa variáveis de Perigo/Deleção) --- */
+.diff-rem {
+    background-color: var(--diff-deletion-bg); /* Fundo dinâmico */
+    color: var(--theme-color-danger);          /* Texto vermelho do tema */
+    text-decoration: line-through;
+    opacity: 0.8;
+    padding: 0 2px;
+}
+
+/* --- 3. TRATAMENTO ESPECIAL PARA IMAGENS E VÍDEOS --- */
+
+/* Imagem/Vídeo ADICIONADO */
+.diff-add img, 
+.diff-add video,
+.diff-add iframe {
+    border: 4px solid var(--theme-color-success) !important;
+    /* Cria um brilho usando a cor do tema com transparência */
+    box-shadow: 0 0 15px color-mix(in srgb, var(--theme-color-success) 40%, transparent);
+    border-radius: 8px;
+    display: block;
+    margin: 10px auto;
+    padding: 4px;
+    background: color-mix(in srgb, var(--theme-color-success) 10%, transparent);
+}
+
+/* Imagem/Vídeo REMOVIDO */
+.diff-rem img,
+.diff-rem video {
+    border: 4px solid var(--theme-color-danger) !important;
+    opacity: 0.5;
+    filter: grayscale(100%);
 }

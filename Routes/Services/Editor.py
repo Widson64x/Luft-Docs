@@ -383,59 +383,86 @@ def rejeitar(mid):
 @editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
 def historico_modulo(mid):
     if not has_perm('can_versioning_modules').get_json().get('allowed'):
-        abort(403, "Você não tem permissão para acessar o histórico de versões.")
+        abort(403, "Você não tem permissão para acessar o histórico.")
 
     token = request.args.get('token', '')
-    modulo_dict = get_modulo_by_id(mid)
-    if not modulo_dict:
-        abort(404)
+    modulo_obj = Modulo.query.get_or_404(mid) # Usando objeto do banco
+    path_mod = os.path.join(DATA_DIR, mid)
+    history_dir = os.path.join(path_mod, "history")
+    os.makedirs(history_dir, exist_ok=True)
 
+    # --- LÓGICA DE RESTAURAÇÃO (POST) ---
     if request.method == 'POST':
         try:
-            versao_filename = request.form.get('versao_filename')
-            tipo = request.form.get('tipo')
+            # Dados vindos do formulário de restauração
+            versao_alvo_file = request.form.get('versao_filename') # Ex: v1.1_2023...doc.md
+            tipo_arquivo = request.form.get('tipo') # 'doc' ou 'tech'
+            
             user_name = session.get('user_name', 'Anônimo')
             agora = datetime.now()
+            
+            # Define caminhos
+            nome_arquivo_vigente = "documentation.md" if tipo_arquivo == 'doc' else "technical_documentation.md"
+            path_vigente = os.path.join(path_mod, nome_arquivo_vigente)
+            path_versao_antiga = os.path.join(history_dir, secure_filename(versao_alvo_file))
 
-            path_mod = os.path.join(DATA_DIR, mid)
-            history_dir = os.path.join(path_mod, "history")
-            vigente_path = os.path.join(path_mod, "documentation.md" if tipo == 'doc' else "technical_documentation.md")
-            versao_path = os.path.join(history_dir, versao_filename)
+            if not os.path.exists(path_versao_antiga):
+                flash('Arquivo da versão selecionada não encontrado.', 'danger')
+                return redirect(url_for('.historico_modulo', mid=mid, token=token))
 
-            if os.path.exists(versao_path):
-                if os.path.exists(vigente_path):
-                    backup_name = f"{agora.strftime('%Y-%m-%dT%H-%M-%S')}_backup_before_restore.md"
-                    shutil.copyfile(vigente_path, os.path.join(history_dir, backup_name))
-                
-                shutil.copyfile(versao_path, vigente_path)
-                versao_restaurada = versao_filename.split('_')[0].replace('v', '')
+            # 1. FAZER BACKUP DA VERSÃO VIGENTE ATUAL (Antes de substituir)
+            # Isso garante que a "regressão" não apague o trabalho atual
+            backup_filename = f"v{modulo_obj.current_version}_BKP-PRE-RESTORE_{agora.strftime('%Y-%m-%dT%H-%M-%S')}_{'doc' if tipo_arquivo == 'doc' else 'tech'}.md"
+            path_backup = os.path.join(history_dir, backup_filename)
+            
+            if os.path.exists(path_vigente):
+                shutil.copyfile(path_vigente, path_backup)
+            
+            # 2. RESTAURAR A VERSÃO ANTIGA
+            shutil.copyfile(path_versao_antiga, path_vigente)
 
-                modulo_obj = Modulo.query.get(mid)
-                modulo_obj.current_version = versao_restaurada
-                modulo_obj.last_approved_by = user_name
-                modulo_obj.last_approved_on = agora.isoformat()
+            # 3. ATUALIZAR O BANCO DE DADOS
+            # Extrai o número da versão do nome do arquivo (ex: v1.2_...) ou define um novo
+            versao_restaurada = "Regressão" 
+            match = re.search(r'v(\d+\.\d+)', versao_alvo_file)
+            if match:
+                versao_restaurada = match.group(1)
 
-                hist_restauracao = HistoricoEdicao(
-                    event='restaurado', version=versao_restaurada, editor=user_name,
-                    timestamp=agora.isoformat(),
-                    backup_file_doc=versao_filename if tipo == 'doc' else None,
-                    backup_file_tech=versao_filename if tipo == 'tech' else None
-                )
-                modulo_obj.edit_history.append(hist_restauracao)
-                
-                db.session.commit()
-                flash(f'Módulo revertido para a versão {versao_restaurada} com sucesso!', 'success')
-            else:
-                flash('Arquivo de versão não encontrado.', 'danger')
+            # Registra no histórico do banco
+            hist_entry = HistoricoEdicao(
+                event='restaurado', 
+                version=f"{versao_restaurada} (Restaurado)", 
+                editor=user_name,
+                timestamp=agora.isoformat(),
+                backup_file_doc=backup_filename if tipo_arquivo == 'doc' else None,
+                backup_file_tech=backup_filename if tipo_arquivo == 'tech' else None
+            )
+            modulo_obj.edit_history.append(hist_entry)
+            
+            # Atualiza versão atual visualmente para indicar a mudança
+            modulo_obj.last_approved_by = f"{user_name} (Rollback)"
+            modulo_obj.last_approved_on = agora.isoformat()
+            
+            db.session.commit()
+            flash(f'Módulo restaurado para a versão do arquivo {versao_alvo_file}. A versão anterior foi salva como backup.', 'success')
+
         except Exception as e:
             db.session.rollback()
-            flash(f"Erro ao restaurar a versão: {e}", "danger")
+            flash(f"Erro ao restaurar versão: {e}", "danger")
         
         return redirect(url_for('.historico_modulo', mid=mid, token=token))
 
-    historico_eventos = sorted(modulo_dict.get('edit_history', []), key=lambda x: x['timestamp'], reverse=True)
-    return render_template('Editor/HistoricalModule.html', modulo=modulo_dict, historico_eventos=historico_eventos, token=token)
-
+    # --- GET: LISTAR VERSÕES ---
+    # Ordena do mais recente para o mais antigo
+    historico_eventos = sorted(modulo_obj.edit_history, key=lambda x: x.timestamp, reverse=True)
+    
+    return render_template(
+        'Editor/HistoricalModule.html', 
+        modulo=modulo_obj, 
+        historico_eventos=historico_eventos, 
+        token=token
+    )
+    
 @editor_bp.route('/options', methods=['GET'])
 def editor_options():
     modules_db = Modulo.query.with_entities(Modulo.id, Modulo.nome).order_by(Modulo.nome).all()
@@ -672,30 +699,47 @@ def diff_pendente():
 
 @editor_bp.route('/diff_historico')
 def diff_historico():
+    """
+    Compara:
+    - Lado Esquerdo: Versão ATUAL (Vigente).
+    - Lado Direito: Versão HISTÓRICA (Selecionada).
+    Isso mostra 'O que acontece se eu restaurar essa versão antiga?'.
+    """
     if not has_perm('can_versioning_modules').get_json().get('allowed'):
         return jsonify({'error': 'Acesso negado.'}), 403
 
     mid = request.args.get('mid')
-    file1 = request.args.get('file1')
-    file2 = request.args.get('file2')
-    if not all([mid, file1, file2]):
-        return jsonify({'error': 'Parâmetros ausentes.'}), 400
+    file_historico = request.args.get('file1') # Arquivo Histórico
+    tipo = request.args.get('tipo', 'doc')     # doc ou tech
 
-    history_dir = os.path.join(DATA_DIR, mid, "history")
-    path1 = os.path.join(history_dir, secure_filename(file1))
-    path2 = os.path.join(history_dir, secure_filename(file2))
-    if not os.path.exists(path1) or not os.path.exists(path2):
-        return jsonify({'error': 'Arquivos não encontrados.'}), 404
+    if not mid or not file_historico:
+        return jsonify({'error': 'Parâmetros inválidos.'}), 400
 
-    with open(path1, 'r', encoding='utf-8') as f1, open(path2, 'r', encoding='utf-8') as f2:
-        content1, content2 = f1.read(), f2.read()
+    path_mod = os.path.join(DATA_DIR, mid)
+    history_dir = os.path.join(path_mod, "history")
 
-    dmp = dmp_module.diff_match_patch()
-    diffs = dmp.diff_main(content1, content2)
-    dmp.diff_cleanupSemantic(diffs)
-    patch = dmp.patch_make(content1, diffs)
-    return jsonify({'diff': dmp.patch_toText(patch)})
+    def read_content(path):
+        return open(path, 'r', encoding='utf-8').read() if os.path.exists(path) else ""
 
+    # 1. Ler Versão Atual (Referência/Esquerda)
+    filename_vigente = "documentation.md" if tipo == 'doc' else "technical_documentation.md"
+    path_atual = os.path.join(path_mod, filename_vigente)
+    content_atual = read_content(path_atual)
+
+    # 2. Ler Versão Histórica (Alvo/Direita)
+    path_historico = os.path.join(history_dir, secure_filename(file_historico))
+    content_historico = read_content(path_historico)
+
+    # Renderização:
+    # Esquerda: Mostra a ATUAL limpa (para referência de como está hoje).
+    # Direita: Mostra o Diff (Comparando Atual -> Histórica).
+    # Verde na direita = "Isso existe na histórica mas não na atual" (Será recuperado).
+    # Vermelho na direita = "Isso existe na atual mas não na histórica" (Será perdido).
+    
+    return jsonify({
+        "html_left": render_clean_markdown(content_atual),
+        "html_right": render_diff_html(content_atual, content_historico) 
+    })
 
 @editor_bp.route('/get_historical_content')
 def get_historical_content():
