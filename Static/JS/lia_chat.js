@@ -449,7 +449,9 @@ class LiaChat {
             if (response.ok) {
                 this._renderMessage(data.answer || '', 'lia');
                 this._updateLastResponseState(data, userQuestion);
-                this._renderContext(data.context_files || []);
+                
+                // Agora passamos 'context_sources_objects' (com links) se existir, senão o fallback antigo
+                this._renderContext(data.context_sources_objects || data.context_files || []);
             } else {
                 this._renderMessage(`<strong>Erro:</strong> ${data.error || 'Ocorreu um problema.'}`, 'error');
                 this._resetLastResponseState();
@@ -513,22 +515,103 @@ class LiaChat {
         if (!elements) return;
 
         const wrapper = elements.contextInfoWrapper;
+        
+        // 1. Limpeza e Validação
         if (!wrapper || !Array.isArray(files) || files.length === 0) {
             if (wrapper) wrapper.style.display = 'none';
             return;
         }
-        
-        const collapseId = `liaContextCollapse-${this.state.currentMode}-${Date.now()}`;
-        const filesList = files.map(file => `<li class="list-group-item">${file}</li>`).join('');
-        
+
+        // 2. Construção da Lista HTML (Com suporte a LINKS)
+        const itemsHTML = files.map(file => {
+            // Detecta se veio do backend novo (objeto {name, url}) ou antigo (string)
+            const isObject = typeof file === 'object' && file !== null;
+            const text = isObject ? file.name : file;
+            const url = isObject ? file.url : '#';
+            const hasLink = isObject && url && url !== '#';
+
+            if (hasLink) {
+                // ITEM CLICÁVEL (Removemos o padding do LI e colocamos no A para encher o espaço)
+                return `
+                    <li class="lia-sources-item" style="padding: 0;">
+                        <a href="${url}" target="_blank" style="display: flex; align-items: flex-start; padding: 10px 15px; text-decoration: none; color: inherit; width: 100%; transition: background 0.2s;">
+                            <i class="bi bi-file-earmark-text" style="color:var(--theme-primary-btn); margin-right: 10px; margin-top: 2px;"></i>
+                            <span class="text-break" style="flex: 1;">${text}</span>
+                            <i class="bi bi-box-arrow-up-right ms-2" style="font-size: 0.75rem; opacity: 0.5; margin-top: 4px;"></i>
+                        </a>
+                    </li>
+                `;
+            } else {
+                // ITEM APENAS TEXTO (Fallback)
+                return `
+                    <li class="lia-sources-item">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="text-break">${text}</span>
+                    </li>
+                `;
+            }
+        }).join('');
+
+        // 3. Injeção do HTML (Mantendo a estrutura nova que criamos antes)
         wrapper.innerHTML = `
-            <a class="btn-context" data-bs-toggle="collapse" href="#${collapseId}" role="button" aria-expanded="false">
-              Fontes utilizadas <i class="bi bi-chevron-down ms-1"></i>
-            </a>
-            <div class="collapse" id="${collapseId}">
-              <ul class="list-group list-group-flush mt-2">${filesList}</ul>
-            </div>`;
+            <div class="lia-sources-box" id="liaSourcesBox-${this.state.currentMode}">
+                <div class="lia-sources-header">
+                    <i class="bi bi-layers me-2"></i>Fontes Utilizadas (${files.length})
+                </div>
+                <ul class="lia-sources-list">
+                    ${itemsHTML}
+                </ul>
+            </div>
+            
+            <button class="btn-context-trigger" type="button">
+              <i class="bi bi-info-circle me-2"></i> Ver contexto
+              <i class="bi bi-chevron-up ms-2 toggle-icon" style="transition: transform 0.3s;"></i>
+            </button>
+        `;
+        
         wrapper.style.display = 'block';
+        wrapper.style.position = 'relative';
+
+        // 4. Lógica de Toggle (Mantida igual)
+        const btn = wrapper.querySelector('.btn-context-trigger');
+        const box = wrapper.querySelector('.lia-sources-box');
+        const icon = wrapper.querySelector('.toggle-icon');
+        
+        if (btn && box) {
+            box.style.display = 'none';
+
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isHidden = box.style.display === 'none';
+                
+                if (isHidden) {
+                    box.style.display = 'block';
+                    icon.style.transform = 'rotate(180deg)';
+                    box.style.opacity = '0';
+                    box.style.transform = 'translateY(10px)';
+                    requestAnimationFrame(() => {
+                        box.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                        box.style.opacity = '1';
+                        box.style.transform = 'translateY(0)';
+                    });
+                } else {
+                    box.style.display = 'none';
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            };
+
+            const closeOnClickOutside = (docEvent) => {
+                if (box.style.display !== 'none' && !wrapper.contains(docEvent.target)) {
+                    box.style.display = 'none';
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            };
+            
+            document.removeEventListener('click', closeOnClickOutside);
+            document.addEventListener('click', closeOnClickOutside);
+        }
     }
 
     // ==========================================================

@@ -55,7 +55,7 @@
           <div class="module-info-block mb-3">
             
             {# Pega o último evento do histórico para análise #}
-            {% set last_event = m.edit_history | last %}
+            {% set last_event = m.edit_history | sort(attribute='timestamp') | last %}
 
             {# Bloco 1: Mostra os badges de ID e status/versão #}
             <div class="d-flex align-items-center gap-2">
@@ -95,7 +95,7 @@
                 {% elif last_event.event == 'criado' %}
                   <div class="info-line">
                     <i class="bi bi-person-fill-add"></i>
-                    <span>Criado por <strong>{{ last_event.user }}</strong></span>
+                    <span>Criado por <strong>{{ last_event.editor }}</strong></span>
                   </div>
                 {% endif %}
                 <div class="info-line">
