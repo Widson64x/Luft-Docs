@@ -269,7 +269,6 @@ class LiaChat {
     // === FIM DA LÓGICA DO RESIZER =============================
     // ==========================================================
 
-
     _initProactiveButton() {
         if (this.proactiveModuleName && this.proactiveModuleId) {
             this.elements_global.floatingBtn.classList.add('lia-proactive');
