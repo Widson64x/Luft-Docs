@@ -5,7 +5,9 @@ Não mexe nele por que nem eu sei como eu fiz isso daqui.
 
 import os
 import re 
+import time # Importado para pausar a execução e respeitar limites de cota
 import chromadb
+from chromadb.config import Settings
 import google.generativeai as genai
 from dotenv import load_dotenv
 import sys
@@ -23,7 +25,8 @@ try:
     if not api_key:
         raise ValueError("Chave da API do Gemini não encontrada no arquivo .env")
     genai.configure(api_key=api_key)
-    embedding_model = "models/text-embedding-004"
+    
+    embedding_model = "models/gemini-embedding-001" 
     print(f"API do Gemini configurada. Usando o modelo de embedding: {embedding_model}")
 except Exception as e:
     print(f"Erro ao configurar a API do Gemini: {e}")
@@ -31,15 +34,19 @@ except Exception as e:
 
 def create_vector_db():
     print("Iniciando cliente ChromaDB...")
-    client = chromadb.PersistentClient(path=str(VECTOR_DB_DIR))
+    """Cria um banco de dados vetorial usando ChromaDB e gera embeddings para os documentos.
+
+        O ChromaDB é um banco de dados vetorial que armazena embeddings gerados a partir de documentos.
+        Ele é usado para realizar buscas semânticas eficientes, permitindo que a IA encontre informações relevantes com base no conteúdo dos documentos.
+    """
+    client = chromadb.PersistentClient(
+        path=str(VECTOR_DB_DIR),
+        settings=Settings(anonymized_telemetry=False)
+    )
 
     collection_name = "luftdocs_collection"
+    # Verifica se a coleção já existe e, se sim, deleta para recriar do zero, OBS: Uma coleção se resume em uma pasta dentro do VECTOR_DB_DIR, então isso é seguro de fazer sem afetar outros dados
     if collection_name in [c.name for c in client.list_collections()]:
-        #
-        # "Eu sou inevitável." - Thanos
-        # "E eu... sou o Indexador." - Esse Script
-        # (Destrói a coleção antiga para construir uma nova)
-        #
         print(f"Coleção '{collection_name}' existente encontrada. Deletando para recriar do zero.")
         client.delete_collection(name=collection_name)
         
@@ -50,10 +57,12 @@ def create_vector_db():
     metadatas = []
     ids = []
     doc_id_counter = 0
-
+    
     root_directory = DATA_ROOT
     print(f"Iniciando varredura do diretório: {root_directory}")
 
+    # Para cada arquivo markdown encontrado, vamos ler o conteúdo, dividir em blocos menores e gerar embeddings para cada bloco, associando metadados como o caminho do arquivo e o módulo correspondente (se aplicável).
+    # embbendings: São representações numéricas do conteúdo dos documentos, geradas pelo modelo de embedding do Gemini. Eles permitem que a IA compreenda o significado semântico dos textos e realizem buscas eficientes.
     for root, dirs, files in os.walk(root_directory):
         if 'history' in dirs:
             print(f"Ignorando diretório de histórico: {os.path.join(root, 'history')}")
@@ -71,25 +80,18 @@ def create_vector_db():
                         if idx < len(path_parts):
                             module_name = path_parts[idx].lower()
 
-                    
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
-    
-                        # Em vez de dividir por parágrafos, dividimos pelo início de cada título (linhas que começam com #, ##, etc.)
-                        # Isso cria blocos maiores e com mais contexto.
-                        # O '(?=...)' garante que o título não seja removido na divisão, mas sim que faça parte do bloco.
-                        chunks = re.split(r'\n(?=#{1,6} )', content.strip())
-                        
-                        # Filtramos para garantir que os blocos não sejam vazios ou muito pequenos
-                        valid_chunks = [chunk for chunk in chunks if chunk.strip() and len(chunk.strip()) > 50]
+                    chunks = re.split(r'\n(?=#{1,6} )', content.strip())
+                    valid_chunks = [chunk for chunk in chunks if chunk.strip() and len(chunk.strip()) > 50]
 
-                        for i, chunk in enumerate(valid_chunks):
-                            documents.append(chunk)
-                            metadatas.append({'source': file_path, 'module': module_name})
-                            ids.append(f"id_{doc_id_counter}_{i}")
-                        
-                        doc_id_counter += 1
+                    for i, chunk in enumerate(valid_chunks):
+                        documents.append(chunk)
+                        metadatas.append({'source': file_path, 'module': module_name})
+                        ids.append(f"id_{doc_id_counter}_{i}")
+                    
+                    doc_id_counter += 1
                     print(f"Processado: {file_path} (Módulo: {module_name}) -> {len(valid_chunks)} blocos criados.")
                 except Exception as e:
                     print(f"Erro ao ler {file_path}: {e}")
@@ -100,25 +102,52 @@ def create_vector_db():
 
     print(f"\nTotal de {len(documents)} blocos de texto para indexar.")
     
-    result = genai.embed_content(
-        model=embedding_model,
-        content=documents,
-        task_type="RETRIEVAL_DOCUMENT"
-    )
-    embeddings = result['embedding']
-
-    print(f"Embeddings gerados. Adicionando {len(ids)} itens ao ChromaDB...")
+    embeddings = []
+    embed_batch_size = 80 # Margem segura para o limite de 100/min
+    total_batches = (len(documents) + embed_batch_size - 1) // embed_batch_size
     
-    batch_size = 100
-    for i in range(0, len(ids), batch_size):
-        end_index = i + batch_size
+    print("\nIniciando geração de embeddings em lotes (respeitando a cota gratuita)...")
+    for i in range(0, len(documents), embed_batch_size):
+        batch_docs = documents[i : i + embed_batch_size]
+        current_batch = (i // embed_batch_size) + 1
+        print(f"Processando lote {current_batch} de {total_batches} ({len(batch_docs)} documentos)...")
+        
+        success = False
+        while not success:
+            try:
+                result = genai.embed_content(
+                    model=embedding_model,
+                    content=batch_docs,
+                    task_type="RETRIEVAL_DOCUMENT"
+                )
+                embeddings.extend(result['embedding'])
+                success = True
+            except Exception as e:
+                # Se der erro 429, esperamos e tentamos o mesmo lote de novo
+                if "429" in str(e) or "ResourceExhausted" in str(e):
+                    print("Limite de cota atingido (Erro 429). Aguardando 60 segundos para tentar novamente...")
+                    time.sleep(60)
+                else:
+                    raise e
+        
+        # Pausa preventiva antes do próximo lote, a menos que seja o último
+        if i + embed_batch_size < len(documents):
+            print("Sucesso! Aguardando 60 segundos antes do próximo lote para evitar bloqueio...")
+            time.sleep(60)
+
+    print(f"\nTodos os embeddings gerados! Adicionando {len(ids)} itens ao ChromaDB...")
+    
+    # Adicionando ao ChromaDB em lotes para não sobrecarregar a memória
+    db_batch_size = 100
+    for i in range(0, len(ids), db_batch_size):
+        end_index = i + db_batch_size
         collection.add(
             embeddings=embeddings[i:end_index],
             documents=documents[i:end_index],
             metadatas=metadatas[i:end_index],
             ids=ids[i:end_index]
         )
-        print(f"Adicionado lote {i//batch_size + 1} ao banco de dados.")
+        print(f"Adicionado lote {i//db_batch_size + 1} ao banco de dados ChromaDB.")
 
     print("\nIndexação focada concluída com sucesso!")
     print(f"Total de itens na coleção: {collection.count()}")
