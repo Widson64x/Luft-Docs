@@ -17,7 +17,7 @@
       Caixa de Aprovação
       <span class="luft-modal-badge ms-2">{{ pendentes|length }}</span>
     </h1>
-    <a href="{{ url_for('editor.editor_index', token=token) }}" class="luft-btn luft-btn-outline">
+    <a href="{{ url_for('editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
       <i class="bi bi-arrow-left"></i> Voltar
     </a>
   </div>
@@ -42,12 +42,12 @@
                     title="Comparar Versões">
               <i class="bi bi-arrow-left-right"></i> Comparar
             </button>
-            <form method="post" action="{{ url_for('editor.aprovar', mid=m.id, token=token) }}" class="d-inline">
+            <form method="post" action="{{ url_for('editor.aprovarModulo', mid=m.id, token=token) }}" class="d-inline">
               <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-success-600); border-color: var(--luft-success-600);" title="Aprovar">
                 <i class="bi bi-check-lg"></i>
               </button>
             </form>
-            <form method="post" action="{{ url_for('editor.rejeitar', mid=m.id, token=token) }}" class="d-inline">
+            <form method="post" action="{{ url_for('editor.rejeitarModulo', mid=m.id, token=token) }}" class="d-inline">
               <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-danger-600); border-color: var(--luft-danger-600);" title="Rejeitar">
                 <i class="bi bi-x-lg"></i>
               </button>
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
       painelTechVigente.innerHTML = painelTechPendente.innerHTML = '';
       indicadorCarregamento.style.display = 'block';
 
-      fetch(`{{ url_for("editor.diff_pendente") }}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`)
+      fetch(`{{ url_for("editor.obterDiffPendente") }}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`)
         .then(resposta => resposta.json())
         .then(dadosResposta => {
           indicadorCarregamento.style.display = 'none';

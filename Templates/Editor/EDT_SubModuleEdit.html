@@ -21,7 +21,7 @@
         <button type="submit" class="luft-btn luft-btn-primary">
           <i class="bi bi-save"></i> Salvar Alterações
         </button>
-        <a href="{{ url_for('editor.listar_submodulos', token=token) }}" class="luft-btn luft-btn-outline">
+        <a href="{{ url_for('editor.listarSubmodulos', token=token) }}" class="luft-btn luft-btn-outline">
           <i class="bi bi-x-circle"></i> Cancelar
         </a>
       </div>
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addImageBlobHook: (arquivoBlob, callbackInsercao) => {
           const formData = new FormData();
           formData.append('file', arquivoBlob);
-          fetch(AdicionarPrefixo(`{{ url_for("editor.upload_submodule_image") }}?token=${tokenUsuario}`), {
+          fetch(AdicionarPrefixo(`{{ url_for("editor.enviarImagemSubmodulo") }}?token=${tokenUsuario}`), {
             method: 'POST', body: formData
           })
           .then(resposta => resposta.json())
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData();
       formData.append('file', arquivoSelecionado);
       
-      fetch(AdicionarPrefixo(`{{ url_for('editor.upload_submodule_video') }}?token=${tokenUsuario}`), { method: 'POST', body: formData })
+      fetch(AdicionarPrefixo(`{{ url_for('editor.enviarVideoSubmodulo') }}?token=${tokenUsuario}`), { method: 'POST', body: formData })
         .then(resposta => resposta.json())
         .then(dadosResposta => {
           if (dadosResposta.url) {

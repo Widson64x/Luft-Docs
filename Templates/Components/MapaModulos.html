@@ -18,7 +18,7 @@
         </a>
 
         {% if can_access_editor %}
-        <a href="{{ url_for('editor.editor_index', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
+        <a href="{{ url_for('editor.exibirPainelEditor', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
             <i class="ph-bold ph-pencil-simple"></i> Acessar Editor
         </a>
         {% endif %}

@@ -1,46 +1,23 @@
 # routes/download.py
 
-from flask import Blueprint, send_from_directory, current_app, request, abort, session
-import os
+from flask import Blueprint, abort, send_from_directory
+
+from Services.ServicoDownload import ServicoDownload
 from Utils.auth.Autenticacao import LoginObrigatorio
-from Config import DOCS_DOWNLOAD_DIR
 
 # Registre este blueprint em app.py com url_prefix='/download'
 download_bp = Blueprint('download', __name__)
+servicoDownload = ServicoDownload()
 
 @download_bp.route('/', methods=['GET'])
 @LoginObrigatorio
-def download_pela_raiz():
-    """
-    GET /download?token=<TOKEN>&download=<NOME_DO_ARQUIVO>
-    """
-    # 1) Parâmetro obrigatório
-    nome_arquivo = request.args.get('download', '').strip()
-    if not nome_arquivo:
-        abort(400, "Parâmetro 'download' vazio")
-
-    # 2) Bloqueia path traversal simples
-    if '..' in nome_arquivo or nome_arquivo.startswith(('/', '\\')):
-        abort(400, "Nome de arquivo inválido")
-        
-        #
-        # "Onde você pensa que vai com esse '../' ?"
-        #
-        # Esta linha impede que o usuário peça "..\..\..\..\Windows\System32"
-        # e leve o servidor para casa.
-        #
-        
-    # 3) Monta caminho para data/downloads/docs
-    pasta_download = DOCS_DOWNLOAD_DIR
-    if not os.path.isdir(pasta_download):
-        current_app.logger.error(f"Pasta de downloads não existe: {pasta_download}")
-        abort(500, "Erro de configuração do servidor")
-
-    # 4) Verifica existência
-    caminho = os.path.join(pasta_download, nome_arquivo)
-    if not os.path.isfile(caminho):
-        current_app.logger.warning(f"Arquivo não encontrado: {caminho}")
-        abort(404)
-
-    # 5) Serve o arquivo
-    return send_from_directory(pasta_download, nome_arquivo, as_attachment=True)
+def baixarPelaRaiz():
+    """Recebe a solicitacao HTTP de download e delega a validacao ao service."""
+    resposta_servico = servicoDownload.obterRespostaDownload()
+    if resposta_servico["tipo"] == "erro":
+        abort(resposta_servico["codigo"], resposta_servico["mensagem"])
+    return send_from_directory(
+        resposta_servico["pasta"],
+        resposta_servico["nome_arquivo"],
+        as_attachment=True,
+    )
