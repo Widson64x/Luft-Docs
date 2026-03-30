@@ -1,205 +1,263 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === HISTORICAL_MODULE.CSS - ESTILOS DA PÁGINA DE HISTÓRICO === */
+/* === HISTORICAL_MODULE.CSS - ESTILOS DA PÁGINA DE HISTÓRICO      === */
+/* =================================================================== */
+/* =================================================================== */
+/* === ESTILOS GERAIS DE BOTÕES E GRUPOS (.luft-btn)               === */
 /* =================================================================== */
 
-/* --- 1. LAYOUT GERAL E CABEÇALHO --- */
-.page-header h2 .text-primary {
-    color: var(--theme-primary-btn) !important;
-}
-
-.page-header .text-muted {
-    color: var(--theme-text-secondary) !important;
-}
-
-/* --- 2. ABAS DE NAVEGAÇÃO --- */
-.tab-content {
-    /* Adiciona um preenchimento para separar as abas da timeline */
-    padding-top: 1.5rem;
-}
-
-/* --- 3. COMPONENTE DE TIMELINE --- */
-.timeline {
-    position: relative;
-    padding-left: 4rem;
-    margin: 0;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--theme-border);
-    border-radius: 2px;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 2.5rem;
-}
-
-.timeline-item:last-child {
-    margin-bottom: 0;
-}
-
-.timeline-icon {
-    position: absolute;
-    left: -28px;
-    top: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--theme-surface);
-    border: 4px solid var(--theme-border);
-    display: flex;
+.luft-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    color: var(--theme-primary-btn-text);
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--luft-radius-md, 8px);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none !important; /* Remove sublinhado do link Voltar */
+    line-height: 1.5;
+    background: transparent;
+    font-family: inherit;
+}
+
+/* Tamanho menor para a tabela */
+.luft-btn.luft-btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    gap: 0.25rem;
+}
+
+.luft-btn i {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.luft-btn.luft-btn-sm i {
+    font-size: 1rem;
+}
+
+/* Botão Primário */
+.luft-btn-primary {
+    background-color: var(--luft-primary-600, #0d6efd);
+    color: #ffffff !important;
+    border-color: var(--luft-primary-600, #0d6efd);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.luft-btn-primary:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Botão Outline (Secundário/Cancelar) */
+.luft-btn-outline {
+    background-color: var(--luft-bg-panel, #ffffff);
+    color: var(--luft-text-main, #333333);
+    border-color: var(--luft-border, #dee2e6);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50, #f8f9fa);
+    color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-300, #b6d4fe);
+}
+
+/* --- AJUSTE ESPECÍFICO PARA OS BOTÕES AGRUPADOS (BACKUPS) --- */
+.backup-file-item .btn-group {
+    display: flex;
+    gap: 0;
+}
+
+/* Ajusta os cantos arredondados para formarem um grupo contínuo */
+.backup-file-item .btn-group .luft-btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.backup-file-item .btn-group .luft-btn:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px; /* Impede borda dupla no meio */
+}
+
+/* Ajuste de hover para os botões do grupo */
+.backup-file-item .btn-group .luft-btn:hover {
+    z-index: 1; /* Garante que a borda do botão em hover fique sobreposta ao vizinho */
+}
+
+.backup-file-item .btn-group .luft-btn.text-danger:hover {
+    color: var(--luft-danger-600, #dc3545) !important;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--luft-danger-300, #f1aeb5);
+}
+
+/* =================================================================== */
+/* === ESTILOS ESPECÍFICOS DA PÁGINA DE HISTÓRICO                === */
+/* =================================================================== */
+.luft-history-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--luft-space-8) var(--luft-space-4);
+    position: relative;
     z-index: 1;
 }
 
-/* Cores dos ícones baseadas no status */
-.timeline-icon.approved { background-color: var(--theme-color-success); }
-.timeline-icon.restored { background-color: var(--theme-color-warning); }
-.timeline-icon.created { background-color: var(--theme-color-primary); }
-
-.timeline-card {
-    background-color: var(--theme-surface);
-    border: 1px solid var(--theme-border);
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 12px var(--theme-shadow);
+.luft-history-header h1 {
+    font-size: clamp(1.4rem, 3.5vw, 1.75rem);
+    font-weight: 700;
+    color: var(--luft-text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
 }
 
-.timeline-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--theme-border);
+.luft-history-header h1 i {
+    color: var(--luft-primary-600);
 }
 
-.timeline-body {
-    padding: 1.25rem;
+.luft-history-card {
+    background: var(--luft-bg-panel);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-sm);
+    border: 1px solid var(--luft-border);
+    overflow: hidden;
 }
 
-.version-badge {
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.3em 0.8em;
-    border-radius: 2em;
-}
-
-/* --- 4. ESTILOS DO CONTEÚDO NO MODAL --- */
-#viewVersionModal .modal-content {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-}
-
-#viewVersionModal .modal-header {
-    border-bottom-color: var(--theme-border);
-}
-
-#viewVersionModalBody img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-}
-
-#viewVersionModalBody table {
+/* --- TABELA DE HISTÓRICO --- */
+.luft-table {
     width: 100%;
+    margin-bottom: 0;
+    color: var(--luft-text-main);
     border-collapse: collapse;
-    margin: 1rem 0;
 }
 
-#viewVersionModalBody th, 
-#viewVersionModalBody td {
-    border: 1px solid var(--theme-border);
-    padding: 8px;
-    color: var(--theme-text);
+.luft-table thead {
+    background-color: var(--luft-bg-app);
 }
 
-#viewVersionModalBody th {
-    background-color: var(--theme-surface-hover);
+.luft-table th {
+    font-weight: 600;
+    color: var(--luft-text-main);
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid var(--luft-border);
+    white-space: nowrap;
 }
 
-#viewVersionModalBody pre {
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    white-space: pre-wrap;
-    word-break: break-all;
+.luft-table td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--luft-border);
+    background-color: var(--luft-bg-panel);
+    transition: background-color 0.2s;
 }
 
-/* Estilos para o modal de diff */
-#diffModal .modal-content {
-    background-color: var(--theme-surface);
+.luft-table tbody tr:hover td {
+    background-color: var(--luft-primary-50);
 }
 
-.text_place {
-    opacity: 0.7;
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--luft-primary-100);
+    color: var(--luft-primary-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.8rem;
-    color: var(--theme-text) !important; /* Garantindo que o texto seja visível */
+    font-weight: 700;
+    border: 1px solid var(--luft-primary-200);
 }
 
-/* Container principal do Diff */
+.backup-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--luft-bg-app);
+    border: 1px solid var(--luft-border);
+    border-radius: var(--luft-radius-md);
+}
+
+.file-label {
+    min-width: 90px;
+    color: var(--luft-text-main);
+}
+
+/* --- BADGES GERAIS --- */
+.luft-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--luft-radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.luft-badge-outline {
+    background-color: var(--luft-bg-app);
+    color: var(--luft-text-main);
+    border: 1px solid var(--luft-border);
+}
+
+.luft-badge-success { background-color: rgba(16, 185, 129, 0.15); color: #065f46; border: 1px solid #10b981; }
+.luft-badge-warning { background-color: rgba(245, 158, 11, 0.15); color: #92400e; border: 1px solid #f59e0b; }
+.luft-badge-primary { background-color: var(--luft-primary-100); color: var(--luft-primary-700); border: 1px solid var(--luft-primary-300); }
+
+/* --- COMPONENTE DE DIFF (COMPARADOR LATERAL) --- */
 .diff-container { 
     display: flex; 
     width: 100%;
     height: 65vh; 
-    border: 1px solid var(--theme-border);
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: var(--theme-surface);
+    border-bottom: 1px solid var(--luft-border);
+    background-color: var(--luft-bg-panel);
 }
 
-/* As duas caixas laterais (Esquerda/Direita) */
 .diff-box { 
     flex: 0 0 50%;      
     max-width: 50%;     
     display: flex; 
     flex-direction: column;
-    border-right: 1px solid var(--theme-border);
+    border-right: 1px solid var(--luft-border);
 }
+
 .diff-box:last-child { border-right: none; }
 
-/* Cabeçalho de cada lado */
 .diff-header {
-    padding: 10px;
-    background: var(--theme-bg); /* Usa o fundo do tema */
-    border-bottom: 1px solid var(--theme-border);
+    padding: 10px 15px;
+    background: var(--luft-bg-app);
+    border-bottom: 1px solid var(--luft-border);
     font-weight: 600;
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--theme-text);
+    color: var(--luft-text-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-/* Header destacado (Lado Direito - Histórico) */
-/* O !important garante que sobrescreva estilos inline antigos se houver */
-.diff-box:last-child .diff-header {
-    background-color: var(--theme-accent-bg-light) !important;
-    color: var(--theme-primary-btn) !important;
-}
-
-/* Área de conteúdo com scroll */
 .diff-content { 
     flex: 1; 
     overflow-y: auto;   
     padding: 20px; 
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
+    background-color: var(--luft-bg-panel);
+    color: var(--luft-text-main);
     word-wrap: break-word;       
     word-break: break-word;      
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
-/* Conteúdo destacado (Lado Direito - Histórico) */
 .diff-box:last-child .diff-content {
-    background-color: var(--theme-surface-hover) !important; /* Levemente diferente do surface padrão */
+    background-color: var(--luft-bg-app);
 }
 
-/* Ajustes de elementos internos */
 .diff-content img, 
 .diff-content video, 
 .diff-content iframe {
@@ -211,120 +269,27 @@
     display: block;
     overflow-x: auto;
     max-width: 100%;
-    color: var(--theme-text);
-    border-color: var(--theme-border);
+    border-collapse: collapse;
 }
 
-/* Scrollbar personalizada para combinar */
-.diff-content::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-.diff-content::-webkit-scrollbar-track {
-    background: var(--theme-bg); 
-}
-.diff-content::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb-color); 
-    border-radius: 4px;
-}
-.diff-content::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover-color); 
-}
+/* Scrollbar Personalizada */
+.diff-content::-webkit-scrollbar { width: 8px; height: 8px; }
+.diff-content::-webkit-scrollbar-track { background: var(--luft-bg-app); }
+.diff-content::-webkit-scrollbar-thumb { background: var(--luft-border); border-radius: 4px; }
+.diff-content::-webkit-scrollbar-thumb:hover { background: var(--luft-text-muted); }
 
-.table-responsive {
-    background-color: var(--theme-surface);
-    border-radius: inherit;
-}
-
-/* 2. Reset Total da Tabela para usar Variáveis */
-.history-table {
-    --bs-table-bg: var(--theme-surface);
-    --bs-table-color: var(--theme-text);
-    --bs-table-border-color: var(--theme-border);
-    --bs-table-hover-bg: var(--theme-surface-hover);
-    --bs-table-hover-color: var(--theme-text);
-    
-    width: 100%;
-    margin-bottom: 0;
-    color: var(--theme-text);
-    border-color: var(--theme-border);
-}
-
-/* 3. Cabeçalho (thead) */
-.history-table thead {
-    /* Usa a cor de cabeçalho de painel definida no tema */
-    background-color: var(--panel-header-bg);
-}
-
-.history-table thead th {
-    background-color: var(--panel-header-bg);
-    color: var(--theme-text);
-    border-bottom: 2px solid var(--theme-border);
-    font-weight: 600;
-    padding: 1rem 0.75rem;
-    white-space: nowrap;
-    border-top: none; /* Remove borda dupla se houver */
-}
-
-/* 4. Corpo e Células (tbody) */
-.history-table tbody td {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-    border-bottom: 1px solid var(--theme-border);
-    padding: 1rem 0.75rem;
-    vertical-align: middle;
-}
-
-/* 5. Efeito Hover na Linha */
-.history-table tbody tr:hover td {
-    background-color: var(--theme-surface-hover);
-    transition: background-color 0.2s ease;
-}
-
-/* 6. CORREÇÃO DOS ITENS INTERNOS (Arquivos de Backup) */
-/* Sobrescreve a classe .bg-light e .border do Bootstrap dentro da tabela */
-.history-table .bg-light {
-    background-color: var(--theme-surface-hover) !important;
-    border-color: var(--theme-border) !important;
-    color: var(--theme-text) !important;
-}
-
-.history-table .border {
-    border-color: var(--theme-border) !important;
-}
-
-/* 7. Botões "White/Light" dentro da tabela */
-.history-table .btn-white,
-.history-table .btn-light {
-    background-color: var(--theme-surface);
-    border-color: var(--theme-border);
-    color: var(--theme-text);
-}
-
-.history-table .btn-white:hover,
-.history-table .btn-light:hover {
-    background-color: var(--theme-surface-hover);
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn);
-}
-
-/* 8. Textos secundários */
-.history-table .text-muted {
-    color: var(--theme-text-secondary) !important;
-}
-
-.user-avatar-small {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
+/* --- ALERTAS --- */
+.luft-alert {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    
-    /* AQUI ESTÁ A MÁGICA: Variáveis do Themes.css */
-    background-color: var(--theme-surface-hover); /* Fica escuro no Dark Mode */
-    color: var(--theme-text);                     /* Fica claro no Dark Mode */
-    border: 1px solid var(--theme-border);        /* Bordinha sutil para definição */
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--luft-radius-md);
+    border: 1px solid transparent;
+}
+
+.luft-alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
 }

@@ -1,92 +1,195 @@
-@import url('../Themes.css');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 /* =================================================================== */
-/* === SUBMODULE.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE SUBMÓDULO === */
+/* === EDITORSUB.CSS - EDIÇÃO DE SUBMÓDULOS (LUFTCORE)             === */
 /* =================================================================== */
 
-/* --- 1. GERAL E LAYOUT --- */
-body {
-    background-color: var(--theme-bg);
-    font-family: var(--font-family-base);
+.luft-submodule-edit-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--luft-space-8) var(--luft-space-4);
+    position: relative;
+    z-index: 1;
 }
 
-.page-header {
+.luft-edit-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: var(--luft-space-6);
+    padding-bottom: var(--luft-space-4);
+    border-bottom: 1px solid var(--luft-border);
 }
 
-.page-title {
+.luft-edit-header h1 {
+    font-size: clamp(1.4rem, 3.5vw, 1.75rem);
     font-weight: 700;
-    color: var(--theme-text);
+    color: var(--luft-text-main);
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 0.8rem;
 }
 
-.main-form-card {
-    background: var(--theme-surface);
-    border-radius: 20px;
-    box-shadow: var(--theme-shadow);
-    padding: 2.5rem;
-    border: 1px solid var(--theme-border);
+.luft-edit-header h1 i {
+    color: var(--luft-primary-600);
 }
 
-/* --- 2. EDITOR TOASTUI E BARRA DE FERRAMENTAS --- */
-.toastui-editor-defaultUI {
-    border-radius: 12px !important;
-    border: 1px solid var(--theme-border) !important;
-    min-height: 700px !important;
+.luft-edit-form-card {
+    background: var(--luft-bg-panel);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-sm);
+    padding: var(--luft-space-8);
+    border: 1px solid var(--luft-border);
 }
 
-.editor-toolbar-btns {
+.luft-editor-toolbar {
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
 }
 
 /* =================================================================== */
-/* === 3. AJUSTES DO EDITOR NO TEMA ESCURO === */
-/* Força o fundo branco no editor mesmo quando a página está escura */
+/* === ESTILOS GERAIS DE BOTÕES (.luft-btn)                        === */
 /* =================================================================== */
 
-body.theme-dark .toastui-editor-defaultUI {
-    /* Garante um fundo branco sólido para o contêiner principal do editor */
-    background-color: #ffffff;
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--luft-radius-md, 8px);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none !important;
+    line-height: 1.5;
+    background: transparent;
+    font-family: inherit;
+}
+
+.luft-btn.luft-btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    gap: 0.25rem;
+}
+
+.luft-btn i {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.luft-btn.luft-btn-sm i {
+    font-size: 1rem;
+}
+
+.luft-btn-primary {
+    background-color: var(--luft-primary-600, #0d6efd);
+    color: #ffffff !important;
+    border-color: var(--luft-primary-600, #0d6efd);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.luft-btn-primary:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+}
+
+.luft-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+    filter: brightness(0.8);
+}
+
+.luft-btn-outline {
+    background-color: var(--luft-bg-panel, #ffffff);
+    color: var(--luft-text-main, #333333);
+    border-color: var(--luft-border, #dee2e6);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50, #f8f9fa);
+    color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-300, #b6d4fe);
+}
+
+/* =================================================================== */
+/* === TOASTUI EDITOR OVERRIDES (DARK MODE & LUFTCORE)             === */
+/* =================================================================== */
+
+.toastui-editor-defaultUI {
+    border-radius: var(--luft-radius-md) !important;
+    border: 1px solid var(--luft-border) !important;
+}
+
+/* * Correção Crítica para o Tema Escuro
+ * Em vez de forçar o fundo branco, deixamos o ToastUI herdar o painel escuro
+ * e forçamos o texto a ser a cor principal (--luft-text-main)
+ */
+body.theme-dark .toastui-editor-defaultUI,
+body.theme-dark .toastui-editor-md-container,
+body.theme-dark .toastui-editor-ww-container,
+body.theme-dark .toastui-editor-md-preview,
+body.theme-dark .toastui-editor-ww-preview {
+    background-color: var(--luft-bg-panel) !important;
+    border-color: var(--luft-border) !important;
 }
 
 body.theme-dark .toastui-editor-toolbar {
-    /* Garante que a barra de ferramentas também tenha um fundo claro */
-    background-color: #fcfcfc;
+    background-color: var(--luft-bg-app) !important;
+    border-bottom: 1px solid var(--luft-border) !important;
 }
 
-body.theme-dark .toastui-editor-md-container,
-body.theme-dark .toastui-editor-ww-container {
-    /* Garante que a área de digitação (Markdown) tenha fundo branco */
-    background-color: #ffffff;
-}
-
-body.theme-dark .toastui-editor-md-preview,
-body.theme-dark .toastui-editor-ww-preview {
-    /* Garante que a área de pré-visualização também tenha fundo branco */
-    background-color: #ffffff;
-}
-    
 body.theme-dark .toastui-editor-contents {
-    /* Força a cor do texto a ser escura dentro do editor */
-    color: #333333;
+    color: var(--luft-text-main) !important;
 }
-    
+
+body.theme-dark .toastui-editor-contents h1,
+body.theme-dark .toastui-editor-contents h2,
+body.theme-dark .toastui-editor-contents h3,
+body.theme-dark .toastui-editor-contents h4,
+body.theme-dark .toastui-editor-contents h5,
+body.theme-dark .toastui-editor-contents h6,
+body.theme-dark .toastui-editor-contents p,
+body.theme-dark .toastui-editor-contents li,
+body.theme-dark .toastui-editor-contents table {
+    color: var(--luft-text-main) !important;
+}
+
 body.theme-dark .toastui-editor-popup {
-    /* Garante que os pop-ups (como o de adicionar link) também sejam claros */
-    background-color: #ffffff !important;
-    color: #333333;
+    background-color: var(--luft-bg-panel) !important;
+    border: 1px solid var(--luft-border) !important;
+    color: var(--luft-text-main) !important;
 }
 
 body.theme-dark .toastui-editor-popup-body,
-body.theme-dark .toastui-editor-popup-body label {
-    color: #333333 !important;
+body.theme-dark .toastui-editor-popup-body label,
+body.theme-dark .toastui-editor-popup-body span {
+    color: var(--luft-text-main) !important;
+}
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+    .luft-submodule-edit-wrapper {
+        padding: var(--luft-space-4);
+    }
+    .luft-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .luft-edit-header .d-flex {
+        width: 100%;
+    }
+    .luft-edit-header .luft-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    .luft-edit-form-card {
+        padding: var(--luft-space-4);
+    }
 }

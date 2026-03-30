@@ -1,321 +1,258 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === INDEX.CSS - ESTILOS ESPECÍFICOS DA PÁGINA INICIAL === */
+/* === INDEX.CSS - ESTILOS ESTRUTURAIS DA PÁGINA INICIAL === */
 /* =================================================================== */
 
-/* --- 1. LAYOUT E FUNDO DA PÁGINA --- */
-.page-wrapper {
-    perspective: 1500px;
-}
-
-body {
-    background: var(--theme-bg);
-    background-size: 200% 200%;
-    animation: bgMove 12s ease-in-out infinite;
-}
-
-/* =================================================================== */
-/* === NOVOS COMPONENTES PERSONALIZADOS (INOVAÇÃO) === */
-/* =================================================================== */
-
-/* --- 2.1 CAMPO DE FILTRO PERSONALIZADO --- */
-.filter-container {
-  position: relative;
-  min-width: 250px;
-}
-
-.filter-input {
-  background-color: var(--theme-surface);
-  color: var(--theme-text);
-  border: 1.5px solid var(--theme-border);
-  border-radius: 0.5rem; /* Levemente mais arredondado */
-  padding: 0.6rem 1rem 0.6rem 2.5rem; /* Espaço para o ícone */
-  width: 100%;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  transition: all 0.3s ease;
-  box-shadow: var(--theme-shadow);
-}
-
-.filter-input::placeholder {
-  color: var(--theme-text-secondary);
-  opacity: 0.8;
-}
-
-.filter-input:focus {
-  outline: none;
-  border-color: var(--theme-primary-btn);
-  box-shadow: 0 0 0 3px var(--theme-primary-btn-bg-subtle), var(--theme-shadow);
-}
-
-.filter-icon {
-  position: absolute;
-  top: 50%;
-  left: 1rem;
-  transform: translateY(-50%);
-  color: var(--theme-text-secondary);
-  pointer-events: none; /* Garante que o clique vá para o input */
-  transition: color 0.3s ease;
-}
-
-.filter-input:focus ~ .filter-icon {
-  color: var(--theme-primary-btn);
-}
-
-
-/* --- 2.2 ALERTAS PERSONALIZADOS --- */
-.custom-alert {
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
-  border-radius: 0.75rem;
-  border: 1.5px solid transparent;
-  font-weight: 500;
-  box-shadow: var(--theme-shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.custom-alert .alert-icon {
-  font-size: 1.25rem;
-  margin-right: 0.8rem;
-  line-height: 1;
-}
-
-.custom-alert .btn-close {
-  --bs-btn-close-color: var(--alert-text-color); /* Usa a variável que definimos abaixo */
-  filter: grayscale(1) opacity(0.7);
-  transition: all 0.2s ease;
-}
-
-.custom-alert .btn-close:hover {
-  filter: grayscale(0) opacity(1);
-  transform: scale(1.1);
-}
-
-/* Variações de Cor dos Alertas */
-.alert-success {
-  --alert-bg-color: color-mix(in srgb, var(--theme-color-success) 15%, transparent);
-  --alert-border-color: var(--theme-color-success);
-  --alert-text-color: var(--theme-color-success);
-}
-.alert-danger {
-  --alert-bg-color: color-mix(in srgb, var(--theme-color-danger) 15%, transparent);
-  --alert-border-color: var(--theme-color-danger);
-  --alert-text-color: var(--theme-color-danger);
-}
-.alert-warning {
-    --alert-bg-color: color-mix(in srgb, var(--theme-color-warning) 15%, transparent);
-    --alert-border-color: var(--theme-color-warning);
-    --alert-text-color: var(--theme-color-warning);
-}
-.alert-info {
-    --alert-bg-color: color-mix(in srgb, var(--theme-color-info) 15%, transparent);
-    --alert-border-color: var(--theme-color-info);
-    --alert-text-color: var(--theme-color-info);
-}
-
-/* Aplicando as variáveis */
-.custom-alert {
-  background-color: var(--alert-bg-color);
-  border-color: var(--alert-border-color);
-  color: var(--alert-text-color);
-}
-
-
-/* =================================================================== */
-/* === 3. CARDS E BOTÕES (ESTILOS UNIFICADOS) === */
-/* =================================================================== */
-
-/* --- 3.1 CARDS MODERNOS --- */
-.modern-card {
-    min-height: 370px;
-    max-height: 370px;
+/* --- Layout Principal --- */
+.luft-index-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border-radius: 1.25rem;
-    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-    border: 1.5px solid var(--theme-border);
-    background: var(--theme-surface);
-    box-shadow: var(--theme-shadow);
-    opacity: 0;
-    transform: translateY(40px) scale(0.97);
-    animation: cardFadeIn 0.7s forwards;
-    animation-delay: calc(var(--card-index) * 0.08s);
+    gap: 24px;
     position: relative;
-    overflow: hidden;
-    z-index: 1;
+    width: 100%;
 }
 
-.modern-card:hover {
-    box-shadow: var(--card-hover-shadow);
-    border-color: var(--theme-primary-btn);
-    transform: translateY(-8px) scale(1.04) rotate(-1deg);
+.luft-index-actions-top {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
-.modern-card::after { /* Efeito de brilho */
-    content: "";
-    position: absolute;
-    top: -80px; left: -80px;
-    width: 160px; height: 160px;
-    background: radial-gradient(circle, color-mix(in srgb, var(--theme-accent-glow) 33%, transparent) 40%, transparent 80%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s;
-    z-index: 2;
+.luft-index-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--luft-border);
 }
 
-.modern-card:hover::after {
-    opacity: 0.7;
-    animation: shine 1.2s linear;
+
+/* --- Grid de Módulos --- */
+.luft-index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
 }
 
-/* Conteúdo do Card */
-.modern-card .card-body {
-    flex: 1 1 auto; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 1; position: relative;
-}
+/* =================================================================== */
+/* === BOTÕES PADRÃO LUFTCORE (BASEADOS EM VARIÁVEIS) === */
+/* =================================================================== */
 
-.modern-card .card-title {
-    color: var(--theme-text);
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
+/* Classe base para todos os botões Luft */
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
     font-weight: 600;
-    transition: color 0.2s;
+    border-radius: 8px; /* Arredondamento suave padrão LuftCore */
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-family: var(--font-family-base, 'Inter', sans-serif);
+    border: 1px solid transparent;
 }
 
-.modern-card:hover .card-title {
-    color: var(--theme-primary-btn);
-    text-shadow: 0 2px 12px var(--theme-accent-glow);
+/* Ícones dentro dos botões */
+.luft-btn i {
+    font-size: 1.15rem;
 }
 
-.modern-card .card-text {
-    color: var(--theme-text-secondary);
-    font-size: 0.98rem;
+/* Variante: Botão Primário (Ação Principal) */
+.luft-btn-primary {
+    background-color: var(--luft-primary-600);
+    color: #ffffff;
+    box-shadow: var(--luft-shadow-sm);
+}
+
+.luft-btn-primary:hover {
+    background-color: var(--luft-primary-700);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--luft-shadow-md);
+}
+
+/* Variante: Botão Outline (Ação Secundária) */
+.luft-btn-outline {
+    background-color: transparent;
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    border-color: var(--luft-primary-700);
+    transform: translateY(-2px);
+}
+
+/* =================================================================== */
+/* === AJUSTES DE BOTÕES DENTRO DOS CONTENTORES === */
+/* =================================================================== */
+
+/* Garantir que os botões nas ações do topo não fiquem esmagados */
+.luft-index-actions-top .luft-btn {
+    white-space: nowrap;
+}
+
+/* Ajustes para os botões dentro dos Cards (rodapé do módulo) */
+.luft-index-card-actions .luft-btn {
+    flex: 1; /* Faz os botões dividirem o espaço igualmente */
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Responsividade adicional para os botões do topo em telas pequenas */
+@media (max-width: 576px) {
+    .luft-index-actions-top {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .luft-index-actions-top .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .luft-index-card-actions {
+        flex-direction: column;
+    }
+}
+
+/* --- Estilo Base dos Cards (LuftCore Padrão) --- */
+.luft-index-card {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 16px;
+    padding: 24px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    margin-bottom: 0.5rem;
-    transition: color 0.2s;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--luft-shadow-sm);
+    text-decoration: none;
 }
 
-.modern-card:hover .card-text {
-    color: var(--theme-text);
+.luft-index-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--luft-primary-400);
+    box-shadow: var(--luft-shadow-lg);
 }
 
-/* Ícone animado do Card */
-.modern-card .display-4 {
-    transition: transform 0.3s cubic-bezier(.4,2,.3,1), color 0.2s, filter 0.3s;
-    filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--theme-primary-btn) 13%, transparent));
-    animation: pulseIcon 2.2s infinite;
+/* Componentes internos do Card */
+.luft-index-card-icon {
+    font-size: 3.5rem;
+    color: var(--luft-primary-600);
+    margin-bottom: 16px;
+    transition: transform 0.3s ease;
 }
 
-/* Adicionado para ícones temáticos nos cards */
-.modern-card .card-icon {
-    color: var(--theme-primary-btn); /* Cor principal do tema */
+.luft-index-card:hover .luft-index-card-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
-.modern-card:hover .display-4 {
-    transform: scale(1.18) rotate(6deg);
-    filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--theme-primary-btn) 27%, transparent));
-    animation: pulseIconHover 0.8s;
+.luft-index-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--luft-text-main);
+    margin-bottom: 8px;
 }
 
-/* Card para "Adicionar Novo" */
-.add-new-card {
-    background: transparent !important;
-    border: 2px dashed var(--theme-border) !important;
-    color: var(--theme-text-secondary) !important;
-    box-shadow: none !important;
-    transition: all 0.2s ease;
+.luft-index-card-desc {
+    font-size: 0.9rem;
+    color: var(--luft-text-muted);
+    flex-grow: 1;
+    margin-bottom: 24px;
 }
 
-.add-new-card:hover {
-    border-color: var(--theme-primary-btn) !important;
-    color: var(--theme-primary-btn) !important;
-    background: var(--theme-surface-hover) !important;
+.luft-index-card-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
 }
 
-
-/* --- 3.2 BOTÕES DE AÇÃO (UNIFICADOS) --- */
-/* Contêiner para alinhar os botões de topo */
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+/* Variante de Card: Adicionar Novo */
+.luft-index-card-dashed {
+    background: transparent;
+    border: 2px dashed var(--luft-border);
+    justify-content: center;
+    cursor: pointer;
 }
 
+.luft-index-card-dashed:hover {
+    border-color: var(--luft-primary-500);
+    background: var(--luft-primary-50);
+}
 
-/* Específico para botões de card para espaçamento */
-.card-button-container {
-    padding: 0 1rem 1.25rem 1rem;
+.luft-index-card-dashed .luft-index-card-title {
+    color: var(--luft-text-muted);
+}
+
+.luft-index-card-dashed:hover .luft-index-card-title {
+    color: var(--luft-primary-700);
+}
+
+/* --- Estado Vazio e Paginação --- */
+.luft-index-empty {
+    text-align: center;
+    padding: 64px 24px;
+    background: var(--luft-bg-panel);
+    border: 1px dashed var(--luft-border);
+    border-radius: 16px;
+}
+
+.luft-index-pagination {
     display: flex;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 8px;
 }
 
-
-/* --- 3.3 PAGINAÇÃO (Baseada em variáveis) --- */
-.pagination .page-link {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-    border-color: var(--theme-border);
-    box-shadow: none;
+.luft-page-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--luft-border);
+    background: var(--luft-bg-panel);
+    color: var(--luft-text-main);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+    font-weight: 500;
 }
 
-.pagination .page-link:hover,
-.pagination .page-link:focus {
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text);
-    border-color: var(--theme-primary-btn);
+.luft-page-btn:hover:not(.disabled) {
+    border-color: var(--luft-primary-500);
+    color: var(--luft-primary-600);
 }
 
-.page-item.active .page-link {
-    background-color: var(--theme-primary-btn);
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn-text);
+.luft-page-btn.active {
+    background: var(--luft-primary-600);
+    color: #ffffff;
+    border-color: var(--luft-primary-600);
 }
 
-.page-item.disabled .page-link {
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text-secondary);
-    border-color: var(--theme-border);
+.luft-page-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--luft-bg-app);
 }
 
-
-/* =================================================================== */
-/* === 4. DECORAÇÕES E ANIMAÇÕES === */
-/* =================================================================== */
-.bg-icons {
-    position: fixed; top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    pointer-events: none; overflow: hidden;
-    z-index: -1;
-}
-
-.bg-icons .bg-icon {
-    position: absolute;
-    color: color-mix(in srgb, var(--theme-primary-btn) 13%, transparent);
-}
-
-body.page-transition-out .container {
-    transform: translateY(50px) scale(0.95);
-    opacity: 0;
-    transition: transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-out;
-}
-
-/* Keyframes */
-@keyframes cardFadeIn { to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes shine { 0% { transform: scale(0.8) rotate(0deg); } 100% { transform: scale(1.2) rotate(30deg); } }
-@keyframes pulseIcon { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes pulseIconHover { 0% { transform: scale(1.18) rotate(6deg); } 50% { transform: scale(1.28) rotate(8deg); } 100% { transform: scale(1.18) rotate(6deg); } }
-@keyframes ripple { to { width: 220px; height: 220px; opacity: 0; } }
-@keyframes iconRise { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-
-/* Media Query */
-@media (max-width: 575px) {
-    .modern-card { min-height: 320px; max-height: 320px; }
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .luft-index-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .luft-search-box {
+        width: 100%;
+    }
+    .luft-index-actions-top {
+        flex-direction: column;
+    }
 }

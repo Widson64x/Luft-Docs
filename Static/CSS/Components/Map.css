@@ -1,285 +1,287 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === MAP.CSS - ESTILOS DO MAPA DE MÓDULOS INTERATIVO === */
+/* === MAPA DE CONHECIMENTO (GRAFO D3.JS) === */
 /* =================================================================== */
 
-.filter-container {
-  position: relative;
-  min-width: 250px;
-}
-
-.filter-input {
-  background-color: var(--theme-surface);
-  color: var(--theme-text);
-  border: 1.5px solid var(--theme-border);
-  border-radius: 0.5rem; /* Levemente mais arredondado */
-  padding: 0.6rem 1rem 0.6rem 2.5rem; /* Espaço para o ícone */
-  width: 100%;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  transition: all 0.3s ease;
-  box-shadow: var(--theme-shadow);
-}
-
-.filter-input::placeholder {
-  color: var(--theme-text-secondary);
-  opacity: 0.8;
-}
-
-.filter-input:focus {
-  outline: none;
-  border-color: var(--theme-primary-btn);
-  box-shadow: 0 0 0 3px var(--theme-primary-btn-bg-subtle), var(--theme-shadow);
-}
-
-.filter-icon {
-  position: absolute;
-  top: 50%;
-  left: 1rem;
-  transform: translateY(-50%);
-  color: var(--theme-text-secondary);
-  pointer-events: none; /* Garante que o clique vá para o input */
-  transition: color 0.3s ease;
-}
-
-.filter-input:focus ~ .filter-icon {
-  color: var(--theme-primary-btn);
-}
-
-
-/* --- 0. LAYOUT DA PÁGINA (Substitui .container, etc.) --- */
-/* Substitui a classe .container do Bootstrap */
-.page-container {
-    width: 100%;
-    padding-right: 1.5rem;
-    padding-left: 1.5rem;
-    margin-right: auto;
-    margin-left: auto;
-}
-@media (min-width: 576px) { .page-container { max-width: 540px; } }
-@media (min-width: 768px) { .page-container { max-width: 720px; } }
-@media (min-width: 992px) { .page-container { max-width: 960px; } }
-@media (min-width: 1200px) { .page-container { max-width: 1140px; } }
-@media (min-width: 1400px) { .page-container { max-width: 1320px; } }
-
-/* Substitui as classes d-flex, justify-content-between, etc. do cabeçalho */
-.page-header-row {
+.luft-mapa-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem; /* Substitui mb-4 */
-}
-
-/* Adiciona o padding que estava como .pb-5 */
-.container-mapa {
-    padding-bottom: 3rem; 
-}
-
-/* Componente para a mensagem de "Nenhum resultado" */
-.no-results-message {
-    width: 100%; /* Substitui col-12 */
-    text-align: center; /* Substitui text-center */
-    padding-top: 3rem; /* Substitui py-5 */
-    padding-bottom: 3rem; /* Substitui py-5 */
-}
-.no-results-message i {
-    font-size: 3rem; /* Substitui fs-1 */
-    color: var(--theme-text-secondary); /* Substitui text-muted */
-}
-.no-results-message h4 {
-    margin-top: 1rem; /* Substitui mt-3 */
-}
-
-
-/* --- 1. CONTAINER DO GRAFO (NEBULOSA + ESTRELAS) --- */
-.graph-container {
-    border-radius: 1.25rem;
+    flex-direction: column;
     width: 100%;
-    height: 80vh;
-    min-height: 650px;
+    height: calc(100vh - 80px);
+    min-height: 400px;
+}
+
+/* Área do Canvas */
+.luft-mapa-canvas-wrapper {
     position: relative;
-    cursor: grab;
-    background-color: var(--graph-bg);
-    border: 1px solid var(--theme-border);
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+    background-color: var(--luft-bg-app);
+    border-radius: 16px;
+    border: 1px solid var(--luft-border);
     overflow: hidden;
-    transition: all 0.3s ease-out;
+    box-shadow: var(--luft-shadow-sm);
+    perspective: 1000px;
+    transition: transform 0.15s ease-out;
+    /* Fundo estrelado simulado via CSS Variables injetadas pelo JS */
+    background-image: 
+        radial-gradient(2px 2px at var(--stars-small, 10px 10px)),
+        radial-gradient(3px 3px at var(--stars-medium, 20px 20px));
+    background-repeat: repeat;
+    background-size: 200px 200px, 400px 400px;
 }
 
-/* Efeito Nebulosa */
-.graph-container::before {
-    content: '';
+.luft-mapa-empty {
     position: absolute;
-    width: 200%; height: 200%;
-    top: -50%; left: -50%;
-    z-index: 0;
-    background: radial-gradient(circle, var(--graph-nebula-color) 0%, transparent 60%);
-    animation: rotateBackground 25s linear infinite;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background: var(--luft-bg-panel);
+    padding: 32px;
+    border-radius: 16px;
+    border: 1px dashed var(--luft-border);
+    z-index: 10;
 }
 
-/* Efeito Estrelas (visível apenas no fundo escuro) */
-.graph-container::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 1px; height: 1px;
-    background: transparent;
-    z-index: 0;
-    box-shadow: var(--stars-small), var(--stars-medium);
-    animation: twinkle 5s linear infinite;
-    opacity: 0; /* Começa invisível */
-    transition: opacity 0.5s;
-}
-body.theme-dark .graph-container::after {
-    opacity: 1; /* Aparece no tema escuro */
-}
+/* =================================================================== */
+/* ESTILOS DO GRAFO D3 (NÓS E CONEXÕES) */
+/* =================================================================== */
 
-/* --- 2. NÓS (NODES) E LINKS --- */
-.link {
-    stroke: var(--graph-link-color);
-    stroke-opacity: 0.7;
+/* Conexões (Links) */
+.links line {
+    stroke: var(--luft-border);
+    stroke-opacity: 0.4;
     stroke-width: 1.5px;
-    transition: all 0.3s ease;
+    transition: stroke-opacity 0.3s, stroke-width 0.3s;
 }
-.link.active {
-    stroke: url(#link-gradient);
-    stroke-opacity: 1;
+
+.links line.active {
+    stroke: var(--luft-primary-500);
+    stroke-opacity: 0.9;
     stroke-width: 3px;
 }
-.link.faded { stroke-opacity: 0.1; }
 
-.node { cursor: pointer; transition: opacity 0.3s ease; }
-.node.faded { opacity: 0.15; }
-
-.node-background {
-    stroke: var(--graph-node-stroke);
-    stroke-width: 2px;
-    fill: url(#node-gradient); /* O gradiente interno é definido no SVG */
-    transition: all 0.3s ease-out;
-    animation: pulse 4s ease-in-out infinite;
+.links line.faded {
+    stroke-opacity: 0.05;
 }
 
-.node:hover .node-background, .node.hovered .node-background {
-    transform: scale(1.15);
-    stroke: var(--theme-primary-btn);
-    filter: drop-shadow(0 0 10px var(--theme-primary-btn))
-            drop-shadow(0 0 20px color-mix(in srgb, var(--theme-primary-btn) 50%, transparent));
-    animation: pulse 2s ease-in-out infinite;
+/* Nós Principais */
+.node {
+    cursor: grab;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.node:active {
+    cursor: grabbing;
+}
+
+.node .node-background {
+    fill: var(--luft-bg-panel);
+    stroke: var(--luft-border);
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+}
+
+.node.hovered .node-background {
+    stroke: var(--luft-primary-500);
+    stroke-width: 4px;
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--luft-primary-500) 40%, transparent));
+}
+
+.node.visited .node-background {
+    stroke: var(--luft-success-border);
+}
+
+.node.faded {
+    opacity: 0.15;
 }
 
 .node.filtered .node-background {
-    stroke: var(--theme-color-warning);
+    stroke: var(--luft-warning-text);
     stroke-width: 4px;
-    animation-play-state: paused;
+    filter: drop-shadow(0 0 16px color-mix(in srgb, var(--luft-warning-text) 50%, transparent));
 }
+
 .node.related .node-background {
-    stroke: var(--theme-color-info);
-    stroke-width: 3px;
-    animation-play-state: paused;
-}
-.node.visited .node-background {
-    stroke: var(--theme-color-warning);
+    stroke: var(--luft-primary-400);
     stroke-width: 3px;
 }
 
+/* Ícones e Textos dos Nós */
 .foreign-icon-wrapper {
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 38px;
-    color: var(--graph-icon-color);
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--luft-text-main);
+    font-size: 1.8rem;
     pointer-events: none;
-    transition: all 0.3s ease;
 }
-.node:hover .foreign-icon-wrapper, .node.hovered .foreign-icon-wrapper {
-    color: var(--theme-surface);
-    transform: scale(1.1);
-}
- 
+
 .node-label {
-    pointer-events: none;
-    font-size: 14px;
+    fill: var(--luft-text-main);
+    font-size: 12px;
     font-weight: 600;
-    fill: var(--graph-node-label-fill);
     text-anchor: middle;
-    paint-order: stroke;
-    stroke: var(--graph-node-label-stroke);
-    stroke-width: 4px;
-    stroke-linecap: butt;
-    stroke-linejoin: miter;
+    pointer-events: none;
+    font-family: var(--font-family-base, 'Inter', sans-serif);
+    text-shadow: 0px 1px 4px var(--luft-bg-app);
 }
 
-/* --- 3. UI: MENU DE CONTEXTO E TOOLTIP --- */
-.context-menu {
-    position: absolute;
-    z-index: 1000;
-    min-width: 220px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-    border-radius: .75rem;
-    border: 1px solid var(--menu-glass-border);
-    background-color: var(--menu-glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 0; /* Remove padding padrão da lista */
-    overflow: hidden; /* Garante que os itens respeitem o border-radius */
-}
-/* Estilo para a lista (ul) dentro do menu, substitui .list-group */
-.context-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-/* Estilo para os itens (a) do menu, substitui .list-group-item e .list-group-item-action */
-.context-menu-action {
-    display: block;
-    padding: 0.75rem 1.25rem;
-    text-decoration: none;
-    font-weight: 500;
-    background-color: transparent;
-    color: var(--menu-glass-text);
-    border-bottom: 1px solid var(--menu-glass-border);
-    transition: all 0.2s ease-in-out;
-}
-.context-menu ul li:last-child .context-menu-action { 
-    border-bottom: none; 
-}
-.context-menu-action:hover {
-    background-color: var(--menu-glass-hover-bg);
-    color: var(--menu-glass-text-hover);
-}
+/* =================================================================== */
+/* TOOLTIPS E MENUS DE CONTEXTO */
+/* =================================================================== */
 
-.graph-tooltip {
+.luft-mapa-tooltip {
     position: absolute;
-    max-width: 280px;
-    padding: 0.75rem 1rem;
-    background-color: var(--tooltip-bg);
-    color: var(--theme-text);
-    border: 1px solid var(--tooltip-border);
-    border-radius: .5rem;
-    font-size: 0.875rem;
-    line-height: 1.4;
+    background: var(--luft-bg-panel);
+    color: var(--luft-text-main);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--luft-border);
+    box-shadow: var(--luft-shadow-md);
+    font-size: 0.85rem;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 1001;
-}
-.graph-tooltip.visible {
-    opacity: 1;
-    transform: translateY(0);
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 100;
+    max-width: 300px;
+    line-height: 1.4;
 }
 
-/* --- 4. ANIMAÇÕES --- */
-@keyframes rotateBackground {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.luft-mapa-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
 }
-@keyframes twinkle {
-    0% { opacity: 0.8; }
-    50% { opacity: 0.4; }
-    100% { opacity: 0.8; }
+
+.luft-mapa-context-menu {
+    position: absolute;
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    box-shadow: var(--luft-shadow-lg);
+    border-radius: 8px;
+    padding: 8px 0;
+    z-index: 200;
+    min-width: 220px;
 }
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
+
+.luft-mapa-context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.luft-mapa-context-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    color: var(--luft-text-main);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.luft-mapa-context-action:hover {
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+}
+
+.luft-mapa-context-action i {
+    font-size: 1.1rem;
+}
+
+
+/* =================================================================== */
+/* === BOTÕES PADRÃO LUFTCORE (COPIADOS DE INDEX.CSS) === */
+/* =================================================================== */
+
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-family: var(--font-family-base, 'Inter', sans-serif);
+    border: 1px solid transparent;
+}
+
+.luft-btn i {
+    font-size: 1.15rem;
+}
+
+.luft-btn-primary {
+    background-color: var(--luft-primary-600);
+    color: #ffffff;
+    box-shadow: var(--luft-shadow-sm);
+}
+
+.luft-btn-primary:hover {
+    background-color: var(--luft-primary-700);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--luft-shadow-md);
+}
+
+.luft-btn-outline {
+    background-color: transparent;
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    border-color: var(--luft-primary-700);
+    transform: translateY(-2px);
+}
+
+/* =================================================================== */
+/* === AÇÕES DO TOPO E RESPONSIVIDADE === */
+/* =================================================================== */
+
+.luft-mapa-actions-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.luft-mapa-actions-top .luft-btn {
+    white-space: nowrap;
+}
+
+/* Responsividade para Telas Pequenas (Celulares) */
+@media (max-width: 768px) {
+    .luft-mapa-actions-top {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .luft-mapa-actions-top .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Ajuste do cabeçalho em mobile */
+    .luft-mapa-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 16px;
+    }
+
+    .luft-mapa-header .luft-search-box {
+        width: 100%;
+    }
 }

@@ -1,165 +1,199 @@
-{% extends "base.html" %}
-{% block title %}Editar Submódulo: {{ path }}{% endblock %}
+{% extends "Base.html" %}
+{% block titulo %}Editar Submódulo: {{ path }}{% endblock %}
 
 {% block page_styles %}
-    {# Carrega os estilos específicos para esta página #}
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Extends/toastui-editor.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub.css') }}">
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid py-4">
-    <form method="post" id="editor-form">
-        <input type="hidden" name="token" value="{{ token }}">
-        <input type="hidden" name="content" id="content_input">
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 
-        <div class="page-header">
-            <h1 class="page-title"><i class="bi bi-pencil-square"></i>Editar Submódulo: {{ path }}</h1>
-            <div class="btn-group" role="group">
-                <button type="submit" class="btn btn-primary btn-lg px-4">
-                    <i class="bi bi-save me-2"></i>Salvar Alterações
-                </button>
-                <a href="{{ url_for('editor.listar_submodulos', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
-                    <i class="bi bi-x-circle me-2"></i>Cancelar
-                </a>
-            </div>
-        </div>
+<div class="luft-submodule-edit-wrapper">
+  <form method="post" id="formularioEdicao">
+    <input type="hidden" name="token" value="{{ token }}">
+    <input type="hidden" name="content" id="inputConteudoOculto">
 
-        <div class="main-form-card">
-            <div class="editor-toolbar-btns" id="toolbar-main"></div>
-            <div id="editor-main"></div>
-        </div>
-    </form>
+    <div class="luft-edit-header">
+      <h1><i class="bi bi-pencil-square"></i> Editar Submódulo: <span class="text-muted fw-normal fs-5 ms-2">{{ path }}</span></h1>
+      <div class="d-flex gap-2">
+        <button type="submit" class="luft-btn luft-btn-primary">
+          <i class="bi bi-save"></i> Salvar Alterações
+        </button>
+        <a href="{{ url_for('editor.listar_submodulos', token=token) }}" class="luft-btn luft-btn-outline">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </a>
+      </div>
+    </div>
+
+    <div class="luft-edit-form-card">
+      <div class="luft-editor-toolbar" id="toolbarPrincipal"></div>
+      <div id="editorPrincipal"></div>
+    </div>
+  </form>
 </div>
+{% endblock %}
 
-<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+{% block scripts %}
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const token = '{{ token }}';
-    const BASE_PREFIX = '/luft-docs';
-    const initialContent = {{ content|tojson }};
-    let editor;
+  const tokenUsuario = '{{ token }}';
+  const prefixoBase = '/luft-docs';
+  const conteudoInicial = {{ content|tojson }};
+  let instanciaEditor;
 
-    function withPrefix(path) {
-        if (/^https?:\/\//i.test(path)) return path;
-        return `${BASE_PREFIX}${path.startsWith('/') ? path : '/' + path}`;
-    }
+  /**
+   * Garante a formatacao correta do caminho de rota adicionando o prefixo base do sistema.
+   * @param {string} caminho - O caminho original da rota.
+   * @returns {string} O caminho contendo o prefixo padronizado.
+   */
+  function AdicionarPrefixo(caminho) {
+    if (/^https?:\/\//i.test(caminho)) return caminho;
+    return `${prefixoBase}${caminho.startsWith('/') ? caminho : '/' + caminho}`;
+  }
 
-    function initializeEditor() {
-        if (editor) editor.destroy();
+  /**
+   * Inicializa a instancia do ToastUI Editor para a edicao do submodulo.
+   * Realiza o mapeamento para lidar com o tema claro e escuro do sistema.
+   * @returns {void}
+   */
+  function InicializarEditor() {
+    if (instanciaEditor) instanciaEditor.destroy();
 
-        const isDark = document.body.classList.contains('theme-dark');
-        const editorTheme = isDark ? 'dark' : 'light';
+    const temaEscuroAtivo = document.body.classList.contains('theme-dark');
+    const temaEditor = temaEscuroAtivo ? 'dark' : 'light';
 
-        editor = new toastui.Editor({
-            el: document.querySelector('#editor-main'),
-            initialEditType: 'markdown',
-            previewStyle: 'vertical',
-            height: '700px',
-            usageStatistics: false,
-            theme: editorTheme,
-            initialValue: initialContent,
-            markdown: { breaks: true, linkify: true, html: true },
-            hooks: {
-                addImageBlobHook: (blob, callback) => {
-                    const fd = new FormData();
-                    fd.append('file', blob);
-                    fetch(withPrefix(`{{ url_for("editor.upload_submodule_image") }}?token=${token}`), {
-                        method: 'POST', body: fd
-                    })
-                    .then(res => res.json())
-                    .then(data => callback(withPrefix(data.url), withPrefix(data.url)))
-                    .catch(() => alert('Erro ao enviar imagem!'));
-                }
-            }
-        });
-
-        attachCustomButtons(editor, 'toolbar-main');
-    }
-
-    function attachCustomButtons(editor, toolbarId) {
-        const toolbar = document.getElementById(toolbarId);
-        toolbar.innerHTML = '';
-
-        const attachBtn = document.createElement('button');
-        attachBtn.type = 'button';
-        attachBtn.className = 'btn btn-outline-secondary btn-sm';
-        attachBtn.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
-        attachBtn.onclick = () => uploadAttachment(editor);
-
-        const videoBtn = document.createElement('button');
-        videoBtn.type = 'button';
-        videoBtn.className = 'btn btn-outline-danger btn-sm';
-        videoBtn.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
-        videoBtn.onclick = () => uploadVideo(editor);
-
-        const wikilinkBtn = document.createElement('button');
-        wikilinkBtn.type = 'button';
-        wikilinkBtn.className = 'btn btn-outline-info btn-sm';
-        wikilinkBtn.innerHTML = '<i class="bi bi-link-45deg"></i> Wikilink';
-        wikilinkBtn.onclick = () => {
-            let palavra = editor.getSelectedText() || prompt('Digite a palavra para criar o link:');
-            if (palavra) editor.insertText(`[[${palavra}]]`);
-        };
-
-        toolbar.appendChild(attachBtn);
-        toolbar.appendChild(videoBtn);
-        toolbar.appendChild(wikilinkBtn);
-    }
-
-    function uploadAttachment(editor) {
-        const inp = document.createElement('input');
-        inp.type = 'file';
-        inp.onchange = () => {
-            const file = inp.files[0];
-            const fd = new FormData();
-            fd.append('file', file);
-            fetch(withPrefix(`/editor/upload_anexo?token=${token}`), { method: 'POST', body: fd })
-            .then(res => res.json())
-            .then(data => editor.insertText(`\n[${file.name}](${withPrefix(data.url)}&token=${token})\n`))
-            .catch(() => alert('Erro ao enviar anexo!'));
-        };
-        inp.click();
-    }
-
-    function uploadVideo(editor) {
-        const inp = document.createElement('input');
-        inp.type = 'file';
-        inp.accept = 'video/*';
-        inp.onchange = () => {
-            const file = inp.files[0];
-            const fd = new FormData();
-            fd.append('file', file);
-            fetch(withPrefix(`{{ url_for('editor.upload_submodule_video') }}?token=${token}`), { method: 'POST', body: fd })
-            .then(res => res.json())
-            .then(data => {
-                if (data.url) {
-                    const videoTag = `<video width="100%" controls><source src="${withPrefix(data.url)}" type="${data.type}"></video>`;
-                    editor.insertText(`\n${videoTag}\n`);
-                } else {
-                    alert(data.error || 'Erro ao enviar vídeo!');
-                }
-            })
-            .catch(() => alert('Erro ao enviar vídeo!'));
-        };
-        inp.click();
-    }
-
-    initializeEditor();
-
-    const observer = new MutationObserver(mutations => {
-        if (mutations.some(m => m.attributeName === 'class')) {
-            initializeEditor();
+    instanciaEditor = new toastui.Editor({
+      el: document.querySelector('#editorPrincipal'),
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: '700px',
+      usageStatistics: false,
+      theme: temaEditor,
+      initialValue: conteudoInicial,
+      markdown: { breaks: true, linkify: true, html: true },
+      hooks: {
+        addImageBlobHook: (arquivoBlob, callbackInsercao) => {
+          const formData = new FormData();
+          formData.append('file', arquivoBlob);
+          fetch(AdicionarPrefixo(`{{ url_for("editor.upload_submodule_image") }}?token=${tokenUsuario}`), {
+            method: 'POST', body: formData
+          })
+          .then(resposta => resposta.json())
+          .then(dadosResposta => callbackInsercao(AdicionarPrefixo(dadosResposta.url), AdicionarPrefixo(dadosResposta.url)))
+          .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
         }
+      }
     });
-    observer.observe(document.body, { attributes: true });
 
-    document.getElementById('editor-form').addEventListener('submit', e => {
-        document.getElementById('content_input').value = editor.getMarkdown();
-    });
+    AnexarBotoesCustomizados(instanciaEditor, 'toolbarPrincipal');
+  }
+
+  /**
+   * Adiciona botoes customizados na barra de ferramentas externa do editor.
+   * @param {toastui.Editor} editor - Instancia alvo do editor.
+   * @param {string} idToolbar - ID do elemento HTML que recebera os botoes.
+   * @returns {void}
+   */
+  function AnexarBotoesCustomizados(editor, idToolbar) {
+    const elementoToolbar = document.getElementById(idToolbar);
+    elementoToolbar.innerHTML = '';
+
+    const btnAnexo = document.createElement('button');
+    btnAnexo.type = 'button';
+    btnAnexo.className = 'luft-btn luft-btn-outline luft-btn-sm';
+    btnAnexo.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
+    btnAnexo.onclick = () => ProcessarUploadAnexo(editor);
+
+    const btnVideo = document.createElement('button');
+    btnVideo.type = 'button';
+    btnVideo.className = 'luft-btn luft-btn-outline luft-btn-sm text-danger border-danger';
+    btnVideo.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
+    btnVideo.onclick = () => ProcessarUploadVideo(editor);
+
+    const btnWikilink = document.createElement('button');
+    btnWikilink.type = 'button';
+    btnWikilink.className = 'luft-btn luft-btn-outline luft-btn-sm text-info border-info';
+    btnWikilink.innerHTML = '<i class="bi bi-link-45deg"></i> Wikilink';
+    btnWikilink.onclick = () => {
+      let palavraChave = editor.getSelectedText() || prompt('Informe a palavra para a geracao do link:');
+      if (palavraChave) editor.insertText(`[[${palavraChave}]]`);
+    };
+
+    elementoToolbar.appendChild(btnAnexo);
+    elementoToolbar.appendChild(btnVideo);
+    elementoToolbar.appendChild(btnWikilink);
+  }
+
+  /**
+   * Processa o upload de arquivos de anexo e insere o padrao de link Markdown no editor.
+   * @param {toastui.Editor} editor - Instancia do editor que recebera o texto inserido.
+   * @returns {void}
+   */
+  function ProcessarUploadAnexo(editor) {
+    const seletorArquivo = document.createElement('input');
+    seletorArquivo.type = 'file';
+    seletorArquivo.onchange = () => {
+      const arquivoSelecionado = seletorArquivo.files[0];
+      const formData = new FormData();
+      formData.append('file', arquivoSelecionado);
+      
+      fetch(AdicionarPrefixo(`/editor/upload_anexo?token=${tokenUsuario}`), { method: 'POST', body: formData })
+        .then(resposta => resposta.json())
+        .then(dadosResposta => editor.insertText(`\n[${arquivoSelecionado.name}](${AdicionarPrefixo(dadosResposta.url)}&token=${tokenUsuario})\n`))
+        .catch(() => alert('Falha critica ao tentar processar o upload do anexo.'));
+    };
+    seletorArquivo.click();
+  }
+
+  /**
+   * Processa o upload de um arquivo de video e renderiza a tag HTML compativel no editor.
+   * @param {toastui.Editor} editor - Instancia do editor que recebera o codigo inserido.
+   * @returns {void}
+   */
+  function ProcessarUploadVideo(editor) {
+    const seletorVideo = document.createElement('input');
+    seletorVideo.type = 'file';
+    seletorVideo.accept = 'video/*';
+    seletorVideo.onchange = () => {
+      const arquivoSelecionado = seletorVideo.files[0];
+      const formData = new FormData();
+      formData.append('file', arquivoSelecionado);
+      
+      fetch(AdicionarPrefixo(`{{ url_for('editor.upload_submodule_video') }}?token=${tokenUsuario}`), { method: 'POST', body: formData })
+        .then(resposta => resposta.json())
+        .then(dadosResposta => {
+          if (dadosResposta.url) {
+            const codigoRenderizacao = `<video width="100%" controls><source src="${AdicionarPrefixo(dadosResposta.url)}" type="${dadosResposta.type}"></video>`;
+            editor.insertText(`\n${codigoRenderizacao}\n`);
+          } else {
+            alert(dadosResposta.error || 'Falha ao processar o caminho de destino do video.');
+          }
+        })
+        .catch(() => alert('Falha critica ao tentar processar o upload do video.'));
+    };
+    seletorVideo.click();
+  }
+
+  /* Fluxo de Inicializacao e Listeners */
+  InicializarEditor();
+
+  const monitorDeMutacao = new MutationObserver(mutacoes => {
+    if (mutacoes.some(m => m.attributeName === 'class')) {
+      InicializarEditor();
+    }
+  });
+  monitorDeMutacao.observe(document.body, { attributes: true });
+
+  document.getElementById('formularioEdicao').addEventListener('submit', () => {
+    document.getElementById('inputConteudoOculto').value = instanciaEditor.getMarkdown();
+  });
+
+  const instanciaAnimacao = new AnimacaoFundo('containerAnimacaoFundo');
+  instanciaAnimacao.iniciar();
 });
 </script>
 {% endblock %}

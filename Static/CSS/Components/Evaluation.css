@@ -1,229 +1,258 @@
-@import url('Themes.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
 /* =================================================================== */
-/* === EVALUATION.CSS - ESTILOS DA PÁGINA DE AVALIAÇÃO === */
+/* === EVALUATION.CSS - ESTILOS DA PÁGINA DE AVALIAÇÃO (LUFTCORE)  === */
 /* =================================================================== */
 
-/* --- 1. LAYOUT E ANIMAÇÃO GERAL --- */
-.evaluation-body-wrapper {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--theme-bg);
-    padding: 2rem;
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes animacaoTremor {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.luft-evaluation-wrapper {
+    position: relative;
+    z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 100px); /* Ajuste conforme altura do seu header/footer */
-    transition: background-color 0.4s ease;
+    min-height: calc(100vh - 100px);
+    padding: var(--luft-space-8) var(--luft-space-4);
 }
 
-.evaluation-container {
-    background-color: var(--theme-surface);
-    border: 1px solid var(--theme-border);
-    box-shadow: 0 10px 30px var(--theme-shadow);
-    border-radius: 16px;
-    padding: 2.5rem 3rem;
+.luft-evaluation-card {
+    background-color: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    box-shadow: var(--luft-shadow-lg);
+    border-radius: var(--luft-radius-xl);
+    padding: 3rem;
     width: 100%;
-    max-width: 750px;
-    text-align: center;
+    max-width: 800px;
     opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 1s ease 0.2s forwards;
-    transition: background-color 0.4s ease, border-color 0.4s ease;
+    animation: fadeInUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
 }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.evaluation-container h1 {
-    color: var(--theme-text);
+.luft-evaluation-title {
+    color: var(--luft-text-main);
     font-weight: 700;
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    text-align: center;
+    margin-bottom: var(--luft-space-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.luft-evaluation-title i {
+    color: var(--luft-primary-600);
+}
+
+/* --- SELETOR DE PROPÓSITO --- */
+.luft-purpose-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
     margin-bottom: 2rem;
 }
 
-/* --- 2. BOTÕES DE SELEÇÃO DE PROPÓSITO --- */
-.purpose-selector {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-}
-
-.purpose-button {
-    background: transparent;
-    border: 2px solid var(--theme-border);
-    border-radius: 10px;
-    padding: 0.75rem 1.25rem;
+.luft-purpose-selector .luft-btn {
+    padding: 0.6rem 1.25rem;
     font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--theme-text);
     transition: all 0.3s ease;
 }
-.purpose-button i { margin-right: 0.5rem; }
 
-.purpose-button:hover {
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn);
-    transform: translateY(-3px);
-}
- 
-.purpose-selector.selection-made .purpose-button:not(.active) {
-    opacity: 0.6;
+/* --- AVALIAÇÃO POR ESTRELAS --- */
+.luft-rating-group {
+    text-align: center;
 }
 
-.purpose-button.active {
-    background-image: linear-gradient(45deg, var(--lia-grad-1), var(--lia-grad-2)); 
-    color: var(--theme-primary-btn-text);
-    border-color: transparent;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 5px 20px var(--card-hover-shadow);
+.luft-star-rating {
+    font-size: 2.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
 }
 
-/* --- 3. CAMPOS DO FORMULÁRIO --- */
-.form-group {
-    position: relative;
-    margin-bottom: 0.5rem; /* Reduzido para acomodar o contador */
-    max-height: 0;
+.luft-star-rating .star {
+    color: var(--luft-border);
+    transition: all 0.2s ease-in-out;
+}
+
+.luft-star-rating .star:hover {
+    transform: scale(1.15);
+}
+
+.luft-star-rating .star.hover,
+.luft-star-rating .star.selected {
+    color: var(--luft-warning-500, #f59e0b);
+}
+
+.luft-rating-text {
+    display: block;
+    min-height: 24px; /* Evita pulo de layout */
+    margin-top: 0.5rem;
+    color: var(--luft-warning-600, #d97706);
+    font-weight: 600;
+    font-size: 1.1rem;
     opacity: 0;
-    overflow: hidden;
-    transition: max-height 0.7s ease, opacity 0.5s ease;
+    transition: opacity 0.3s ease;
 }
- 
-.form-group.visible {
-    max-height: 300px;
+
+.luft-rating-text.active {
     opacity: 1;
 }
 
-.form-group label {
-    position: absolute;
-    top: 0.85rem;
-    left: 1rem;
-    color: var(--theme-text-secondary);
-    font-weight: 500;
-    pointer-events: none;
-    transition: all 0.3s ease;
+/* --- TEXTAREAS FLUTUANTES (FLOATING LABELS) --- */
+.luft-form-section {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
-.form-group textarea {
-    width: 100%;
-    padding: 1.5rem 1rem 0.5rem 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--theme-border);
-    font-size: 1rem;
-    color: var(--theme-text);
-    background: var(--theme-bg);
-    box-sizing: border-box;
-    resize: vertical;
-    min-height: 120px;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-}
- 
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--theme-primary-btn);
-}
- 
-.form-group textarea:focus + label,
-.form-group textarea:not(:placeholder-shown) + label {
-    top: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--theme-primary-btn);
-}
-
-.char-counter-wrapper {
-    text-align: right;
-    margin-top: 5px;
-    margin-bottom: 2rem;
-    height: 1.2rem;
-}
-
-.char-counter {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--theme-color-danger);
-    transition: all 0.3s ease;
-}
-
-.char-counter.valid {
-    color: var(--theme-color-success);
-    font-weight: 600;
-}
- 
-/* --- 4. AVALIAÇÃO POR ESTRELAS --- */
-#rating-group { margin-bottom: 2.5rem; }
- 
-.rating-label {
-    color: var(--theme-text);
-    margin-bottom: 1rem;
+.luft-form-section.visible {
     display: block;
-    font-weight: 500;
+    opacity: 1;
+    animation: fadeInUp 0.4s ease forwards;
 }
 
-.star-rating { 
-    font-size: 2.5rem; 
-    cursor: pointer; 
-}
-.star-rating .star {
-    color: var(--theme-border);
-    transition: all 0.2s ease-in-out;
-    display: inline-block;
-}
-.star-rating .star:hover { 
-    transform: scale(1.2); 
-}
-.star-rating .star.hover,
-.star-rating .star.selected { 
-    color: var(--theme-color-warning); 
-}
-
-#rating-text {
-    display: block;
-    margin-top: 1rem;
-    height: 20px;
-    color: var(--theme-color-warning);
-    font-weight: 600;
-    transition: opacity 0.3s ease;
-}
- 
-#rating { display: none; }
-
-/* --- 5. BOTÃO DE ENVIO --- */
-.submit-btn {
-    background-image: linear-gradient(45deg, var(--lia-grad-1), var(--lia-grad-2));
-    background-size: 200%;
-    background-position: left;
-    color: var(--theme-primary-btn-text);
-    border: none;
-    border-radius: 10px;
-    padding: 0.8rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    transition: all 0.4s ease;
+.luft-floating-group {
     position: relative;
+    margin-bottom: 0.25rem;
 }
- 
-.submit-btn:hover {
-    background-position: right;
-    box-shadow: 0 8px 25px var(--card-hover-shadow);
+
+.luft-floating-group textarea {
+    height: 140px;
+    padding: 1.5rem 1rem 0.5rem 1rem;
+    resize: none;
 }
- 
-.submit-btn .spinner { display: none; }
-.submit-btn.loading .btn-text { visibility: hidden; }
-.submit-btn.loading .spinner { display: block; position: absolute; top: 50%; left: 50%; margin-top: -10px; margin-left: -10px; }
-.spinner {
-    border: 3px solid rgba(255,255,255,0.3); 
-    border-radius: 50%; 
-    border-top-color: #fff;
-    width: 20px; 
-    height: 20px; 
-    animation: spin 1s ease-in-out infinite;
+
+.luft-floating-label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: var(--luft-text-muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Animação do Floating Label ao receber foco ou ter conteúdo */
+.luft-floating-group textarea:focus ~ .luft-floating-label,
+.luft-floating-group textarea:not(:placeholder-shown) ~ .luft-floating-label {
+    top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--luft-primary-600);
+}
+
+.luft-floating-group textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.luft-char-counter {
+    text-align: right;
+    font-size: 0.85rem;
+    min-height: 1.2rem; /* Mantém o espaço mesmo vazio */
+}
+
+/* --- ALERTAS --- */
+.luft-alert {
+    padding: 0.5rem 1rem;
+    border-radius: var(--luft-radius-md);
+    border: 1px solid transparent;
+    font-weight: 500;
+}
+
+.luft-alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+body.theme-dark .luft-alert-danger {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #f8d7da;
+    border-color: #dc3545;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 576px) {
+    .luft-evaluation-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .luft-purpose-selector {
+        flex-direction: column;
+    }
+    
+    .luft-purpose-selector .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =================================================================== */
+/* === DEPENDÊNCIAS DO LUFTCORE (Caso não exista globalmente)      === */
+/* =================================================================== */
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--luft-radius-md, 8px);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    line-height: 1.5;
+    background: transparent;
+    font-family: inherit;
+}
+
+.luft-btn-primary {
+    background-color: var(--luft-primary-600, #0d6efd);
+    color: #ffffff !important;
+    border-color: var(--luft-primary-600, #0d6efd);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.luft-btn-primary:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+}
+
+.luft-btn-outline {
+    background-color: var(--luft-bg-panel, #ffffff);
+    color: var(--luft-text-main, #333333);
+    border-color: var(--luft-border, #dee2e6);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50, #f8f9fa);
+    color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-300, #b6d4fe);
+}
+
+.luft-form-control {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--luft-text-main, #212529);
+    background-color: var(--luft-bg-panel, #ffffff);
+    border: 1px solid var(--luft-border, #ced4da);
+    border-radius: var(--luft-radius-md, 8px);
+    transition: all 0.2s ease-in-out;
+    font-family: inherit;
+}

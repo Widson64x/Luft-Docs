@@ -82,7 +82,7 @@ def mapa_conhecimento():
         m['show_tecnico_button'] = m['id'] in MODULOS_TECNICOS_VISIVEIS or can_view_tecnico
 
     return render_template(
-        'Components/mapa.html', 
+        'Components/MapaModulos.html', 
         modulos=modulos_visiveis,
         can_access_editor=can_access_editor,
         can_access_permissions_menu=can_access_permissions_menu,

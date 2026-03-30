@@ -1,0 +1,96 @@
+{# ==========================================================================
+   COMPONENTE: Assistente LIA (Botão Flutuante, Modal e Sidebar)
+   Dependencia: Requer a importacao previa do macro do LuftCore.
+   ========================================================================== #}
+{% import 'luftcore/components.html' as ui %}
+
+<button class="luft-lia-floating-btn hover-lift" id="botaoFlutuanteLia" title="Falar com a LIA" {% if modulo %}data-proactive-module-name="{{ modulo.nome }}" data-proactive-module-id="{{ modulo.id }}"{% endif %}>
+    <i class="ph-fill ph-robot"></i>
+</button>
+
+<div id="toastProativoLia" class="luft-lia-proactive-toast" role="status" aria-live="polite" aria-atomic="true">
+    <i class="ph-fill ph-robot"></i>
+    <span id="textoToastProativo"></span>
+</div>
+
+<div id="overlayAvisoLia" class="luft-lia-warning-overlay" aria-hidden="true">
+    <div class="luft-lia-warning-box">
+        <i class="ph-fill ph-warning-circle text-warning mb-3" style="font-size: 3rem;"></i>
+        <h3 class="font-bold text-main mb-2">Aviso de Privacidade e IA</h3>
+        <p class="text-muted text-sm mb-4">A LIA é uma inteligência artificial baseada em Modelos de Linguagem (LLMs). As informações geradas podem conter imprecisões. Por favor, valide os dados críticos nas fontes originais sugeridas.</p>
+        <div class="form-group mb-4 text-start">
+            <label class="luft-switch-wrapper">
+                <div class="luft-switch">
+                    <input type="checkbox" id="checkboxNaoMostrarNovamente">
+                    <span class="luft-slider"></span>
+                </div>
+                <span class="luft-switch-label text-sm text-muted">Não mostrar este aviso novamente</span>
+            </label>
+        </div>
+        <button class="btn btn-primary w-100" id="btnConfirmarAvisoLia">Compreendi e quero prosseguir</button>
+    </div>
+</div>
+
+{% call ui.modal(id='liaModal', titulo='LIA - Assistente de Conhecimento', tamanho='lg', icone='ph-fill ph-robot') %}
+    <div class="luft-lia-layout">
+        <div class="luft-lia-chat-history" id="containerResposta_modal"></div>
+
+        <div class="luft-lia-input-area">
+            <div class="luft-lia-input-stack" id="pilhaTextarea_modal">
+                <div class="luft-lia-highlight-mirror" id="espelhoDestaque_modal" aria-hidden="true"></div>
+                <textarea class="form-control luft-lia-textarea" id="inputPergunta_modal" rows="1" placeholder="Pergunte à LIA ou use @ para citar um módulo..."></textarea>
+            </div>
+            
+            <div class="luft-lia-input-actions mt-2">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_modal" title="Mencionar Módulo"><i class="ph-bold ph-at"></i></button>
+                    <select class="form-control form-control-sm" id="seletorModelo_modal" style="max-width: 160px; height: 36px;">
+                        <option value="groq-70b">Llama 3 70B (Ideal)</option>
+                        <option value="groq-8b">Llama 3 8B (Rápido)</option>
+                    </select>
+                    <div id="listaModulos_modal" class="luft-lia-autocomplete-list" style="display: none;"></div>
+                </div>
+                <button class="btn btn-primary px-4" id="botaoPerguntar_modal" style="height: 36px;">
+                    <i class="ph-bold ph-paper-plane-right"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+{% endcall %}
+
+<div class="luft-lia-sidebar-backdrop" id="backdropSidebarLia"></div>
+<div class="luft-lia-sidebar" id="sidebarLia">
+    <div class="luft-lia-sidebar-resizer" id="redimensionadorSidebarLia"></div>
+    
+    <div class="luft-lia-sidebar-header">
+        <h3 class="font-bold text-main d-flex align-items-center gap-2 m-0 text-lg">
+            <i class="ph-fill ph-robot text-primary"></i> LIA Copiloto
+        </h3>
+        <button class="luft-btn-action" id="btnFecharSidebarLia"><i class="ph-bold ph-x"></i></button>
+    </div>
+
+    <div class="luft-lia-layout" style="height: calc(100% - 64px); padding: 16px 20px 20px 20px;">
+        <div class="luft-lia-chat-history" id="containerResposta_sidebar"></div>
+
+        <div class="luft-lia-input-area">
+            <div class="luft-lia-input-stack" id="pilhaTextarea_sidebar">
+                <div class="luft-lia-highlight-mirror" id="espelhoDestaque_sidebar" aria-hidden="true"></div>
+                <textarea class="form-control luft-lia-textarea" id="inputPergunta_sidebar" rows="1" placeholder="Pergunte à LIA..."></textarea>
+            </div>
+            
+            <div class="luft-lia-input-actions mt-2">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_sidebar" title="Mencionar Módulo"><i class="ph-bold ph-at"></i></button>
+                    <select class="form-control form-control-sm" id="seletorModelo_sidebar" style="max-width: 140px; height: 36px;">
+                        <option value="groq-70b">Llama 3 70B</option>
+                        <option value="groq-8b">Llama 3 8B</option>
+                    </select>
+                    <div id="listaModulos_sidebar" class="luft-lia-autocomplete-list" style="display: none;"></div>
+                </div>
+                <button class="btn btn-primary p-2 px-3" id="botaoPerguntar_sidebar" title="Enviar Mensagem" style="height: 36px;">
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

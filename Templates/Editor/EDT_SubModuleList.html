@@ -1,41 +1,43 @@
-{% extends "base.html" %}
-{% block title %}Gerenciar Submódulos{% endblock %}
+{% extends "Base.html" %}
+{% block titulo %}Gerenciar Submódulos{% endblock %}
 
 {% block page_styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub_Index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub_Index.css') }}">
 {% endblock %}
 
-{% block content %}
-<main class="container-fluid page-container py-4">
-  <div class="page-header">
-    <h1><i class="bi bi-grid-3x3-gap"></i>Submódulos</h1>
-    <div class="header-actions">
-      <div class="search-bar">
-        <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome do arquivo...">
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-submodule-page-wrapper">
+  <div class="luft-submodule-header mb-4">
+    <h1><i class="bi bi-grid-3x3-gap"></i> Submódulos</h1>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <div class="luft-search-wrapper">
+        <i class="bi bi-search luft-search-icon"></i>
+        <input type="text" id="inputBusca" class="luft-form-control luft-submodule-search" placeholder="Buscar por nome do arquivo...">
       </div>
-      <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createSubmoduleModal">
-        <i class="bi bi-plus-circle me-1"></i> Criar Novo
+      <button type="button" class="luft-btn luft-btn-primary" data-bs-toggle="modal" data-bs-target="#modalCriarSubmodulo">
+        <i class="bi bi-plus-circle"></i> Criar Novo
       </button>
     </div>
   </div>
 
-  <div id="submodulesGrid">
+  <div id="gridSubmodulos" class="luft-submodule-grid">
     {% for submodulo in submodulos %}
-    <div class="submodule-card" style="--delay: {{ loop.index0 }};">
-      <div class="card h-100 submodule-item-card">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon-display mb-3"><i class="bi bi-file-earmark-text"></i></div>
-          <h5 class="card-title card-title-path" title="{{ submodulo.path }}">{{ submodulo.path }}</h5>
-          <p class="card-text small text-muted mt-1">Modificado: {{ submodulo.modified }}</p>
-          <div class="card-actions text-end pt-3">
-            {# >>> AQUI: usa submodulo_path (sem 'e') #}
+    <div class="luft-submodule-card-wrapper" style="--delay: {{ loop.index0 }};">
+      <div class="luft-submodule-card">
+        <div class="luft-submodule-card-body">
+          <div class="luft-submodule-icon"><i class="bi bi-file-earmark-text"></i></div>
+          <h5 class="luft-submodule-title" title="{{ submodulo.path }}">{{ submodulo.path }}</h5>
+          <p class="luft-submodule-meta">Modificado: {{ submodulo.modified }}</p>
+          <div class="luft-submodule-actions">
             <a href="{{ url_for('editor.editar_submodulo', submodulo_path=submodulo.path, token=token) }}"
-               class="btn btn-sm btn-outline-secondary" title="Editar">
+               class="luft-btn luft-btn-outline luft-btn-sm" title="Editar">
                <i class="bi bi-pencil-fill"></i> Editar
             </a>
-
-            <button type="button" class="btn btn-sm btn-outline-danger ms-1"
-                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+            <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" style="color: var(--luft-danger-600); border-color: var(--luft-border);"
+                    data-bs-toggle="modal" data-bs-target="#modalDeletarSubmodulo"
                     data-path="{{ submodulo.path }}" title="Deletar">
               <i class="bi bi-trash-fill"></i> Deletar
             </button>
@@ -45,177 +47,218 @@
     </div>
     {% endfor %}
 
-    <div id="noResultsMessage" class="empty-state-container">
-      <i class="bi bi-search display-3"></i>
-      <h4 class="mt-3">Nenhum resultado encontrado</h4>
+    <div id="mensagemSemResultados" class="luft-empty-state" style="display: none;">
+      <i class="bi bi-search"></i>
+      <h4>Nenhum resultado encontrado</h4>
       <p>Tente refinar os termos da sua busca.</p>
     </div>
 
     {% if not submodulos %}
-    <div id="noSubmodulesMessage" class="empty-state-container" style="display: block;">
-      <i class="bi bi-journal-x display-3"></i>
-      <h4 class="mt-3">Nenhum submódulo encontrado</h4>
-      <p>Comece criando um novo submódulo no botão "Criar Novo".</p>
+    <div id="mensagemSemSubmodulos" class="luft-empty-state" style="display: block;">
+      <i class="bi bi-journal-x"></i>
+      <h4>Nenhum submódulo cadastrado</h4>
+      <p>Comece criando um novo submódulo clicando no botão "Criar Novo".</p>
     </div>
     {% endif %}
   </div>
-</main>
+</div>
 
-{# Modal: Criar #}
-<div class="modal fade" id="createSubmoduleModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalCriarSubmodulo" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content luft-modal-content">
       <form action="{{ url_for('editor.criar_submodulo') }}" method="POST">
         <input type="hidden" name="token" value="{{ token }}">
-        <div class="modal-header">
-          <h5 class="modal-title" id="createModalLabel">
-            <i class="bi bi-file-earmark-plus me-2"></i>Criar Novo Submódulo
+        <div class="modal-header luft-modal-header">
+          <h5 class="modal-title luft-modal-title">
+            <i class="bi bi-file-earmark-plus"></i> Criar Novo Submódulo
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body luft-modal-body">
           <div class="mb-3">
-            <label class="form-label">Pasta de Destino</label>
-            <div id="folderTreeContainer" class="border rounded p-2" style="max-height: 200px; overflow-y: auto;"></div>
-            <input class="form-control mt-2" id="folderPathInput" name="folder_path" placeholder="Selecione acima ou digite um novo caminho">
-            <div class="form-text">Ex: `nova-pasta/outra-pasta`</div>
+            <label class="luft-form-label">Pasta de Destino</label>
+            <div id="containerArvorePastas" class="luft-tree-container"></div>
+            <input class="luft-form-control mt-2" id="inputCaminhoPasta" name="folder_path" placeholder="Selecione acima ou digite o caminho">
+            <div class="luft-text-hint mt-1">Ex: nova-pasta/outra-pasta</div>
           </div>
           <div class="mb-3">
-            <label for="fileNameInput" class="form-label">Nome do Arquivo <span class="text-danger">*</span></label>
+            <label for="inputNomeArquivo" class="luft-form-label">Nome do Arquivo <span class="text-danger">*</span></label>
             <div class="input-group">
-              <input type="text" class="form-control" id="fileNameInput" name="file_name" placeholder="nome-do-arquivo" required>
-              <span class="input-group-text">.md</span>
+              <input type="text" class="luft-form-control" id="inputNomeArquivo" name="file_name" placeholder="nome-do-arquivo" required>
+              <span class="input-group-text" style="background-color: var(--luft-bg-app); border-color: var(--luft-border);">.md</span>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Criar e Editar</button>
+        <div class="modal-footer luft-modal-footer">
+          <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="luft-btn luft-btn-primary"><i class="bi bi-check-circle"></i> Criar e Editar</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-{# Modal: Deletar #}
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalDeletarSubmodulo" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="deleteForm" action="{{ url_for('editor.deletar_submodulo') }}" method="POST">
+    <div class="modal-content luft-modal-content">
+      <form id="formularioDeletar" action="{{ url_for('editor.deletar_submodulo') }}" method="POST">
         <input type="hidden" name="token" value="{{ token }}">
-        <input type="hidden" name="path_to_delete" id="pathToDeleteInput">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title" id="deleteModalLabel">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão
+        <input type="hidden" name="path_to_delete" id="inputCaminhoDelecao">
+        <div class="modal-header luft-modal-header">
+          <h5 class="modal-title luft-modal-title text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Exclusão
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body luft-modal-body">
           <p>Você tem certeza que deseja deletar o submódulo permanentemente?</p>
-          <p class="text-danger">
-            <strong>Arquivo:</strong> <code id="fileToDeleteText" class="fw-bold"></code>
-          </p>
-          <p class="small text-muted">Esta ação não pode ser desfeita.</p>
+          <div class="luft-alert luft-alert-warning py-3 text-center">
+            <strong class="text-dark"><i class="bi bi-file-earmark-x me-2"></i><span id="textoArquivoDeletar"></span></strong>
+          </div>
+          <p class="small text-muted mb-0">Esta ação não pode ser desfeita e o arquivo será apagado do sistema.</p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash-fill me-1"></i>Sim, Deletar
+        <div class="modal-footer luft-modal-footer">
+          <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-danger-600); border-color: var(--luft-danger-600);">
+            <i class="bi bi-trash-fill"></i> Sim, Deletar
           </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Busca nos cards
-  const searchInput = document.getElementById('searchInput');
-  const gridContainer = document.getElementById('submodulesGrid');
-  const cards = gridContainer.querySelectorAll('.submodule-card');
-  const noResultsMessage = document.getElementById('noResultsMessage');
-  const noSubmodulesMessage = document.getElementById('noSubmodulesMessage');
+document.addEventListener('DOMContentLoaded', () => {
+  const inputBusca = document.getElementById('inputBusca');
+  const cartoesSubmodulo = document.querySelectorAll('.luft-submodule-card-wrapper');
+  const mensagemSemResultados = document.getElementById('mensagemSemResultados');
+  const mensagemSemSubmodulos = document.getElementById('mensagemSemSubmodulos');
 
-  searchInput.addEventListener('input', () => {
-    const filter = searchInput.value.toLowerCase();
-    let visibleCount = 0;
+  /**
+   * Filtra os cartoes de submodulo renderizados na interface com base no termo de busca informado pelo usuario.
+   * Modifica a visibilidade dos elementos e gerencia a exibicao de mensagens de estado vazio.
+   * @returns {void}
+   */
+  function FiltrarSubmodulos() {
+    const termoFiltro = inputBusca.value.toLowerCase();
+    let quantidadeVisivel = 0;
 
-    cards.forEach(card => {
-      const pathEl = card.querySelector('.card-title-path');
-      const txt = pathEl ? pathEl.textContent.toLowerCase() : '';
-      const show = txt.includes(filter);
-      card.style.display = show ? '' : 'none';
-      if (show) visibleCount++;
+    cartoesSubmodulo.forEach(cartaoDom => {
+      const elementoCaminho = cartaoDom.querySelector('.luft-submodule-title');
+      const textoCaminho = elementoCaminho ? elementoCaminho.textContent.toLowerCase() : '';
+      const deveExibir = textoCaminho.includes(termoFiltro);
+      
+      cartaoDom.style.display = deveExibir ? '' : 'none';
+      if (deveExibir) quantidadeVisivel++;
     });
 
-    if (noResultsMessage) {
-      noResultsMessage.style.display = (visibleCount === 0 && !noSubmodulesMessage) ? 'block' : 'none';
+    if (mensagemSemResultados) {
+      mensagemSemResultados.style.display = (quantidadeVisivel === 0 && !mensagemSemSubmodulos) ? 'block' : 'none';
     }
-  });
+  }
 
-  // Modal deletar
-  const deleteModal = document.getElementById('deleteConfirmModal');
-  if (deleteModal) {
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const path = button.getAttribute('data-path');
-      document.getElementById('pathToDeleteInput').value = path;
-      document.getElementById('fileToDeleteText').textContent = path;
+  if (inputBusca) {
+    inputBusca.addEventListener('input', FiltrarSubmodulos);
+  }
+
+  /**
+   * Captura o evento de abertura do modal de exclusao e preenche os campos com os dados do submodulo selecionado.
+   * @returns {void}
+   */
+  function ConfigurarModalDelecao() {
+    const modalDeletar = document.getElementById('modalDeletarSubmodulo');
+    if (!modalDeletar) return;
+
+    modalDeletar.addEventListener('show.bs.modal', eventoAbertura => {
+      const botaoDisparador = eventoAbertura.relatedTarget;
+      const caminhoSubmodulo = botaoDisparador.getAttribute('data-path');
+      
+      document.getElementById('inputCaminhoDelecao').value = caminhoSubmodulo;
+      document.getElementById('textoArquivoDeletar').textContent = caminhoSubmodulo;
     });
   }
 
-  // Árvore de pastas
-  const dirTreeData = JSON.parse('{{ dir_tree_json|safe }}');
-  const treeContainer = document.getElementById('folderTreeContainer');
-  const pathInput = document.getElementById('folderPathInput');
+  /**
+   * Constroi a representacao em arvore das pastas do sistema de forma recursiva.
+   * @param {Object} dicionarioPastas - O objeto mapeado contendo a hierarquia de pastas.
+   * @param {string} [prefixoCaminho=''] - O caminho base atual para concatenacao recursiva.
+   * @returns {HTMLUListElement} O elemento de lista nao ordenada contendo a arvore construida.
+   */
+  function ConstruirArvorePastas(dicionarioPastas, prefixoCaminho = '') {
+    const listaRaiz = document.createElement('ul');
+    listaRaiz.className = 'luft-tree-view';
+    if (prefixoCaminho === '') listaRaiz.style.display = 'block';
 
-  function buildTree(nodes, prefix='') {
-    const ul = document.createElement('ul');
-    ul.className = 'tree-view';
-    if (prefix === '') ul.style.display = 'block';
+    for (const [nomePasta, pastasFilhas] of Object.entries(dicionarioPastas)) {
+      const caminhoAtualizado = prefixoCaminho ? `${prefixoCaminho}/${nomePasta}` : nomePasta;
+      const possuiFilhos = Object.keys(pastasFilhas).length > 0;
 
-    for (const [folder, children] of Object.entries(nodes)) {
-      const currentPath = prefix ? `${prefix}/${folder}` : folder;
-      const hasChildren = Object.keys(children).length > 0;
+      const itemLista = document.createElement('li');
+      itemLista.className = 'luft-tree-item';
 
-      const li = document.createElement('li');
-      li.className = 'tree-item';
+      const iconeExpansao = document.createElement('i');
+      iconeExpansao.className = possuiFilhos ? 'bi bi-chevron-right luft-tree-toggle' : 'luft-tree-toggle';
+      itemLista.appendChild(iconeExpansao);
 
-      const toggle = document.createElement('i');
-      toggle.className = hasChildren ? 'bi bi-chevron-right tree-toggle' : 'tree-toggle';
-      li.appendChild(toggle);
+      const rotuloPasta = document.createElement('span');
+      rotuloPasta.className = 'luft-tree-node-label';
+      rotuloPasta.dataset.path = caminhoAtualizado;
+      rotuloPasta.innerHTML = `<i class="bi bi-folder me-2 text-primary"></i>${nomePasta}`;
+      itemLista.appendChild(rotuloPasta);
 
-      const label = document.createElement('span');
-      label.className = 'tree-node-label';
-      label.dataset.path = currentPath;
-      label.innerHTML = `<i class="bi bi-folder me-1"></i>${folder}`;
-      li.appendChild(label);
-
-      if (hasChildren) li.appendChild(buildTree(children, currentPath));
-      ul.appendChild(li);
+      if (possuiFilhos) {
+        itemLista.appendChild(ConstruirArvorePastas(pastasFilhas, caminhoAtualizado));
+      }
+      
+      listaRaiz.appendChild(itemLista);
     }
-    return ul;
+    
+    return listaRaiz;
   }
 
-  if (treeContainer) {
-    treeContainer.innerHTML = '';
-    treeContainer.appendChild(buildTree(dirTreeData));
-    treeContainer.addEventListener('click', function (e) {
-      const t = e.target;
-      if (t.classList.contains('tree-toggle')) {
-        t.classList.toggle('expanded');
-        const sub = t.closest('.tree-item').querySelector('ul');
-        if (sub) sub.style.display = sub.style.display === 'none' ? 'block' : 'none';
+  /**
+   * Inicializa a renderizacao da arvore de diretorios e configura os comportamentos de expansao e selecao.
+   * @returns {void}
+   */
+  function InicializarArvoreDePastas() {
+    const arvoreDadosJson = JSON.parse('{{ dir_tree_json|safe }}');
+    const containerArvore = document.getElementById('containerArvorePastas');
+    const inputCaminhoDestino = document.getElementById('inputCaminhoPasta');
+
+    if (!containerArvore) return;
+
+    containerArvore.innerHTML = '';
+    containerArvore.appendChild(ConstruirArvorePastas(arvoreDadosJson));
+    
+    containerArvore.addEventListener('click', eventoClique => {
+      const elementoAlvo = eventoClique.target;
+      
+      if (elementoAlvo.classList.contains('luft-tree-toggle')) {
+        elementoAlvo.classList.toggle('expanded');
+        const listaFilha = elementoAlvo.closest('.luft-tree-item').querySelector('ul');
+        if (listaFilha) {
+          listaFilha.style.display = listaFilha.style.display === 'none' ? 'block' : 'none';
+        }
       }
-      const lbl = t.closest('.tree-node-label');
-      if (lbl) {
-        treeContainer.querySelectorAll('.tree-node-label.selected').forEach(el => el.classList.remove('selected'));
-        lbl.classList.add('selected');
-        pathInput.value = lbl.dataset.path;
+      
+      const rotuloSelecionado = elementoAlvo.closest('.luft-tree-node-label');
+      if (rotuloSelecionado) {
+        containerArvore.querySelectorAll('.luft-tree-node-label.selected').forEach(el => el.classList.remove('selected'));
+        rotuloSelecionado.classList.add('selected');
+        inputCaminhoDestino.value = rotuloSelecionado.dataset.path;
       }
     });
   }
+
+  ConfigurarModalDelecao();
+  InicializarArvoreDePastas();
+
+  const animacaoInstancia = new AnimacaoFundo('containerAnimacaoFundo');
+  animacaoInstancia.iniciar();
 });
 </script>
 {% endblock %}

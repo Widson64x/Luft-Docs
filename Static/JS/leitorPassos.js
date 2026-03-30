@@ -1,5 +1,5 @@
 /*!
- * Step Reader (Modo Foco) – LuftDocs
+ * Leitor de Passos (Modo Foco) – LuftDocs
  * Front-end only. Requer:
  *  - Um botão com id="sr-toggle-icon" (novo ícone no header) OU id="sr-toggle" (fallback)
  *  - Um overlay com id="step-reader" (ver estrutura HTML do modal)
@@ -285,7 +285,7 @@
     if (this.btnNext) this.btnNext.hidden   = this.current === total - 1;
     if (this.btnDone) this.btnDone.hidden   = !(this.current === total - 1);
 
-    // Checkbox “entendi”
+    // Checkbox "entendi"
     if (this.chkReviewed) this.chkReviewed.checked = this.reviewed.has(s.id);
 
     // Foco no conteúdo
@@ -300,9 +300,6 @@
     const content = qs(CONTENT_SELECTOR);
     const overlay = qs("#step-reader");
     if (!content || !overlay) return;
-
-    // Recomendação: garantir data-doc-id no HTML. Se não tiver, o script usa pathname.
-    // Ex.: <div class="modulo-conteudo" data-doc-id="{{ modulo.id or id_do_modulo }}"></div>
 
     // Instancia e deixa global (útil pra debug)
     window.__stepReader = new StepReader();

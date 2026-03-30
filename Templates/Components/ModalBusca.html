@@ -1,0 +1,43 @@
+{# ==========================================================================
+   COMPONENTE: Modal de Busca Rápida (Ctrl+K)
+   Abre em qualquer página — inclua em Base.html.
+   Dependência: LuftCore (luftcore/components.html)
+   ========================================================================== #}
+{% import 'luftcore/components.html' as ui %}
+
+{% call ui.modal(id='modalBusca', titulo='Busca na Documentação', tamanho='lg', icone='ph-bold ph-magnifying-glass') %}
+
+    <div class="kp-modal-body" data-base-prefix="{{ BASE_PREFIX if BASE_PREFIX is defined else (base_prefix if base_prefix is defined else '/luft-docs') }}">
+
+        {# Campo de busca com autocomplete #}
+        <div class="kp-modal-input-wrap">
+            <div class="luft-search-box shadow-sm">
+                <i class="ph-bold ph-magnifying-glass text-muted"></i>
+                <input type="search"
+                       id="kpModalInput"
+                       class="luft-search-input"
+                       placeholder="Buscar módulos, documentos, conteúdo…"
+                       autocomplete="off"
+                       spellcheck="false">
+            </div>
+            <div id="kpModalAutocomplete" class="luft-autocomplete-dropdown" style="display:none;"></div>
+        </div>
+
+        {# Chips de buscas populares #}
+        <div id="kpModalChips" class="kp-chips mt-3" hidden></div>
+
+        {# Estado vazio (sem resultados) #}
+        <p id="kpModalEmpty" class="kp-empty text-center py-4" hidden>
+            <i class="ph-thin ph-magnifying-glass d-block mb-2" style="font-size:3rem;opacity:.3;"></i>
+            Nenhum resultado encontrado.
+        </p>
+
+        {# Seções de recomendações (visível quando o input está vazio) #}
+        <div id="kpModalSections" class="mt-3"></div>
+
+        {# Lista de resultados da busca #}
+        <ul id="kpModalResults" class="kp-results mt-2" role="listbox"></ul>
+
+    </div>
+
+{% endcall %}

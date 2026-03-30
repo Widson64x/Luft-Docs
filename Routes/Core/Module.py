@@ -140,7 +140,7 @@ def ver_modulo_pela_raiz():
 
     # 3. RENDERIZA O TEMPLATE - ENVIANDO OS DADOS E A FLAG SEPARADAMENTE
     return render_template(
-        'Modules/Module.html',
+        'Modules/Modulos.html',
         modulo=modulo,
         conteudo=conteudo_html,
         relacionados=relacionados,

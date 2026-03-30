@@ -1,273 +1,185 @@
-// =========================================================================
-// LÓGICA DE BUSCA, PAGINAÇÃO, RENDERIZAÇÃO E ALERTAS
-// =========================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // ---- Lógica dos Módulos ----
-    const filterInput = document.getElementById('filterInput');
-    const modulesRow = document.getElementById('modules-row');
-    const noResultsMessage = document.getElementById('no-results-message');
-    const paginationContainer = document.getElementById('pagination-container');
+/**
+ * Arquivo de integracao da Pagina Inicial (Index).
+ * * Implementa padroes de Orientacao a Objetos para o gerenciamento de modulos,
+ * isolamento de lógicas de renderizacao e animacao de fundo.
+ */
 
-    // Se os elementos não existirem na página, não continue.
-    if (!modulesRow || !paginationContainer || !filterInput) return;
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const TOKEN = urlParams.get('token');
-    
-    let searchTimeout;
+class GerenciadorModulos {
+    /**
+     * Inicializa a classe responsavel por consultar e renderizar os modulos.
+     * * @param {string} idInputFiltro - O ID do elemento de input de busca.
+     * @param {string} idGridModulos - O ID do container onde os cards serao renderizados.
+     * @param {string} idContainerPaginacao - O ID do container da paginacao.
+     * @param {string} idMensagemVazia - O ID do container exibido quando nao ha resultados.
+     */
+    constructor(idInputFiltro, idGridModulos, idContainerPaginacao, idMensagemVazia) {
+        this.inputFiltro = document.getElementById(idInputFiltro);
+        this.gridModulos = document.getElementById(idGridModulos);
+        this.containerPaginacao = document.getElementById(idContainerPaginacao);
+        this.mensagemVazia = document.getElementById(idMensagemVazia);
+        
+        const parametrosUrl = new URLSearchParams(window.location.search);
+        this.tokenAutenticacao = parametrosUrl.get('token') || '';
+        this.timeoutBusca = null;
 
-    // Função principal que busca e renderiza os dados da API
-    async function fetchAndRenderCards(searchTerm = '', page = 1) {
-        modulesRow.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>';
-        noResultsMessage.style.display = 'none';
-        paginationContainer.innerHTML = '';
+        this.inicializarEventos();
+    }
 
-        try {
-            const response = await fetch(`/api/modules?search=${encodeURIComponent(searchTerm)}&page=${page}&token=${TOKEN}`);
-            if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
-            
-            const data = await response.json();
-            
-            modulesRow.innerHTML = '';
-            
-            if (data.cards && data.cards.length > 0) {
-                renderCards(data.cards, data.token);
-                renderPagination(data.current_page, data.total_pages);
-            } else {
-                noResultsMessage.style.display = 'block';
-            }
-        } catch (error) {
-            console.error("Falha ao buscar módulos:", error);
-            modulesRow.innerHTML = '<div class="col-12 text-center py-5 text-danger"><strong>Oops!</strong> Falha ao carregar os módulos. Verifique sua conexão e tente novamente.</div>';
+    /**
+     * Configura os ouvintes de eventos para interacao do usuario (busca e paginacao).
+     */
+    inicializarEventos() {
+        if (!this.inputFiltro || !this.gridModulos) return;
+
+        this.inputFiltro.addEventListener('input', (evento) => {
+            clearTimeout(this.timeoutBusca);
+            this.timeoutBusca = setTimeout(() => {
+                this.buscarModulos(evento.target.value.trim(), 1);
+            }, 300);
+        });
+
+        if (this.containerPaginacao) {
+            this.containerPaginacao.addEventListener('click', (evento) => {
+                evento.preventDefault();
+                const elementoAlvo = evento.target.closest('a');
+                if (elementoAlvo && elementoAlvo.dataset.page) {
+                    const pagina = parseInt(elementoAlvo.dataset.page, 10);
+                    if (!isNaN(pagina) && !elementoAlvo.classList.contains('disabled')) {
+                        this.buscarModulos(this.inputFiltro.value.trim(), pagina);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            });
         }
     }
 
-    // Função para renderizar os cards no DOM
-    function renderCards(cards, token) {
-        cards.forEach((m, index) => {
-            let cardHtml = '';
-            if (m.type === 'create_card') {
-                cardHtml = `
-                    <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-                        <a href="/editor/novo?token=${token}" class="card modern-card add-new-card w-100 shadow-none border-0 text-decoration-none" style="--card-index: ${index}">
-                            <div class="card-body d-flex flex-column align-items-center justify-content-center" style="flex:1;">
-                                <i class="bi bi-plus-circle-dotted display-4 mb-3"></i>
-                                <h5 class="card-title">Criar Novo Módulo</h5>
-                            </div>
-                        </a>
-                    </div>
+    /**
+     * Realiza a chamada a API para buscar modulos baseados em filtros e paginacao.
+     * * @param {string} termoBusca - Palavra-chave para filtragem dos modulos.
+     * @param {number} pagina - O numero da pagina atual solicitada.
+     */
+    async buscarModulos(termoBusca = '', pagina = 1) {
+        if (!this.gridModulos) return;
+
+        this.gridModulos.innerHTML = '<div class="col-12 text-center py-5 text-muted">Carregando modulos...</div>';
+        this.mensagemVazia.style.display = 'none';
+        this.containerPaginacao.innerHTML = '';
+
+        try {
+            const parametrosQuery = new URLSearchParams({
+                search: termoBusca,
+                page: String(pagina),
+                token: this.tokenAutenticacao
+            }).toString();
+
+            const prefixoBase = window.__BASE_PREFIX__ || '/luft-docs';
+            const resposta = await fetch(`${prefixoBase}/api/modules?${parametrosQuery}`);
+            
+            if (!resposta.ok) {
+                throw new Error(`Erro no servidor: ${resposta.statusText}`);
+            }
+            
+            const dadosProcessados = await resposta.json();
+            this.gridModulos.innerHTML = '';
+            
+            if (dadosProcessados.cards && dadosProcessados.cards.length > 0) {
+                this.renderizarCards(dadosProcessados.cards, dadosProcessados.token || this.tokenAutenticacao);
+                this.renderizarPaginacao(dadosProcessados.current_page, dadosProcessados.total_pages);
+            } else {
+                this.mensagemVazia.style.display = 'block';
+            }
+        } catch (erro) {
+            console.error("Falha na obtencao de dados da API:", erro);
+            this.gridModulos.innerHTML = '<div class="col-12 text-center py-5 text-danger">Falha ao carregar os modulos. Verifique a conexao.</div>';
+        }
+    }
+
+    /**
+     * Constroi e insere os cards de modulos no DOM baseando-se no layout LuftCore.
+     * * @param {Array} modulos - Lista de objetos de modulos retornados pela API.
+     * @param {string} tokenAtual - Token ativo para injecao nas URLs de destino.
+     */
+    renderizarCards(modulos, tokenAtual) {
+        const prefixoBase = window.__BASE_PREFIX__ || '/luft-docs';
+
+        modulos.forEach((modulo) => {
+            let htmlCard = '';
+            
+            if (modulo.type === 'create_card') {
+                htmlCard = `
+                    <a href="${prefixoBase}/editor/novo?token=${encodeURIComponent(tokenAtual)}" class="luft-index-card luft-index-card-dashed">
+                        <i class="ph-thin ph-plus-circle luft-index-card-icon" style="color: var(--luft-text-muted);"></i>
+                        <h5 class="luft-index-card-title">Criar Novo Modulo</h5>
+                    </a>
                 `;
             } else {
-                cardHtml = `
-                    <div class="col-12 col-sm-6 col-md-4 d-flex module-card-wrapper">
-                        <div class="card modern-card w-100 shadow-sm border-0" style="--card-index: ${index}">
-                            <div class="card-body">
-                                <i class="bi ${m.icone || 'bi-box'} display-4 text-primary mb-3"></i>
-                                <h5 class="card-title">${m.nome}</h5>
-                                <p class="card-text">${m.descricao}</p>
-                            </div>
-                            <div class="pb-3 text-center">
-                                ${m.has_content ? `
-                                <a class="btn btn-outline-primary modern-btn me-2 page-transition-btn" href="/modulo/?modulo=${m.id}&token=${token}">
-                                    <i class="bi bi-search"></i> Ver módulo
-                                </a>` : ''}
-                                ${m.show_tecnico_button ? `
-                                <a class="btn btn-outline-secondary modern-btn ms-2 page-transition-btn" href="/modulo/?modulo_tecnico=${m.id}&token=${token}">
-                                    <i class="bi bi-tools"></i> Módulo Técnico
-                                </a>` : ''}
-                            </div>
+                // Conversão paleativa de bi-icons para ph-icons caso venha do banco
+                const iconeSaneado = (modulo.icone || 'ph-box').replace('bi bi-', 'ph-bold ph-');
+                
+                let botoesAcao = '';
+                if (modulo.has_content) {
+                    botoesAcao += `<a class="luft-btn luft-btn-primary" href="${prefixoBase}/modulo/?modulo=${modulo.id}&token=${encodeURIComponent(tokenAtual)}">Ver Conteudo</a>`;
+                }
+                if (modulo.show_tecnico_button) {
+                    botoesAcao += `<a class="luft-btn luft-btn-outline" href="${prefixoBase}/modulo/?modulo_tecnico=${modulo.id}&token=${encodeURIComponent(tokenAtual)}"><i class="ph-bold ph-wrench"></i> Tecnico</a>`;
+                }
+
+                htmlCard = `
+                    <div class="luft-index-card">
+                        <i class="${iconeSaneado} luft-index-card-icon"></i>
+                        <h5 class="luft-index-card-title">${modulo.nome}</h5>
+                        <p class="luft-index-card-desc">${modulo.descricao}</p>
+                        <div class="luft-index-card-actions">
+                            ${botoesAcao}
                         </div>
                     </div>
                 `;
             }
-            modulesRow.insertAdjacentHTML('beforeend', cardHtml);
-        });
-        // Re-aplica o listener de transição para os novos botões criados
-        setupPageTransitionListeners();
-    }
-
-    // Função para renderizar a paginação no DOM
-    function renderPagination(currentPage, totalPages) {
-        if (totalPages <= 1) {
-            paginationContainer.innerHTML = '';
-            return;
-        }
-
-        let paginationHtml = '<nav aria-label="Navegação dos módulos"><ul class="pagination">';
-        paginationHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a></li>`;
-        
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-        }
-
-        paginationHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">Próxima</a></li>`;
-        paginationHtml += '</ul></nav>';
-        
-        paginationContainer.innerHTML = paginationHtml;
-    }
-
-    // Listener para o filtro com debounce
-    filterInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            fetchAndRenderCards(e.target.value.trim(), 1);
-        }, 300);
-    });
-    
-    // Listener para paginação com delegação de eventos
-    paginationContainer.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = e.target;
-        if (target.tagName === 'A' && target.dataset.page) {
-            const page = parseInt(target.dataset.page, 10);
-            const searchTerm = filterInput.value.trim();
-            if (!isNaN(page) && !target.closest('.page-item.disabled')) {
-                fetchAndRenderCards(searchTerm, page);
-                window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo
-            }
-        }
-    });
-
-    // Carga inicial dos dados
-    fetchAndRenderCards();
-
-    // ---- Lógica de Transição de Página ----
-    function setupPageTransitionListeners() {
-        document.querySelectorAll('.page-transition-btn').forEach(btn => {
-            btn.removeEventListener('click', handleTransitionClick); 
-            btn.addEventListener('click', handleTransitionClick);
+            this.gridModulos.insertAdjacentHTML('beforeend', htmlCard);
         });
     }
 
-    function handleTransitionClick(event) {
-        event.preventDefault();
-        const destinationUrl = event.currentTarget.href;
-        document.body.classList.add('page-transition-out');
-        setTimeout(() => {
-            window.location.href = destinationUrl;
-        }, 500); // Duração da animação
-    }
+    /**
+     * Renderiza o componente de paginacao padronizado.
+     * * @param {number} paginaAtual - O indice da pagina atualmente ativa.
+     * @param {number} totalPaginas - A quantidade total de paginas disponiveis.
+     */
+    renderizarPaginacao(paginaAtual, totalPaginas) {
+        if (totalPaginas <= 1) return;
 
-    // Configuração inicial dos listeners de transição
-    setupPageTransitionListeners();
-
-    // ---- Lógica para fechar alertas (Flashed Messages) ----
-    const alerts = document.querySelectorAll('.alert');
-    const alertTimeout = 5000;
-    alerts.forEach((alert) => {
-        setTimeout(() => {
-            new bootstrap.Alert(alert).close();
-        }, alertTimeout);
-    });
-});
-
-// =========================================================================
-// LÓGICA DA ANIMAÇÃO DE FUNDO
-// =========================================================================
-const bgContainer = document.querySelector('.bg-icons');
-if (bgContainer) {
-    let bgAnimationFrameId = null;
-
-    function getAnimationParameters() {
-        const quantity = parseInt(localStorage.getItem('ld_bg_quantity') || '50', 10);
-        const speedFactor = parseFloat(localStorage.getItem('ld_bg_speed') || '1.0');
-        const randomnessFactor = 1 + (speedFactor - 1) * 0.5;
-        return { quantity, speedFactor, randomnessFactor };
-    }
-
-    function iniciarAnimacaoComColisao() {
-        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
-        const iconsData = [];
-        const screenWidth = bgContainer.offsetWidth;
-        const screenHeight = bgContainer.offsetHeight;
+        let htmlPaginacao = '';
+        const classeAnterior = paginaAtual === 1 ? 'disabled' : '';
+        htmlPaginacao += `<a href="#" class="luft-page-btn ${classeAnterior}" data-page="${paginaAtual - 1}">Anterior</a>`;
         
-        // Pega a URL do JSON do atributo data-* no HTML
-        const iconsUrl = bgContainer.dataset.iconsUrl;
-        if (!iconsUrl) {
-            console.error('URL do arquivo de ícones não encontrada.');
-            return;
+        for (let indice = 1; indice <= totalPaginas; indice++) {
+            const classeAtiva = indice === paginaAtual ? 'active' : '';
+            htmlPaginacao += `<a href="#" class="luft-page-btn ${classeAtiva}" data-page="${indice}">${indice}</a>`;
         }
 
-        fetch(iconsUrl)
-            .then(res => res.json())
-            .then(availableIcons => {
-                for (let i = 0; i < quantity; i++) {
-                    const el = document.createElement('i');
-                    const size = (Math.random() * 32 * randomnessFactor + 16);
-
-                    el.className = `bi ${availableIcons[Math.floor(Math.random() * availableIcons.length)]} bg-icon`;
-                    el.style.fontSize = `${size}px`;
-                    el.style.position = 'absolute';
-                    bgContainer.appendChild(el);
-
-                    iconsData.push({
-                        element: el,
-                        x: Math.random() * (screenWidth - size),
-                        y: Math.random() * (screenHeight - size),
-                        dx: (Math.random() - 0.5) * 1.5 * speedFactor,
-                        dy: (Math.random() - 0.5) * 1.5 * speedFactor,
-                        size: size
-                    });
-                }
-                animate();
-            })
-            .catch(console.error);
-
-        function animate() {
-            iconsData.forEach(icon => {
-                icon.x += icon.dx;
-                icon.y += icon.dy;
-                if (icon.x <= 0 || icon.x + icon.size >= screenWidth) { icon.dx *= -1; }
-                if (icon.y <= 0 || icon.y + icon.size >= screenHeight) { icon.dy *= -1; }
-                icon.element.style.transform = `translate(${icon.x}px, ${icon.y}px)`;
-            });
-            bgAnimationFrameId = requestAnimationFrame(animate);
-        }
+        const classeProxima = paginaAtual === totalPaginas ? 'disabled' : '';
+        htmlPaginacao += `<a href="#" class="luft-page-btn ${classeProxima}" data-page="${paginaAtual + 1}">Proxima</a>`;
+        
+        this.containerPaginacao.innerHTML = htmlPaginacao;
     }
-
-    function iniciarAnimacaoOriginal() {
-        const { quantity, speedFactor, randomnessFactor } = getAnimationParameters();
-        const iconsUrl = bgContainer.dataset.iconsUrl;
-        if (!iconsUrl) return;
-
-        fetch(iconsUrl)
-            .then(res => res.json())
-            .then(icons => {
-                for (let i = 0; i < quantity; i++) {
-                    const cls = icons[Math.floor(Math.random() * icons.length)];
-                    const el = document.createElement('i');
-                    el.className = `bi ${cls} bg-icon`;
-
-                    el.style.fontSize = `${(Math.random() * 2 * randomnessFactor + 1).toFixed(2)}rem`;
-                    el.style.left = `${Math.random() * 100}%`;
-                    el.style.bottom = '-2rem';
-                    el.style.animationName = 'iconRise';
-                    el.style.animationTimingFunction = 'ease-in-out';
-                    el.style.animationIterationCount = 'infinite';
-                    el.style.animationDelay = `${(Math.random() * 5).toFixed(2)}s`;
-                    const baseDuration = 10 + Math.random() * 10;
-                    el.style.animationDuration = `${(baseDuration / speedFactor).toFixed(2)}s`;
-                    bgContainer.appendChild(el);
-                }
-            })
-            .catch(console.error);
-    }
-
-    window.mudarAnimacao = function(modo) {
-        if (bgAnimationFrameId) {
-            cancelAnimationFrame(bgAnimationFrameId);
-            bgAnimationFrameId = null;
-        }
-        bgContainer.innerHTML = '';
-
-        if (modo === 'original') {
-            iniciarAnimacaoOriginal();
-        } else {
-            iniciarAnimacaoComColisao();
-        }
-    }
-
-    // Inicia a animação de fundo preferida do usuário
-    const savedAnimation = localStorage.getItem('ld_bgAnimation') || 'colisao';
-    mudarAnimacao(savedAnimation);
 }
+
+/**
+ * Funcao solitaria base para instanciar e engatilhar as classes necessarias na pagina atual.
+ */
+function InicializarPaginaIndex() {
+    const gerenciador = new GerenciadorModulos(
+        'inputFiltroModulos', 
+        'gridModulos', 
+        'containerPaginacao', 
+        'mensagemSemResultados'
+    );
+    
+    // Inicia requisicao padrao ao montar
+    gerenciador.buscarModulos();
+
+    const animacao = new AnimacaoFundo('containerAnimacaoFundo');
+    animacao.iniciar();
+}
+
+// Inicializador raiz atrelado ao ciclo de vida do DOM
+document.addEventListener('DOMContentLoaded', InicializarPaginaIndex);

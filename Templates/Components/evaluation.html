@@ -1,173 +1,220 @@
-{% extends "base.html" %}
+{% extends "Base.html" %}
 
 {% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Evaluation.css') }}">
 {% endblock %}
 
-{% block content %}
-<div class="evaluation-body-wrapper">
-    <div class="evaluation-container">
-        <h1>Avaliação do Documento</h1>
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 
-        <div class="purpose-selector">
-            <button type="button" class="purpose-button" data-purpose="feedback">
-                <i class="fas fa-star"></i> Avaliação Geral
+<div class="luft-evaluation-wrapper">
+    <div class="luft-evaluation-card">
+        <h1 class="luft-evaluation-title"><i class="bi bi-clipboard-check"></i> Avaliação do Documento</h1>
+
+        <div class="luft-purpose-selector" id="seletorProposito">
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="feedback">
+                <i class="bi bi-star"></i> Avaliação Geral
             </button>
-            <button type="button" class="purpose-button" data-purpose="suggestions">
-                <i class="fas fa-lightbulb"></i> Sugerir Melhoria
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="suggestions">
+                <i class="bi bi-lightbulb"></i> Sugerir Melhoria
             </button>
-            <button type="button" class="purpose-button" data-purpose="techos">
-                <i class="fas fa-code"></i> Detalhe Técnico
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="techos">
+                <i class="bi bi-code-slash"></i> Detalhe Técnico
             </button>
-            <button type="button" class="purpose-button" data-purpose="changes">
-                <i class="fas fa-edit"></i> Solicitar Mudança
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="changes">
+                <i class="bi bi-pencil-square"></i> Solicitar Mudança
             </button>
         </div>
 
-        <form method="POST" action="" id="evaluationForm">
+        <form method="POST" action="" id="formularioAvaliacao">
             {{ form.hidden_tag() }}
 
-            <div id="rating-group">
-                <span class="rating-label">Sua avaliação sobre a utilidade deste documento:</span>
-                <div class="star-rating">
-                    <span class="star" data-value="1">&#9733;</span>
-                    <span class="star" data-value="2">&#9733;</span>
-                    <span class="star" data-value="3">&#9733;</span>
-                    <span class="star" data-value="4">&#9733;</span>
-                    <span class="star" data-value="5">&#9733;</span>
+            <div class="luft-rating-group mb-4">
+                <span class="luft-form-label d-block text-center mb-2">Sua avaliação sobre a utilidade deste documento:</span>
+                <div class="luft-star-rating" id="seletorEstrelas">
+                    <span class="star" data-value="1"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="2"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="3"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="4"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="5"><i class="bi bi-star-fill"></i></span>
                 </div>
-                {{ form.rating() }} 
-                <span id="rating-text"></span>
+                {{ form.rating(class="d-none", id="inputRating") }} 
+                <span id="textoAvaliacao" class="luft-rating-text"></span>
 
                 {% if form.rating.errors %}
-                    <div style="color: #dc3545; font-weight: 500; margin-top: 10px; animation: shake 0.5s;">
+                    <div class="luft-alert luft-alert-danger mt-3 d-inline-flex mx-auto" style="animation: animacaoTremor 0.4s;">
                         {% for error in form.rating.errors %}
-                            <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                            <span><i class="bi bi-exclamation-triangle-fill"></i> {{ error }}</span>
                         {% endfor %}
                     </div>
-                    <style>@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}</style>
                 {% endif %}
             </div>
 
-            <div class="form-group" data-section="feedback">
-                {{ form.feedback(placeholder=" ", **{'data-counter': 'feedback-counter'}) }}
-                {{ form.feedback.label }}
-                <div class="char-counter-wrapper"><span class="char-counter" id="feedback-counter">0 / 50</span></div>
+            <div class="luft-form-section" data-section="feedback">
+                <div class="luft-floating-group">
+                    {{ form.feedback(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorFeedback'}) }}
+                    <label class="luft-floating-label">Deixe seu feedback geral</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorFeedback">0 / 50</span></div>
             </div>
             
-            <div class="form-group" data-section="suggestions">
-                {{ form.suggestions(placeholder=" ", **{'data-counter': 'suggestions-counter'}) }}
-                {{ form.suggestions.label }}
-                <div class="char-counter-wrapper"><span class="char-counter" id="suggestions-counter">0 / 50</span></div>
+            <div class="luft-form-section" data-section="suggestions">
+                <div class="luft-floating-group">
+                    {{ form.suggestions(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorSugestoes'}) }}
+                    <label class="luft-floating-label">Qual a sua sugestão de melhoria?</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorSugestoes">0 / 50</span></div>
             </div>
 
-            <div class="form-group" data-section="techos">
-                {{ form.techos(placeholder=" ", **{'data-counter': 'techos-counter'}) }}
-                {{ form.techos.label(text="Detalhes Técnicos ou Trechos") }}
-                <div class="char-counter-wrapper"><span class="char-counter" id="techos-counter">0 / 50</span></div>
+            <div class="luft-form-section" data-section="techos">
+                <div class="luft-floating-group">
+                    {{ form.techos(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorTecnico'}) }}
+                    <label class="luft-floating-label">Detalhes Técnicos ou Trechos com erro</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorTecnico">0 / 50</span></div>
             </div>
             
-            <div class="form-group" data-section="changes">
-                {{ form.changes(placeholder=" ", **{'data-counter': 'changes-counter'}) }}
-                {{ form.changes.label }}
-                <div class="char-counter-wrapper"><span class="char-counter" id="changes-counter">0 / 50</span></div>
+            <div class="luft-form-section" data-section="changes">
+                <div class="luft-floating-group">
+                    {{ form.changes(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorMudancas'}) }}
+                    <label class="luft-floating-label">O que precisa ser alterado?</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorMudancas">0 / 50</span></div>
             </div>
 
-            <button type="submit" class="submit-btn" id="submitButton">
-                <span class="btn-text">Enviar Avaliação</span>
-                <div class="spinner"></div>
+            <button type="submit" class="luft-btn luft-btn-primary w-100 mt-4" id="botaoEnviar" style="height: 3rem;">
+                <span class="btn-text"><i class="bi bi-send"></i> Enviar Avaliação</span>
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
             </button>
         </form>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const purposeSelector = document.querySelector('.purpose-selector');
-        const purposeButtons = document.querySelectorAll('.purpose-button');
-        const formGroups = document.querySelectorAll('.form-group');
+document.addEventListener('DOMContentLoaded', () => {
+    /** @type {NodeListOf<HTMLButtonElement>} */
+    const botoesProposito = document.querySelectorAll('.purpose-button');
+    const secoesFormulario = document.querySelectorAll('.luft-form-section');
+    const inputAvaliacao = document.getElementById('inputRating');
+    const textoAvaliacao = document.getElementById('textoAvaliacao');
+    const estrelas = document.querySelectorAll('.luft-star-rating .star');
+    const significadosAvaliacao = ["", "Ruim", "Regular", "Bom", "Ótimo", "Excelente!"];
+
+    /**
+     * Alterna a visibilidade dos blocos de texto com base no botao de proposito selecionado.
+     * @param {HTMLButtonElement} botaoAtivo - O botao que recebeu o clique.
+     * @returns {void}
+     */
+    function SelecionarProposito(botaoAtivo) {
+        const propositoSelecionado = botaoAtivo.dataset.purpose;
         
-        purposeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const purpose = this.dataset.purpose;
-                purposeSelector.classList.add('selection-made');
-                purposeButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                formGroups.forEach(group => {
-                    group.classList.toggle('visible', group.dataset.section === purpose);
-                });
-            });
+        botoesProposito.forEach(btn => {
+            btn.classList.remove('luft-btn-primary');
+            btn.classList.add('luft-btn-outline');
+            btn.style.opacity = '0.6';
         });
 
-        const stars = document.querySelectorAll('.star-rating .star');
-        const ratingInput = document.getElementById('rating');
-        const ratingText = document.getElementById('rating-text');
-        const ratingMeanings = ["", "Ruim", "Regular", "Bom", "Ótimo", "Excelente!"];
-        
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const value = this.dataset.value;
-                ratingInput.value = value;
-                updateStars(value);
-                ratingText.textContent = ratingMeanings[value];
-            });
-            star.addEventListener('mouseover', function() {
-                previewStars(this.dataset.value);
-                ratingText.textContent = ratingMeanings[this.dataset.value];
-            });
-            star.addEventListener('mouseout', function() {
-                updateStars(ratingInput.value);
-                ratingText.textContent = ratingMeanings[ratingInput.value] || "";
-            });
-        });
+        botaoAtivo.classList.remove('luft-btn-outline');
+        botaoAtivo.classList.add('luft-btn-primary');
+        botaoAtivo.style.opacity = '1';
 
-        function updateStars(selectedValue) {
-            stars.forEach(star => {
-                star.classList.toggle('selected', star.dataset.value <= selectedValue);
-                star.classList.remove('hover');
-            });
-        }
-        function previewStars(hoverValue) {
-            stars.forEach(star => {
-                star.classList.toggle('hover', star.dataset.value <= hoverValue);
-            });
-        }
-        
-        const form = document.getElementById('evaluationForm');
-        const submitButton = document.getElementById('submitButton');
-        form.addEventListener('submit', function() {
-            if (!submitButton.classList.contains('loading')) {
-                submitButton.classList.add('loading');
-                submitButton.disabled = true;
-            }
-        });
-
-        // ### NOVO ### LÓGICA DO CONTADOR DE CARACTERES
-        const textareas = document.querySelectorAll('textarea[data-counter]');
-        textareas.forEach(textarea => {
-            const counterId = textarea.dataset.counter;
-            const counterElement = document.getElementById(counterId);
-
-            if (counterElement) {
-                // Atualiza o contador no carregamento da página caso o campo já tenha texto
-                updateCounter(textarea, counterElement);
-
-                // Adiciona o listener para atualizar em tempo real
-                textarea.addEventListener('input', () => {
-                    updateCounter(textarea, counterElement);
-                });
-            }
-        });
-
-        function updateCounter(textarea, counterElement) {
-            const count = textarea.value.length;
-            counterElement.textContent = `${count} / 50`;
-            if (count >= 50) {
-                counterElement.classList.add('valid');
+        secoesFormulario.forEach(secao => {
+            if (secao.dataset.section === propositoSelecionado) {
+                secao.classList.add('visible');
             } else {
-                counterElement.classList.remove('valid');
+                secao.classList.remove('visible');
             }
+        });
+    }
+
+    botoesProposito.forEach(botao => {
+        botao.addEventListener('click', () => SelecionarProposito(botao));
+    });
+
+    /**
+     * Atualiza a renderizacao visual (cor/estado) das estrelas baseado no valor informado.
+     * @param {number|string} valorReferencia - O numero de estrelas a serem destacadas.
+     * @param {boolean} [ehHover=false] - Indica se a renderizacao é apenas uma visualizacao temporaria de hover.
+     * @returns {void}
+     */
+    function AtualizarEstrelas(valorReferencia, ehHover = false) {
+        estrelas.forEach(estrela => {
+            const valorEstrela = parseInt(estrela.dataset.value);
+            
+            if (ehHover) {
+                estrela.classList.toggle('hover', valorEstrela <= valorReferencia);
+            } else {
+                estrela.classList.remove('hover');
+                estrela.classList.toggle('selected', valorEstrela <= valorReferencia);
+            }
+        });
+    }
+
+    estrelas.forEach(estrela => {
+        estrela.addEventListener('click', function() {
+            const valorSelecionado = this.dataset.value;
+            inputAvaliacao.value = valorSelecionado;
+            AtualizarEstrelas(valorSelecionado);
+            textoAvaliacao.textContent = significadosAvaliacao[valorSelecionado];
+            textoAvaliacao.classList.add('active');
+        });
+
+        estrela.addEventListener('mouseover', function() {
+            const valorHover = this.dataset.value;
+            AtualizarEstrelas(valorHover, true);
+            textoAvaliacao.textContent = significadosAvaliacao[valorHover];
+        });
+
+        estrela.addEventListener('mouseout', () => {
+            AtualizarEstrelas(inputAvaliacao.value);
+            textoAvaliacao.textContent = significadosAvaliacao[inputAvaliacao.value] || "";
+        });
+    });
+
+    /**
+     * Atualiza os contadores de limite de caracteres dos textareas na interface.
+     * @param {HTMLTextAreaElement} campoTexto - O input do usuario.
+     * @param {HTMLElement} elementoContador - O span HTML que exibe o limite.
+     * @returns {void}
+     */
+    function AtualizarContadorDeCaracteres(campoTexto, elementoContador) {
+        const quantidade = campoTexto.value.length;
+        elementoContador.textContent = `${quantidade} / 50`;
+        
+        if (quantidade >= 50) {
+            elementoContador.classList.add('text-success', 'fw-bold');
+            elementoContador.classList.remove('text-danger');
+        } else {
+            elementoContador.classList.add('text-danger');
+            elementoContador.classList.remove('text-success', 'fw-bold');
+        }
+    }
+
+    document.querySelectorAll('textarea[data-counter]').forEach(textarea => {
+        const idContador = textarea.dataset.counter;
+        const domContador = document.getElementById(idContador);
+
+        if (domContador) {
+            AtualizarContadorDeCaracteres(textarea, domContador);
+            textarea.addEventListener('input', () => AtualizarContadorDeCaracteres(textarea, domContador));
         }
     });
+
+    const formulario = document.getElementById('formularioAvaliacao');
+    const botaoEnvio = document.getElementById('botaoEnviar');
+
+    formulario.addEventListener('submit', () => {
+        botaoEnvio.disabled = true;
+        botaoEnvio.querySelector('.btn-text').classList.add('d-none');
+        botaoEnvio.querySelector('.spinner-border').classList.remove('d-none');
+    });
+
+    const animacaoFundo = new AnimacaoFundo('containerAnimacaoFundo');
+    animacaoFundo.iniciar();
+});
 </script>
 {% endblock %}

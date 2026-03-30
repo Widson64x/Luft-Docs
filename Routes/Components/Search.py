@@ -85,7 +85,7 @@ def perform_search():
     ]
 
     return render_template(
-        'Pages/SearchPage.html',
+        'Pages/PesquisarModulos.html',
         query=query,
         results=_decorate_results(processed_results, token),
         total_results=len(processed_results),

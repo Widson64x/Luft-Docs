@@ -36,7 +36,7 @@ else:
 # =============================================================================
 # 2. METADADOS DA APLICAÇÃO (Lidos APÓS carregar .env)
 # =============================================================================
-APP_NAME = os.getenv("APP_NAME", "luftdocs_web")
+APP_NAME = os.getenv("APP_NAME", "LuftDocs")
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "CHANGE-ME-IN-PROD")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO") # Log level pode ser por ambiente

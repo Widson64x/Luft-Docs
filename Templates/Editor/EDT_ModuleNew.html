@@ -1,99 +1,81 @@
-{% extends "base.html" %}
-{% block title %}Criar Novo Módulo{% endblock %}
+{% extends "Base.html" %}
+{% block titulo %}Criar Novo Módulo{% endblock %}
 
 {% block page_styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_New.css') }}">
-  <style>
-    .rel-pill { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .5rem; border-radius:999px; background:var(--bs-gray-200); font-size:.85rem; margin:.25rem .35rem .25rem 0 }
-    .rel-pill .remove { cursor:pointer; border:none; background:transparent; font-size:1rem; line-height:1; padding:0 }
-    .rel-select-btn { white-space:nowrap }
-    .rel-counter { font-size:.85rem; color:var(--bs-secondary) }
-    .rel-search { position:sticky; top:0; background:#fff; z-index:1; padding-bottom:.5rem }
-    .rel-list { max-height:55vh; overflow:auto }
-    .rel-item { padding:.35rem .5rem; border-radius:.5rem }
-    .rel-item:hover { background:var(--bs-gray-100) }
-    .icon-grid-btn.selected { outline:2px solid var(--bs-primary) }
-    #icon-preview-box { width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--bs-secondary); border-radius:.5rem; cursor:pointer }
-    #icon-preview-box i { font-size:22px }
-    .page-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem }
-    .main-form-card { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.75rem; padding:1rem 1.25rem }
-    .text_place { color:var(--bs-secondary) }
-    .theme-dark .rel-pill { background:#2b2f33 }
-    .theme-dark .rel-item:hover { background:#1e2327 }
-    .theme-dark .rel-search { background:var(--bs-body-bg) }
-  </style>
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid py-4">
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-new-page-wrapper">
   <form method="post" id="create-module-form">
     <input type="hidden" name="token" value="{{ token }}">
-    <!-- valor final CSV -->
     <input type="hidden" name="relacionados" id="inputRelacionados" value="">
 
-    <div class="page-header" style="max-width: 800px; margin-left: auto; margin-right: auto;">
-      <h1 class="page-title"><i class="bi bi-box-seam me-2"></i>Criar Novo Módulo</h1>
-      <div class="btn-group" role="group">
-        <button type="submit" class="btn btn-primary btn-lg px-4">
-          <i class="bi bi-check-circle me-2"></i>Criar Módulo
+    <div class="luft-new-header">
+      <h1><i class="bi bi-box-seam"></i>Criar Novo Módulo</h1>
+      <div class="luft-btn-group d-flex gap-2">
+        <button type="submit" class="luft-btn luft-btn-primary">
+          <i class="bi bi-check-circle"></i>Criar Módulo
         </button>
-        <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
-          <i class="bi bi-x-circle me-2"></i>Cancelar
+        <a href="{{ url_for('editor.editor_index', token=token) }}" class="luft-btn luft-btn-outline">
+          <i class="bi bi-x-circle"></i>Cancelar
         </a>
       </div>
     </div>
 
-    <div class="main-form-card">
+    <div class="luft-new-form-card">
       <div class="row g-4">
         <div class="col-12">
-          <h5 class="mb-3 text-primary">Informações Gerais</h5>
+          <h5 class="luft-new-section-title">Informações Gerais</h5>
           <div class="mb-3">
-            <label for="inputId" class="form-label">ID do Módulo (único)</label>
-            <input type="text" class="form-control" id="inputId" name="id" placeholder="Ex: cadastro-cliente" required>
+            <label for="inputId" class="luft-form-label">ID do Módulo (único)</label>
+            <input type="text" class="luft-form-control" id="inputId" name="id" placeholder="Ex: cadastro-cliente" required>
           </div>
           <div class="mb-3">
-            <label for="inputNome" class="form-label">Nome do Módulo</label>
-            <input type="text" class="form-control" id="inputNome" name="nome" placeholder="Ex: Cadastro de Clientes" required>
+            <label for="inputNome" class="luft-form-label">Nome do Módulo</label>
+            <input type="text" class="luft-form-control" id="inputNome" name="nome" placeholder="Ex: Cadastro de Clientes" required>
           </div>
           <div class="mb-3">
-            <label for="inputDescricao" class="form-label">Descrição Curta</label>
-            <textarea class="form-control" id="inputDescricao" name="descricao" placeholder="Uma breve descrição sobre a finalidade do módulo" style="height: 100px;"></textarea>
+            <label for="inputDescricao" class="luft-form-label">Descrição Curta</label>
+            <textarea class="luft-form-control" id="inputDescricao" name="descricao" placeholder="Uma breve descrição sobre a finalidade do módulo" rows="3"></textarea>
           </div>
         </div>
 
-        <div class="col-12"><hr class="my-3"></div>
+        <div class="col-12"><hr class="luft-new-divider"></div>
 
         <div class="col-12">
-          <h5 class="mb-3 text-primary">Organização</h5>
+          <h5 class="luft-new-section-title">Organização</h5>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Ícone</label>
+              <label class="luft-form-label">Ícone</label>
               <div class="d-flex align-items-center gap-3">
-                <div id="icon-preview-box" data-bs-toggle="modal" data-bs-target="#iconModal">
+                <div class="luft-icon-preview" id="icon-preview-box" data-bs-toggle="modal" data-bs-target="#iconModal">
                   <i class="bi bi-app"></i>
                 </div>
-                <input type="text" class="form-control" id="inputIcone" name="icone" placeholder="Clique para escolher" readonly style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#iconModal">
+                <input type="text" class="luft-form-control" id="inputIcone" name="icone" placeholder="Clique para escolher" readonly data-bs-toggle="modal" data-bs-target="#iconModal">
               </div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="inputPalavras" class="form-label">Palavras-chave</label>
-              <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" placeholder="Separadas por vírgula">
-              <small class="text_place">Ex: cliente, cadastro, novo</small>
+              <label for="inputPalavras" class="luft-form-label">Palavras-chave</label>
+              <input type="text" class="luft-form-control" id="inputPalavras" name="palavras_chave" placeholder="Separadas por vírgula">
+              <small class="luft-text-hint">Ex: cliente, cadastro, novo</small>
             </div>
           </div>
 
-          <!-- NOVO: UI Relacionados -->
           <div class="mb-2 d-flex align-items-center justify-content-between">
-            <label class="form-label m-0">Módulos Relacionados</label>
-            <span class="rel-counter" id="relCounter">0 selecionados</span>
+            <label class="luft-form-label m-0">Módulos Relacionados</label>
+            <span class="luft-rel-counter" id="relCounter">0 selecionados</span>
           </div>
           <div class="mb-2" id="relacionadosPills"></div>
-          <div class="mb-3">
-            <button type="button" class="btn btn-outline-primary rel-select-btn" data-bs-toggle="modal" data-bs-target="#relModal">
+          <div class="mb-3 d-flex gap-2">
+            <button type="button" class="luft-btn luft-btn-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#relModal">
               <i class="bi bi-diagram-3"></i> Selecionar módulos
             </button>
-            <button type="button" id="btnLimparRel" class="btn btn-outline-secondary ms-2">
-              Limpar tudo
+            <button type="button" id="btnLimparRel" class="luft-btn luft-btn-outline" title="Limpar tudo">
+              <i class="bi bi-trash"></i> Limpar
             </button>
           </div>
         </div>
@@ -102,14 +84,18 @@
   </form>
 </div>
 
-<!-- Modal Ícones -->
 <div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="iconModalLabel">Escolha um Ícone</h5>
-        <input type="text" class="form-control ms-4" id="iconSearch" placeholder="Buscar ícone...">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header flex-wrap">
+        <h5 class="modal-title luft-modal-title" id="iconModalLabel">
+          <i class="bi bi-grid-3x3-gap"></i> Escolha um Ícone
+        </h5>
+        <div class="luft-search-wrapper ms-auto">
+          <i class="bi bi-search luft-search-icon"></i>
+          <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
+        </div>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <div class="modal-body">
         <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
@@ -118,31 +104,43 @@
   </div>
 </div>
 
-<!-- Modal Relacionados -->
 <div class="modal fade" id="relModal" tabindex="-1" aria-labelledby="relModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="relModalLabel">Selecionar Módulos Relacionados</h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary ms-3" id="btnToggleAll">Selecionar tudo</button>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="rel-search mb-2">
-          <input type="text" id="relSearch" class="form-control" placeholder="Buscar por nome ou ID...">
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header flex-wrap">
+        <div class="luft-modal-header-left">
+          <h5 class="modal-title luft-modal-title" id="relModalLabel">
+            <i class="bi bi-diagram-3"></i> Módulos Relacionados
+          </h5>
+          <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
         </div>
-        <div class="rel-list" id="relList"></div>
+        <div class="luft-modal-header-right">
+          <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
+            <i class="bi bi-check-all"></i> Selecionar tudo
+          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-bs-dismiss="modal">Aplicar</button>
+      <div class="modal-body luft-modal-body">
+        <div class="luft-search-wrapper mb-3">
+          <i class="bi bi-search luft-search-icon"></i>
+          <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
+        </div>
+        <div class="luft-rel-list" id="relList"></div>
+      </div>
+      <div class="modal-footer luft-modal-footer">
+        <button class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button class="luft-btn luft-btn-primary" data-bs-dismiss="modal">
+          <i class="bi bi-check-circle"></i> Aplicar seleção
+        </button>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const token = '{{ token }}';
@@ -166,11 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const col = document.createElement('div');
       col.className = 'col';
       const isSelected = iconClass === selectedIcon;
-      col.innerHTML = `<button type="button" class="btn btn-light icon-grid-btn ${isSelected ? 'selected' : ''}" data-icon="${iconClass}" title="${iconClass}">
+      col.innerHTML = `<button type="button" class="luft-icon-grid-btn ${isSelected ? 'selected' : ''}" data-icon="${iconClass}" title="${iconClass}">
         <i class="bi ${iconClass}"></i></button>`;
       grid.appendChild(col);
     });
-    grid.querySelectorAll('.icon-grid-btn').forEach(btn => {
+    grid.querySelectorAll('.luft-icon-grid-btn').forEach(btn => {
       btn.onclick = function() {
         const iconClass = this.getAttribute('data-icon');
         document.getElementById('inputIcone').value = iconClass;
@@ -179,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     });
   }
+  
   const iconModal = document.getElementById('iconModal');
   iconModal.addEventListener('shown.bs.modal', () => {
     document.getElementById('iconSearch').value = '';
@@ -199,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const mod = byId[String(id)];
       const name = mod ? `${mod.nome}` : id;
       const pill = document.createElement('span');
-      pill.className = 'rel-pill';
+      pill.className = 'luft-rel-pill';
       pill.innerHTML = `<i class="bi bi-node-plus"></i> ${name} <button class="remove" title="Remover" data-id="${id}">&times;</button>`;
       pillsBox.appendChild(pill);
     });
@@ -208,16 +207,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     updateRelHiddenAndCounter();
   }
+  
   function updateRelHiddenAndCounter() {
     relHidden.value = [...selectedRel].join(',').trim();
     const n = selectedRel.size;
-    relCounter.textContent = n === 0 ? '0 selecionados' : `${n} selecionado${n>1?'s':''}`;
+    const text = n === 0 ? '0 selecionados' : `${n} selecionado${n>1?'s':''}`;
+    relCounter.textContent = text;
+    const modalCounter = document.getElementById('relModalCounter');
+    if (modalCounter) modalCounter.textContent = text;
   }
+  
   function filteredModules(term) {
     const t = term.trim().toLowerCase();
     if (!t) return allModules;
     return allModules.filter(m => String(m.id).toLowerCase().includes(t) || (m.nome || '').toLowerCase().includes(t));
   }
+  
   function renderRelList(term='') {
     const list = document.getElementById('relList');
     const mods = filteredModules(term);
@@ -226,12 +231,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const id = String(m.id);
       const checked = selectedRel.has(id) ? 'checked' : '';
       const el = document.createElement('div');
-      el.className = 'rel-item form-check';
+      el.className = 'luft-rel-item';
       el.innerHTML = `
-        <input class="form-check-input rel-check" type="checkbox" value="${id}" id="rel_${id}" ${checked}>
-        <label class="form-check-label ms-1" for="rel_${id}">
-          <span class="fw-semibold">${m.nome}</span>
-          <span class="text-muted"> · ${id}</span>
+        <label class="luft-rel-item-label" for="rel_${id}">
+          <input class="luft-rel-check rel-check" type="checkbox" value="${id}" id="rel_${id}" ${checked}>
+          <span class="luft-rel-item-icon"><i class="bi bi-box-seam"></i></span>
+          <span class="luft-rel-item-info">
+            <span class="luft-rel-item-name">${m.nome}</span>
+            <span class="luft-rel-item-id">${id}</span>
+          </span>
         </label>`;
       list.appendChild(el);
     });
@@ -243,16 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     });
   }
+  
   function syncRelState() {
     updateRelHiddenAndCounter();
     renderRelPills();
   }
+  
   function markChecks() {
     const list = document.getElementById('relList');
     list.querySelectorAll('.rel-check').forEach(chk => { chk.checked = selectedRel.has(chk.value); });
   }
 
   document.getElementById('btnLimparRel').onclick = () => { selectedRel.clear(); syncRelState(); markChecks(); };
+  
   document.getElementById('btnToggleAll').onclick = () => {
     const currentTerm = document.getElementById('relSearch').value || '';
     const mods = filteredModules(currentTerm);
@@ -274,9 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- Submit ---------- */
   document.getElementById('create-module-form').addEventListener('submit', e => {
     if (!document.getElementById('inputId').value || !document.getElementById('inputNome').value) {
-      e.preventDefault(); alert('Os campos "ID do Módulo" e "Nome do Módulo" são obrigatórios!'); return;
+      e.preventDefault(); 
+      alert('Os campos "ID do Módulo" e "Nome do Módulo" são obrigatórios!'); 
+      return;
     }
-    // garante CSV atualizado
     relHidden.value = [...selectedRel].join(',');
   });
 
@@ -289,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
       syncRelState();
     })
     .catch(() => { allModules=[]; allIcons=[]; syncRelState(); });
+
+  const animacao = new AnimacaoFundo('containerAnimacaoFundo');
+  animacao.iniciar();
 });
 </script>
 {% endblock %}

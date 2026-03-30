@@ -1,57 +1,56 @@
-{% extends "base.html" %}
-{% block title %}Pendências para Aprovação{% endblock %}
+{% extends "Base.html" %}
+{% block titulo %}Pendências para Aprovação{% endblock %}
 
 {% block page_styles %}
-    {# Adiciona o CSS externo para esta página #}
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Pending.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Pending.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
 {% endblock %}
 
-{% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 
-<div class="container py-4 pending-dashboard">
-  <div class="pending-header d-flex justify-content-between align-items-center mb-4">
+<div class="luft-pending-page-wrapper">
+  <div class="luft-pending-header mb-4">
     <h1>
-      <i class="bi bi-inbox-fill text-primary"></i>
+      <i class="bi bi-inbox-fill"></i>
       Caixa de Aprovação
-      <span class="badge rounded-pill fs-6 ms-2 bg-primary">{{ pendentes|length }}</span>
+      <span class="luft-modal-badge ms-2">{{ pendentes|length }}</span>
     </h1>
-    <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('editor.editor_index', token=token) }}" class="luft-btn luft-btn-outline">
       <i class="bi bi-arrow-left"></i> Voltar
     </a>
   </div>
 
   {% if pendentes %}
-    <div class="pending-list d-flex flex-column gap-3">
+    <div class="luft-pending-list">
       {% for item in pendentes %}
-        {# A variável 'm' agora é uma referência mais curta para item.modulo #}
         {% set m = item.modulo %}
-        <div class="pending-item" style="--delay: {{ loop.index0 }};">
-
-          {# ATUALIZADO: Usando 'item.editor' que foi preparado na rota #}
+        <div class="luft-pending-item" style="--delay: {{ loop.index0 }};">
           <div class="user-avatar" title="{{ item.editor }}" style="--initial: '{{ item.editor[0]|upper }}';"></div>
           
           <div class="item-info">
             <div class="module-name">{{ m.nome }}</div>
             <div class="module-meta">
               <span>ID: {{ m.id }}</span> &middot;
-              {# ATUALIZADO: Usando 'm.pending_edit_info.data' e formatando a data #}
               <span><i class="bi bi-clock"></i> {{ m.pending_edit_info.data.split('T')[0] }}</span>
             </div>
           </div>
           <div class="item-actions d-flex align-items-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-primary" 
+            <button type="button" class="luft-btn luft-btn-outline" 
                     data-bs-toggle="modal" data-bs-target="#diffModal" data-mid="{{ m.id }}"
                     title="Comparar Versões">
               <i class="bi bi-arrow-left-right"></i> Comparar
             </button>
             <form method="post" action="{{ url_for('editor.aprovar', mid=m.id, token=token) }}" class="d-inline">
-              <button type="submit" class="btn btn-success" title="Aprovar"><i class="bi bi-check-lg"></i></button>
+              <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-success-600); border-color: var(--luft-success-600);" title="Aprovar">
+                <i class="bi bi-check-lg"></i>
+              </button>
             </form>
             <form method="post" action="{{ url_for('editor.rejeitar', mid=m.id, token=token) }}" class="d-inline">
-              <button type="submit" class="btn btn-danger" title="Rejeitar"><i class="bi bi-x-lg"></i></button>
+              <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-danger-600); border-color: var(--luft-danger-600);" title="Rejeitar">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </form>
           </div>
         </div>
@@ -59,98 +58,121 @@
     </div>
   {% else %}
     <div class="no-pending-state mt-4">
-      <div class="fs-1"><i class="bi bi-check2-circle"></i></div>
+      <div class="fs-1"><i class="bi bi-check2-circle text-success"></i></div>
       <h4 class="mt-3">Tudo em ordem!</h4>
-      <p>Você não possui nenhuma pendência para aprovação.</p>
+      <p>Você não possui nenhuma pendência para aprovação no momento.</p>
     </div>
   {% endif %}
 </div>
 
-<div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xxl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="diffModalLabel">
+<div class="modal fade" id="diffModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header">
+        <h5 class="modal-title luft-modal-title">
           <i class="bi bi-arrow-left-right"></i> Comparação de Pendência
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body container-fluid">
+      <div class="modal-body luft-modal-body">
         <div class="row mb-3">
           <div class="col">
             <span class="ms-2 text-muted small">
               Legenda: 
-              <span class="diff-add px-1">Adicionado (Novo)</span> &bull; 
-              <span class="diff-rem px-1">Removido (Antigo)</span>
-          </span>
+              <span class="diff-add px-1 rounded">Adicionado (Novo)</span> &bull; 
+              <span class="diff-rem px-1 rounded">Removido (Antigo)</span>
+            </span>
           </div>
         </div>
+        
         <div class="row mb-5">
-          <div class="col-12">
-            <h5 class="mb-3"><i class="bi bi-file-text"></i> Documentação</h5>
-          </div>
+          <div class="col-12"><h5 class="luft-section-title mb-3"><i class="bi bi-file-text"></i> Documentação do Usuário</h5></div>
           <div class="col-lg-6 mb-3 mb-lg-0">
-            <div class="panel-header">Vigente</div>
+            <div class="panel-header">Vigente (Atual)</div>
             <div class="comparison-panel" id="doc-vigente"></div>
           </div>
           <div class="col-lg-6">
-            <div class="panel-header">Pendente</div>
+            <div class="panel-header panel-header-destaque">Pendente (Novo)</div>
             <div class="comparison-panel" id="doc-pendente"></div>
           </div>
         </div>
+
         <div class="row">
-          <div class="col-12">
-            <h5 class="mb-3"><i class="bi bi-tools"></i> Documentação Técnica</h5>
-          </div>
+          <div class="col-12"><h5 class="luft-section-title mb-3"><i class="bi bi-code-slash"></i> Documentação Técnica</h5></div>
           <div class="col-lg-6 mb-3 mb-lg-0">
-            <div class="panel-header">Vigente</div>
+            <div class="panel-header">Vigente (Atual)</div>
             <div class="comparison-panel" id="tech-vigente"></div>
           </div>
           <div class="col-lg-6">
-            <div class="panel-header">Pendente</div>
+            <div class="panel-header panel-header-destaque">Pendente (Novo)</div>
             <div class="comparison-panel" id="tech-pendente"></div>
           </div>
         </div>
+
         <div id="diffLoader" class="text-center my-4" style="display:none;">
           <div class="spinner-border text-primary" role="status"></div>
-          <div>Carregando comparação...</div>
+          <div class="mt-2 text-muted">Carregando comparação e processando diferenças...</div>
         </div>
+      </div>
+      <div class="modal-footer luft-modal-footer">
+        <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Fechar Visualização</button>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var diffModal = document.getElementById('diffModal');
-  diffModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var mid = button.getAttribute('data-mid');
-    var docVig = document.getElementById('doc-vigente');
-    var docPen = document.getElementById('doc-pendente');
-    var techVig = document.getElementById('tech-vigente');
-    var techPen = document.getElementById('tech-pendente');
-    var diffLoader = document.getElementById('diffLoader');
-    
-    // Limpa antes de carregar
-    docVig.innerHTML = docPen.innerHTML = techVig.innerHTML = techPen.innerHTML = '';
-    diffLoader.style.display = 'block';
+document.addEventListener('DOMContentLoaded', () => {
+  /**
+   * Inicializa o modal de comparacao visual de pendencias, buscando o diff no servidor.
+   * Limpa o conteudo previo e apresenta um indicador de carregamento durante a transacao.
+   * @returns {void}
+   */
+  function InicializarModalComparacao() {
+    const modalDiferenca = document.getElementById('diffModal');
+    if (!modalDiferenca) return;
 
-    fetch('{{ url_for("editor.diff_pendente") }}?mid=' + encodeURIComponent(mid) + '&token={{ token }}')
-      .then(response => response.json())
-      .then(data => {
-        diffLoader.style.display = 'none';
-        docVig.innerHTML = data.doc_html_left || "<em>Não disponível</em>";
-        docPen.innerHTML = data.doc_html_right || "<em>Não disponível</em>";
-        techVig.innerHTML = data.tech_html_left || "<em>Não disponível</em>";
-        techPen.innerHTML = data.tech_html_right || "<em>Não disponível</em>";
-      })
-      .catch(() => {
-        diffLoader.style.display = 'none';
-        docVig.innerHTML = docPen.innerHTML = techVig.innerHTML = techPen.innerHTML =
-          '<div class="alert alert-danger">Erro ao carregar comparação.</div>';
-      });
-  });
+    modalDiferenca.addEventListener('show.bs.modal', function (evento) {
+      const botaoDisparador = evento.relatedTarget;
+      const idModulo = botaoDisparador.getAttribute('data-mid');
+      
+      const painelDocVigente = document.getElementById('doc-vigente');
+      const painelDocPendente = document.getElementById('doc-pendente');
+      const painelTechVigente = document.getElementById('tech-vigente');
+      const painelTechPendente = document.getElementById('tech-pendente');
+      const indicadorCarregamento = document.getElementById('diffLoader');
+      
+      painelDocVigente.innerHTML = painelDocPendente.innerHTML = '';
+      painelTechVigente.innerHTML = painelTechPendente.innerHTML = '';
+      indicadorCarregamento.style.display = 'block';
+
+      fetch(`{{ url_for("editor.diff_pendente") }}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`)
+        .then(resposta => resposta.json())
+        .then(dadosResposta => {
+          indicadorCarregamento.style.display = 'none';
+          painelDocVigente.innerHTML = dadosResposta.doc_html_left || "<em>Registro indisponivel</em>";
+          painelDocPendente.innerHTML = dadosResposta.doc_html_right || "<em>Registro indisponivel</em>";
+          painelTechVigente.innerHTML = dadosResposta.tech_html_left || "<em>Registro indisponivel</em>";
+          painelTechPendente.innerHTML = dadosResposta.tech_html_right || "<em>Registro indisponivel</em>";
+        })
+        .catch(() => {
+          indicadorCarregamento.style.display = 'none';
+          const alertaErro = '<div class="luft-alert luft-alert-warning">Falha critica ao carregar a comparacao de versoes.</div>';
+          painelDocVigente.innerHTML = painelDocPendente.innerHTML = alertaErro;
+          painelTechVigente.innerHTML = painelTechPendente.innerHTML = alertaErro;
+        });
+    });
+  }
+
+  InicializarModalComparacao();
+
+  const animacaoInstancia = new AnimacaoFundo('containerAnimacaoFundo');
+  animacaoInstancia.iniciar();
 });
 </script>
 {% endblock %}

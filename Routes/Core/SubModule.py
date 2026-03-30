@@ -36,5 +36,6 @@ def ver_submodulo():
         'Modules/SubModule.html',
         nome=nome_submodulo,
         conteudo=conteudo_html,
-        modulos=modulos
+        modulos=modulos,
+        luft_app_name=nome_submodulo
     )
