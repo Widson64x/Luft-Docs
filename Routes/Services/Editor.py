@@ -17,7 +17,7 @@ import uuid
 # Remove get_db e importa os modelos e a sessão do SQLAlchemy
 from Models import db, Modulo, PalavraChave, HistoricoEdicao
 # Importa as funções de utilitários já refatoradas
-from Utils.data.module_utils import get_modulo_by_id, carregar_modulos
+from Utils.data.UtilitariosModulo import CarregarModulos, ObterModuloPorId
 # Importa a função de verificação de permissão refatorada
 from Routes.API.Permissions import check_permission as has_perm
 from Config import DATA_DIR, IMAGES_DIR, VIDEOS_DIR, ICONS_FILE, DOCS_DOWNLOAD_DIR, DATA_ROOT
@@ -110,7 +110,7 @@ def editor_index():
         abort(403, "Acesso negado ao editor.")
 
     token = request.args.get('token', '')
-    modulos, _ = carregar_modulos()
+    modulos, _ = CarregarModulos()
     num_pendencias = get_pending_count()
     user_perms = session.get('permissions', {})
 
@@ -237,7 +237,7 @@ def editar_modulo(mid):
     elif os.path.exists(tech_official_path):
         with open(tech_official_path, encoding='utf-8') as f: tech_content = f.read()
         
-    return render_template('Editor/EDT_ModuleEdit.html', modulo=get_modulo_by_id(mid), doc_content=doc_content, tech_content=tech_content, token=token)
+    return render_template('Editor/EDT_ModuleEdit.html', modulo=ObterModuloPorId(mid), doc_content=doc_content, tech_content=tech_content, token=token)
 
 @editor_bp.route('/delete/<mid>', methods=['POST'])
 def delete_modulo(mid):
@@ -505,7 +505,7 @@ def upload_image(modulo_id):
 
     # >>> AQUI: gera a URL COM prefixo (/luft-docs/data/img/...)
     img_url = url_for(
-        'index.serve_imagem_dinamica',
+        'index.servirImagemDinamica',
         nome_arquivo=f'{modulo_id}/{safe_name}',
         _external=False  # path relativo; use True se quiser URL absoluta
     )

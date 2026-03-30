@@ -1,7 +1,7 @@
 # routes/Roteiros.py
 from flask import Blueprint, request, jsonify, session
 from Models import db, Roteiro, Modulo, RoteiroAuditLog
-from Utils.auth.auth_utils import login_required
+from Utils.auth.Autenticacao import LoginObrigatorio
 
 # Blueprint SEM prefixo interno; o app.py define /luft-docs/api/roteiros
 roteiros_bp = Blueprint('roteiros', __name__)
@@ -17,7 +17,7 @@ def serialize_roteiro(roteiro, include_modulos=False):
 
 # ============== CREATE =======================================================
 @roteiros_bp.route('/', methods=['POST'])
-@login_required
+@LoginObrigatorio
 def criar_roteiro():
     #
     # "Acorda cedo ninguém quer, né?"
@@ -58,7 +58,7 @@ def criar_roteiro():
 
 # ============== LINK TO MODULE(S) ===========================================
 @roteiros_bp.route('/vincular', methods=['POST'])
-@login_required
+@LoginObrigatorio
 def vincular_roteiro_a_modulo():
     user_perms = session.get('permissions', {})
     if not user_perms.get('can_edit_scripts', False):
@@ -92,7 +92,7 @@ def vincular_roteiro_a_modulo():
 
 # ============== READ (DETAIL) ===============================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def get_roteiro(roteiro_id):
     roteiro = Roteiro.query.get(roteiro_id)
     if not roteiro:
@@ -102,7 +102,7 @@ def get_roteiro(roteiro_id):
 
 # ============== UPDATE =======================================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['PUT'])
-@login_required
+@LoginObrigatorio
 def atualizar_roteiro(roteiro_id):
     user_perms = session.get('permissions', {})
     if not user_perms.get('can_edit_scripts', False):
@@ -139,7 +139,7 @@ def atualizar_roteiro(roteiro_id):
 
 # ============== DELETE =======================================================
 @roteiros_bp.route('/<int:roteiro_id>', methods=['DELETE'])
-@login_required
+@LoginObrigatorio
 def excluir_roteiro(roteiro_id):
     user_perms = session.get('permissions', {})
     if not user_perms.get('can_edit_scripts', False):

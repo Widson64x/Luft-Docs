@@ -67,9 +67,9 @@
                                 {% if result.preview and result.preview.path %}
                                     <div class="luft-result-media">
                                         {% if result.preview.type == 'image' %}
-                                            <img src="{{ result.preview.path if result.preview.is_absolute else url_for('index.serve_imagem_dinamica', nome_arquivo=result.preview.path, token=token) }}" alt="Preview">
+                                            <img src="{{ result.preview.path if result.preview.is_absolute else url_for('index.servirImagemDinamica', nome_arquivo=result.preview.path, token=token) }}" alt="Preview">
                                         {% elif result.preview.type == 'video' %}
-                                            <video src="{{ result.preview.path if result.preview.is_absolute else url_for('index.serve_video', nome_arquivo=result.preview.path, token=token) }}" muted autoplay loop playsinline></video>
+                                            <video src="{{ result.preview.path if result.preview.is_absolute else url_for('index.servirVideo', nome_arquivo=result.preview.path, token=token) }}" muted autoplay loop playsinline></video>
                                         {% endif %}
                                     </div>
                                 {% endif %}

@@ -20,7 +20,7 @@ except ImportError:
 from Models import db
 
 from LIA_Services.LIA import ia_bp
-from Routes.Core.Main import index_bp, inject_global_permissions
+from Routes.Core.Main import index_bp, injetarPermissoesGlobais
 from Routes.Core.Module import modulo_bp
 from Routes.Core.SubModule import submodulo_bp
 from Routes.Services.Download import download_bp
@@ -73,7 +73,7 @@ def ObterUsuarioSessao():
             # Mapeia para os atributos que definimos no LuftUser
             self.Login = session.get('full_name') or session.get('user_name')
             
-            # Tenta pegar a sigla ou descricao do grupo configurado no auth_utils.py
+            # Tenta pegar a sigla ou descricao do grupo configurado no modulo de autenticacao.
             dadosGrupo = session.get('user_group', {})
             self.Grupo = dadosGrupo.get('acronym') or 'Usuario'
             
@@ -330,7 +330,7 @@ app.cli.add_command(InicializarBancoDados)
 # ---------------------------------------
 # Blueprints 
 # ---------------------------------------
-app.context_processor(inject_global_permissions)
+app.context_processor(injetarPermissoesGlobais)
 
 def AjustarPrefixoRota(sufixoRota: str) -> str:
     """

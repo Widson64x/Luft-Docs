@@ -2,9 +2,9 @@
 
 import math
 from flask import Blueprint, request, jsonify, session, current_app
-from Utils.auth.auth_utils import login_required
-from Utils.data.module_utils import carregar_modulos_aprovados, carregar_markdown
-from Utils.permissions_config import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
+from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
+from Utils.auth.Autenticacao import LoginObrigatorio
+from Utils.data.UtilitariosModulo import CarregarMarkdown, CarregarModulosAprovados
 import time
 
 # Blueprint para a API
@@ -13,7 +13,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 CARDS_PER_PAGE = 9
 
 @api_bp.route('/modules', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def get_modules():
     """
     Endpoint da API para buscar e paginar módulos.
@@ -30,7 +30,7 @@ def get_modules():
     can_create_modules = user_perms.get('can_create_modules', False)
 
     # 3. Carregar e filtrar módulos baseados na permissão de visualização
-    modulos_aprovados, _ = carregar_modulos_aprovados()
+    modulos_aprovados, _ = CarregarModulosAprovados()
     modulos_visiveis = []
     for m in modulos_aprovados:
         if m.get('id') in MODULOS_RESTRITOS:
@@ -52,7 +52,7 @@ def get_modules():
     # E adicionar o card "Criar Módulo" se não houver busca
     lista_final_de_cards = []
     for m in lista_de_cards_filtrada:
-        md_content = carregar_markdown(m['id'])
+        md_content = CarregarMarkdown(m['id'])
         m['has_content'] = bool(md_content and md_content.strip())
         m['show_tecnico_button'] = m['id'] in MODULOS_TECNICOS_VISIVEIS or can_view_tecnico
         lista_final_de_cards.append(m)

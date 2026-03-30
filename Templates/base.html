@@ -6,7 +6,7 @@
 {% block titulo %}LuftDocs{% endblock %}
 
 {% block breadcrumb %}
-    <a href="{{ url_for('index.index', token=session.get('token')) }}" class="luft-breadcrumb-item d-flex align-items-center gap-1 text-muted text-decoration-none" style="text-decoration: none;">
+    <a href="{{ url_for('index.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item d-flex align-items-center gap-1 text-muted text-decoration-none" style="text-decoration: none;">
         <i class="ph-fill ph-house"></i> Hub
     </a>
     {% if luft_breadcrumbs %}
@@ -15,7 +15,7 @@
             {% if loop.last %}
                 <span class="luft-breadcrumb-item active">{{ crumb.nome }}</span>
             {% elif loop.first %}
-                <a href="{{ url_for('index.index', token=session.get('token')) }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
+                <a href="{{ url_for('index.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
             {% else %}
                 <a href="{{ crumb.url }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
             {% endif %}
@@ -59,7 +59,7 @@
     <button onclick="LuftCore.alternarTema()" class="luft-btn-action hover-lift" title="Alternar Tema">
         <i class="ph-bold ph-moon"></i>
     </button>
-    <a href="{{ url_for('index.logout') }}" class="luft-btn-action hover-lift text-danger" title="Sair">
+    <a href="{{ url_for('index.encerrarSessao') }}" class="luft-btn-action hover-lift text-danger" title="Sair">
         <i class="ph-bold ph-power"></i>
     </a>
 {% endblock %}
@@ -87,7 +87,7 @@
             submit_feedback: "{{ url_for('ia_bp.submit_feedback_api') }}"
         };
         const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
-        const bugReportURL = "{{ url_for('index.report_bug') }}";
+        const bugReportURL = "{{ url_for('index.reportarBug') }}";
         window.__LUFT_SEARCH_BASE__ = "{{ url_for('search.perform_search') }}";
     </script>
     

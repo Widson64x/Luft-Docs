@@ -4,13 +4,13 @@ import re
 import uuid
 from flask import Blueprint, jsonify, request, session
 from LIA_Services.Services import Context_Service, Feedback_Service
-from Utils.auth.auth_utils import login_required
+from Utils.auth.Autenticacao import LoginObrigatorio
 from Config import MODULES_DIR, BASE_PREFIX
 
 # --- IMPORTAÇÕES DOS SERVIÇOS DE IA ---
 from LIA_Services import LIAResponseGenerator
 from LIA_Services.Configs.LLMConfig import are_components_available
-from Utils.recommendation_service import log_ai_feedback
+from Utils.ServicoRecomendacao import RegistrarFeedbackIA
 
 ia_bp = Blueprint('ia_bp', __name__)
 
@@ -79,7 +79,7 @@ AVAILABLE_MODULES = get_available_modules()
 # -------------------------------------------------------------
 
 @ia_bp.route('/api/get_modules_list', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def get_modules_list():
     """Retorna a lista de módulos disponíveis para o frontend."""
     if not AVAILABLE_MODULES:
@@ -87,7 +87,7 @@ def get_modules_list():
     return jsonify({"modules": AVAILABLE_MODULES})
 
 @ia_bp.route('/api/ask_llm', methods=['POST'])
-@login_required
+@LoginObrigatorio
 def ask_llm_api():
     if not are_components_available():
         return jsonify({"error": "Componentes da IA não estão configurados."}), 500
@@ -201,7 +201,7 @@ def ask_llm_api():
         return jsonify({"error": f"Ocorreu um erro inesperado: {str(e)}"}), 500
     
 @ia_bp.route('/api/submit_feedback', methods=['POST'])
-@login_required
+@LoginObrigatorio
 def submit_feedback_api():
     data = request.get_json()
     response_id = data.get('response_id')
@@ -217,15 +217,14 @@ def submit_feedback_api():
         return jsonify({"error": "Dados de feedback inválidos."}), 400
 
     try:
-        # Passa os novos campos para log_ai_feedback
-        log_ai_feedback(
-            response_id=response_id,
-            user_id=user_id,
-            rating=rating,
-            comment=comment,
-            user_question=user_question,
-            model_used=model_used,
-            context_sources=context_sources
+        RegistrarFeedbackIA(
+            identificadorResposta=response_id,
+            identificadorUsuario=user_id,
+            avaliacao=rating,
+            comentario=comment,
+            perguntaUsuario=user_question,
+            modeloUtilizado=model_used,
+            fontesContexto=context_sources,
         )
         return jsonify({"message": "Feedback registrado com sucesso!"}), 200
     except Exception as e:

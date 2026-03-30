@@ -4,7 +4,7 @@ from flask import (
     Blueprint, session, jsonify, abort,
     request, render_template, redirect, url_for, flash
 )
-from Utils.auth.auth_utils import login_required
+from Utils.auth.Autenticacao import LoginObrigatorio
 # Importa o objeto 'db' e os Models do seu novo arquivo de modelos
 from Models import db, Permissao, Grupo, Usuario, permissoes_grupos, permissoes_usuarios
 
@@ -75,7 +75,7 @@ def get_user_group():
     return group, user_name
 
 @permissions_bp.route('/check/<permission_name>', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def check_permission(permission_name):
     """
     Verifica se o usuário atual tem uma permissão específica usando o ORM.
@@ -98,7 +98,7 @@ def check_permission(permission_name):
     return jsonify({"allowed": permissao_existe})
 
 @permissions_bp.route('/my-group', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def my_group():
     """
     Retorna todas as permissões associadas ao grupo ou usuário atual.
@@ -127,7 +127,7 @@ def my_group():
     })
 
 @permissions_bp.route('/', methods=['GET', 'POST'])
-@login_required
+@LoginObrigatorio
 def manage_permissions():
     """
     Página para gerenciar permissões. Agora usa o ORM para todas as operações.

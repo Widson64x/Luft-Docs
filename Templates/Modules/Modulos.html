@@ -105,7 +105,7 @@
             <div class="relacionados mb-4">
                 {% for rel in relacionados %}
                     <a class="btn btn-outline rounded-full"
-                       href="{{ url_for('modulo.ver_modulo_pela_raiz', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
+                       href="{{ url_for('modulo.exibirConteudoModulo', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
                         <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
                     </a>
                 {% endfor %}

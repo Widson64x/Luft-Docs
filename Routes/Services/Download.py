@@ -2,14 +2,14 @@
 
 from flask import Blueprint, send_from_directory, current_app, request, abort, session
 import os
-from Utils.auth.auth_utils import login_required
+from Utils.auth.Autenticacao import LoginObrigatorio
 from Config import DOCS_DOWNLOAD_DIR
 
 # Registre este blueprint em app.py com url_prefix='/download'
 download_bp = Blueprint('download', __name__)
 
 @download_bp.route('/', methods=['GET'])
-@login_required
+@LoginObrigatorio
 def download_pela_raiz():
     """
     GET /download?token=<TOKEN>&download=<NOME_DO_ARQUIVO>

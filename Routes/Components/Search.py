@@ -6,19 +6,23 @@ from flask import (
     Blueprint, render_template, request, session, jsonify,
     current_app, url_for
 )
-from Utils.data.search_utils import search_all_documents, extract_media_preview
-from Utils.data.module_utils import carregar_modulos, carregar_markdown
-from Utils.text.service_filter import ContentFilterService
-from Utils.auth.auth_utils import login_required
-from Routes.API.Permissions import get_user_group
-from Utils.recommendation_service import (
-    log_search_term, get_hybrid_recommendations, get_most_accessed,
-    get_popular_searches, get_autocomplete_suggestions, get_access_counts
+from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS
+from Utils.ServicoRecomendacao import (
+    ObterBuscasPopulares,
+    ObterContagensAcesso,
+    ObterMaisAcessados,
+    ObterRecomendacoesHibridas,
+    ObterSugestoesAutocomplete,
+    RegistrarTermoBusca,
 )
-from Utils.permissions_config import MODULOS_RESTRITOS
+from Utils.auth.Autenticacao import LoginObrigatorio
+from Utils.data.UtilitariosBusca import BuscarTodosDocumentos, ExtrairPreviaMidia
+from Utils.data.UtilitariosModulo import CarregarMarkdown, CarregarModulos
+from Utils.text.ServicoFiltroConteudo import ServicoFiltroConteudo
+from Routes.API.Permissions import get_user_group
 
 search_bp = Blueprint('search', __name__)
-filter_service = ContentFilterService()
+servicoFiltroConteudo = ServicoFiltroConteudo()
 
 @search_bp.app_context_processor
 def inject_base_prefix():
@@ -53,20 +57,20 @@ def get_context_snippet(content, query, length=200):
     return snippet
 
 @search_bp.route('/')
-@login_required
+@LoginObrigatorio
 def perform_search():
     token = request.args.get('token', '').strip()
     query = request.args.get('q', '').strip()
     module_filter = request.args.get('module', '').strip()
     if query:
-        log_search_term(query)
+        RegistrarTermoBusca(query)
 
     _, _user_name = get_user_group()
     user_perms = session.get('permissions', {})
     can_view_tecnico = user_perms.get('can_view_tecnico', False)
     can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
 
-    raw_results = search_all_documents(query, token, module_filter, can_view_tecnico)
+    raw_results = BuscarTodosDocumentos(query, token, module_filter, can_view_tecnico)
 
     # Filtra restritos
     results_filtered = raw_results if can_see_restricted_module else [
@@ -76,10 +80,10 @@ def perform_search():
     processed_results = []
     for res in results_filtered:
         snippet = get_context_snippet(res['content'], query)
-        res['snippet'] = filter_service._highlight_terms(snippet, query)
+        res['snippet'] = servicoFiltroConteudo.destacarTermos(snippet, query)
         processed_results.append(res)
 
-    all_modules, _ = carregar_modulos()
+    all_modules, _ = CarregarModulos()
     modules_for_dropdown = all_modules if can_see_restricted_module else [
         m for m in all_modules if m.get('id') not in MODULOS_RESTRITOS
     ]
@@ -114,7 +118,7 @@ def _decorate_results(results, token: str):
         # corrige preview caso seja relativo
         preview = res.get('preview')
         if preview and not preview.get('is_absolute'):
-            endpoint = 'index.serve_imagem_dinamica' if preview['type'] == 'image' else 'index.serve_video'
+            endpoint = 'index.servirImagemDinamica' if preview['type'] == 'image' else 'index.servirVideo'
             preview['path'] = url_for(endpoint, nome_arquivo=preview['path'], token=token)
         out.append({**res, "url": url, "preview": preview})
     return out
@@ -176,12 +180,12 @@ def _build_doc_payload(doc_id, token, module_details_map, content, highlight_ter
     # --- Snippet e destaque ---
     snippet = get_context_snippet(content, query=highlight_term or "")
     if highlight_term:
-        snippet = filter_service._highlight_terms(snippet, highlight_term)
+        snippet = servicoFiltroConteudo.destacarTermos(snippet, highlight_term)
 
     # --- Preview de mídia (imagem/vídeo) ---
-    preview_data = extract_media_preview(content)
+    preview_data = ExtrairPreviaMidia(content)
     if preview_data and not preview_data.get('is_absolute'):
-        endpoint = 'index.serve_imagem_dinamica' if preview_data['type'] == 'image' else 'index.serve_video'
+        endpoint = 'index.servirImagemDinamica' if preview_data['type'] == 'image' else 'index.servirVideo'
         preview_data['path'] = url_for(endpoint, nome_arquivo=preview_data['path'], token=token)
 
     return {
@@ -198,35 +202,35 @@ def _build_doc_payload(doc_id, token, module_details_map, content, highlight_ter
 # --------- API JSON (palette / integrações) ----------
 
 @search_bp.get('/api/search')
-@login_required
+@LoginObrigatorio
 def api_search():
     token = request.args.get('token', '').strip()
     query = request.args.get('q', '').strip()
     module_filter = request.args.get('module', '').strip()
 
     if query:
-        log_search_term(query)
+        RegistrarTermoBusca(query)
 
     user_perms = session.get('permissions', {})
     can_view_tecnico = user_perms.get('can_view_tecnico', False)
     can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
 
-    raw_results = search_all_documents(query, token, module_filter, can_view_tecnico)
+    raw_results = BuscarTodosDocumentos(query, token, module_filter, can_view_tecnico)
 
     if not can_see_restricted_module:
         raw_results = [r for r in raw_results if r.get('module_id') not in MODULOS_RESTRITOS]
 
-    all_modules, _ = carregar_modulos()
+    all_modules, _ = CarregarModulos()
     module_details_map = {m['id']: m for m in all_modules}
 
     doc_ids = [r['module_id'] for r in raw_results]
-    access_counts = get_access_counts(doc_ids) if doc_ids else {}
+    access_counts = ObterContagensAcesso(doc_ids) if doc_ids else {}
 
     items = []
     for r in raw_results[:50]:
         try:
             doc_id = r['module_id']
-            content = r.get('content') or carregar_markdown(doc_id) or ""
+            content = r.get('content') or CarregarMarkdown(doc_id) or ""
             payload = _build_doc_payload(
                 doc_id=doc_id,
                 token=token,
@@ -243,31 +247,31 @@ def api_search():
     return jsonify({'results': items})
 
 @search_bp.route('/api/recommendations')
-@login_required
+@LoginObrigatorio
 def api_recommendations():
     token = request.args.get('token', '')
 
     user_perms = session.get('permissions', {})
     can_see_restricted_module = user_perms.get('can_see_restricted_module', False)
 
-    recs_raw = get_hybrid_recommendations(limit=10) or []
+    recs_raw = ObterRecomendacoesHibridas(limite=10) or []
     if not recs_raw:
         current_app.logger.info("Recomendações híbridas vazias. Fallback: 'Mais Acessados'.")
-        recs_raw = get_most_accessed(limit=10) or []
+        recs_raw = ObterMaisAcessados(limite=10) or []
 
-    most_raw = get_most_accessed(limit=12) or []
+    most_raw = ObterMaisAcessados(limite=12) or []
 
     if not can_see_restricted_module:
         recs_raw = [x for x in recs_raw if x.get('document_id') not in MODULOS_RESTRITOS]
         most_raw = [x for x in most_raw if x.get('document_id') not in MODULOS_RESTRITOS]
 
-    all_modules, _ = carregar_modulos()
+    all_modules, _ = CarregarModulos()
     module_details_map = {m['id']: m for m in all_modules}
 
     doc_ids_to_show = [x['document_id'] for x in (recs_raw + most_raw)]
-    access_counts = get_access_counts(doc_ids_to_show) if doc_ids_to_show else {}
+    access_counts = ObterContagensAcesso(doc_ids_to_show) if doc_ids_to_show else {}
 
-    popular_searches = get_popular_searches(limit=10)
+    popular_searches = ObterBuscasPopulares(limite=10)
     popular_terms = [s['query_term'] for s in popular_searches]
 
     def _expand_list(raw_list):
@@ -275,7 +279,7 @@ def api_recommendations():
         for item in raw_list:
             doc_id = item['document_id']
             try:
-                content = carregar_markdown(doc_id) or ""
+                content = CarregarMarkdown(doc_id) or ""
                 highlight_term = ""
                 for term in popular_terms:
                     if re.search(r'\b' + re.escape(term) + r'\b', content, re.IGNORECASE):
@@ -301,8 +305,8 @@ def api_recommendations():
     })
 
 @search_bp.route('/api/autocomplete')
-@login_required
+@LoginObrigatorio
 def api_autocomplete():
     query = request.args.get('q', '')
-    suggestions = get_autocomplete_suggestions(query, limit=5)
+    suggestions = ObterSugestoesAutocomplete(query, limite=5)
     return jsonify(suggestions)

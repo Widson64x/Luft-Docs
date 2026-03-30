@@ -1,5 +1,5 @@
 # /ai_services/feedback_service.py
-from Utils.recommendation_service import log_ai_feedback as log_feedback_to_db
+from Utils.ServicoRecomendacao import RegistrarFeedbackIA as registrarFeedbackNoBanco
 
 def save_feedback(response_id, user_id, rating, comment, user_question, model_used, context_sources):
     """
@@ -9,19 +9,17 @@ def save_feedback(response_id, user_id, rating, comment, user_question, model_us
         raise ValueError("Dados de feedback inválidos: response_id, user_id e rating são obrigatórios.")
 
     try:
-        # A função `log_ai_feedback` já existe em `utils`, então apenas a chamamos.
-        # Esta camada de serviço serve para validação e como um ponto centralizado de chamada.
-        log_feedback_to_db(
-            response_id=response_id,
-            user_id=user_id,
-            rating=rating,
-            comment=comment,
-            user_question=user_question,
-            model_used=model_used,
-            context_sources=context_sources
+        registrarFeedbackNoBanco(
+            identificadorResposta=response_id,
+            identificadorUsuario=user_id,
+            avaliacao=rating,
+            comentario=comment,
+            perguntaUsuario=user_question,
+            modeloUtilizado=model_used,
+            fontesContexto=context_sources,
         )
         print(f"Feedback para response_id {response_id} registrado com sucesso.")
     except Exception as e:
-        print(f"ERRO ao chamar log_ai_feedback: {e}")
+        print(f"ERRO ao registrar feedback da IA: {e}")
         # Propaga a exceção para ser tratada na rota.
         raise

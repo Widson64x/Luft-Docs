@@ -30,7 +30,7 @@ def evaluation(document_id):
             flash('Obrigado pela sua avaliação!', 'success')
             
             # 2. ALTERADO: Redireciona para a página do módulo, passando os parâmetros necessários.
-            return redirect(url_for('modulo.ver_modulo_pela_raiz', modulo=document_id, token=token))
+            return redirect(url_for('modulo.exibirConteudoModulo', modulo=document_id, token=token))
 
         except Exception as e:
             db.session.rollback()
