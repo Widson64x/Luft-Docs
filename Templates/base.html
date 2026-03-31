@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    <a href="{{ url_for('search.perform_search') }}"
+    <a href="{{ url_for('search.exibirBusca') }}"
        class="luft-search-box shadow-sm"
        style="margin-right: 1rem; cursor: pointer; border: none; background: transparent; text-decoration: none;">
         <i class="ph-bold ph-magnifying-glass text-muted"></i>
@@ -88,7 +88,7 @@
         };
         const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
         const bugReportURL = "{{ url_for('index.reportarBug') }}";
-        window.__LUFT_SEARCH_BASE__ = "{{ url_for('search.perform_search') }}";
+        window.__LUFT_SEARCH_BASE__ = "{{ url_for('search.exibirBusca') }}";
     </script>
     
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>

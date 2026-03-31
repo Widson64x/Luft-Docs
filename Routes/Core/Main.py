@@ -19,6 +19,7 @@ def servirImagemDinamica(nome_arquivo):
 
 @index_bp.route('/data/videos/<path:nome_arquivo>')
 def servirVideo(nome_arquivo):
+    # O 'send_from_directory' é usado para servir arquivos estáticos de forma segura, garantindo que apenas arquivos dentro do diretório especificado sejam acessíveis.
     return send_from_directory(VIDEOS_DIR, nome_arquivo)
 
 @index_bp.route('/', methods=['GET'])
@@ -40,7 +41,7 @@ def exibirMapaConhecimento():
 @LoginObrigatorio
 def reportarBug():
     resposta, codigo = servicoPrincipal.registrarReporte(
-        session.get("user_id"),
+        session.get("user_id"), 
         request.get_json(silent=True) or {},
     )
     return jsonify(resposta), codigo

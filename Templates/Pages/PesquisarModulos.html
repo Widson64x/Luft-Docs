@@ -23,7 +23,7 @@
             Busca na Documentação
         </h2>
 
-        <form id="formularioBusca" method="GET" action="{{ url_for('search.perform_search') }}">
+        <form id="formularioBusca" method="GET" action="{{ url_for('search.exibirBusca') }}">
             <input type="hidden" name="token" value="{{ token }}">
             
             <div class="luft-search-controls-grid">

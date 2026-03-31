@@ -4,7 +4,7 @@ from flask import Blueprint, render_template
 info = Blueprint('info', __name__)
 
 @info.route('/info_login')
-def login_info():
+def exibirInfoLogin():
     """
     Página que informa que só é possível acessar via Luft Informa.
     """

@@ -35,9 +35,9 @@ def PopularSessaoUsuario(dadosUsuarioApi: dict[str, Any] | None) -> bool:
         "description": grupo_api.get("Descricao_UsuarioGrupo"),
     }
 
-    from Routes.API.Permissions import load_permissions
+    from Services.ServicoPermissao import ServicoPermissao
 
-    definicoes_permissoes = load_permissions()
+    definicoes_permissoes = ServicoPermissao().carregarPermissoes()
     sigla_grupo = session["user_group"].get("acronym")
     nome_usuario = session.get("user_name")
     session["permissions"] = {}

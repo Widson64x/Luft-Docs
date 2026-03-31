@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Lógica de Autocomplete ---
     const buscaInput = document.getElementById('busca-input');
     const autocompleteList = document.getElementById('autocomplete-list');
+    const searchBase = (window.__LUFT_SEARCH_BASE__ || '/search').replace(/\/$/, '');
     let currentFocus = -1;
 
     if (buscaInput) {
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 autocompleteList.style.display = 'none';
                 return;
             }
-            fetch(`/api/autocomplete?q=${encodeURIComponent(val)}`)
+            fetch(`${searchBase}/api/autocomplete?q=${encodeURIComponent(val)}`)
                 .then(response => response.json())
                 .then(sugestoes => {
                     autocompleteList.innerHTML = '';
