@@ -19,7 +19,7 @@ except ImportError:
 
 from Models import db
 
-from LIA_Services.LIA import ia_bp
+from Routes.LIA import ia_bp
 from Routes.Core.Main import index_bp, injetarPermissoesGlobais
 from Routes.Core.Module import modulo_bp
 from Routes.Core.SubModule import submodulo_bp

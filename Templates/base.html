@@ -82,9 +82,9 @@
 
     <script>
         window.LIA_API_URLS = {
-            get_modules: "{{ url_for('ia_bp.get_modules_list') }}",
-            ask_llm: "{{ url_for('ia_bp.ask_llm_api') }}",
-            submit_feedback: "{{ url_for('ia_bp.submit_feedback_api') }}"
+            get_modules: "{{ url_for('ia_bp.listarModulosDisponiveisApi') }}",
+            ask_llm: "{{ url_for('ia_bp.perguntarLiaApi') }}",
+            submit_feedback: "{{ url_for('ia_bp.registrarFeedbackApi') }}"
         };
         const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
         const bugReportURL = "{{ url_for('index.reportarBug') }}";
@@ -94,6 +94,7 @@
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/LiaProativa.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/Configs.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/Modules/ampliarImagem.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/buscarAtalho.js') }}"></script>
     
     {% block scripts %}{% endblock %}
