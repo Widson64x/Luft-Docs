@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, TextAreaField
 from wtforms.validators import Optional, NumberRange, Length
 
-class EvaluationForm(FlaskForm):
+class FormularioAvaliacao(FlaskForm):
     rating      = IntegerField('Avaliação',           validators=[Optional(), NumberRange(min=1, max=5)])
     feedback    = TextAreaField('Feedback',           validators=[Optional(), Length(min=50, message='Pelo menos 50 caracteres')])
     suggestions = TextAreaField('Sugestões de Melhoria', validators=[Optional(), Length(min=50, message='Pelo menos 50 caracteres')])

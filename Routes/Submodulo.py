@@ -3,10 +3,10 @@ from flask import Blueprint, abort, redirect, render_template, request, url_for
 from Services.ServicoSubModulo import ServicoSubModulo
 from Utils.auth.Autenticacao import LoginObrigatorio
 
-submodulo_bp = Blueprint("submodulo", __name__, url_prefix="/luft-docs/submodule")
+Submodulo_BP = Blueprint("Submodulo", __name__)
 servicoSubModulo = ServicoSubModulo()
 
-@submodulo_bp.route('/', methods=['GET'])
+@Submodulo_BP.route('/', methods=['GET'])
 @LoginObrigatorio
 def exibirSubmodulo():
     resposta_servico = servicoSubModulo.obterRespostaSubmodulo(

@@ -14,6 +14,9 @@ class GerenciadorBusca {
 
         this.token = this.containerPrincipal.dataset.token || '';
         this.prefixoBase = (this.containerPrincipal.dataset.basePrefix || '/luft-docs').replace(/\/+$/, '');
+        this.rotas = window.ROUTES || {};
+        this.rotasApi = this.rotas.Api || {};
+        this.rotaBusca = this.rotas.Busca?.exibir || '';
 
         this.elementos = {
             inputBusca: document.getElementById('inputBuscaPrincipal'),
@@ -49,6 +52,23 @@ class GerenciadorBusca {
      * @returns {string} URL formatada.
      */
     formatarUrl(caminho) {
+        if (!caminho) {
+            return '';
+        }
+
+        if (/^https?:\/\//i.test(caminho)) {
+            return caminho;
+        }
+
+        if (caminho.startsWith(this.prefixoBase)) {
+            let urlFinal = caminho;
+            if (this.token && !urlFinal.includes('token=')) {
+                const separador = urlFinal.includes('?') ? '&' : '?';
+                urlFinal += `${separador}token=${encodeURIComponent(this.token)}`;
+            }
+            return urlFinal;
+        }
+
         const pathSaneado = caminho.startsWith('/') ? caminho : `/${caminho}`;
         let urlFinal = `${this.prefixoBase}${pathSaneado}`;
         
@@ -76,7 +96,7 @@ class GerenciadorBusca {
 
             timerDebounce = setTimeout(async () => {
                 try {
-                    const url = this.formatarUrl(`/search/api/autocomplete?q=${encodeURIComponent(termo)}`);
+                    const url = this.formatarUrl(`${this.rotasApi.listarAutocomplete}?q=${encodeURIComponent(termo)}`);
                     const resposta = await fetch(url);
                     const sugestoes = await resposta.json();
 
@@ -126,7 +146,7 @@ class GerenciadorBusca {
      */
     async carregarDadosRecomendacao() {
         try {
-            const url = this.formatarUrl('/search/api/recommendations');
+            const url = this.formatarUrl(this.rotasApi.listarRecomendacoes);
             const resposta = await fetch(url);
             
             if (!resposta.ok) throw new Error();
@@ -184,7 +204,7 @@ class GerenciadorBusca {
                     </h5>
                     <div class="luft-tag-cloud">
                         ${this.estado.buscasPopulares.map(b => {
-                            const urlBusca = this.formatarUrl(`/search?q=${encodeURIComponent(b.query_term)}`);
+                            const urlBusca = this.formatarUrl(`${this.rotaBusca}?q=${encodeURIComponent(b.query_term)}`);
                             return `<a href="${urlBusca}" class="luft-tag"><i class="ph ph-magnifying-glass me-1"></i>${b.query_term}</a>`;
                         }).join('')}
                     </div>

@@ -3,7 +3,7 @@ from flask import Blueprint, abort, redirect, render_template, request, url_for
 from Services.ServicoModulo import ServicoModulo
 from Utils.auth.Autenticacao import LoginObrigatorio
 
-modulo_bp = Blueprint("modulo", __name__)
+Modulo_BP = Blueprint("Modulo", __name__)
 servicoModulo = ServicoModulo()
 
 
@@ -23,7 +23,7 @@ def _resolverRespostaServico(resposta_servico):
         **resposta_servico.get("contexto", {}),
     ), resposta_servico.get("codigo", 200)
 
-@modulo_bp.route('/', methods=['GET'])
+@Modulo_BP.route('/', methods=['GET'])
 @LoginObrigatorio
 def exibirConteudoModulo():
     resposta_servico = servicoModulo.obterRespostaConteudo(

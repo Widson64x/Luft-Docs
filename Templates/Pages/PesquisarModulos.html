@@ -23,7 +23,7 @@
             Busca na Documentação
         </h2>
 
-        <form id="formularioBusca" method="GET" action="{{ url_for('search.exibirBusca') }}">
+        <form id="formularioBusca" method="GET" action="{{ url_for('Busca.exibirBusca') }}">
             <input type="hidden" name="token" value="{{ token }}">
             
             <div class="luft-search-controls-grid">
@@ -67,9 +67,9 @@
                                 {% if result.preview and result.preview.path %}
                                     <div class="luft-result-media">
                                         {% if result.preview.type == 'image' %}
-                                            <img src="{{ result.preview.path if result.preview.is_absolute else url_for('index.servirImagemDinamica', nome_arquivo=result.preview.path, token=token) }}" alt="Preview">
+                                            <img src="{{ result.preview.path if result.preview.is_absolute else url_for('Inicio.servirImagemDinamica', nome_arquivo=result.preview.path, token=token) }}" alt="Preview">
                                         {% elif result.preview.type == 'video' %}
-                                            <video src="{{ result.preview.path if result.preview.is_absolute else url_for('index.servirVideo', nome_arquivo=result.preview.path, token=token) }}" muted autoplay loop playsinline></video>
+                                            <video src="{{ result.preview.path if result.preview.is_absolute else url_for('Inicio.servirVideo', nome_arquivo=result.preview.path, token=token) }}" muted autoplay loop playsinline></video>
                                         {% endif %}
                                     </div>
                                 {% endif %}

@@ -336,9 +336,9 @@ class ServicoBusca:
             return previa
 
         endpoint = (
-            "index.servirImagemDinamica"
+            "Inicio.servirImagemDinamica"
             if previa.get("type") == "image"
-            else "index.servirVideo"
+            else "Inicio.servirVideo"
         )
         return {
             **previa,

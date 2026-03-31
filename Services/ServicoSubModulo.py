@@ -15,7 +15,7 @@ class ServicoSubModulo:
         if not nomeSubmodulo:
             return {
                 "tipo": "redirecionar",
-                "endpoint": "index.exibirInicio",
+                "endpoint": "Inicio.exibirInicio",
                 "parametros": {},
             }
 

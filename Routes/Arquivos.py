@@ -5,11 +5,10 @@ from flask import Blueprint, abort, send_from_directory
 from Services.ServicoDownload import ServicoDownload
 from Utils.auth.Autenticacao import LoginObrigatorio
 
-# Registre este blueprint em app.py com url_prefix='/download'
-download_bp = Blueprint('download', __name__)
+Arquivos_BP = Blueprint('Arquivos', __name__)
 servicoDownload = ServicoDownload()
 
-@download_bp.route('/', methods=['GET'])
+@Arquivos_BP.route('/', methods=['GET'])
 @LoginObrigatorio
 def baixarPelaRaiz():
     """Recebe a solicitacao HTTP de download e delega a validacao ao service."""

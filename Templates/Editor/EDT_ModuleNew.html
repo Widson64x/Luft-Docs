@@ -20,7 +20,7 @@
         <button type="submit" class="luft-btn luft-btn-primary">
           <i class="bi bi-check-circle"></i>Criar Módulo
         </button>
-        <a href="{{ url_for('editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
           <i class="bi bi-x-circle"></i>Cancelar
         </a>
       </div>
@@ -143,6 +143,10 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const ROUTES = {
+    listarOpcoes: "{{ url_for('Editor.listarOpcoesEditor') }}",
+  };
+
   const token = '{{ token }}';
   const BASE_PREFIX = '/luft-docs';
   let allIcons = [];
@@ -293,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Carrega opções ---------- */
-  fetch(withPrefix(`/editor/options?token=${token}`))
+  fetch(withPrefix(`${ROUTES.listarOpcoes}?token=${token}`))
     .then(r => r.json())
     .then(data => {
       allIcons = data.icons || [];

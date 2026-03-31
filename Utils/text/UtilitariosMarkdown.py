@@ -18,7 +18,7 @@ def ConverterWikiLinks(
 
         if next(GLOBAL_DATA_DIR.rglob(nome_arquivo), None):
             return (
-                f'<a href="/luft-docs/submodule?nome={nome}&token=__TOKEN_PLACEHOLDER__">'
+                f'<a href="/luft-docs/submodulo/?nome={nome}&token=__TOKEN_PLACEHOLDER__">'
                 f"{nome}</a>"
             )
 
@@ -26,7 +26,7 @@ def ConverterWikiLinks(
             if modulo["nome"].lower() == nome.lower():
                 identificador_modulo = modulo["id"]
                 return (
-                    f'<a href="/luft-docs/modulo?modulo={identificador_modulo}&token=__TOKEN_PLACEHOLDER__">'
+                    f'<a href="/luft-docs/modulo/?modulo={identificador_modulo}&token=__TOKEN_PLACEHOLDER__">'
                     f"{nome}</a>"
                 )
 

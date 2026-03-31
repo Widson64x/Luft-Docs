@@ -125,7 +125,7 @@ class ServicoPermissao:
 
             return {
                 "tipo": "redirecionar",
-                "endpoint": "permissions.gerenciarPermissoes",
+                "endpoint": "Permissoes.gerenciarPermissoes",
                 "parametros": {"token": token},
             }
 

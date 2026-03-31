@@ -28,7 +28,7 @@ class ServicoAvaliacao:
                 flash("Obrigado pela sua avaliacao!", "success")
                 return {
                     "tipo": "redirecionar",
-                    "endpoint": "modulo.exibirConteudoModulo",
+                    "endpoint": "Modulo.exibirConteudoModulo",
                     "parametros": {
                         "modulo": document_id,
                         "token": session.get("token"),

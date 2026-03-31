@@ -17,7 +17,7 @@
     </h1>
     <div class="luft-editor-header-actions">
       {% if can_module_control %}
-        <a href="{{ url_for('editor.exibirPendencias', token=token) }}" 
+        <a href="{{ url_for('Editor.exibirPendencias', token=token) }}" 
            class="luft-editor-action-btn hover-lift" 
            title="Ver pendências ({{ num_pendencias }})">
           <i class="ph-bold ph-hourglass-medium"></i>
@@ -29,7 +29,7 @@
         </a>
       {% endif %}
       {% if can_module_control %}
-        <a href="{{ url_for('editor.listarSubmodulos', token=token) }}" 
+        <a href="{{ url_for('Editor.listarSubmodulos', token=token) }}" 
            class="luft-editor-action-btn hover-lift" 
            title="Editar Submódulos">
           <i class="ph-bold ph-stack"></i>
@@ -45,7 +45,7 @@
   <div class="luft-editor-grid" id="moduloGrid">
     {% if can_create_modules %}   
     <div class="luft-editor-item" style="--delay: 0;">
-      <a href="{{ url_for('editor.criarModulo', token=token) }}" class="luft-editor-card luft-editor-card-dashed text-decoration-none">
+      <a href="{{ url_for('Editor.criarModulo', token=token) }}" class="luft-editor-card luft-editor-card-dashed text-decoration-none">
         <div class="icon"><i class="ph-bold ph-plus-circle"></i></div>
         <div class="text mt-3">Criar Novo Módulo</div>
       </a>
@@ -116,16 +116,16 @@
           <p class="luft-editor-card-desc">{{ m.descricao }}</p>
 
           <div class="luft-editor-card-actions">
-            <a href="{{ url_for('editor.editarModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-primary">
+            <a href="{{ url_for('Editor.editarModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-primary">
               <i class="ph-bold ph-pencil-simple"></i> Editar
             </a>
             {% if can_versioning_modules %}
-              <a href="{{ url_for('editor.exibirHistoricoModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-outline">
+              <a href="{{ url_for('Editor.exibirHistoricoModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-outline">
                 <i class="ph-bold ph-clock-counter-clockwise"></i> Versões
               </a>
             {% endif %}
             {% if can_delete_modules %}
-              <form method="post" action="{{ url_for('editor.excluirModulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
+              <form method="post" action="{{ url_for('Editor.excluirModulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
                 <button type="submit" class="luft-btn luft-btn-danger">
                   <i class="ph-bold ph-trash"></i>
                 </button>

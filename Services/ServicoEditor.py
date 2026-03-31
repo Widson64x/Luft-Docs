@@ -58,7 +58,7 @@ class ServicoEditor:
                     "danger",
                 )
                 return self._respostaRedirecionamento(
-                    "editor.criarModulo", token=token
+                    "Editor.criarModulo", token=token
                 )
 
             try:
@@ -126,7 +126,7 @@ class ServicoEditor:
 
                 flash(f"Modulo '{identificador}' criado com sucesso!", "success")
                 return self._respostaRedirecionamento(
-                    "editor.exibirPainelEditor", token=token
+                    "Editor.exibirPainelEditor", token=token
                 )
             except Exception as erro:
                 db.session.rollback()
@@ -194,7 +194,7 @@ class ServicoEditor:
 
                 flash("Alteracao enviada para aprovacao!", "success")
                 return self._respostaRedirecionamento(
-                    "editor.exibirPainelEditor", token=token
+                    "Editor.exibirPainelEditor", token=token
                 )
             except Exception as erro:
                 db.session.rollback()
@@ -244,7 +244,7 @@ class ServicoEditor:
             db.session.rollback()
             flash(f"Erro ao deletar o modulo: {erro}", "danger")
 
-        return self._respostaRedirecionamento("editor.exibirPainelEditor", token=token)
+        return self._respostaRedirecionamento("Editor.exibirPainelEditor", token=token)
 
     def obterRespostaPendencias(self) -> dict[str, Any]:
         """Lista os modulos com alteracoes pendentes de aprovacao."""
@@ -349,7 +349,7 @@ class ServicoEditor:
             db.session.rollback()
             flash(f"Erro ao aprovar o modulo: {erro}", "danger")
 
-        return self._respostaRedirecionamento("editor.exibirPendencias", token=token)
+        return self._respostaRedirecionamento("Editor.exibirPendencias", token=token)
 
     def obterRespostaRejeicaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Rejeita uma alteracao pendente de modulo."""
@@ -393,7 +393,7 @@ class ServicoEditor:
             db.session.rollback()
             flash(f"Erro ao rejeitar o modulo: {erro}", "danger")
 
-        return self._respostaRedirecionamento("editor.exibirPendencias", token=token)
+        return self._respostaRedirecionamento("Editor.exibirPendencias", token=token)
 
     def obterRespostaHistoricoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Exibe ou restaura o historico de versoes de um modulo."""
@@ -429,7 +429,7 @@ class ServicoEditor:
                 if not os.path.exists(caminho_versao_antiga):
                     flash("Arquivo da versao selecionada nao encontrado.", "danger")
                     return self._respostaRedirecionamento(
-                        "editor.exibirHistoricoModulo",
+                        "Editor.exibirHistoricoModulo",
                         mid=modulo_id,
                         token=token,
                     )
@@ -475,7 +475,7 @@ class ServicoEditor:
                 flash(f"Erro ao restaurar versao: {erro}", "danger")
 
             return self._respostaRedirecionamento(
-                "editor.exibirHistoricoModulo", mid=modulo_id, token=token
+                "Editor.exibirHistoricoModulo", mid=modulo_id, token=token
             )
 
         historico_eventos = sorted(
@@ -542,7 +542,7 @@ class ServicoEditor:
         arquivo.save(caminho_arquivo)
         return self._respostaJson(
             url=url_for(
-                "index.servirImagemDinamica",
+                "Inicio.servirImagemDinamica",
                 nome_arquivo=f"{modulo_id}/{nome_arquivo}",
                 _external=False,
             )
@@ -564,7 +564,11 @@ class ServicoEditor:
         nome_arquivo = secure_filename(arquivo.filename)
         arquivo.save(os.path.join(diretorio_destino, nome_arquivo))
         return self._respostaJson(
-            url=f"/data/videos/{modulo_id}/{nome_arquivo}",
+            url=url_for(
+                "Inicio.servirVideo",
+                nome_arquivo=f"{modulo_id}/{nome_arquivo}",
+                _external=False,
+            ),
             type=f"video/{extensao[1:]}",
         )
 
@@ -579,7 +583,11 @@ class ServicoEditor:
         os.makedirs(DOCS_DOWNLOAD_DIR, exist_ok=True)
         arquivo.save(os.path.join(DOCS_DOWNLOAD_DIR, nome_arquivo))
         return self._respostaJson(
-            url=f"/download?token=__TOKEN_PLACEHOLDER__&download={nome_arquivo}"
+            url=url_for(
+                "Arquivos.baixarPelaRaiz",
+                token="__TOKEN_PLACEHOLDER__",
+                download=nome_arquivo,
+            )
         )
 
     def obterRespostaListagemSubmodulos(self) -> dict[str, Any]:
@@ -616,13 +624,13 @@ class ServicoEditor:
         caminho_relativo = request.form.get("path_to_delete")
         if not caminho_relativo:
             flash("Caminho do arquivo nao fornecido.", "danger")
-            return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+            return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
         diretorio_global = Path(DATA_ROOT) / "global"
         caminho_completo = diretorio_global.joinpath(caminho_relativo).resolve()
         if diretorio_global.resolve() not in caminho_completo.parents:
             flash("Tentativa de exclusao de arquivo invalida.", "danger")
-            return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+            return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
         try:
             if caminho_completo.is_file():
@@ -640,7 +648,7 @@ class ServicoEditor:
         except Exception as erro:
             flash(f"Erro ao deletar o arquivo: {erro}", "danger")
 
-        return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+        return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
     def obterRespostaCriacaoSubmodulo(self) -> dict[str, Any]:
         """Cria um submodulo vazio ou redireciona para edicao se ele ja existir."""
@@ -652,12 +660,12 @@ class ServicoEditor:
         nome_arquivo = request.form.get("file_name", "").strip()
         if not nome_arquivo:
             flash("O nome do arquivo e obrigatorio.", "danger")
-            return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+            return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
         nome_arquivo = nome_arquivo.replace(".md", "").replace("/", "").replace("\\", "")
         if ".." in caminho_pasta or caminho_pasta.startswith("/"):
             flash("Caminho de pasta invalido.", "danger")
-            return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+            return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
         diretorio_global = Path(DATA_ROOT) / "global"
         diretorio_destino = (
@@ -676,7 +684,7 @@ class ServicoEditor:
 
         submodulo_path = caminho_final.relative_to(diretorio_global).as_posix()
         return self._respostaRedirecionamento(
-            "editor.editarSubmodulo",
+            "Editor.editarSubmodulo",
             submodulo_path=submodulo_path,
             token=token,
         )
@@ -692,7 +700,7 @@ class ServicoEditor:
             caminho_arquivo.parent.mkdir(parents=True, exist_ok=True)
             caminho_arquivo.write_text(conteudo, encoding="utf-8")
             flash("Submodulo salvo com sucesso!", "success")
-            return self._respostaRedirecionamento("editor.listarSubmodulos", token=token)
+            return self._respostaRedirecionamento("Editor.listarSubmodulos", token=token)
 
         return self._respostaRenderizacao(
             "Editor/EDT_SubModuleEdit.html",

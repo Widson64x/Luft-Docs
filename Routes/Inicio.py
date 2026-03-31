@@ -6,30 +6,30 @@ from Config import IMAGES_DIR, VIDEOS_DIR
 from Services.ServicoPrincipal import ServicoPrincipal
 from Utils.auth.Autenticacao import LoginObrigatorio
 
-index_bp = Blueprint("index", __name__)
+Inicio_BP = Blueprint("Inicio", __name__)
 servicoPrincipal = ServicoPrincipal()
 
-@index_bp.context_processor
+@Inicio_BP.context_processor
 def injetarPermissoesGlobais():
     return servicoPrincipal.obterPermissoesGlobais()
 
-@index_bp.route('/data/img/<path:nome_arquivo>')
+@Inicio_BP.route('/data/img/<path:nome_arquivo>')
 def servirImagemDinamica(nome_arquivo):
     return send_from_directory(IMAGES_DIR, nome_arquivo)
 
-@index_bp.route('/data/videos/<path:nome_arquivo>')
+@Inicio_BP.route('/data/videos/<path:nome_arquivo>')
 def servirVideo(nome_arquivo):
     # O 'send_from_directory' é usado para servir arquivos estáticos de forma segura, garantindo que apenas arquivos dentro do diretório especificado sejam acessíveis.
     return send_from_directory(VIDEOS_DIR, nome_arquivo)
 
-@index_bp.route('/', methods=['GET'])
+@Inicio_BP.route('/', methods=['GET'])
 def exibirInicio():
     resultado_autenticacao = servicoPrincipal.autenticarRequisicaoInicial()
     if resultado_autenticacao is not True:
         return resultado_autenticacao
     return render_template("Index.html", **servicoPrincipal.obterContextoPaginaInicial())
 
-@index_bp.route('/mapa', methods=['GET'])
+@Inicio_BP.route('/mapa-conhecimento', methods=['GET'])
 @LoginObrigatorio
 def exibirMapaConhecimento():
     return render_template(
@@ -37,7 +37,7 @@ def exibirMapaConhecimento():
         **servicoPrincipal.obterContextoMapaConhecimento(),
     )
 
-@index_bp.route('/report-bug', methods=['POST'])
+@Inicio_BP.route('/reportar-problema', methods=['POST'])
 @LoginObrigatorio
 def reportarBug():
     resposta, codigo = servicoPrincipal.registrarReporte(
@@ -46,7 +46,7 @@ def reportarBug():
     )
     return jsonify(resposta), codigo
 
-@index_bp.route('/logout')
+@Inicio_BP.route('/encerrar-sessao')
 @LoginObrigatorio
 def encerrarSessao():
     servicoPrincipal.encerrarSessaoAtual()

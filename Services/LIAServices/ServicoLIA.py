@@ -229,7 +229,7 @@ class ServicoLIA:
             try:
                 nome_arquivo = os.path.basename(caminho_limpo)
                 nome_sem_extensao = os.path.splitext(nome_arquivo)[0]
-                return f"{BASE_PREFIX}/submodule/?nome={nome_sem_extensao}&token={token}"
+                return f"{BASE_PREFIX}/submodulo/?nome={nome_sem_extensao}&token={token}"
             except Exception as erro:
                 print(f"Erro ao gerar link de submodulo: {erro}")
 

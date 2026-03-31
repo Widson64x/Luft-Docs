@@ -6,7 +6,7 @@
 {% block titulo %}LuftDocs{% endblock %}
 
 {% block breadcrumb %}
-    <a href="{{ url_for('index.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item d-flex align-items-center gap-1 text-muted text-decoration-none" style="text-decoration: none;">
+    <a href="{{ url_for('Inicio.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item d-flex align-items-center gap-1 text-muted text-decoration-none" style="text-decoration: none;">
         <i class="ph-fill ph-house"></i> Hub
     </a>
     {% if luft_breadcrumbs %}
@@ -15,7 +15,7 @@
             {% if loop.last %}
                 <span class="luft-breadcrumb-item active">{{ crumb.nome }}</span>
             {% elif loop.first %}
-                <a href="{{ url_for('index.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
+                <a href="{{ url_for('Inicio.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
             {% else %}
                 <a href="{{ crumb.url }}" class="luft-breadcrumb-item text-muted" style="text-decoration: none;">{{ crumb.nome }}</a>
             {% endif %}
@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    <a href="{{ url_for('search.exibirBusca') }}"
+    <a href="{{ url_for('Busca.exibirBusca') }}"
        class="luft-search-box shadow-sm"
        style="margin-right: 1rem; cursor: pointer; border: none; background: transparent; text-decoration: none;">
         <i class="ph-bold ph-magnifying-glass text-muted"></i>
@@ -59,7 +59,7 @@
     <button onclick="LuftCore.alternarTema()" class="luft-btn-action hover-lift" title="Alternar Tema">
         <i class="ph-bold ph-moon"></i>
     </button>
-    <a href="{{ url_for('index.encerrarSessao') }}" class="luft-btn-action hover-lift text-danger" title="Sair">
+    <a href="{{ url_for('Inicio.encerrarSessao') }}" class="luft-btn-action hover-lift text-danger" title="Sair">
         <i class="ph-bold ph-power"></i>
     </a>
 {% endblock %}
@@ -81,14 +81,40 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
-        window.LIA_API_URLS = {
-            get_modules: "{{ url_for('ia_bp.listarModulosDisponiveisApi') }}",
-            ask_llm: "{{ url_for('ia_bp.perguntarLiaApi') }}",
-            submit_feedback: "{{ url_for('ia_bp.registrarFeedbackApi') }}"
+        window.ROUTES = {
+            Inicio: {
+                exibirInicio: "{{ url_for('Inicio.exibirInicio') }}",
+                exibirMapaConhecimento: "{{ url_for('Inicio.exibirMapaConhecimento') }}",
+                reportarProblema: "{{ url_for('Inicio.reportarBug') }}",
+                encerrarSessao: "{{ url_for('Inicio.encerrarSessao') }}",
+            },
+            Modulo: {
+                exibirConteudo: "{{ url_for('Modulo.exibirConteudoModulo') }}",
+            },
+            Busca: {
+                exibir: "{{ url_for('Busca.exibirBusca') }}",
+            },
+            Api: {
+                obterListaModulos: "{{ url_for('Api.listarModulos') }}",
+                buscar: "{{ url_for('Api.buscarNaApi') }}",
+                listarRecomendacoes: "{{ url_for('Api.listarRecomendacoes') }}",
+                listarAutocomplete: "{{ url_for('Api.listarAutocomplete') }}",
+                roteiros: "{{ url_for('Api.criarRoteiro') }}",
+            },
+            Lia: {
+                obterListaModulos: "{{ url_for('Lia.listarModulosDisponiveisApi') }}",
+                perguntar: "{{ url_for('Lia.perguntarLiaApi') }}",
+                registrarFeedback: "{{ url_for('Lia.registrarFeedbackApi') }}",
+            },
+            Editor: {
+                exibirPainel: "{{ url_for('Editor.exibirPainelEditor') }}",
+                criarModulo: "{{ url_for('Editor.criarModulo') }}",
+                listarOpcoes: "{{ url_for('Editor.listarOpcoesEditor') }}",
+            },
         };
         const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
-        const bugReportURL = "{{ url_for('index.reportarBug') }}";
-        window.__LUFT_SEARCH_BASE__ = "{{ url_for('search.exibirBusca') }}";
+        const bugReportURL = window.ROUTES.Inicio.reportarProblema;
+        window.__LUFT_SEARCH_BASE__ = window.ROUTES.Busca.exibir;
     </script>
     
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>

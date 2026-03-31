@@ -5,20 +5,20 @@ from flask import Blueprint, abort, jsonify, redirect, render_template, url_for
 from Services.ServicoPermissao import ServicoPermissao
 from Utils.auth.Autenticacao import LoginObrigatorio
 
-permissions_bp = Blueprint('permissions', __name__, url_prefix='/permissions')
+Permissoes_BP = Blueprint('Permissoes', __name__)
 servicoPermissao = ServicoPermissao()
 
-@permissions_bp.route('/check/<permission_name>', methods=['GET'])
+@Permissoes_BP.route('/verificar/<permission_name>', methods=['GET'])
 @LoginObrigatorio
 def verificarPermissao(permission_name):
     return jsonify(servicoPermissao.obterRespostaVerificacao(permission_name))
 
-@permissions_bp.route('/my-group', methods=['GET'])
+@Permissoes_BP.route('/meu-grupo', methods=['GET'])
 @LoginObrigatorio
 def obterMeuGrupo():
     return jsonify(servicoPermissao.obterRespostaMeuGrupo())
 
-@permissions_bp.route('/', methods=['GET', 'POST'])
+@Permissoes_BP.route('/', methods=['GET', 'POST'])
 @LoginObrigatorio
 def gerenciarPermissoes():
     resposta_servico = servicoPermissao.obterRespostaGerenciamento()

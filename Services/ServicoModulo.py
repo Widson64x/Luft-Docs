@@ -42,7 +42,7 @@ class ServicoModulo:
         if not idModulo and not idModuloTecnico:
             return {
                 "tipo": "redirecionar",
-                "endpoint": "index.exibirInicio",
+                "endpoint": "Inicio.exibirInicio",
                 "parametros": {},
             }
 

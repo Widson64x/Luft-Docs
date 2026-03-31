@@ -19,17 +19,16 @@ except ImportError:
 
 from Models import db
 
-from Routes.LIA import ia_bp
-from Routes.Core.Main import index_bp, injetarPermissoesGlobais
-from Routes.Core.Module import modulo_bp
-from Routes.Core.SubModule import submodulo_bp
-from Routes.Services.Download import download_bp
-from Routes.Services.Editor import editor_bp
-from Routes.Services.Roteiros import roteiros_bp
-from Routes.Services.Evaluation import evaluation_bp
-from Routes.API.Permissions import permissions_bp
-from Routes.API.API import api_bp
-from Routes.Components.Search import search_bp
+from Routes.Lia import Lia_BP
+from Routes.Inicio import Inicio_BP, injetarPermissoesGlobais
+from Routes.Modulo import Modulo_BP
+from Routes.Submodulo import Submodulo_BP
+from Routes.Arquivos import Arquivos_BP
+from Routes.Editor import Editor_BP
+from Routes.Avaliacao import Avaliacao_BP
+from Routes.Permissoes import Permissoes_BP
+from Routes.Api import Api_BP
+from Routes.Busca import Busca_BP
 
 from prometheus_client import (
     Counter, Histogram, Gauge, Info,
@@ -347,17 +346,16 @@ def AjustarPrefixoRota(sufixoRota: str) -> str:
         sufixoRota = "/" + sufixoRota
     return (cfg.BASE_PREFIX + sufixoRota).replace("//", "/")
 
-app.register_blueprint(index_bp,       url_prefix=AjustarPrefixoRota("/"))
-app.register_blueprint(modulo_bp,      url_prefix=AjustarPrefixoRota("/modulo"))
-app.register_blueprint(submodulo_bp,   url_prefix=AjustarPrefixoRota("/submodule"))
-app.register_blueprint(download_bp,    url_prefix=AjustarPrefixoRota("/download"))
-app.register_blueprint(editor_bp,      url_prefix=AjustarPrefixoRota("/editor"))
-app.register_blueprint(permissions_bp, url_prefix=AjustarPrefixoRota("/permissions"))
-app.register_blueprint(search_bp,      url_prefix=AjustarPrefixoRota("/search"))
-app.register_blueprint(api_bp,         url_prefix=AjustarPrefixoRota("/api"))
-app.register_blueprint(roteiros_bp,    url_prefix=AjustarPrefixoRota("/api/roteiros"))
-app.register_blueprint(ia_bp,          url_prefix=AjustarPrefixoRota("/lia"))
-app.register_blueprint(evaluation_bp,  url_prefix=AjustarPrefixoRota("/evaluation"))
+app.register_blueprint(Inicio_BP,       url_prefix=AjustarPrefixoRota("/"))
+app.register_blueprint(Modulo_BP,       url_prefix=AjustarPrefixoRota("/modulo"))
+app.register_blueprint(Submodulo_BP,    url_prefix=AjustarPrefixoRota("/submodulo"))
+app.register_blueprint(Arquivos_BP,     url_prefix=AjustarPrefixoRota("/arquivos"))
+app.register_blueprint(Editor_BP,       url_prefix=AjustarPrefixoRota("/editor"))
+app.register_blueprint(Permissoes_BP,   url_prefix=AjustarPrefixoRota("/permissoes"))
+app.register_blueprint(Busca_BP,        url_prefix=AjustarPrefixoRota("/buscar"))
+app.register_blueprint(Api_BP,          url_prefix=AjustarPrefixoRota("/api"))
+app.register_blueprint(Lia_BP,          url_prefix=AjustarPrefixoRota("/lia"))
+app.register_blueprint(Avaliacao_BP,    url_prefix=AjustarPrefixoRota("/avaliacao"))
 
 @app.route(AjustarPrefixoRota("/metrics"))
 def ObterMetricas():

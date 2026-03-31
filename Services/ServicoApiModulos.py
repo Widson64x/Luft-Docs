@@ -12,7 +12,7 @@ from Utils.data.UtilitariosModulo import CarregarMarkdown, CarregarModulosAprova
 class ServicoApiModulos:
     """Centraliza a regra de negocio da listagem paginada de modulos."""
 
-    CARDS_POR_PAGINA = 9
+    CARDS_POR_PAGINA = 12
 
     def obterRespostaListaModulos(
         self, consulta: str, pagina: int, token: str | None

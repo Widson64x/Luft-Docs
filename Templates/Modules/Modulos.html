@@ -16,7 +16,7 @@
     <div class="module-header">
         <div class="header-title-container">
             <h1><i class="{{ modulo.icone }} icon-title"></i> {{ modulo.nome }}</h1>
-            <a href="{{ url_for('evaluation.avaliarDocumento', document_id=id_do_modulo, token=token) }}" 
+            <a href="{{ url_for('Avaliacao.avaliarDocumento', document_id=id_do_modulo, token=token) }}" 
                class="btn btn-outline btn-evaluate-icon" 
                data-bs-toggle="tooltip" 
                data-bs-placement="top" 
@@ -92,7 +92,7 @@
                 {% set html_bruto = conteudo %}
                 {% set conteudo_com_token = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
                 {% set prefix = '/downloads/docs/' %}
-                {% set replace_prefix = url_for('download.baixarPelaRaiz', token=request.args.get('token', '')) ~ '&download=' %}
+                {% set replace_prefix = url_for('Arquivos.baixarPelaRaiz', token=request.args.get('token', '')) ~ '&download=' %}
                 {% set conteudo_final = conteudo_com_token.replace('href="' ~ prefix, 'href="' ~ replace_prefix) %}
                 {{ conteudo_final | safe }}
             </div>
@@ -105,7 +105,7 @@
             <div class="relacionados mb-4">
                 {% for rel in relacionados %}
                     <a class="btn btn-outline rounded-full"
-                       href="{{ url_for('modulo.exibirConteudoModulo', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
+                       href="{{ url_for('Modulo.exibirConteudoModulo', **{'token': request.args.get('token'), 'modulo': rel.id}) }}">
                         <i class="bi {{ rel.icone }}"></i> {{ rel.nome }}
                     </a>
                 {% endfor %}

@@ -50,7 +50,7 @@ class AvisoChatLia {
 
 class ChatLia {
     constructor() {
-        this.urlsApi = window.LIA_API_URLS || {};
+        this.urlsApi = window.ROUTES?.Lia || {};
 
         this.elementosModal = {
             container: document.getElementById('liaModal'),
@@ -341,7 +341,7 @@ class ChatLia {
         try {
             const modeloSeleccionado = componentes.seletorModelo ? componentes.seletorModelo.value : 'groq-70b';
             
-            const respostaServidor = await fetch(this.urlsApi.ask_llm, {
+            const respostaServidor = await fetch(this.urlsApi.perguntar, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -546,7 +546,7 @@ class ChatLia {
     async buscarModulos() {
         if (this.cacheModulos.length > 0) return this.cacheModulos;
         try {
-            const resposta = await fetch(this.urlsApi.get_modules);
+            const resposta = await fetch(this.urlsApi.obterListaModulos);
             if (!resposta.ok) return [];
             const dadosProcessados = await resposta.json();
             this.cacheModulos = dadosProcessados.modules || [];
@@ -670,7 +670,7 @@ class ChatLia {
         secaoReferencia.querySelectorAll('button, textarea').forEach(el => el.disabled = true);
 
         try {
-            const resposta = await fetch(this.urlsApi.submit_feedback, {
+            const resposta = await fetch(this.urlsApi.registrarFeedback, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -706,5 +706,5 @@ class ChatLia {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.LIA_API_URLS) new ChatLia();
+    if (window.ROUTES?.Lia) new ChatLia();
 });

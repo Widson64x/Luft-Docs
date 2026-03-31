@@ -23,7 +23,9 @@
     if (!input) return;
 
     const basePrefix = (container?.dataset.basePrefix || '/luft-docs').replace(/\/+$/, '');
-    const searchBase = (window.__LUFT_SEARCH_BASE__ || '/search').replace(/\/$/, '');
+    const rotas = window.ROUTES || {};
+    const searchBase = (rotas.Busca?.exibir || '').replace(/\/$/, '');
+    const rotasApi = rotas.Api || {};
     const token      = new URLSearchParams(location.search).get('token') || '';
 
     let acTimer              = null;   // debounce do autocomplete
@@ -32,14 +34,14 @@
     let recsCache           = null;  // cache das recomendações pré-carregadas
 
     // Pré-carrega recomendações em background assim que a página carrega
-    api('/api/recommendations')
+    api(rotasApi.listarRecomendacoes)
       .then(data => { recsCache = data; })
       .catch(() => {});
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    function api(path, params = {}) {
-      const u = new URL(searchBase + path, location.origin);
+    function api(urlBase, params = {}) {
+      const u = new URL(urlBase, location.origin);
       if (token) params.token = token;
       Object.entries(params).forEach(([k, v]) => v != null && u.searchParams.set(k, v));
       return fetch(u.toString(), { headers: { Accept: 'application/json' } }).then(r => r.json());
@@ -119,7 +121,7 @@
       if (q.length >= 2) {
         acTimer = setTimeout(async () => {
           try {
-            const sugestoes = await api('/api/autocomplete', { q });
+            const sugestoes = await api(rotasApi.listarAutocomplete, { q });
             renderAutocomplete(Array.isArray(sugestoes) ? sugestoes : []);
           } catch (_) { /* silencioso */ }
         }, 200);
@@ -128,7 +130,7 @@
       // Busca completa: debounce maior (450ms) para não sobrecarregar
       searchTimer = setTimeout(async () => {
         try {
-          const data = await api('/api/search', { q });
+          const data = await api(rotasApi.buscar, { q });
           renderResults(data?.results || []);
         } catch (_) {
           results.innerHTML = '<li class="kp-empty px-3 py-2">Erro ao buscar. Tente novamente.</li>';
@@ -178,7 +180,7 @@
       sections.innerHTML = '<div class="kp-section-loading py-3 text-center"><i class="ph ph-spinner-gap kp-spin me-2"></i>Carregando…</div>';
       chips.hidden = true;
 
-      api('/api/recommendations').then(data => {
+      api(rotasApi.listarRecomendacoes).then(data => {
         recsCache = data;
         renderChips(data?.popular_searches || []);
         renderSections({

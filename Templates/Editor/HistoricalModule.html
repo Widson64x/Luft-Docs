@@ -15,7 +15,7 @@
       <h1><i class="bi bi-clock-history"></i> Histórico de Versões</h1>
       <p class="text-muted mb-0 mt-1">Módulo: <strong>{{ modulo.nome }}</strong> (Atual: v{{ modulo.current_version }})</p>
     </div>
-    <a href="{{ url_for('editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+    <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
       <i class="bi bi-arrow-left"></i> Voltar ao Editor
     </a>
   </div>
@@ -228,6 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
    * @returns {void}
    */
   function CarregarVisualizacaoComparativa(elementoBotao) {
+    const ROUTES = {
+      obterDiffHistorico: "{{ url_for('Editor.obterDiffHistorico') }}",
+    };
+
     const nomeArquivo = elementoBotao.dataset.filename;
     const tipoArquivo = elementoBotao.dataset.type;
     const versao = elementoBotao.dataset.version;
@@ -241,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     modalComparacao.show();
 
-    fetch(`{{ url_for('editor.obterDiffHistorico') }}?mid={{ modulo.id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`)
+    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`)
       .then(resposta => resposta.json())
       .then(dadosRetorno => {
         if (dadosRetorno.error) {

@@ -76,7 +76,7 @@ def AutenticarRequisicaoInicial() -> Any:
     if ValidarUsuarioPorCredenciais():
         token = session.get("token")
         if token:
-            return redirect(url_for("index.exibirInicio", token=token))
+            return redirect(url_for("Inicio.exibirInicio", token=token))
         return True
     return render_template("Auth/InfoLogin.html"), 403
 
@@ -87,7 +87,7 @@ def LoginObrigatorio(funcao: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(funcao)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         if "user_name" not in session or "user_id" not in session:
-            return redirect(url_for("index.exibirInicio"))
+            return redirect(url_for("Inicio.exibirInicio"))
         return funcao(*args, **kwargs)
 
     return wrapper

@@ -13,18 +13,18 @@
 <div class="luft-mapa-container mt-4 mb-4" style="position: relative; z-index: 2;">
     
     <div class="luft-mapa-actions-top d-flex justify-content-end gap-2 mb-3">
-        <a href="{{ url_for('index.exibirInicio', token=request.args.get('token')) }}" id="btnVoltarCards" class="luft-btn luft-btn-primary page-transition-btn">
+        <a href="{{ url_for('Inicio.exibirInicio', token=request.args.get('token')) }}" id="btnVoltarCards" class="luft-btn luft-btn-primary page-transition-btn">
             <i class="ph-bold ph-grid-four"></i> Ver Cards
         </a>
 
         {% if can_access_editor %}
-        <a href="{{ url_for('editor.exibirPainelEditor', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
             <i class="ph-bold ph-pencil-simple"></i> Acessar Editor
         </a>
         {% endif %}
         
         {% if can_access_permissions_menu %}
-        <a href="{{ url_for('permissions.gerenciarPermissoes', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
+        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
             <i class="ph-bold ph-shield-check"></i> Gerenciar Permissões
         </a>
         {% endif %}

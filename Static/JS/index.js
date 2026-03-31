@@ -72,8 +72,12 @@ class GerenciadorModulos {
                 token: this.tokenAutenticacao
             }).toString();
 
-            const prefixoBase = window.__BASE_PREFIX__ || '/luft-docs';
-            const resposta = await fetch(`${prefixoBase}/api/modules?${parametrosQuery}`);
+            const rotaListaModulos = window.ROUTES?.Api?.obterListaModulos;
+            if (!rotaListaModulos) {
+                throw new Error('Rota de listagem de modulos nao configurada.');
+            }
+
+            const resposta = await fetch(`${rotaListaModulos}?${parametrosQuery}`);
             
             if (!resposta.ok) {
                 throw new Error(`Erro no servidor: ${resposta.statusText}`);
@@ -101,27 +105,32 @@ class GerenciadorModulos {
      */
     renderizarCards(modulos, tokenAtual) {
         const prefixoBase = window.__BASE_PREFIX__ || '/luft-docs';
+        const rotas = window.ROUTES || {};
+        const rotaCriarModulo = rotas.Editor?.criarModulo;
+        const rotaConteudoModulo = rotas.Modulo?.exibirConteudo;
 
         modulos.forEach((modulo) => {
             let htmlCard = '';
             
             if (modulo.type === 'create_card') {
+                if (!rotaCriarModulo) return;
                 htmlCard = `
-                    <a href="${prefixoBase}/editor/novo?token=${encodeURIComponent(tokenAtual)}" class="luft-index-card luft-index-card-dashed">
+                    <a href="${rotaCriarModulo}?token=${encodeURIComponent(tokenAtual)}" class="luft-index-card luft-index-card-dashed">
                         <i class="ph-thin ph-plus-circle luft-index-card-icon" style="color: var(--luft-text-muted);"></i>
                         <h5 class="luft-index-card-title">Criar Novo Modulo</h5>
                     </a>
                 `;
             } else {
+                if (!rotaConteudoModulo) return;
                 // Conversão paleativa de bi-icons para ph-icons caso venha do banco
                 const iconeSaneado = (modulo.icone || 'ph-box').replace('bi bi-', 'ph-bold ph-');
                 
                 let botoesAcao = '';
                 if (modulo.has_content) {
-                    botoesAcao += `<a class="luft-btn luft-btn-primary" href="${prefixoBase}/modulo/?modulo=${modulo.id}&token=${encodeURIComponent(tokenAtual)}">Ver Conteudo</a>`;
+                    botoesAcao += `<a class="luft-btn luft-btn-primary" href="${rotaConteudoModulo}?modulo=${modulo.id}&token=${encodeURIComponent(tokenAtual)}">Ver Conteudo</a>`;
                 }
                 if (modulo.show_tecnico_button) {
-                    botoesAcao += `<a class="luft-btn luft-btn-outline" href="${prefixoBase}/modulo/?modulo_tecnico=${modulo.id}&token=${encodeURIComponent(tokenAtual)}"><i class="ph-bold ph-wrench"></i> Tecnico</a>`;
+                    botoesAcao += `<a class="luft-btn luft-btn-outline" href="${rotaConteudoModulo}?modulo_tecnico=${modulo.id}&token=${encodeURIComponent(tokenAtual)}"><i class="ph-bold ph-wrench"></i> Tecnico</a>`;
                 }
 
                 htmlCard = `

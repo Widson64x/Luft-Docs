@@ -35,7 +35,7 @@ class GerenciadorRoteiros {
 
         this.roteiros    = Array.isArray(dadosPermissoes.roteiros) ? dadosPermissoes.roteiros : [];
         this.podeEditar  = Boolean(dadosPermissoes.can_edit);
-        this.urlBase     = this._comPrefixo('/api/roteiros');
+        this.urlBase     = window.ROUTES?.Api?.roteiros || '';
 
         if (!this.idModulo) {
             console.warn('GerenciadorRoteiros: ID do módulo não encontrado. Roteiros podem não funcionar totalmente.');

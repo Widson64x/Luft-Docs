@@ -2,7 +2,7 @@ from flask import Blueprint, abort, jsonify, redirect, render_template, url_for
 
 from Services.ServicoEditor import ServicoEditor
 
-editor_bp = Blueprint('editor', __name__, url_prefix='/editor')
+Editor_BP = Blueprint('Editor', __name__)
 servicoEditor = ServicoEditor()
 
 
@@ -24,111 +24,111 @@ def _resolverRespostaServico(resposta_servico):
     )
 
 
-@editor_bp.route('/')
+@Editor_BP.route('/')
 def exibirPainelEditor():
     return _resolverRespostaServico(servicoEditor.obterRespostaPainelEditor())
 
 
-@editor_bp.route('/novo', methods=['GET', 'POST'])
+@Editor_BP.route('/novo', methods=['GET', 'POST'])
 def criarModulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaCriacaoModulo())
 
 
-@editor_bp.route('/modulo/<mid>', methods=['GET', 'POST'])
+@Editor_BP.route('/modulo/<mid>', methods=['GET', 'POST'])
 def editarModulo(mid):
     return _resolverRespostaServico(servicoEditor.obterRespostaEdicaoModulo(mid))
 
 
-@editor_bp.route('/delete/<mid>', methods=['POST'])
+@Editor_BP.route('/excluir/<mid>', methods=['POST'])
 def excluirModulo(mid):
     return _resolverRespostaServico(servicoEditor.obterRespostaExclusaoModulo(mid))
 
 
-@editor_bp.route('/pendentes')
+@Editor_BP.route('/pendencias')
 def exibirPendencias():
     return _resolverRespostaServico(servicoEditor.obterRespostaPendencias())
 
 
-@editor_bp.route('/aprovar/<mid>', methods=['POST'])
+@Editor_BP.route('/aprovar/<mid>', methods=['POST'])
 def aprovarModulo(mid):
     return _resolverRespostaServico(servicoEditor.obterRespostaAprovacaoModulo(mid))
 
 
-@editor_bp.route('/rejeitar/<mid>', methods=['POST'])
+@Editor_BP.route('/rejeitar/<mid>', methods=['POST'])
 def rejeitarModulo(mid):
     return _resolverRespostaServico(servicoEditor.obterRespostaRejeicaoModulo(mid))
 
 
-@editor_bp.route('/historico/<mid>', methods=['GET', 'POST'])
+@Editor_BP.route('/historico/<mid>', methods=['GET', 'POST'])
 def exibirHistoricoModulo(mid):
     return _resolverRespostaServico(servicoEditor.obterRespostaHistoricoModulo(mid))
 
 
-@editor_bp.route('/options', methods=['GET'])
+@Editor_BP.route('/opcoes', methods=['GET'])
 def listarOpcoesEditor():
     return _resolverRespostaServico(servicoEditor.obterRespostaOpcoesEditor())
 
 
-@editor_bp.route('/upload_image/<modulo_id>', methods=['POST'])
+@Editor_BP.route('/upload-imagem/<modulo_id>', methods=['POST'])
 def enviarImagemModulo(modulo_id):
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadImagem(modulo_id))
 
 
-@editor_bp.route('/upload_video/<modulo_id>', methods=['POST'])
+@Editor_BP.route('/upload-video/<modulo_id>', methods=['POST'])
 def enviarVideoModulo(modulo_id):
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadVideo(modulo_id))
 
 
-@editor_bp.route('/upload_anexo', methods=['POST'])
+@Editor_BP.route('/upload-anexo', methods=['POST'])
 def enviarAnexoModulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadAnexo())
 
 
-@editor_bp.route('/submodulos')
+@Editor_BP.route('/submodulos')
 def listarSubmodulos():
     return _resolverRespostaServico(servicoEditor.obterRespostaListagemSubmodulos())
 
 
-@editor_bp.route('/deletar_submodulo', methods=['POST'])
+@Editor_BP.route('/excluir-submodulo', methods=['POST'])
 def excluirSubmodulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaExclusaoSubmodulo())
 
 
-@editor_bp.route('/criar_submodulo', methods=['POST'])
+@Editor_BP.route('/criar-submodulo', methods=['POST'])
 def criarSubmodulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaCriacaoSubmodulo())
 
 
-@editor_bp.route('/submodulo/<path:submodulo_path>', methods=['GET', 'POST'])
+@Editor_BP.route('/submodulo/<path:submodulo_path>', methods=['GET', 'POST'])
 def editarSubmodulo(submodulo_path):
     return _resolverRespostaServico(servicoEditor.obterRespostaEdicaoSubmodulo(submodulo_path))
 
 
-@editor_bp.route('/diff_pendente')
+@Editor_BP.route('/diff-pendente')
 def obterDiffPendente():
     return _resolverRespostaServico(servicoEditor.obterRespostaDiffPendente())
 
 
-@editor_bp.route('/diff_historico')
+@Editor_BP.route('/diff-historico')
 def obterDiffHistorico():
     return _resolverRespostaServico(servicoEditor.obterRespostaDiffHistorico())
 
 
-@editor_bp.route('/get_historical_content')
+@Editor_BP.route('/obter-conteudo-historico')
 def obterConteudoHistorico():
     return _resolverRespostaServico(servicoEditor.obterRespostaConteudoHistorico())
 
 
-@editor_bp.route('/upload_submodule_anexo', methods=['POST'])
+@Editor_BP.route('/upload-anexo-submodulo', methods=['POST'])
 def enviarAnexoSubmodulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadAnexoSubmodulo())
 
 
-@editor_bp.route('/upload_submodule_video', methods=['POST'])
+@Editor_BP.route('/upload-video-submodulo', methods=['POST'])
 def enviarVideoSubmodulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadVideoSubmodulo())
 
 
-@editor_bp.route('/upload_submodule_image', methods=['POST'])
+@Editor_BP.route('/upload-imagem-submodulo', methods=['POST'])
 def enviarImagemSubmodulo():
     return _resolverRespostaServico(servicoEditor.obterRespostaUploadImagemSubmodulo())

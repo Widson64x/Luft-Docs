@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Lógica de Autocomplete ---
     const buscaInput = document.getElementById('busca-input');
     const autocompleteList = document.getElementById('autocomplete-list');
-    const searchBase = (window.__LUFT_SEARCH_BASE__ || '/search').replace(/\/$/, '');
+    const rotaAutocomplete = window.ROUTES?.Api?.listarAutocomplete || '';
     let currentFocus = -1;
 
     if (buscaInput) {
@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 autocompleteList.style.display = 'none';
                 return;
             }
-            fetch(`${searchBase}/api/autocomplete?q=${encodeURIComponent(val)}`)
+            const url = new URL(rotaAutocomplete, window.location.origin);
+            url.searchParams.set('q', val);
+            fetch(url.toString())
                 .then(response => response.json())
                 .then(sugestoes => {
                     autocompleteList.innerHTML = '';

@@ -23,7 +23,7 @@
         <button type="submit" class="luft-btn luft-btn-primary">
           <i class="bi bi-save"></i>Salvar Alterações
         </button>
-        <a href="{{ url_for('editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
           <i class="bi bi-x-circle"></i>Cancelar
         </a>
       </div>
@@ -184,6 +184,12 @@
 document.addEventListener('DOMContentLoaded', () => {
   const token = '{{ token }}';
   const prefixoBase = '/luft-docs';
+  const ROUTES = {
+    uploadImagemModulo: "{{ url_for('Editor.enviarImagemModulo', modulo_id=modulo.id) }}",
+    uploadAnexoModulo: "{{ url_for('Editor.enviarAnexoModulo') }}",
+    uploadVideoModulo: "{{ url_for('Editor.enviarVideoModulo', modulo_id=modulo.id) }}",
+    listarOpcoesEditor: "{{ url_for('Editor.listarOpcoesEditor') }}",
+  };
   
   let todosIcones = [];
   let todosModulos = [];
@@ -227,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addImageBlobHook: (blob, callback) => {
           const formData = new FormData();
           formData.append('file', blob);
-          fetch(AdicionarPrefixo(`{{ url_for("editor.enviarImagemModulo", modulo_id=modulo.id) }}?token=${token}`), { method: 'POST', body: formData })
+          fetch(AdicionarPrefixo(`${ROUTES.uploadImagemModulo}?token=${token}`), { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => callback(AdicionarPrefixo(data.url), AdicionarPrefixo(data.url)))
             .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
@@ -291,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      fetch(AdicionarPrefixo(`/editor/upload_anexo?token=${token}`), { method: 'POST', body: formData })
+      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoModulo}?token=${token}`), { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => editor.insertText(`\n[${arquivo.name}](${AdicionarPrefixo(data.url)}&token=${token})\n`))
         .catch(() => alert('Falha critica ao enviar o anexo especificado.'));
@@ -313,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      fetch(AdicionarPrefixo(`/editor/upload_video/{{ modulo.id }}?token=${token}`), { method: 'POST', body: formData })
+      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoModulo}?token=${token}`), { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
           if (data.url) {
@@ -531,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   monitorMutacaoTema.observe(document.body, { attributes: true });
 
-  fetch(AdicionarPrefixo(`/editor/options?token=${token}`))
+  fetch(AdicionarPrefixo(`${ROUTES.listarOpcoesEditor}?token=${token}`))
     .then(resposta => resposta.json())
     .then(payloadData => {
       todosIcones = payloadData.icons || [];
