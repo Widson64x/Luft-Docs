@@ -67,3 +67,37 @@ class ServicoApiModulos:
             "total_pages": total_paginas,
             "token": token,
         }
+
+    def obterRespostaArvoreModulos(self) -> dict[str, object]:
+        """Retorna uma lista enxuta de modulos visiveis para a sidebar."""
+        permissao_usuario = session.get("permissions", {})
+        pode_ver_restritos = permissao_usuario.get(
+            "can_see_restricted_module",
+            False,
+        )
+
+        modulos_aprovados, _ = CarregarModulosAprovados()
+        modulos_visiveis = []
+        for modulo in modulos_aprovados:
+            if modulo.get("id") in MODULOS_RESTRITOS and not pode_ver_restritos:
+                continue
+
+            modulos_visiveis.append(
+                {
+                    "id": modulo["id"],
+                    "nome": modulo.get("nome") or modulo["id"],
+                    "icone": modulo.get("icone") or "ph-bold ph-cube",
+                    "descricao": modulo.get("descricao") or "",
+                }
+            )
+
+        modulos_visiveis.sort(
+            key=lambda item: (
+                item["nome"].lower(),
+                item["id"].lower(),
+            )
+        )
+        return {
+            "modules": modulos_visiveis,
+            "total": len(modulos_visiveis),
+        }

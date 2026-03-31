@@ -1,9 +1,19 @@
 {% extends "luftcore/base.html" %}
+{% import 'luftcore/components.html' as ui %}
 {% include 'Components/ModalSettings.html' %}
 {% include 'Components/ModalLia.html' %}
 {% include 'Components/ModalBusca.html' %}
 
 {% block titulo %}LuftDocs{% endblock %}
+
+{% set endpoint_atual = request.endpoint or '' %}
+{% set token_atual = request.args.get('token') or session.get('token', '') %}
+{% set modulo_ativo_id = request.args.get('modulo') or request.args.get('modulo_tecnico') or '' %}
+{% set ativo_inicio = endpoint_atual == 'Inicio.exibirInicio' %}
+{% set ativo_busca = endpoint_atual == 'Busca.exibirBusca' %}
+{% set ativo_mapa = endpoint_atual == 'Inicio.exibirMapaConhecimento' %}
+{% set ativo_modulos = endpoint_atual in ['Modulo.exibirConteudoModulo', 'Submodulo.exibirSubmodulo'] %}
+{% set ativo_gestao = endpoint_atual.startswith('Editor.') or endpoint_atual.startswith('Permissoes.') %}
 
 {% block breadcrumb %}
     <a href="{{ url_for('Inicio.exibirInicio', token=session.get('token')) }}" class="luft-breadcrumb-item d-flex align-items-center gap-1 text-muted text-decoration-none" style="text-decoration: none;">
@@ -33,7 +43,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme-style">
-     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Style.css') }}">   
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/SidebarMenu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/LiaChat.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/buscarAtalho.css') }}">
     
@@ -41,12 +52,121 @@
 {% endblock %}
 
 {% block topbar_actions %}
-    <a href="{{ url_for('Busca.exibirBusca') }}"
+    <a href="{{ url_for('Busca.exibirBusca', token=token_atual) }}"
        class="luft-search-box shadow-sm"
        style="margin-right: 1rem; cursor: pointer; border: none; background: transparent; text-decoration: none;">
         <i class="ph-bold ph-magnifying-glass text-muted"></i>
         <span class="btn-responsive-text ms-2" style="color: var(--luft-text-main);">Buscar (Ctrl+K)</span>
     </a>
+{% endblock %}
+
+{% block sidebar_menu %}
+    {{ ui.nav_item('Início',
+        icone='ph-bold ph-house-line',
+        href=url_for('Inicio.exibirInicio', token=token_atual),
+        ativo=ativo_inicio)
+    }}
+
+    {{ ui.nav_item('Buscar',
+        icone='ph-bold ph-magnifying-glass',
+        href=url_for('Busca.exibirBusca', token=token_atual),
+        ativo=ativo_busca)
+    }}
+
+    {{ ui.nav_item('Mapa de Conhecimento',
+        icone='ph-bold ph-share-network',
+        href=url_for('Inicio.exibirMapaConhecimento', token=token_atual),
+        ativo=ativo_mapa)
+    }}
+
+    {% call ui.nav_item('Módulos', icone='ph-bold ph-squares-four', ativo=ativo_modulos) %}
+        <div class="luftdocs-sidebar-panel"
+             data-sidebar-modules-root
+             data-modules-url="{{ url_for('Api.listarArvoreModulos') }}"
+             data-module-base-url="{{ url_for('Modulo.exibirConteudoModulo', token=token_atual) }}"
+             data-active-module-id="{{ modulo_ativo_id }}"
+             data-open-on-load="{{ 'true' if ativo_modulos else 'false' }}">
+            <div class="luftdocs-sidebar-panel-head">
+                <div class="luftdocs-sidebar-panel-copy">
+                    <span class="luftdocs-sidebar-chip">Explorer</span>
+                    <div class="luftdocs-sidebar-heading-row">
+                        <p class="luftdocs-sidebar-panel-title">Biblioteca de módulos</p>
+                        <span class="luftdocs-sidebar-count" data-modules-count>...</span>
+                    </div>
+                    <p class="luftdocs-sidebar-panel-subtitle">Filtre por nome ou ID e mantenha os últimos acessos sempre à mão.</p>
+                </div>
+                <button type="button"
+                        class="luftdocs-sidebar-icon-action"
+                        title="Abrir busca rápida"
+                        aria-label="Abrir busca rápida"
+                        data-modules-quick-search>
+                    <i class="ph-bold ph-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="luftdocs-sidebar-toolbar">
+                <div class="luftdocs-sidebar-segments" role="tablist" aria-label="Visões do explorer">
+                    <button type="button" class="is-active" data-modules-view-trigger="all">Todos</button>
+                    <button type="button" data-modules-view-trigger="recent">Recentes</button>
+                </div>
+                <div class="luftdocs-sidebar-toolbar-actions">
+                    <button type="button" class="luftdocs-sidebar-inline-action" data-modules-expand-all>
+                        Expandir
+                    </button>
+                    <button type="button" class="luftdocs-sidebar-inline-action" data-modules-clear hidden>
+                        Limpar
+                    </button>
+                </div>
+            </div>
+
+            <label class="luftdocs-sidebar-search">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="search" placeholder="Filtrar módulos..." data-modules-search>
+            </label>
+
+            <div class="luftdocs-sidebar-meta-row">
+                <span class="luftdocs-sidebar-meta" data-modules-summary>
+                    Abra o menu para carregar a árvore completa.
+                </span>
+            </div>
+
+            <div class="luftdocs-sidebar-tree">
+                <div class="luftdocs-sidebar-state" data-modules-state>
+                    Abra o menu para carregar a árvore completa.
+                </div>
+                <div class="luftdocs-sidebar-groups" data-modules-groups hidden></div>
+            </div>
+        </div>
+    {% endcall %}
+
+    {% if can_access_editor or can_access_permissions_menu or can_create_modules %}
+        {% call ui.nav_item('Gestão', icone='ph-bold ph-sliders-horizontal', ativo=ativo_gestao) %}
+            {% if can_access_editor %}
+                {{ ui.nav_item('Painel do Editor',
+                    href=url_for('Editor.exibirPainelEditor', token=token_atual),
+                    ativo=(endpoint_atual.startswith('Editor.') and endpoint_atual != 'Editor.exibirPendencias' and endpoint_atual != 'Editor.criarModulo'))
+                }}
+                {{ ui.nav_item('Pendências',
+                    href=url_for('Editor.exibirPendencias', token=token_atual),
+                    ativo=(endpoint_atual == 'Editor.exibirPendencias'))
+                }}
+            {% endif %}
+
+            {% if can_create_modules %}
+                {{ ui.nav_item('Novo Módulo',
+                    href=url_for('Editor.criarModulo', token=token_atual),
+                    ativo=(endpoint_atual == 'Editor.criarModulo'))
+                }}
+            {% endif %}
+
+            {% if can_access_permissions_menu %}
+                {{ ui.nav_item('Permissões',
+                    href=url_for('Permissoes.gerenciarPermissoes', token=token_atual),
+                    ativo=endpoint_atual.startswith('Permissoes.'))
+                }}
+            {% endif %}
+        {% endcall %}
+    {% endif %}
 {% endblock %}
 
 {% block sidebar_actions %}
@@ -96,6 +216,7 @@
             },
             Api: {
                 obterListaModulos: "{{ url_for('Api.listarModulos') }}",
+                listarArvoreModulos: "{{ url_for('Api.listarArvoreModulos') }}",
                 buscar: "{{ url_for('Api.buscarNaApi') }}",
                 listarRecomendacoes: "{{ url_for('Api.listarRecomendacoes') }}",
                 listarAutocomplete: "{{ url_for('Api.listarAutocomplete') }}",
@@ -120,6 +241,7 @@
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/LiaProativa.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/Configs.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/SidebarMenu.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/Modules/ampliarImagem.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/buscarAtalho.js') }}"></script>
     

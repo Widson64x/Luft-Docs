@@ -26,6 +26,12 @@ def listarModulos():
     )
 
 
+@Api_BP.route('/arvore-modulos', methods=['GET'])
+@LoginObrigatorio
+def listarArvoreModulos():
+    return jsonify(servicoApiModulos.obterRespostaArvoreModulos())
+
+
 @Api_BP.get('/buscar')
 @LoginObrigatorio
 def buscarNaApi():

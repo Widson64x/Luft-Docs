@@ -21,6 +21,14 @@ class ServicoPrincipal:
             "can_view_tools_in_development": permissoes_usuario.get(
                 "can_view_tools_in_development", False
             ),
+            "can_access_editor": permissoes_usuario.get("can_access_editor", False),
+            "can_access_permissions_menu": permissoes_usuario.get(
+                "can_access_permissions_menu", False
+            ),
+            "can_create_modules": permissoes_usuario.get("can_create_modules", False),
+            "can_see_restricted_module": permissoes_usuario.get(
+                "can_see_restricted_module", False
+            ),
         }
 
     def autenticarRequisicaoInicial(self) -> Any:
