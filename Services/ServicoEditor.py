@@ -66,14 +66,14 @@ class ServicoEditor:
                 nome_usuario = session.get("user_name", "Anonimo")
 
                 novo_modulo = Modulo(
-                    id=identificador,
-                    nome=request.form["nome"],
-                    descricao=request.form["descricao"],
-                    icone=request.form["icone"],
-                    status="aprovado",
-                    current_version="1.0",
-                    last_approved_by=nome_usuario,
-                    last_approved_on=agora,
+                    Id=identificador,
+                    Nome=request.form["nome"],
+                    Descricao=request.form["descricao"],
+                    Icone=request.form["icone"],
+                    Status="aprovado",
+                    VersaoAtual="1.0",
+                    AprovadoPor=nome_usuario,
+                    AprovadoEm=agora,
                 )
 
                 palavras_chave = [
@@ -82,7 +82,7 @@ class ServicoEditor:
                     if termo.strip()
                 ]
                 for palavra in palavras_chave:
-                    novo_modulo.palavras_chave.append(PalavraChave(palavra=palavra))
+                    novo_modulo.PalavrasChave.append(PalavraChave(Palavra=palavra))
 
                 relacionados_ids = [
                     termo.strip()
@@ -90,16 +90,16 @@ class ServicoEditor:
                     if termo.strip()
                 ]
                 if relacionados_ids:
-                    novo_modulo.relacionados = Modulo.query.filter(
-                        Modulo.id.in_(relacionados_ids)
+                    novo_modulo.Relacionados = Modulo.query.filter(
+                        Modulo.Id.in_(relacionados_ids)
                     ).all()
 
-                novo_modulo.edit_history.append(
+                novo_modulo.HistoricoEdicoes.append(
                     HistoricoEdicao(
-                        event="criado",
-                        version="1.0",
-                        editor=nome_usuario,
-                        timestamp=agora,
+                        Evento="criado",
+                        Versao="1.0",
+                        Editor=nome_usuario,
+                        RegistradoEm=agora,
                     )
                 )
 
@@ -151,20 +151,20 @@ class ServicoEditor:
 
         if request.method == "POST":
             try:
-                modulo.nome = request.form["nome"]
-                modulo.descricao = request.form["descricao"]
-                modulo.icone = request.form["icone"]
-                modulo.status = "pendente"
-                modulo.pending_edit_user = session.get("user_name", "Anonimo")
-                modulo.pending_edit_data = datetime.now().isoformat()
+                modulo.Nome = request.form["nome"]
+                modulo.Descricao = request.form["descricao"]
+                modulo.Icone = request.form["icone"]
+                modulo.Status = "pendente"
+                modulo.UsuarioEdicaoPendente = session.get("user_name", "Anonimo")
+                modulo.DataEdicaoPendente = datetime.now().isoformat()
 
                 novas_palavras = {
                     termo.strip()
                     for termo in request.form["palavras_chave"].split(",")
                     if termo.strip()
                 }
-                modulo.palavras_chave = [
-                    PalavraChave(palavra=palavra) for palavra in novas_palavras
+                modulo.PalavrasChave = [
+                    PalavraChave(Palavra=palavra) for palavra in novas_palavras
                 ]
 
                 relacionados_ids = {
@@ -172,8 +172,8 @@ class ServicoEditor:
                     for termo in request.form["relacionados"].split(",")
                     if termo.strip()
                 }
-                modulo.relacionados = Modulo.query.filter(
-                    Modulo.id.in_(relacionados_ids)
+                modulo.Relacionados = Modulo.query.filter(
+                    Modulo.Id.in_(relacionados_ids)
                 ).all()
 
                 db.session.commit()
@@ -256,9 +256,9 @@ class ServicoEditor:
         pendencias = [
             {
                 "modulo": modulo,
-                "editor": modulo.pending_edit_user or "N/A",
+                "editor": modulo.UsuarioEdicaoPendente or "N/A",
             }
-            for modulo in Modulo.query.filter_by(status="pendente").all()
+            for modulo in Modulo.query.filter_by(Status="pendente").all()
         ]
         return self._respostaRenderizacao(
             "Editor/EDT_Pendings.html",
@@ -279,9 +279,9 @@ class ServicoEditor:
         try:
             agora = datetime.now()
             nome_aprovador = session.get("user_name", "Anonimo")
-            nome_editor = modulo.pending_edit_user or "Desconhecido"
+            nome_editor = modulo.UsuarioEdicaoPendente or "Desconhecido"
 
-            major, minor = map(int, modulo.current_version.split("."))
+            major, minor = map(int, modulo.VersaoAtual.split("."))
             nova_versao = f"{major}.{minor + 1}"
 
             caminho_modulo = os.path.join(DATA_DIR, modulo_id)
@@ -321,22 +321,22 @@ class ServicoEditor:
                     )
                 shutil.move(caminho_tecnico_pendente, caminho_tecnico_oficial)
 
-            modulo.status = "aprovado"
-            modulo.current_version = nova_versao
-            modulo.last_approved_by = nome_aprovador
-            modulo.last_approved_on = agora.isoformat()
-            modulo.pending_edit_user = None
-            modulo.pending_edit_data = None
+            modulo.Status = "aprovado"
+            modulo.VersaoAtual = nova_versao
+            modulo.AprovadoPor = nome_aprovador
+            modulo.AprovadoEm = agora.isoformat()
+            modulo.UsuarioEdicaoPendente = None
+            modulo.DataEdicaoPendente = None
 
-            modulo.edit_history.append(
+            modulo.HistoricoEdicoes.append(
                 HistoricoEdicao(
-                    event="aprovado",
-                    version=nova_versao,
-                    editor=nome_editor,
-                    approver=nome_aprovador,
-                    timestamp=agora.isoformat(),
-                    backup_file_doc=backup_documentacao,
-                    backup_file_tech=backup_tecnico,
+                    Evento="aprovado",
+                    Versao=nova_versao,
+                    Editor=nome_editor,
+                    Aprovador=nome_aprovador,
+                    RegistradoEm=agora.isoformat(),
+                    ArquivoBackupDocumentacao=backup_documentacao,
+                    ArquivoBackupDocumentacaoTecnica=backup_tecnico,
                 )
             )
 
@@ -362,7 +362,7 @@ class ServicoEditor:
         modulo = Modulo.query.get_or_404(modulo_id)
 
         try:
-            nome_editor = modulo.pending_edit_user or "Desconhecido"
+            nome_editor = modulo.UsuarioEdicaoPendente or "Desconhecido"
             caminho_pendente = os.path.join(DATA_DIR, modulo_id, "pending_documentation.md")
             caminho_tecnico_pendente = os.path.join(
                 DATA_DIR, modulo_id, "pending_technical_documentation.md"
@@ -372,15 +372,15 @@ class ServicoEditor:
             if os.path.exists(caminho_tecnico_pendente):
                 os.remove(caminho_tecnico_pendente)
 
-            modulo.status = "aprovado"
-            modulo.pending_edit_user = None
-            modulo.pending_edit_data = None
-            modulo.edit_history.append(
+            modulo.Status = "aprovado"
+            modulo.UsuarioEdicaoPendente = None
+            modulo.DataEdicaoPendente = None
+            modulo.HistoricoEdicoes.append(
                 HistoricoEdicao(
-                    event="rejeitado",
-                    editor=nome_editor,
-                    approver=session.get("user_name", "Anonimo"),
-                    timestamp=datetime.now().isoformat(),
+                    Evento="rejeitado",
+                    Editor=nome_editor,
+                    Aprovador=session.get("user_name", "Anonimo"),
+                    RegistradoEm=datetime.now().isoformat(),
                 )
             )
 
@@ -436,7 +436,7 @@ class ServicoEditor:
 
                 identificador_tipo = "doc" if tipo_arquivo == "doc" else "tech"
                 nome_backup = (
-                    f"v{modulo.current_version}_BKP-PRE-RESTORE_"
+                    f"v{modulo.VersaoAtual}_BKP-PRE-RESTORE_"
                     f"{agora.strftime('%Y-%m-%dT%H-%M-%S')}_{identificador_tipo}.md"
                 )
                 caminho_backup = os.path.join(diretorio_historico, nome_backup)
@@ -451,18 +451,18 @@ class ServicoEditor:
                 if correspondencia:
                     versao_restaurada = correspondencia.group(1)
 
-                modulo.edit_history.append(
+                modulo.HistoricoEdicoes.append(
                     HistoricoEdicao(
-                        event="restaurado",
-                        version=f"{versao_restaurada} (Restaurado)",
-                        editor=nome_usuario,
-                        timestamp=agora.isoformat(),
-                        backup_file_doc=nome_backup if tipo_arquivo == "doc" else None,
-                        backup_file_tech=nome_backup if tipo_arquivo == "tech" else None,
+                        Evento="restaurado",
+                        Versao=f"{versao_restaurada} (Restaurado)",
+                        Editor=nome_usuario,
+                        RegistradoEm=agora.isoformat(),
+                        ArquivoBackupDocumentacao=nome_backup if tipo_arquivo == "doc" else None,
+                        ArquivoBackupDocumentacaoTecnica=nome_backup if tipo_arquivo == "tech" else None,
                     )
                 )
-                modulo.last_approved_by = f"{nome_usuario} (Rollback)"
-                modulo.last_approved_on = agora.isoformat()
+                modulo.AprovadoPor = f"{nome_usuario} (Rollback)"
+                modulo.AprovadoEm = agora.isoformat()
 
                 db.session.commit()
                 flash(
@@ -479,8 +479,8 @@ class ServicoEditor:
             )
 
         historico_eventos = sorted(
-            modulo.edit_history,
-            key=lambda evento: evento.timestamp,
+            modulo.HistoricoEdicoes,
+            key=lambda evento: evento.RegistradoEm,
             reverse=True,
         )
         return self._respostaRenderizacao(
@@ -493,9 +493,9 @@ class ServicoEditor:
     def obterRespostaOpcoesEditor(self) -> dict[str, Any]:
         """Retorna os dados auxiliares usados pelos formularios do editor."""
         modulos = [
-            {"id": linha.id, "nome": linha.nome}
-            for linha in Modulo.query.with_entities(Modulo.id, Modulo.nome)
-            .order_by(Modulo.nome)
+            {"id": linha.Id, "nome": linha.Nome}
+            for linha in Modulo.query.with_entities(Modulo.Id, Modulo.Nome)
+            .order_by(Modulo.Nome)
             .all()
         ]
 
@@ -837,7 +837,7 @@ class ServicoEditor:
 
     @staticmethod
     def _obterQuantidadePendencias() -> int:
-        return Modulo.query.filter_by(status="pendente").count()
+        return Modulo.query.filter_by(Status="pendente").count()
 
     @staticmethod
     def _carregarTemplateDocumentacao() -> str:

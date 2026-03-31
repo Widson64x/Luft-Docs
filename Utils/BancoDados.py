@@ -33,33 +33,78 @@ def FecharBanco(erro: Exception | None = None) -> None:
         banco.close()
 
 
+def _ListarTabelas(cursor: sqlite3.Cursor) -> set[str]:
+    cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    return {linha[0] for linha in cursor.fetchall()}
+
+
+def _ListarColunas(cursor: sqlite3.Cursor, tabela: str) -> set[str]:
+    cursor.execute(f'PRAGMA table_info("{tabela}")')
+    return {coluna[1] for coluna in cursor.fetchall()}
+
+
+def _RenomearTabelaSeExistir(cursor: sqlite3.Cursor, tabela_atual: str, tabela_nova: str) -> None:
+    tabelas_existentes = _ListarTabelas(cursor)
+    if tabela_atual in tabelas_existentes and tabela_nova not in tabelas_existentes:
+        cursor.execute(f'ALTER TABLE "{tabela_atual}" RENAME TO "{tabela_nova}"')
+
+
+def _RenomearColunaSeExistir(cursor: sqlite3.Cursor, tabela: str, coluna_atual: str, coluna_nova: str) -> None:
+    colunas_existentes = _ListarColunas(cursor, tabela)
+    if coluna_atual in colunas_existentes and coluna_nova not in colunas_existentes:
+        cursor.execute(
+            f'ALTER TABLE "{tabela}" RENAME COLUMN "{coluna_atual}" TO "{coluna_nova}"'
+        )
+
+
 def CriarTabelaReportesBug(cursor: sqlite3.Cursor) -> None:
     """Cria ou atualiza a tabela de reportes de bug da aplicacao."""
-    cursor.execute("PRAGMA table_info(bug_reports)")
-    colunas_existentes = [coluna[1] for coluna in cursor.fetchall()]
+    tabela = "Tb_Docs_ReportesBug"
+    _RenomearTabelaSeExistir(cursor, "bug_reports", tabela)
+
+    colunas_existentes = _ListarColunas(cursor, tabela)
 
     if not colunas_existentes:
         cursor.execute(
             """
-            CREATE TABLE bug_reports (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                report_type TEXT NOT NULL,
-                target_entity TEXT,
-                description TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'aberto',
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            CREATE TABLE Tb_Docs_ReportesBug (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                UsuarioId INTEGER NOT NULL,
+                TipoReporte TEXT NOT NULL,
+                EntidadeAlvo TEXT,
+                CategoriaErro TEXT,
+                Descricao TEXT NOT NULL,
+                Status TEXT NOT NULL DEFAULT 'aberto',
+                CriadoEm TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
             """
         )
         return
 
-    if "report_type" not in colunas_existentes:
+    _RenomearColunaSeExistir(cursor, tabela, "id", "Id")
+    _RenomearColunaSeExistir(cursor, tabela, "user_id", "UsuarioId")
+    _RenomearColunaSeExistir(cursor, tabela, "usuario_id", "UsuarioId")
+    _RenomearColunaSeExistir(cursor, tabela, "report_type", "TipoReporte")
+    _RenomearColunaSeExistir(cursor, tabela, "tipo_reporte", "TipoReporte")
+    _RenomearColunaSeExistir(cursor, tabela, "target_entity", "EntidadeAlvo")
+    _RenomearColunaSeExistir(cursor, tabela, "entidade_alvo", "EntidadeAlvo")
+    _RenomearColunaSeExistir(cursor, tabela, "error_category", "CategoriaErro")
+    _RenomearColunaSeExistir(cursor, tabela, "categoria_erro", "CategoriaErro")
+    _RenomearColunaSeExistir(cursor, tabela, "description", "Descricao")
+    _RenomearColunaSeExistir(cursor, tabela, "descricao", "Descricao")
+    _RenomearColunaSeExistir(cursor, tabela, "status", "Status")
+    _RenomearColunaSeExistir(cursor, tabela, "created_at", "CriadoEm")
+    _RenomearColunaSeExistir(cursor, tabela, "criado_em", "CriadoEm")
+
+    colunas_existentes = _ListarColunas(cursor, tabela)
+    if "TipoReporte" not in colunas_existentes:
         cursor.execute(
-            "ALTER TABLE bug_reports ADD COLUMN report_type TEXT NOT NULL DEFAULT 'geral'"
+            f'ALTER TABLE "{tabela}" ADD COLUMN "TipoReporte" TEXT NOT NULL DEFAULT \"geral\"'
         )
-    if "target_entity" not in colunas_existentes:
-        cursor.execute("ALTER TABLE bug_reports ADD COLUMN target_entity TEXT")
+    if "EntidadeAlvo" not in colunas_existentes:
+        cursor.execute(f'ALTER TABLE "{tabela}" ADD COLUMN "EntidadeAlvo" TEXT')
+    if "CategoriaErro" not in colunas_existentes:
+        cursor.execute(f'ALTER TABLE "{tabela}" ADD COLUMN "CategoriaErro" TEXT')
 
 
 def InicializarBanco() -> None:
@@ -67,24 +112,41 @@ def InicializarBanco() -> None:
     banco = sqlite3.connect(ObterCaminhoBanco())
     cursor = banco.cursor()
 
+    _RenomearTabelaSeExistir(cursor, "document_access", "Tb_Docs_LogAcessosDocumentos")
+    _RenomearTabelaSeExistir(cursor, "search_log", "Tb_Docs_LogBuscas")
+
     cursor.execute(
         """
-        CREATE TABLE IF NOT EXISTS document_access (
-            document_id TEXT PRIMARY KEY,
-            access_count INTEGER NOT NULL DEFAULT 1,
-            last_access TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS Tb_Docs_LogAcessosDocumentos (
+            DocumentoId TEXT PRIMARY KEY,
+            QuantidadeAcessos INTEGER NOT NULL DEFAULT 1,
+            UltimoAcessoEm TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "document_id", "DocumentoId")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "documento_id", "DocumentoId")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "access_count", "QuantidadeAcessos")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "quantidade_acessos", "QuantidadeAcessos")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "last_access", "UltimoAcessoEm")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogAcessosDocumentos", "ultimo_acesso_em", "UltimoAcessoEm")
+
     cursor.execute(
         """
-        CREATE TABLE IF NOT EXISTS search_log (
-            query_term TEXT PRIMARY KEY,
-            search_count INTEGER NOT NULL DEFAULT 1,
-            last_searched TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        CREATE TABLE IF NOT EXISTS Tb_Docs_LogBuscas (
+            TermoBusca TEXT PRIMARY KEY,
+            QuantidadeBuscas INTEGER NOT NULL DEFAULT 1,
+            UltimaBuscaEm TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "query_term", "TermoBusca")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "termo_busca", "TermoBusca")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "search_count", "QuantidadeBuscas")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "quantidade_buscas", "QuantidadeBuscas")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "last_searched", "UltimaBuscaEm")
+    _RenomearColunaSeExistir(cursor, "Tb_Docs_LogBuscas", "ultima_busca_em", "UltimaBuscaEm")
+
     CriarTabelaReportesBug(cursor)
     banco.commit()
     banco.close()

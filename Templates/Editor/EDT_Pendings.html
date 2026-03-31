@@ -30,24 +30,24 @@
           <div class="user-avatar" title="{{ item.editor }}" style="--initial: '{{ item.editor[0]|upper }}';"></div>
           
           <div class="item-info">
-            <div class="module-name">{{ m.nome }}</div>
+            <div class="module-name">{{ m.Nome }}</div>
             <div class="module-meta">
-              <span>ID: {{ m.id }}</span> &middot;
-              <span><i class="bi bi-clock"></i> {{ m.pending_edit_info.data.split('T')[0] }}</span>
+              <span>ID: {{ m.Id }}</span> &middot;
+              <span><i class="bi bi-clock"></i> {{ m.InfoEdicaoPendente.data.split('T')[0] }}</span>
             </div>
           </div>
           <div class="item-actions d-flex align-items-center gap-2 flex-wrap">
             <button type="button" class="luft-btn luft-btn-outline" 
-                    data-bs-toggle="modal" data-bs-target="#diffModal" data-mid="{{ m.id }}"
+                    data-bs-toggle="modal" data-bs-target="#diffModal" data-mid="{{ m.Id }}"
                     title="Comparar Versões">
               <i class="bi bi-arrow-left-right"></i> Comparar
             </button>
-            <form method="post" action="{{ url_for('Editor.aprovarModulo', mid=m.id, token=token) }}" class="d-inline">
+            <form method="post" action="{{ url_for('Editor.aprovarModulo', mid=m.Id, token=token) }}" class="d-inline">
               <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-success-600); border-color: var(--luft-success-600);" title="Aprovar">
                 <i class="bi bi-check-lg"></i>
               </button>
             </form>
-            <form method="post" action="{{ url_for('Editor.rejeitarModulo', mid=m.id, token=token) }}" class="d-inline">
+            <form method="post" action="{{ url_for('Editor.rejeitarModulo', mid=m.Id, token=token) }}" class="d-inline">
               <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-danger-600); border-color: var(--luft-danger-600);" title="Rejeitar">
                 <i class="bi bi-x-lg"></i>
               </button>

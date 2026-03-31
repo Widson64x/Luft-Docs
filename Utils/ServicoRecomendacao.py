@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlalchemy import func
 
-from Models import DocumentAccess, IAFeedback, SearchLog, db
+from Models import AcessoDocumento, FeedbackIA, LogBusca, db
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,13 @@ def RegistrarAcessoDocumento(identificadorDocumento: str) -> None:
         return
 
     try:
-        documento = db.session.get(DocumentAccess, identificadorDocumento)
+        documento = db.session.get(AcessoDocumento, identificadorDocumento)
         if documento:
-            documento.access_count += 1
+            documento.QuantidadeAcessos += 1
         else:
-            documento = DocumentAccess(
-                document_id=identificadorDocumento,
-                access_count=1,
+            documento = AcessoDocumento(
+                DocumentoId=identificadorDocumento,
+                QuantidadeAcessos=1,
             )
             db.session.add(documento)
         db.session.commit()
@@ -40,13 +40,13 @@ def RegistrarTermoBusca(termoBusca: str) -> None:
 
     termo_normalizado = termoBusca.strip().lower()
     try:
-        termo_existente = db.session.get(SearchLog, termo_normalizado)
+        termo_existente = db.session.get(LogBusca, termo_normalizado)
         if termo_existente:
-            termo_existente.search_count += 1
+            termo_existente.QuantidadeBuscas += 1
         else:
-            termo_existente = SearchLog(
-                query_term=termo_normalizado,
-                search_count=1,
+            termo_existente = LogBusca(
+                TermoBusca=termo_normalizado,
+                QuantidadeBuscas=1,
             )
             db.session.add(termo_existente)
         db.session.commit()
@@ -60,21 +60,21 @@ def ObterContagensAcesso(identificadoresDocumentos: list[str]) -> dict[str, int]
     if not identificadoresDocumentos:
         return {}
 
-    acessos = DocumentAccess.query.filter(
-        DocumentAccess.document_id.in_(identificadoresDocumentos)
+    acessos = AcessoDocumento.query.filter(
+        AcessoDocumento.DocumentoId.in_(identificadoresDocumentos)
     ).all()
-    return {acesso.document_id: acesso.access_count for acesso in acessos}
+    return {acesso.DocumentoId: acesso.QuantidadeAcessos for acesso in acessos}
 
 
 def ObterMaisAcessados(limite: int = 5) -> list[dict[str, Any]]:
     """Retorna os documentos mais acessados em ordem decrescente."""
     documentos = (
-        DocumentAccess.query.order_by(DocumentAccess.access_count.desc())
+        AcessoDocumento.query.order_by(AcessoDocumento.QuantidadeAcessos.desc())
         .limit(limite)
         .all()
     )
     return [
-        {"document_id": documento.document_id, "access_count": documento.access_count}
+        {"document_id": documento.DocumentoId, "access_count": documento.QuantidadeAcessos}
         for documento in documentos
     ]
 
@@ -86,19 +86,19 @@ def ObterSugestoesAutocomplete(termo: str, limite: int = 5) -> list[str]:
 
     termo_pesquisa = f"{termo.strip().lower()}%"
     resultados = (
-        SearchLog.query.filter(SearchLog.query_term.like(termo_pesquisa))
-        .order_by(SearchLog.search_count.desc())
+        LogBusca.query.filter(LogBusca.TermoBusca.like(termo_pesquisa))
+        .order_by(LogBusca.QuantidadeBuscas.desc())
         .limit(limite)
         .all()
     )
-    return [resultado.query_term for resultado in resultados]
+    return [resultado.TermoBusca for resultado in resultados]
 
 
 def ObterBuscasPopulares(limite: int = 5) -> list[dict[str, Any]]:
     """Retorna os termos de busca mais populares registrados."""
-    buscas = SearchLog.query.order_by(SearchLog.search_count.desc()).limit(limite).all()
+    buscas = LogBusca.query.order_by(LogBusca.QuantidadeBuscas.desc()).limit(limite).all()
     return [
-        {"query_term": busca.query_term, "search_count": busca.search_count}
+        {"query_term": busca.TermoBusca, "search_count": busca.QuantidadeBuscas}
         for busca in buscas
     ]
 
@@ -109,27 +109,27 @@ def ObterRecomendacoesHibridas(
     pesoBusca: float = 0.4,
 ) -> list[dict[str, Any]]:
     """Calcula recomendacoes combinando acessos e relevancia por termos buscados."""
-    documentos = DocumentAccess.query.all()
+    documentos = AcessoDocumento.query.all()
     if not documentos:
         return []
 
-    buscas_populares = SearchLog.query.all()
-    maior_contagem_acesso = db.session.query(func.max(DocumentAccess.access_count)).scalar() or 1
-    maior_contagem_busca = db.session.query(func.max(SearchLog.search_count)).scalar() or 1
+    buscas_populares = LogBusca.query.all()
+    maior_contagem_acesso = db.session.query(func.max(AcessoDocumento.QuantidadeAcessos)).scalar() or 1
+    maior_contagem_busca = db.session.query(func.max(LogBusca.QuantidadeBuscas)).scalar() or 1
 
     pontuacoes_busca = {
-        busca.query_term: busca.search_count / maior_contagem_busca
+        busca.TermoBusca: busca.QuantidadeBuscas / maior_contagem_busca
         for busca in buscas_populares
     }
 
     pontuacoes_finais: dict[str, float] = {}
     for documento in documentos:
-        pontuacao = (documento.access_count / maior_contagem_acesso) * pesoAcesso
+        pontuacao = (documento.QuantidadeAcessos / maior_contagem_acesso) * pesoAcesso
         relevancia = 0.0
         for termo, pontuacao_normalizada in pontuacoes_busca.items():
             palavras_busca = set(re.split(r"\s|_|-", termo))
             if any(
-                palavra in documento.document_id.lower()
+                palavra in documento.DocumentoId.lower()
                 for palavra in palavras_busca
                 if len(palavra) > 2
             ):
@@ -138,7 +138,7 @@ def ObterRecomendacoesHibridas(
         if pontuacoes_busca:
             pontuacao += (relevancia / len(pontuacoes_busca)) * pesoBusca
 
-        pontuacoes_finais[documento.document_id] = pontuacao
+        pontuacoes_finais[documento.DocumentoId] = pontuacao
 
     documentos_ordenados = sorted(
         pontuacoes_finais.items(), key=lambda item: item[1], reverse=True
@@ -161,14 +161,14 @@ def RegistrarFeedbackIA(
     """Registra o feedback do usuario para uma resposta gerada pela IA."""
     try:
         contexto_serializado = json.dumps(fontesContexto) if fontesContexto else None
-        novo_feedback = IAFeedback(
-            response_id=identificadorResposta,
-            user_id=identificadorUsuario,
-            user_question=perguntaUsuario,
-            model_used=modeloUtilizado,
-            context_sources=contexto_serializado,
-            rating=avaliacao,
-            comment=comentario,
+        novo_feedback = FeedbackIA(
+            RespostaId=identificadorResposta,
+            UsuarioId=identificadorUsuario,
+            PerguntaUsuario=perguntaUsuario,
+            ModeloUtilizado=modeloUtilizado,
+            FontesContexto=contexto_serializado,
+            Avaliacao=avaliacao,
+            Comentario=comentario,
         )
         db.session.add(novo_feedback)
         db.session.commit()

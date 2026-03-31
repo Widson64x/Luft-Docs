@@ -59,11 +59,11 @@ class ServicoModulo:
 
         modulo = (
             Modulo.query.options(
-                joinedload(Modulo.roteiros),
-                joinedload(Modulo.relacionados),
-                joinedload(Modulo.edit_history),
+                joinedload(Modulo.Roteiros),
+                joinedload(Modulo.Relacionados),
+                joinedload(Modulo.HistoricoEdicoes),
             )
-            .filter_by(id=identificador_modulo)
+            .filter_by(Id=identificador_modulo)
             .first()
         )
 
@@ -98,18 +98,18 @@ class ServicoModulo:
             "contexto": {
                 "modulo": modulo,
                 "conteudo": conteudo_html,
-                "relacionados": modulo.relacionados,
+                "relacionados": modulo.Relacionados,
                 "modulos": modulos,
                 "query": consulta,
                 "resultado_highlight": bool(consulta),
                 "versao_info": self._obterInformacoesVersao(modulo),
                 "id_do_modulo": identificador_modulo,
                 "token": token,
-                "modulo_icone": modulo.icone or "bi-box",
+                "modulo_icone": modulo.Icone or "bi-box",
                 "modulo_atual": modulo,
-                "proactive_module_name": modulo.nome,
-                "proactive_module_id": modulo.id,
-                "roteiros_data": [roteiro.to_dict() for roteiro in modulo.roteiros],
+                "proactive_module_name": modulo.Nome,
+                "proactive_module_id": modulo.Id,
+                "roteiros_data": [roteiro.to_dict() for roteiro in modulo.Roteiros],
                 "can_edit_scripts": permissoes_usuario.get("can_edit_scripts", False),
             },
             "codigo": 200,
@@ -181,8 +181,8 @@ class ServicoModulo:
             "editor": "N/A",
         }
 
-        versao_atual = modulo.current_version
-        data_aprovacao = modulo.last_approved_on
+        versao_atual = modulo.VersaoAtual
+        data_aprovacao = modulo.AprovadoEm
         if not versao_atual or not data_aprovacao:
             return informacoes_versao
 
@@ -194,9 +194,9 @@ class ServicoModulo:
             pass
 
         editor_responsavel = "Nao encontrado"
-        for entrada_historico in modulo.edit_history:
-            if entrada_historico.version == versao_atual:
-                editor_responsavel = entrada_historico.editor or "Nao encontrado"
+        for entrada_historico in modulo.HistoricoEdicoes:
+            if entrada_historico.Versao == versao_atual:
+                editor_responsavel = entrada_historico.Editor or "Nao encontrado"
                 break
 
         informacoes_versao.update(

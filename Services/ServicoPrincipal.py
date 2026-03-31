@@ -4,7 +4,7 @@ from typing import Any
 
 from flask import current_app, session
 
-from Models import BugReport, db
+from Models import ReporteBug, db
 from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
 from Utils.auth.Autenticacao import AutenticarRequisicaoInicial, EncerrarSessaoUsuario
 from Utils.data.UtilitariosModulo import CarregarModulosAprovados
@@ -118,12 +118,12 @@ class ServicoPrincipal:
             }, 400
 
         try:
-            novo_reporte = BugReport(
-                user_id=identificador_usuario,
-                report_type=tipo_reporte,
-                target_entity=entidade_alvo,
-                error_category=categoria_erro,
-                description=descricao,
+            novo_reporte = ReporteBug(
+                UsuarioId=identificador_usuario,
+                TipoReporte=tipo_reporte,
+                EntidadeAlvo=entidade_alvo,
+                CategoriaErro=categoria_erro,
+                Descricao=descricao,
             )
             db.session.add(novo_reporte)
             db.session.commit()

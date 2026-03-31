@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from flask import flash, session
 
-from Models import Evaluation, db
+from Models import AvaliacaoDocumento, db
 
 
 class ServicoAvaliacao:
@@ -14,13 +14,13 @@ class ServicoAvaliacao:
         """Processa a submissao do formulario e retorna o proximo passo da rota."""
         if formulario.validate_on_submit():
             try:
-                avaliacao = Evaluation(
-                    document_id=document_id,
-                    rating=formulario.rating.data,
-                    feedback=formulario.feedback.data,
-                    suggestions=formulario.suggestions.data,
-                    techos=formulario.techos.data,
-                    changes=formulario.changes.data,
+                avaliacao = AvaliacaoDocumento(
+                    DocumentoId=document_id,
+                    Avaliacao=formulario.rating.data,
+                    Comentario=formulario.feedback.data,
+                    Sugestoes=formulario.suggestions.data,
+                    Trechos=formulario.techos.data,
+                    MudancasSolicitadas=formulario.changes.data,
                 )
                 db.session.add(avaliacao)
                 db.session.commit()

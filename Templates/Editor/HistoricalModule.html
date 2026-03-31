@@ -1,5 +1,5 @@
 {% extends "Base.html" %}
-{% block titulo %}Histórico de Versões - {{ modulo.nome }}{% endblock %}
+{% block titulo %}Histórico de Versões - {{ modulo.Nome }}{% endblock %}
 
 {% block page_styles %}
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
@@ -13,7 +13,7 @@
   <div class="luft-history-header mb-4 d-flex justify-content-between align-items-center">
     <div>
       <h1><i class="bi bi-clock-history"></i> Histórico de Versões</h1>
-      <p class="text-muted mb-0 mt-1">Módulo: <strong>{{ modulo.nome }}</strong> (Atual: v{{ modulo.current_version }})</p>
+      <p class="text-muted mb-0 mt-1">Módulo: <strong>{{ modulo.Nome }}</strong> (Atual: v{{ modulo.VersaoAtual }})</p>
     </div>
     <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
       <i class="bi bi-arrow-left"></i> Voltar ao Editor
@@ -36,43 +36,43 @@
           {% for evento in historico_eventos %}
           <tr>
             <td class="ps-4 text-nowrap">
-              {{ evento.timestamp.split('T')[0] }} 
-              <small class="text-muted d-block">{{ evento.timestamp.split('T')[1][:5] }}</small>
+              {{ evento.RegistradoEm.split('T')[0] }} 
+              <small class="text-muted d-block">{{ evento.RegistradoEm.split('T')[1][:5] }}</small>
             </td>
             <td>
-              <span class="luft-badge luft-badge-outline">{{ evento.version }}</span>
+              <span class="luft-badge luft-badge-outline">{{ evento.Versao }}</span>
             </td>
             <td>
-              {% if evento.event == 'aprovado' %}
+              {% if evento.Evento == 'aprovado' %}
                 <span class="luft-badge luft-badge-success badge-event"><i class="bi bi-check-circle"></i> Aprovado</span>
-              {% elif evento.event == 'restaurado' %}
+              {% elif evento.Evento == 'restaurado' %}
                 <span class="luft-badge luft-badge-warning badge-event"><i class="bi bi-arrow-counterclockwise"></i> Regressão</span>
-              {% elif evento.event == 'criado' %}
+              {% elif evento.Evento == 'criado' %}
                 <span class="luft-badge luft-badge-primary badge-event"><i class="bi bi-plus-circle"></i> Criado</span>
               {% else %}
-                <span class="luft-badge luft-badge-outline badge-event">{{ evento.event }}</span>
+                <span class="luft-badge luft-badge-outline badge-event">{{ evento.Evento }}</span>
               {% endif %}
             </td>
             <td>
               <div class="d-flex align-items-center gap-2">
-                <div class="user-avatar-small">{{ evento.editor[0]|upper }}</div>
-                <span class="fw-medium">{{ evento.editor }}</span>
+                <div class="user-avatar-small">{{ evento.Editor[0]|upper }}</div>
+                <span class="fw-medium">{{ evento.Editor }}</span>
               </div>
             </td>
             <td>
               <div class="d-flex flex-column gap-2">
-                {% if evento.backup_file_doc %}
+                {% if evento.ArquivoBackupDocumentacao %}
                   <div class="backup-file-item">
                     <i class="bi bi-file-text text-primary"></i>
                     <span class="text-truncate small file-label">Doc. Usuário</span>
                     <div class="btn-group btn-group-sm ms-auto">
                       <button type="button" class="luft-btn luft-btn-outline luft-btn-sm btn-compare" 
-                              data-filename="{{ evento.backup_file_doc }}" data-type="doc" data-version="{{ evento.version }}"
+                              data-filename="{{ evento.ArquivoBackupDocumentacao }}" data-type="doc" data-version="{{ evento.Versao }}"
                               title="Comparar com Atual">
                         <i class="bi bi-eye"></i>
                       </button>
                       <button type="button" class="luft-btn luft-btn-outline luft-btn-sm text-danger btn-restore"
-                              data-filename="{{ evento.backup_file_doc }}" data-type="doc" data-version="{{ evento.version }}"
+                              data-filename="{{ evento.ArquivoBackupDocumentacao }}" data-type="doc" data-version="{{ evento.Versao }}"
                               title="Restaurar esta versão">
                         <i class="bi bi-arrow-counterclockwise"></i>
                       </button>
@@ -80,18 +80,18 @@
                   </div>
                 {% endif %}
 
-                {% if evento.backup_file_tech %}
+                {% if evento.ArquivoBackupDocumentacaoTecnica %}
                   <div class="backup-file-item">
                     <i class="bi bi-code-slash text-info"></i>
                     <span class="text-truncate small file-label">Doc. Técnica</span>
                     <div class="btn-group btn-group-sm ms-auto">
                       <button type="button" class="luft-btn luft-btn-outline luft-btn-sm btn-compare" 
-                              data-filename="{{ evento.backup_file_tech }}" data-type="tech" data-version="{{ evento.version }}"
+                              data-filename="{{ evento.ArquivoBackupDocumentacaoTecnica }}" data-type="tech" data-version="{{ evento.Versao }}"
                               title="Comparar com Atual">
                         <i class="bi bi-eye"></i>
                       </button>
                       <button type="button" class="luft-btn luft-btn-outline luft-btn-sm text-danger btn-restore"
-                              data-filename="{{ evento.backup_file_tech }}" data-type="tech" data-version="{{ evento.version }}"
+                              data-filename="{{ evento.ArquivoBackupDocumentacaoTecnica }}" data-type="tech" data-version="{{ evento.Versao }}"
                               title="Restaurar esta versão">
                         <i class="bi bi-arrow-counterclockwise"></i>
                       </button>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     modalComparacao.show();
 
-    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`)
+    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.Id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`)
       .then(resposta => resposta.json())
       .then(dadosRetorno => {
         if (dadosRetorno.error) {

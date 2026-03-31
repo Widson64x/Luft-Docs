@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from flask import session
 
-from Models import Modulo, Roteiro, RoteiroAuditLog, db
+from Models import LogAuditoriaRoteiro, Modulo, Roteiro, db
 
 
 class ServicoRoteiros:
@@ -20,20 +20,20 @@ class ServicoRoteiros:
             )
 
         novo_roteiro = Roteiro(
-            titulo=dados["titulo"],
-            tipo=dados.get("tipo", "link"),
-            conteudo=dados["conteudo"],
-            icone=dados.get("icone"),
-            ordem=dados.get("ordem", 0),
-            descricao=dados.get("descricao"),
+            Titulo=dados["titulo"],
+            Tipo=dados.get("tipo", "link"),
+            Conteudo=dados["conteudo"],
+            Icone=dados.get("icone"),
+            Ordem=dados.get("ordem", 0),
+            Descricao=dados.get("descricao"),
         )
         db.session.add(novo_roteiro)
         db.session.add(
-            RoteiroAuditLog(
-                roteiro=novo_roteiro,
-                user_id=session.get("user_id"),
-                user_name=session.get("user_name"),
-                action="CREATE",
+            LogAuditoriaRoteiro(
+                Roteiro=novo_roteiro,
+                UsuarioId=session.get("user_id"),
+                NomeUsuario=session.get("user_name"),
+                Acao="CREATE",
             )
         )
 
@@ -69,17 +69,17 @@ class ServicoRoteiros:
         if roteiro is None:
             return self._respostaErro("Roteiro nao encontrado.", 404)
 
-        modulos = Modulo.query.filter(Modulo.id.in_(modulo_ids)).all()
+        modulos = Modulo.query.filter(Modulo.Id.in_(modulo_ids)).all()
         for modulo in modulos:
-            if modulo not in roteiro.modulos:
-                roteiro.modulos.append(modulo)
+            if modulo not in roteiro.Modulos:
+                roteiro.Modulos.append(modulo)
 
         db.session.commit()
         db.session.refresh(roteiro)
         return (
             {
                 "status": "success",
-                "message": f'Roteiro "{roteiro.titulo}" vinculado a {len(modulos)} modulo(s).',
+                "message": f'Roteiro "{roteiro.Titulo}" vinculado a {len(modulos)} modulo(s).',
                 "roteiro": self.serializarRoteiro(roteiro, incluir_modulos=True),
             },
             200,
@@ -104,19 +104,19 @@ class ServicoRoteiros:
         if roteiro is None:
             return self._respostaErro("Roteiro nao encontrado.", 404)
 
-        roteiro.titulo = dados.get("titulo", roteiro.titulo)
-        roteiro.descricao = dados.get("descricao", roteiro.descricao)
-        roteiro.tipo = dados.get("tipo", roteiro.tipo)
-        roteiro.conteudo = dados.get("conteudo", roteiro.conteudo)
-        roteiro.icone = dados.get("icone", roteiro.icone)
-        roteiro.ordem = dados.get("ordem", roteiro.ordem)
+        roteiro.Titulo = dados.get("titulo", roteiro.Titulo)
+        roteiro.Descricao = dados.get("descricao", roteiro.Descricao)
+        roteiro.Tipo = dados.get("tipo", roteiro.Tipo)
+        roteiro.Conteudo = dados.get("conteudo", roteiro.Conteudo)
+        roteiro.Icone = dados.get("icone", roteiro.Icone)
+        roteiro.Ordem = dados.get("ordem", roteiro.Ordem)
 
         db.session.add(
-            RoteiroAuditLog(
-                roteiro_id=roteiro.id,
-                user_id=session.get("user_id"),
-                user_name=session.get("user_name"),
-                action="UPDATE",
+            LogAuditoriaRoteiro(
+                RoteiroId=roteiro.Id,
+                UsuarioId=session.get("user_id"),
+                NomeUsuario=session.get("user_name"),
+                Acao="UPDATE",
             )
         )
 
@@ -144,11 +144,11 @@ class ServicoRoteiros:
             return self._respostaErro("Roteiro nao encontrado.", 404)
 
         db.session.add(
-            RoteiroAuditLog(
-                roteiro_id=roteiro.id,
-                user_id=session.get("user_id"),
-                user_name=session.get("user_name"),
-                action="DELETE",
+            LogAuditoriaRoteiro(
+                RoteiroId=roteiro.Id,
+                UsuarioId=session.get("user_id"),
+                NomeUsuario=session.get("user_name"),
+                Acao="DELETE",
             )
         )
         db.session.delete(roteiro)
@@ -161,7 +161,7 @@ class ServicoRoteiros:
         """Serializa o roteiro no formato esperado pelo frontend."""
         dados = roteiro.to_dict()
         if incluir_modulos:
-            dados["modulos_vinculados"] = [modulo.id for modulo in roteiro.modulos]
+            dados["modulos_vinculados"] = [modulo.Id for modulo in roteiro.Modulos]
         return dados
 
     def _validarPermissaoEdicao(

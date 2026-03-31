@@ -10,12 +10,12 @@ class ServicoPermissao:
 
     def carregarPermissoes(self) -> dict[str, dict[str, object]]:
         """Carrega as permissoes do banco no formato usado pela aplicacao."""
-        permissoes = Permissao.query.order_by(Permissao.nome).all()
+        permissoes = Permissao.query.order_by(Permissao.NomePermissao).all()
         return {
-            permissao.nome: {
-                "description": permissao.descricao,
-                "groups": [grupo.nome for grupo in permissao.grupos],
-                "users": [usuario.nome for usuario in permissao.usuarios],
+            permissao.NomePermissao: {
+                "description": permissao.Descricao,
+                "groups": [grupo.NomeGrupo for grupo in permissao.Grupos],
+                "users": [usuario.NomeUsuario for usuario in permissao.Usuarios],
             }
             for permissao in permissoes
         }
@@ -31,20 +31,20 @@ class ServicoPermissao:
 
             for nome_permissao, informacoes in dados.items():
                 permissao = Permissao(
-                    nome=nome_permissao,
-                    descricao=informacoes.get("description", ""),
+                    NomePermissao=nome_permissao,
+                    Descricao=informacoes.get("description", ""),
                 )
                 for nome_grupo in informacoes.get("groups", []):
-                    grupo = Grupo.query.filter_by(nome=nome_grupo).first() or Grupo(
-                        nome=nome_grupo
+                    grupo = Grupo.query.filter_by(NomeGrupo=nome_grupo).first() or Grupo(
+                        NomeGrupo=nome_grupo
                     )
-                    permissao.grupos.append(grupo)
+                    permissao.Grupos.append(grupo)
 
                 for nome_usuario in informacoes.get("users", []):
-                    usuario = Usuario.query.filter_by(nome=nome_usuario).first() or Usuario(
-                        nome=nome_usuario
+                    usuario = Usuario.query.filter_by(NomeUsuario=nome_usuario).first() or Usuario(
+                        NomeUsuario=nome_usuario
                     )
-                    permissao.usuarios.append(usuario)
+                    permissao.Usuarios.append(usuario)
 
                 db.session.add(permissao)
 
@@ -65,10 +65,10 @@ class ServicoPermissao:
         nome_grupo, nome_usuario = self.obterGrupoUsuario()
         return db.session.query(
             Permissao.query.filter(
-                Permissao.nome == nome_permissao,
+                Permissao.NomePermissao == nome_permissao,
                 db.or_(
-                    Permissao.grupos.any(nome=nome_grupo),
-                    Permissao.usuarios.any(nome=nome_usuario),
+                    Permissao.Grupos.any(NomeGrupo=nome_grupo),
+                    Permissao.Usuarios.any(NomeUsuario=nome_usuario),
                 ),
             ).exists()
         ).scalar()
@@ -82,8 +82,8 @@ class ServicoPermissao:
         nome_grupo, nome_usuario = self.obterGrupoUsuario()
         permissoes = Permissao.query.filter(
             db.or_(
-                Permissao.grupos.any(nome=nome_grupo),
-                Permissao.usuarios.any(nome=nome_usuario),
+                Permissao.Grupos.any(NomeGrupo=nome_grupo),
+                Permissao.Usuarios.any(NomeUsuario=nome_usuario),
             )
         ).all()
 
@@ -91,10 +91,10 @@ class ServicoPermissao:
             "user": nome_usuario,
             "group": nome_grupo,
             "permissions": {
-                permissao.nome: {
-                    "description": permissao.descricao,
-                    "groups": [grupo.nome for grupo in permissao.grupos],
-                    "users": [usuario.nome for usuario in permissao.usuarios],
+                permissao.NomePermissao: {
+                    "description": permissao.Descricao,
+                    "groups": [grupo.NomeGrupo for grupo in permissao.Grupos],
+                    "users": [usuario.NomeUsuario for usuario in permissao.Usuarios],
                 }
                 for permissao in permissoes
             },
@@ -140,19 +140,19 @@ class ServicoPermissao:
 
     def _atualizarPermissao(self) -> None:
         nome_permissao = request.form.get("perm_name", "").strip()
-        permissao = Permissao.query.filter_by(nome=nome_permissao).first()
+        permissao = Permissao.query.filter_by(NomePermissao=nome_permissao).first()
         if permissao is None:
             flash("Permissao nao encontrada.", "danger")
             return
 
-        permissao.descricao = request.form.get("description", "").strip()
+        permissao.Descricao = request.form.get("description", "").strip()
         nomes_grupos = {
             grupo.strip()
             for grupo in request.form.get("groups", "").split(",")
             if grupo.strip()
         }
-        permissao.grupos = [
-            Grupo.query.filter_by(nome=nome).first() or Grupo(nome=nome)
+        permissao.Grupos = [
+            Grupo.query.filter_by(NomeGrupo=nome).first() or Grupo(NomeGrupo=nome)
             for nome in nomes_grupos
         ]
 
@@ -161,8 +161,8 @@ class ServicoPermissao:
             for usuario in request.form.get("users", "").split(",")
             if usuario.strip()
         }
-        permissao.usuarios = [
-            Usuario.query.filter_by(nome=nome).first() or Usuario(nome=nome)
+        permissao.Usuarios = [
+            Usuario.query.filter_by(NomeUsuario=nome).first() or Usuario(NomeUsuario=nome)
             for nome in nomes_usuarios
         ]
         db.session.commit()
@@ -170,14 +170,14 @@ class ServicoPermissao:
 
     def _adicionarPermissao(self) -> None:
         nome_permissao = request.form.get("new_perm_name", "").strip()
-        if not nome_permissao or Permissao.query.filter_by(nome=nome_permissao).first():
+        if not nome_permissao or Permissao.query.filter_by(NomePermissao=nome_permissao).first():
             flash("Permissao invalida ou ja existe.", "danger")
             return
 
         db.session.add(
             Permissao(
-                nome=nome_permissao,
-                descricao=request.form.get("new_perm_desc", "").strip(),
+                NomePermissao=nome_permissao,
+                Descricao=request.form.get("new_perm_desc", "").strip(),
             )
         )
         db.session.commit()
@@ -185,7 +185,7 @@ class ServicoPermissao:
 
     def _excluirPermissao(self) -> None:
         nome_permissao = request.form.get("delete_perm", "").strip()
-        permissao = Permissao.query.filter_by(nome=nome_permissao).first()
+        permissao = Permissao.query.filter_by(NomePermissao=nome_permissao).first()
         if permissao is None:
             flash("Permissao nao encontrada.", "danger")
             return
