@@ -6,6 +6,7 @@ from typing import Optional
 from flask import Flask, g, request, Response, session
 from flask.cli import with_appcontext
 import click
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Importacao do framework LuftCore
 from luftcore import LuftCorePackages, LuftUser
@@ -52,8 +53,8 @@ logger.info(f"Logging inicializado. Nivel configurado: {cfg.LOG_LEVEL}")
 # ================================ APP =================================
 app = Flask(
     __name__,
-    static_folder="Static"
-    #static_url_path=f"{cfg.BASE_PREFIX}/static"
+    static_folder="Static",            # Aponta para o nome EXATO da pasta física
+    static_url_path="/static"          # Mantém a URL minúscula para o navegador
 )
 
 app.secret_key = cfg.FLASK_SECRET_KEY
@@ -461,6 +462,14 @@ def InicializarBancoDados():
     click.echo("Operacao de banco de dados concluida com exito.")
 
 app.cli.add_command(InicializarBancoDados)
+
+
+# Integracao do middleware para resolucao de rotas sob proxy reverso
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+app.config["APPLICATION_ROOT"] = cfg.BASE_PREFIX
+app.secret_key = cfg.FLASK_SECRET_KEY
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_COOKIE_PATH"] = cfg.BASE_PREFIX
 
 # ---------------------------------------
 # Blueprints 
