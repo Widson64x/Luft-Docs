@@ -24,7 +24,7 @@ from sqlalchemy.exc import ProgrammingError, OperationalError
 from luftcore.extensions.flask_extension import api_error, render_no_permission
 
 import Config as cfg
-from Db.Connections import BIND_SQL, db
+from Db.Connections import obterEngineSqlServer, obterSessaoSqlServer
 from Models import Tb_LogAcesso, Tb_Permissao, Tb_PermissaoGrupo, Tb_PermissaoUsuario
 
 _logger = logging.getLogger(__name__)
@@ -144,6 +144,13 @@ def _obter_banco_diretorio_sqlserver() -> str:
     return "LuftInforma"
 
 
+def _obterSessaoSqlServerObrigatoria():
+    sessao = obterSessaoSqlServer()
+    if sessao is None:
+        raise RuntimeError("SQL Server nao configurado para esta operacao.")
+    return sessao
+
+
 def _consultar_diretorio_sqlserver(
     consulta: str,
     parametros: dict[str, Any] | None = None,
@@ -152,7 +159,7 @@ def _consultar_diretorio_sqlserver(
     if not cfg.SQLSERVER_URL:
         return []
 
-    engine = db.engines.get(BIND_SQL)
+    engine = obterEngineSqlServer()
     if engine is None:
         return []
 
@@ -214,28 +221,24 @@ class PermissaoService:
 
         chave_norm = _normalizar(chave)
 
+        sessao = obterSessaoSqlServer()
+        if sessao is None:
+            return False
+
         try:
             permissao = next(
                 (
                     p
-                    for p in Tb_Permissao.query.filter_by(Id_Sistema=SISTEMA_ID).all()
+                    for p in sessao.query(Tb_Permissao).filter_by(Id_Sistema=SISTEMA_ID).all()
                     if _normalizar(p.Chave_Permissao) == chave_norm
                 ),
                 None,
             )
-        except (ProgrammingError, OperationalError) as exc:
-            _logger.warning(
-                "[PermissaoService] Tabelas SQL Server indisponíveis, negando acesso por segurança. Detalhe: %s",
-                exc,
-            )
-            return False
+            if permissao is None:
+                return False
 
-        if permissao is None:
-            return False
-
-        try:
             # Override de usuário tem prioridade absoluta
-            override = Tb_PermissaoUsuario.query.filter_by(
+            override = sessao.query(Tb_PermissaoUsuario).filter_by(
                 Id_Permissao=permissao.Id_Permissao,
                 Codigo_Usuario=id_usuario,
             ).first()
@@ -244,17 +247,19 @@ class PermissaoService:
 
             # Verificação via grupo
             if id_grupo:
-                vinculo = Tb_PermissaoGrupo.query.filter_by(
+                vinculo = sessao.query(Tb_PermissaoGrupo).filter_by(
                     Id_Permissao=permissao.Id_Permissao,
                     Codigo_UsuarioGrupo=id_grupo,
                 ).first()
                 return vinculo is not None
         except (ProgrammingError, OperationalError) as exc:
             _logger.warning(
-                "[PermissaoService] Erro ao verificar vínculo de permissão '%s': %s",
+                "[PermissaoService] Erro ao verificar permissão '%s': %s",
                 chave, exc,
             )
             return False
+        finally:
+            sessao.close()
 
         return False
 
@@ -337,6 +342,10 @@ class PermissaoService:
         parametros: str | None = None,
     ) -> None:
         """Persiste um registro de auditoria de acesso na Tb_LogAcesso."""
+        sessao = obterSessaoSqlServer()
+        if sessao is None:
+            return
+
         try:
             id_usuario, _ = _usuario_da_sessao()
             nome_usuario = session.get("user_name", "Anonimo")
@@ -352,11 +361,13 @@ class PermissaoService:
                 Acesso_Permitido=permitido,
                 Parametros_Requisicao=parametros,
             )
-            db.session.add(log)
-            db.session.commit()
+            sessao.add(log)
+            sessao.commit()
         except Exception as exc:
-            db.session.rollback()
+            sessao.rollback()
             print(f"[PermissaoService] Erro ao gravar log: {exc}")
+        finally:
+            sessao.close()
 
     # --- consultas para a tela de admin ---
 
@@ -442,17 +453,31 @@ class PermissaoService:
 
     @staticmethod
     def listarTodasPermissoes() -> list[Tb_Permissao]:
-        return (
-            Tb_Permissao.query
-            .filter_by(Id_Sistema=SISTEMA_ID)
-            .order_by(Tb_Permissao.Categoria_Permissao, Tb_Permissao.Descricao_Permissao)
-            .all()
-        )
+        sessao = obterSessaoSqlServer()
+        if sessao is None:
+            return []
+
+        try:
+            return (
+                sessao.query(Tb_Permissao)
+                .filter_by(Id_Sistema=SISTEMA_ID)
+                .order_by(Tb_Permissao.Categoria_Permissao, Tb_Permissao.Descricao_Permissao)
+                .all()
+            )
+        finally:
+            sessao.close()
 
     @staticmethod
     def idsPermitidosPorGrupo(id_grupo: int) -> list[int]:
-        vinculos = Tb_PermissaoGrupo.query.filter_by(Codigo_UsuarioGrupo=id_grupo).all()
-        return [v.Id_Permissao for v in vinculos]
+        sessao = obterSessaoSqlServer()
+        if sessao is None:
+            return []
+
+        try:
+            vinculos = sessao.query(Tb_PermissaoGrupo).filter_by(Codigo_UsuarioGrupo=id_grupo).all()
+            return [v.Id_Permissao for v in vinculos]
+        finally:
+            sessao.close()
 
     @staticmethod
     def acessosUsuario(id_usuario: int) -> dict[str, Any]:
@@ -469,28 +494,42 @@ class PermissaoService:
         if id_grupo:
             heranca = PermissaoService.idsPermitidosPorGrupo(id_grupo)
 
-        overrides = Tb_PermissaoUsuario.query.filter_by(Codigo_Usuario=id_usuario).all()
-        override_map = {ov.Id_Permissao: ov.Conceder for ov in overrides}
+        sessao = obterSessaoSqlServer()
+        if sessao is None:
+            return {"ids_heranca": heranca, "overrides": {}}
+
+        try:
+            overrides = sessao.query(Tb_PermissaoUsuario).filter_by(Codigo_Usuario=id_usuario).all()
+            override_map = {ov.Id_Permissao: ov.Conceder for ov in overrides}
+        finally:
+            sessao.close()
 
         return {"ids_heranca": heranca, "overrides": override_map}
 
     @staticmethod
     def salvarVinculoGrupo(id_grupo: int, id_permissao: int, conceder: bool) -> None:
         """Cria ou remove um vínculo de permissão para um grupo."""
-        vinculo = Tb_PermissaoGrupo.query.filter_by(
-            Codigo_UsuarioGrupo=id_grupo,
-            Id_Permissao=id_permissao,
-        ).first()
-
-        if conceder and vinculo is None:
-            db.session.add(Tb_PermissaoGrupo(
+        sessao = _obterSessaoSqlServerObrigatoria()
+        try:
+            vinculo = sessao.query(Tb_PermissaoGrupo).filter_by(
                 Codigo_UsuarioGrupo=id_grupo,
                 Id_Permissao=id_permissao,
-            ))
-        elif not conceder and vinculo is not None:
-            db.session.delete(vinculo)
+            ).first()
 
-        db.session.commit()
+            if conceder and vinculo is None:
+                sessao.add(Tb_PermissaoGrupo(
+                    Codigo_UsuarioGrupo=id_grupo,
+                    Id_Permissao=id_permissao,
+                ))
+            elif not conceder and vinculo is not None:
+                sessao.delete(vinculo)
+
+            sessao.commit()
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     @staticmethod
     def salvarVinculoUsuario(id_usuario: int, id_permissao: int, conceder: bool | None) -> None:
@@ -498,44 +537,58 @@ class PermissaoService:
         Cria, atualiza ou remove o override individual de permissão para um usuário.
         Quando conceder=None, remove o override (volta a herdar do grupo).
         """
-        override = Tb_PermissaoUsuario.query.filter_by(
-            Codigo_Usuario=id_usuario,
-            Id_Permissao=id_permissao,
-        ).first()
-
-        if conceder is None:
-            if override:
-                db.session.delete(override)
-        elif override:
-            override.Conceder = conceder
-        else:
-            db.session.add(Tb_PermissaoUsuario(
+        sessao = _obterSessaoSqlServerObrigatoria()
+        try:
+            override = sessao.query(Tb_PermissaoUsuario).filter_by(
                 Codigo_Usuario=id_usuario,
                 Id_Permissao=id_permissao,
-                Conceder=conceder,
-            ))
+            ).first()
 
-        db.session.commit()
+            if conceder is None:
+                if override:
+                    sessao.delete(override)
+            elif override:
+                override.Conceder = conceder
+            else:
+                sessao.add(Tb_PermissaoUsuario(
+                    Codigo_Usuario=id_usuario,
+                    Id_Permissao=id_permissao,
+                    Conceder=conceder,
+                ))
+
+            sessao.commit()
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     @staticmethod
     def criarPermissao(chave: str, descricao: str, categoria: str) -> Tb_Permissao:
         """Cria uma nova permissão e persiste no banco."""
-        existente = Tb_Permissao.query.filter_by(
-            Id_Sistema=SISTEMA_ID,
-            Chave_Permissao=chave,
-        ).first()
-        if existente:
-            raise ValueError(f"Permissão '{chave}' já existe.")
+        sessao = _obterSessaoSqlServerObrigatoria()
+        try:
+            existente = sessao.query(Tb_Permissao).filter_by(
+                Id_Sistema=SISTEMA_ID,
+                Chave_Permissao=chave,
+            ).first()
+            if existente:
+                raise ValueError(f"Permissão '{chave}' já existe.")
 
-        nova = Tb_Permissao(
-            Id_Sistema=SISTEMA_ID,
-            Chave_Permissao=chave,
-            Descricao_Permissao=descricao,
-            Categoria_Permissao=categoria,
-        )
-        db.session.add(nova)
-        db.session.commit()
-        return nova
+            nova = Tb_Permissao(
+                Id_Sistema=SISTEMA_ID,
+                Chave_Permissao=chave,
+                Descricao_Permissao=descricao,
+                Categoria_Permissao=categoria,
+            )
+            sessao.add(nova)
+            sessao.commit()
+            return nova
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     @staticmethod
     def computarPermissoesSessao(id_usuario: int | None, id_grupo: int | None) -> dict[str, bool]:
@@ -551,14 +604,18 @@ class PermissaoService:
             return {chave: False for chave in ChavesPermissao.CACHE_SESSAO}
 
         try:
-            permissoes_sistema = Tb_Permissao.query.filter_by(Id_Sistema=SISTEMA_ID).all()
+            sessao = obterSessaoSqlServer()
+            if sessao is None:
+                return {chave: False for chave in ChavesPermissao.CACHE_SESSAO}
+
+            permissoes_sistema = sessao.query(Tb_Permissao).filter_by(Id_Sistema=SISTEMA_ID).all()
             ids_por_chave = {
                 _normalizar(permissao.Chave_Permissao): permissao.Id_Permissao
                 for permissao in permissoes_sistema
             }
             overrides_usuario = {
                 override.Id_Permissao: bool(override.Conceder)
-                for override in Tb_PermissaoUsuario.query.filter_by(
+                for override in sessao.query(Tb_PermissaoUsuario).filter_by(
                     Codigo_Usuario=id_usuario,
                 ).all()
             }
@@ -566,7 +623,7 @@ class PermissaoService:
             if id_grupo:
                 ids_permitidos_grupo = {
                     vinculo.Id_Permissao
-                    for vinculo in Tb_PermissaoGrupo.query.filter_by(
+                    for vinculo in sessao.query(Tb_PermissaoGrupo).filter_by(
                         Codigo_UsuarioGrupo=id_grupo,
                     ).all()
                 }
@@ -589,6 +646,9 @@ class PermissaoService:
                 exc,
             )
             return {chave: False for chave in ChavesPermissao.CACHE_SESSAO}
+        finally:
+            if 'sessao' in locals() and sessao is not None:
+                sessao.close()
 
 
 # ---------------------------------------------------------------------------

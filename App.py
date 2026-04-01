@@ -6,7 +6,6 @@ from typing import Optional
 from flask import Flask, g, request, Response, session
 from flask.cli import with_appcontext
 import click
-from sqlalchemy.pool import NullPool
 
 # Importacao do framework LuftCore
 from luftcore import LuftCorePackages, LuftUser
@@ -17,7 +16,11 @@ except ImportError:
     print("ERRO CRITICO: Nao foi possivel encontrar o arquivo Config.py")
     exit(1)
 
-from Db.Connections import db
+from Db.Connections import (
+    obterEnginePostgres,
+    obterEngineSqlServer,
+)
+from Models import BasePostgres, BaseSqlServer
 
 from flask_login import LoginManager
 
@@ -56,6 +59,66 @@ app = Flask(
 app.secret_key = cfg.FLASK_SECRET_KEY
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_COOKIE_PATH"] = cfg.BASE_PREFIX
+
+
+def _logarCaminhosDiagnosticoStartup() -> None:
+    """Registra um snapshot dos caminhos efetivamente resolvidos na inicializacao."""
+    caminhos = {
+        "DATA_ROOT": cfg.DATA_ROOT,
+        "MODULES_DIR": cfg.MODULES_DIR,
+        "GLOBAL_DATA_DIR": cfg.GLOBAL_DATA_DIR,
+        "IMAGES_DIR": cfg.IMAGES_DIR,
+        "VIDEOS_DIR": cfg.VIDEOS_DIR,
+        "DOWNLOADS_DIR": cfg.DOWNLOADS_DIR,
+        "DOCS_DOWNLOAD_DIR": cfg.DOCS_DOWNLOAD_DIR,
+        "VECTOR_DB_DIR": cfg.VECTOR_DB_DIR,
+        "CONFIG_FILE": cfg.CONFIG_FILE,
+        "PERMISSION_PATH": cfg.PERMISSION_PATH,
+        "ICONS_FILE": cfg.ICONS_FILE,
+        "DB_PATH": cfg.DB_PATH,
+    }
+
+    logger.info("[DIAG] Ambiente atual: %s", cfg.APP_ENV)
+    logger.info("[DIAG] Prefixo base: %s", cfg.BASE_PREFIX)
+    logger.info("[DIAG] USER_API_URL resolvida: %s", cfg.USER_API_URL)
+    logger.info("[DIAG] DATABASE_URL resolvida: %s", cfg.DATABASE_URL)
+    logger.info("[DIAG] SQLSERVER_URL resolvida: %s", cfg.SQLSERVER_URL or "(desabilitada)")
+
+    for nome, caminho in caminhos.items():
+        caminho_str = str(caminho)
+        existe = os.path.exists(caminho_str)
+        eh_diretorio = os.path.isdir(caminho_str)
+        logger.info(
+            "[DIAG] %s=%s | exists=%s | is_dir=%s",
+            nome,
+            caminho_str,
+            existe,
+            eh_diretorio,
+        )
+
+    static_icons = os.path.join(app.root_path, "static", "data", "icons.json")
+    logger.info(
+        "[DIAG] STATIC_ICONS=%s | exists=%s",
+        static_icons,
+        os.path.exists(static_icons),
+    )
+
+    try:
+        modulos_dir = str(cfg.MODULES_DIR)
+        if os.path.isdir(modulos_dir):
+            modulos = sorted(
+                [
+                    item
+                    for item in os.listdir(modulos_dir)
+                    if os.path.isdir(os.path.join(modulos_dir, item))
+                ]
+            )
+            logger.info("[DIAG] Modulos encontrados em MODULES_DIR: %s", len(modulos))
+            logger.info("[DIAG] Primeiros modulos: %s", modulos[:15])
+        else:
+            logger.warning("[DIAG] MODULES_DIR nao e diretorio valido: %s", modulos_dir)
+    except Exception as erro:
+        logger.warning("[DIAG] Falha ao listar MODULES_DIR: %s", erro)
 
 def ObterUsuarioSessao():
     """
@@ -217,6 +280,40 @@ def AntesDaRequisicao():
     caminho = ObterTemplateRota()
     FLASK_REQUEST_INPROGRESS.labels(cfg.APP_NAME, request.method, caminho).inc()
 
+    if request.method == "GET" and caminho.endswith("/modulo/"):
+        id_modulo = (request.args.get("modulo") or "").strip()
+        id_modulo_tecnico = (request.args.get("modulo_tecnico") or "").strip()
+        id_submodulo = (request.args.get("submodulo") or "").strip()
+
+        logger.info(
+            "[DIAG][MODULO] Request: modulo=%s | modulo_tecnico=%s | submodulo=%s",
+            id_modulo or "(vazio)",
+            id_modulo_tecnico or "(vazio)",
+            id_submodulo or "(vazio)",
+        )
+
+        identificador = id_modulo_tecnico or id_modulo
+        if identificador:
+            caminho_doc = os.path.join(str(cfg.DATA_DIR), identificador, "documentation.md")
+            caminho_tech = os.path.join(
+                str(cfg.DATA_DIR), identificador, "technical_documentation.md"
+            )
+            logger.info(
+                "[DIAG][MODULO] DATA_DIR=%s | exists=%s",
+                str(cfg.DATA_DIR),
+                os.path.isdir(str(cfg.DATA_DIR)),
+            )
+            logger.info(
+                "[DIAG][MODULO] DOC_PATH=%s | exists=%s",
+                caminho_doc,
+                os.path.exists(caminho_doc),
+            )
+            logger.info(
+                "[DIAG][MODULO] TECH_PATH=%s | exists=%s",
+                caminho_tech,
+                os.path.exists(caminho_tech),
+            )
+
 @app.after_request
 def AposRequisicao(respostaContexto: Response) -> Response:
     """
@@ -287,21 +384,10 @@ logger.info(
     cfg.DATABASE_URL.split("@")[-1],
 )
 
-_sqlalchemy_cfg: dict = {
-    "SQLALCHEMY_DATABASE_URI": cfg.DATABASE_URL,
-    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-    "SQLALCHEMY_ENGINE_OPTIONS": {
-        "poolclass": NullPool,
-        "pool_pre_ping": True,
-        "connect_args": {"options": "-c search_path=luftdocst"},
-    },
-}
-
 # SQL Server (permissões + usuários) — opcional; desativado se SS_* não configuradas
 if cfg.SQLSERVER_URL:
-    _sqlalchemy_cfg["SQLALCHEMY_BINDS"] = {"sqlserver": cfg.SQLSERVER_URL}
     logger.info(
-        "Bind SQL Server registrado -> %s",
+        "SQL Server registrado -> %s",
         cfg.SQLSERVER_URL.split("@")[-1].split("?")[0],
     )
 else:
@@ -310,16 +396,16 @@ else:
         "Permissões e busca de usuários no AD estarão indisponíveis."
     )
 
-app.config.update(_sqlalchemy_cfg)
-
-db.init_app(app)
+_logarCaminhosDiagnosticoStartup()
 
 # Cria as tabelas SQL Server (Tb_Permissao, Tb_PermissaoGrupo, etc.) se ainda não existirem.
 # Tabelas PostgreSQL já existentes são ignoradas (checkfirst=True por padrão).
 if cfg.SQLSERVER_URL:
     try:
         with app.app_context():
-            db.create_all()
+            engineSqlServer = obterEngineSqlServer()
+            if engineSqlServer is not None:
+                BaseSqlServer.metadata.create_all(bind=engineSqlServer)
         logger.info("Tabelas SQL Server verificadas/criadas com sucesso.")
     except Exception as _e_createall:
         logger.warning("Não foi possível criar tabelas SQL Server: %s", _e_createall)
@@ -350,10 +436,11 @@ def EncerrarSessaoBanco(excecao=None):
     Args:
         excecao (Exception, optional): Possivel excecao que causou o encerramento.
     """
-    try:
-        db.session.remove()
-    except Exception:
-        pass
+    del excecao
+    # As sessoes SQLAlchemy deste projeto sao fechadas nos proprios servicos
+    # (escopo por operacao). Fechamento global aqui invalida sessoes ativas
+    # de requisicoes paralelas e provoca erros intermitentes de conexao.
+    return None
 
 # ---------------------------------------
 # CLI: Operacoes de dev
@@ -365,7 +452,12 @@ def InicializarBancoDados():
     Comando CLI responsavel por inicializar as estruturas fisicas do banco de dados.
     """
     click.echo("Processando a inicializacao de tabelas no banco de dados...")
-    db.create_all()
+    BasePostgres.metadata.create_all(bind=obterEnginePostgres())
+
+    engineSqlServer = obterEngineSqlServer()
+    if engineSqlServer is not None:
+        BaseSqlServer.metadata.create_all(bind=engineSqlServer)
+
     click.echo("Operacao de banco de dados concluida com exito.")
 
 app.cli.add_command(InicializarBancoDados)

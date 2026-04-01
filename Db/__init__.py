@@ -1,3 +1,19 @@
-from Db.Connections import db, BIND_PG, BIND_SQL
+from Db.Connections import (
+	BasePostgres,
+	BaseSqlServer,
+	fecharSessoesAtivas,
+	obterEnginePostgres,
+	obterEngineSqlServer,
+	obterSessaoPostgres,
+	obterSessaoSqlServer,
+)
 
-__all__ = ["db", "BIND_PG", "BIND_SQL"]
+__all__ = [
+	"BasePostgres",
+	"BaseSqlServer",
+	"fecharSessoesAtivas",
+	"obterEnginePostgres",
+	"obterEngineSqlServer",
+	"obterSessaoPostgres",
+	"obterSessaoSqlServer",
+]

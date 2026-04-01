@@ -15,7 +15,8 @@ from flask import flash, jsonify, request, session, url_for
 from werkzeug.utils import secure_filename
 
 from Config import DATA_DIR, DATA_ROOT, DOCS_DOWNLOAD_DIR, ICONS_FILE, IMAGES_DIR, VIDEOS_DIR
-from Models import HistoricoEdicao, Modulo, PalavraChave, db
+from Db.Connections import obterSessaoPostgres
+from Models import HistoricoEdicao, Modulo, PalavraChave
 from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.data.UtilitariosModulo import CarregarModulos, ObterModuloPorId
 
@@ -45,18 +46,19 @@ class ServicoEditor:
 
         token = self._obterToken()
         if request.method == "POST":
-            identificador = request.form["id"].strip().lower().replace(" ", "-")
-
-            if Modulo.query.get(identificador):
-                flash(
-                    f"O ID de modulo '{identificador}' ja existe. Por favor, escolha outro.",
-                    "danger",
-                )
-                return self._respostaRedirecionamento(
-                    "Editor.criarModulo", token=token
-                )
-
+            sessao = obterSessaoPostgres()
             try:
+                identificador = request.form["id"].strip().lower().replace(" ", "-")
+
+                if sessao.get(Modulo, identificador):
+                    flash(
+                        f"O ID de modulo '{identificador}' ja existe. Por favor, escolha outro.",
+                        "danger",
+                    )
+                    return self._respostaRedirecionamento(
+                        "Editor.criarModulo", token=token
+                    )
+
                 agora = datetime.now().isoformat()
                 nome_usuario = session.get("user_name", "Anonimo")
 
@@ -86,7 +88,7 @@ class ServicoEditor:
                     if termo.strip()
                 ]
                 if relacionados_ids:
-                    novo_modulo.Relacionados = Modulo.query.filter(
+                    novo_modulo.Relacionados = sessao.query(Modulo).filter(
                         Modulo.Id.in_(relacionados_ids)
                     ).all()
 
@@ -99,8 +101,8 @@ class ServicoEditor:
                     )
                 )
 
-                db.session.add(novo_modulo)
-                db.session.commit()
+                sessao.add(novo_modulo)
+                sessao.commit()
 
                 caminho_modulo = os.path.join(DATA_DIR, identificador)
                 os.makedirs(caminho_modulo, exist_ok=True)
@@ -125,8 +127,10 @@ class ServicoEditor:
                     "Editor.exibirPainelEditor", token=token
                 )
             except Exception as erro:
-                db.session.rollback()
+                sessao.rollback()
                 flash(f"Erro ao criar o modulo: {erro}", "danger")
+            finally:
+                sessao.close()
 
         return self._respostaRenderizacao(
             "Editor/EDT_ModuleNew.html",
@@ -143,10 +147,16 @@ class ServicoEditor:
             )
 
         token = self._obterToken()
-        modulo = Modulo.query.get_or_404(modulo_id)
+        if ObterModuloPorId(modulo_id) is None:
+            return self._respostaErro(404, "Modulo nao encontrado.")
 
         if request.method == "POST":
+            sessao = obterSessaoPostgres()
             try:
+                modulo = self._obterModuloBanco(sessao, modulo_id)
+                if modulo is None:
+                    return self._respostaErro(404, "Modulo nao encontrado.")
+
                 modulo.Nome = request.form["nome"]
                 modulo.Descricao = request.form["descricao"]
                 modulo.Icone = request.form["icone"]
@@ -169,11 +179,11 @@ class ServicoEditor:
                     for termo in request.form["relacionados"].split(",")
                     if termo.strip()
                 }
-                modulo.Relacionados = Modulo.query.filter(
+                modulo.Relacionados = sessao.query(Modulo).filter(
                     Modulo.Id.in_(relacionados_ids)
                 ).all()
 
-                db.session.commit()
+                sessao.commit()
 
                 caminho_modulo = os.path.join(DATA_DIR, modulo_id)
                 os.makedirs(caminho_modulo, exist_ok=True)
@@ -194,8 +204,10 @@ class ServicoEditor:
                     "Editor.exibirPainelEditor", token=token
                 )
             except Exception as erro:
-                db.session.rollback()
+                sessao.rollback()
                 flash(f"Erro ao salvar o modulo: {erro}", "danger")
+            finally:
+                sessao.close()
 
         caminho_modulo = os.path.join(DATA_DIR, modulo_id)
         conteudo_documentacao = self._lerPrimeiroArquivoExistente(
@@ -223,11 +235,15 @@ class ServicoEditor:
             )
 
         token = self._obterToken()
-        modulo = Modulo.query.get_or_404(modulo_id)
+        sessao = obterSessaoPostgres()
 
         try:
-            db.session.delete(modulo)
-            db.session.commit()
+            modulo = self._obterModuloBanco(sessao, modulo_id)
+            if modulo is None:
+                return self._respostaErro(404, "Modulo nao encontrado.")
+
+            sessao.delete(modulo)
+            sessao.commit()
 
             caminho_modulo = os.path.join(DATA_DIR, modulo_id)
             if os.path.isdir(caminho_modulo):
@@ -238,8 +254,10 @@ class ServicoEditor:
 
             flash(f"Modulo {modulo_id} deletado com sucesso!", "success")
         except Exception as erro:
-            db.session.rollback()
+            sessao.rollback()
             flash(f"Erro ao deletar o modulo: {erro}", "danger")
+        finally:
+            sessao.close()
 
         return self._respostaRedirecionamento("Editor.exibirPainelEditor", token=token)
 
@@ -250,18 +268,22 @@ class ServicoEditor:
                 403, "Voce nao tem permissao para gerenciar pendencias."
             )
 
-        pendencias = [
-            {
-                "modulo": modulo,
-                "editor": modulo.UsuarioEdicaoPendente or "N/A",
-            }
-            for modulo in Modulo.query.filter_by(Status="pendente").all()
-        ]
-        return self._respostaRenderizacao(
-            "Editor/EDT_Pendings.html",
-            pendentes=pendencias,
-            token=self._obterToken(),
-        )
+        sessao = obterSessaoPostgres()
+        try:
+            pendencias = [
+                {
+                    "modulo": modulo,
+                    "editor": modulo.UsuarioEdicaoPendente or "N/A",
+                }
+                for modulo in sessao.query(Modulo).filter_by(Status="pendente").all()
+            ]
+            return self._respostaRenderizacao(
+                "Editor/EDT_Pendings.html",
+                pendentes=pendencias,
+                token=self._obterToken(),
+            )
+        finally:
+            sessao.close()
 
     def obterRespostaAprovacaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Aprova uma alteracao pendente de modulo."""
@@ -271,9 +293,13 @@ class ServicoEditor:
             )
 
         token = self._obterToken()
-        modulo = Modulo.query.get_or_404(modulo_id)
+        sessao = obterSessaoPostgres()
 
         try:
+            modulo = self._obterModuloBanco(sessao, modulo_id)
+            if modulo is None:
+                return self._respostaErro(404, "Modulo nao encontrado.")
+
             agora = datetime.now()
             nome_aprovador = session.get("user_name", "Anonimo")
             nome_editor = modulo.UsuarioEdicaoPendente or "Desconhecido"
@@ -337,14 +363,16 @@ class ServicoEditor:
                 )
             )
 
-            db.session.commit()
+            sessao.commit()
             flash(
                 f"Alteracoes no modulo '{modulo_id}' aprovadas com sucesso!",
                 "success",
             )
         except Exception as erro:
-            db.session.rollback()
+            sessao.rollback()
             flash(f"Erro ao aprovar o modulo: {erro}", "danger")
+        finally:
+            sessao.close()
 
         return self._respostaRedirecionamento("Editor.exibirPendencias", token=token)
 
@@ -356,9 +384,13 @@ class ServicoEditor:
             )
 
         token = self._obterToken()
-        modulo = Modulo.query.get_or_404(modulo_id)
+        sessao = obterSessaoPostgres()
 
         try:
+            modulo = self._obterModuloBanco(sessao, modulo_id)
+            if modulo is None:
+                return self._respostaErro(404, "Modulo nao encontrado.")
+
             nome_editor = modulo.UsuarioEdicaoPendente or "Desconhecido"
             caminho_pendente = os.path.join(DATA_DIR, modulo_id, "pending_documentation.md")
             caminho_tecnico_pendente = os.path.join(
@@ -381,14 +413,16 @@ class ServicoEditor:
                 )
             )
 
-            db.session.commit()
+            sessao.commit()
             flash(
                 f"Alteracao pendente para o modulo '{modulo_id}' foi rejeitada.",
                 "info",
             )
         except Exception as erro:
-            db.session.rollback()
+            sessao.rollback()
             flash(f"Erro ao rejeitar o modulo: {erro}", "danger")
+        finally:
+            sessao.close()
 
         return self._respostaRedirecionamento("Editor.exibirPendencias", token=token)
 
@@ -400,101 +434,112 @@ class ServicoEditor:
             )
 
         token = self._obterToken()
-        modulo = Modulo.query.get_or_404(modulo_id)
-        caminho_modulo = os.path.join(DATA_DIR, modulo_id)
-        diretorio_historico = os.path.join(caminho_modulo, "history")
-        os.makedirs(diretorio_historico, exist_ok=True)
+        sessao = obterSessaoPostgres()
+        try:
+            modulo = self._obterModuloBanco(sessao, modulo_id)
+            if modulo is None:
+                return self._respostaErro(404, "Modulo nao encontrado.")
 
-        if request.method == "POST":
-            try:
-                nome_arquivo_alvo = request.form.get("versao_filename")
-                tipo_arquivo = request.form.get("tipo")
-                nome_usuario = session.get("user_name", "Anonimo")
-                agora = datetime.now()
+            caminho_modulo = os.path.join(DATA_DIR, modulo_id)
+            diretorio_historico = os.path.join(caminho_modulo, "history")
+            os.makedirs(diretorio_historico, exist_ok=True)
 
-                nome_vigente = (
-                    "documentation.md"
-                    if tipo_arquivo == "doc"
-                    else "technical_documentation.md"
-                )
-                caminho_vigente = os.path.join(caminho_modulo, nome_vigente)
-                caminho_versao_antiga = os.path.join(
-                    diretorio_historico,
-                    secure_filename(nome_arquivo_alvo),
-                )
+            if request.method == "POST":
+                try:
+                    nome_arquivo_alvo = request.form.get("versao_filename")
+                    tipo_arquivo = request.form.get("tipo")
+                    nome_usuario = session.get("user_name", "Anonimo")
+                    agora = datetime.now()
 
-                if not os.path.exists(caminho_versao_antiga):
-                    flash("Arquivo da versao selecionada nao encontrado.", "danger")
-                    return self._respostaRedirecionamento(
-                        "Editor.exibirHistoricoModulo",
-                        mid=modulo_id,
-                        token=token,
+                    nome_vigente = (
+                        "documentation.md"
+                        if tipo_arquivo == "doc"
+                        else "technical_documentation.md"
+                    )
+                    caminho_vigente = os.path.join(caminho_modulo, nome_vigente)
+                    caminho_versao_antiga = os.path.join(
+                        diretorio_historico,
+                        secure_filename(nome_arquivo_alvo),
                     )
 
-                identificador_tipo = "doc" if tipo_arquivo == "doc" else "tech"
-                nome_backup = (
-                    f"v{modulo.VersaoAtual}_BKP-PRE-RESTORE_"
-                    f"{agora.strftime('%Y-%m-%dT%H-%M-%S')}_{identificador_tipo}.md"
-                )
-                caminho_backup = os.path.join(diretorio_historico, nome_backup)
+                    if not os.path.exists(caminho_versao_antiga):
+                        flash("Arquivo da versao selecionada nao encontrado.", "danger")
+                        return self._respostaRedirecionamento(
+                            "Editor.exibirHistoricoModulo",
+                            mid=modulo_id,
+                            token=token,
+                        )
 
-                if os.path.exists(caminho_vigente):
-                    shutil.copyfile(caminho_vigente, caminho_backup)
-
-                shutil.copyfile(caminho_versao_antiga, caminho_vigente)
-
-                versao_restaurada = "Regressao"
-                correspondencia = re.search(r"v(\d+\.\d+)", nome_arquivo_alvo or "")
-                if correspondencia:
-                    versao_restaurada = correspondencia.group(1)
-
-                modulo.HistoricoEdicoes.append(
-                    HistoricoEdicao(
-                        Evento="restaurado",
-                        Versao=f"{versao_restaurada} (Restaurado)",
-                        Editor=nome_usuario,
-                        RegistradoEm=agora.isoformat(),
-                        ArquivoBackupDocumentacao=nome_backup if tipo_arquivo == "doc" else None,
-                        ArquivoBackupDocumentacaoTecnica=nome_backup if tipo_arquivo == "tech" else None,
+                    identificador_tipo = "doc" if tipo_arquivo == "doc" else "tech"
+                    nome_backup = (
+                        f"v{modulo.VersaoAtual}_BKP-PRE-RESTORE_"
+                        f"{agora.strftime('%Y-%m-%dT%H-%M-%S')}_{identificador_tipo}.md"
                     )
-                )
-                modulo.AprovadoPor = f"{nome_usuario} (Rollback)"
-                modulo.AprovadoEm = agora.isoformat()
+                    caminho_backup = os.path.join(diretorio_historico, nome_backup)
 
-                db.session.commit()
-                flash(
-                    "Modulo restaurado para a versao selecionada. "
-                    "A versao anterior foi salva como backup.",
-                    "success",
-                )
-            except Exception as erro:
-                db.session.rollback()
-                flash(f"Erro ao restaurar versao: {erro}", "danger")
+                    if os.path.exists(caminho_vigente):
+                        shutil.copyfile(caminho_vigente, caminho_backup)
 
-            return self._respostaRedirecionamento(
-                "Editor.exibirHistoricoModulo", mid=modulo_id, token=token
+                    shutil.copyfile(caminho_versao_antiga, caminho_vigente)
+
+                    versao_restaurada = "Regressao"
+                    correspondencia = re.search(r"v(\d+\.\d+)", nome_arquivo_alvo or "")
+                    if correspondencia:
+                        versao_restaurada = correspondencia.group(1)
+
+                    modulo.HistoricoEdicoes.append(
+                        HistoricoEdicao(
+                            Evento="restaurado",
+                            Versao=f"{versao_restaurada} (Restaurado)",
+                            Editor=nome_usuario,
+                            RegistradoEm=agora.isoformat(),
+                            ArquivoBackupDocumentacao=nome_backup if tipo_arquivo == "doc" else None,
+                            ArquivoBackupDocumentacaoTecnica=nome_backup if tipo_arquivo == "tech" else None,
+                        )
+                    )
+                    modulo.AprovadoPor = f"{nome_usuario} (Rollback)"
+                    modulo.AprovadoEm = agora.isoformat()
+
+                    sessao.commit()
+                    flash(
+                        "Modulo restaurado para a versao selecionada. "
+                        "A versao anterior foi salva como backup.",
+                        "success",
+                    )
+                except Exception as erro:
+                    sessao.rollback()
+                    flash(f"Erro ao restaurar versao: {erro}", "danger")
+
+                return self._respostaRedirecionamento(
+                    "Editor.exibirHistoricoModulo", mid=modulo_id, token=token
+                )
+
+            historico_eventos = sorted(
+                modulo.HistoricoEdicoes,
+                key=lambda evento: evento.RegistradoEm,
+                reverse=True,
             )
-
-        historico_eventos = sorted(
-            modulo.HistoricoEdicoes,
-            key=lambda evento: evento.RegistradoEm,
-            reverse=True,
-        )
-        return self._respostaRenderizacao(
-            "Editor/HistoricalModule.html",
-            modulo=modulo,
-            historico_eventos=historico_eventos,
-            token=token,
-        )
+            return self._respostaRenderizacao(
+                "Editor/HistoricalModule.html",
+                modulo=modulo,
+                historico_eventos=historico_eventos,
+                token=token,
+            )
+        finally:
+            sessao.close()
 
     def obterRespostaOpcoesEditor(self) -> dict[str, Any]:
         """Retorna os dados auxiliares usados pelos formularios do editor."""
-        modulos = [
-            {"id": linha.Id, "nome": linha.Nome}
-            for linha in Modulo.query.with_entities(Modulo.Id, Modulo.Nome)
-            .order_by(Modulo.Nome)
-            .all()
-        ]
+        sessao = obterSessaoPostgres()
+        try:
+            modulos = [
+                {"id": linha.Id, "nome": linha.Nome}
+                for linha in sessao.query(Modulo.Id, Modulo.Nome)
+                .order_by(Modulo.Nome)
+                .all()
+            ]
+        finally:
+            sessao.close()
 
         try:
             with open(ICONS_FILE, "r", encoding="utf-8") as arquivo_icones:
@@ -834,7 +879,15 @@ class ServicoEditor:
 
     @staticmethod
     def _obterQuantidadePendencias() -> int:
-        return Modulo.query.filter_by(Status="pendente").count()
+        sessao = obterSessaoPostgres()
+        try:
+            return sessao.query(Modulo).filter_by(Status="pendente").count()
+        finally:
+            sessao.close()
+
+    @staticmethod
+    def _obterModuloBanco(sessao, modulo_id: str) -> Modulo | None:
+        return sessao.query(Modulo).filter_by(Id=modulo_id).first()
 
     @staticmethod
     def _carregarTemplateDocumentacao() -> str:

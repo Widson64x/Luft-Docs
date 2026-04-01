@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from flask import flash, session
 
-from Models import AvaliacaoDocumento, db
+from Db.Connections import obterSessaoPostgres
+from Models import AvaliacaoDocumento
 
 
 class ServicoAvaliacao:
@@ -13,6 +14,7 @@ class ServicoAvaliacao:
     ) -> dict[str, object]:
         """Processa a submissao do formulario e retorna o proximo passo da rota."""
         if formulario.validate_on_submit():
+            sessao = obterSessaoPostgres()
             try:
                 avaliacao = AvaliacaoDocumento(
                     DocumentoId=document_id,
@@ -22,8 +24,8 @@ class ServicoAvaliacao:
                     Trechos=formulario.techos.data,
                     MudancasSolicitadas=formulario.changes.data,
                 )
-                db.session.add(avaliacao)
-                db.session.commit()
+                sessao.add(avaliacao)
+                sessao.commit()
 
                 flash("Obrigado pela sua avaliacao!", "success")
                 return {
@@ -35,8 +37,10 @@ class ServicoAvaliacao:
                     },
                 }
             except Exception as erro:
-                db.session.rollback()
+                sessao.rollback()
                 flash(f"Erro ao enviar avaliacao: {erro}", "error")
+            finally:
+                sessao.close()
 
         return {
             "tipo": "renderizar",

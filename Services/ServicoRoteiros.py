@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from flask import session
 
-from Models import LogAuditoriaRoteiro, Modulo, Roteiro, db
+from Db.Connections import obterSessaoPostgres
+from Models import LogAuditoriaRoteiro, Modulo, Roteiro
 from Services.PermissaoService import PermissaoService
 
 
@@ -20,6 +21,7 @@ class ServicoRoteiros:
                 "Titulo e conteudo sao obrigatorios.", 400
             )
 
+        sessao = obterSessaoPostgres()
         novo_roteiro = Roteiro(
             Titulo=dados["titulo"],
             Tipo=dados.get("tipo", "link"),
@@ -28,26 +30,31 @@ class ServicoRoteiros:
             Ordem=dados.get("ordem", 0),
             Descricao=dados.get("descricao"),
         )
-        db.session.add(novo_roteiro)
-        db.session.add(
-            LogAuditoriaRoteiro(
-                Roteiro=novo_roteiro,
-                UsuarioId=session.get("user_id"),
-                NomeUsuario=session.get("user_name"),
-                Acao="CREATE",
+        try:
+            sessao.add(novo_roteiro)
+            sessao.add(
+                LogAuditoriaRoteiro(
+                    Roteiro=novo_roteiro,
+                    UsuarioId=session.get("user_id"),
+                    NomeUsuario=session.get("user_name"),
+                    Acao="CREATE",
+                )
             )
-        )
-
-        db.session.commit()
-        db.session.refresh(novo_roteiro)
-        return (
-            {
-                "status": "success",
-                "message": "Roteiro criado com sucesso!",
-                "roteiro": self.serializarRoteiro(novo_roteiro, incluir_modulos=True),
-            },
-            201,
-        )
+            sessao.commit()
+            sessao.refresh(novo_roteiro)
+            return (
+                {
+                    "status": "success",
+                    "message": "Roteiro criado com sucesso!",
+                    "roteiro": self.serializarRoteiro(novo_roteiro, incluir_modulos=True),
+                },
+                201,
+            )
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     def vincularRoteiroAModulo(
         self, dados: dict[str, object]
@@ -66,32 +73,43 @@ class ServicoRoteiros:
                 "ID do roteiro e lista de modulos sao obrigatorios.", 400
             )
 
-        roteiro = Roteiro.query.get(roteiro_id)
-        if roteiro is None:
-            return self._respostaErro("Roteiro nao encontrado.", 404)
+        sessao = obterSessaoPostgres()
+        try:
+            roteiro = sessao.get(Roteiro, roteiro_id)
+            if roteiro is None:
+                return self._respostaErro("Roteiro nao encontrado.", 404)
 
-        modulos = Modulo.query.filter(Modulo.Id.in_(modulo_ids)).all()
-        for modulo in modulos:
-            if modulo not in roteiro.Modulos:
-                roteiro.Modulos.append(modulo)
+            modulos = sessao.query(Modulo).filter(Modulo.Id.in_(modulo_ids)).all()
+            for modulo in modulos:
+                if modulo not in roteiro.Modulos:
+                    roteiro.Modulos.append(modulo)
 
-        db.session.commit()
-        db.session.refresh(roteiro)
-        return (
-            {
-                "status": "success",
-                "message": f'Roteiro "{roteiro.Titulo}" vinculado a {len(modulos)} modulo(s).',
-                "roteiro": self.serializarRoteiro(roteiro, incluir_modulos=True),
-            },
-            200,
-        )
+            sessao.commit()
+            sessao.refresh(roteiro)
+            return (
+                {
+                    "status": "success",
+                    "message": f'Roteiro "{roteiro.Titulo}" vinculado a {len(modulos)} modulo(s).',
+                    "roteiro": self.serializarRoteiro(roteiro, incluir_modulos=True),
+                },
+                200,
+            )
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     def obterRoteiro(self, roteiro_id: int) -> tuple[dict[str, object], int]:
         """Retorna um roteiro especifico para o frontend."""
-        roteiro = Roteiro.query.get(roteiro_id)
-        if roteiro is None:
-            return self._respostaErro("Roteiro nao encontrado.", 404)
-        return self.serializarRoteiro(roteiro, incluir_modulos=True), 200
+        sessao = obterSessaoPostgres()
+        try:
+            roteiro = sessao.get(Roteiro, roteiro_id)
+            if roteiro is None:
+                return self._respostaErro("Roteiro nao encontrado.", 404)
+            return self.serializarRoteiro(roteiro, incluir_modulos=True), 200
+        finally:
+            sessao.close()
 
     def atualizarRoteiro(
         self, roteiro_id: int, dados: dict[str, object]
@@ -101,36 +119,42 @@ class ServicoRoteiros:
         if resposta_permissao is not None:
             return resposta_permissao
 
-        roteiro = Roteiro.query.get(roteiro_id)
-        if roteiro is None:
-            return self._respostaErro("Roteiro nao encontrado.", 404)
+        sessao = obterSessaoPostgres()
+        try:
+            roteiro = sessao.get(Roteiro, roteiro_id)
+            if roteiro is None:
+                return self._respostaErro("Roteiro nao encontrado.", 404)
 
-        roteiro.Titulo = dados.get("titulo", roteiro.Titulo)
-        roteiro.Descricao = dados.get("descricao", roteiro.Descricao)
-        roteiro.Tipo = dados.get("tipo", roteiro.Tipo)
-        roteiro.Conteudo = dados.get("conteudo", roteiro.Conteudo)
-        roteiro.Icone = dados.get("icone", roteiro.Icone)
-        roteiro.Ordem = dados.get("ordem", roteiro.Ordem)
+            roteiro.Titulo = dados.get("titulo", roteiro.Titulo)
+            roteiro.Descricao = dados.get("descricao", roteiro.Descricao)
+            roteiro.Tipo = dados.get("tipo", roteiro.Tipo)
+            roteiro.Conteudo = dados.get("conteudo", roteiro.Conteudo)
+            roteiro.Icone = dados.get("icone", roteiro.Icone)
+            roteiro.Ordem = dados.get("ordem", roteiro.Ordem)
 
-        db.session.add(
-            LogAuditoriaRoteiro(
-                RoteiroId=roteiro.Id,
-                UsuarioId=session.get("user_id"),
-                NomeUsuario=session.get("user_name"),
-                Acao="UPDATE",
+            sessao.add(
+                LogAuditoriaRoteiro(
+                    RoteiroId=roteiro.Id,
+                    UsuarioId=session.get("user_id"),
+                    NomeUsuario=session.get("user_name"),
+                    Acao="UPDATE",
+                )
             )
-        )
-
-        db.session.commit()
-        db.session.refresh(roteiro)
-        return (
-            {
-                "status": "success",
-                "message": "Roteiro atualizado com sucesso!",
-                "roteiro": self.serializarRoteiro(roteiro, incluir_modulos=True),
-            },
-            200,
-        )
+            sessao.commit()
+            sessao.refresh(roteiro)
+            return (
+                {
+                    "status": "success",
+                    "message": "Roteiro atualizado com sucesso!",
+                    "roteiro": self.serializarRoteiro(roteiro, incluir_modulos=True),
+                },
+                200,
+            )
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     def excluirRoteiro(self, roteiro_id: int) -> tuple[dict[str, object], int]:
         """Exclui um roteiro e registra a auditoria da operacao."""
@@ -140,21 +164,28 @@ class ServicoRoteiros:
         if resposta_permissao is not None:
             return resposta_permissao
 
-        roteiro = Roteiro.query.get(roteiro_id)
-        if roteiro is None:
-            return self._respostaErro("Roteiro nao encontrado.", 404)
+        sessao = obterSessaoPostgres()
+        try:
+            roteiro = sessao.get(Roteiro, roteiro_id)
+            if roteiro is None:
+                return self._respostaErro("Roteiro nao encontrado.", 404)
 
-        db.session.add(
-            LogAuditoriaRoteiro(
-                RoteiroId=roteiro.Id,
-                UsuarioId=session.get("user_id"),
-                NomeUsuario=session.get("user_name"),
-                Acao="DELETE",
+            sessao.add(
+                LogAuditoriaRoteiro(
+                    RoteiroId=roteiro.Id,
+                    UsuarioId=session.get("user_id"),
+                    NomeUsuario=session.get("user_name"),
+                    Acao="DELETE",
+                )
             )
-        )
-        db.session.delete(roteiro)
-        db.session.commit()
-        return {"status": "success", "message": "Roteiro excluido com sucesso!"}, 200
+            sessao.delete(roteiro)
+            sessao.commit()
+            return {"status": "success", "message": "Roteiro excluido com sucesso!"}, 200
+        except Exception:
+            sessao.rollback()
+            raise
+        finally:
+            sessao.close()
 
     def serializarRoteiro(
         self, roteiro: Roteiro, incluir_modulos: bool = False

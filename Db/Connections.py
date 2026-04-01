@@ -1,46 +1,90 @@
-"""
-Gerenciamento de conexões de banco de dados do LuftDocs.
+from __future__ import annotations
 
-Dois bancos são suportados via SQLALCHEMY_BINDS:
+from functools import lru_cache
 
-  BIND_PG  (None / padrão)  → PostgreSQL
-      Todas as tabelas de conteúdo do LuftDocs:
-      módulos, submódulos, roteiros, logs de busca, feedback, etc.
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.pool import NullPool
 
-  BIND_SQL  ("sqlserver")    → SQL Server
-      Tabelas do sistema intec.dbo.*:
-        - Tb_Permissao, Tb_PermissaoGrupo, Tb_PermissaoUsuario, Tb_LogAcesso
-        - usuario, usuariogrupo  (lookup de auth)
+from Config import ConfiguracaoAtual
 
-Uso nos Models:
 
-    from Db.Connections import db, BIND_SQL, BIND_PG
+BasePostgres = declarative_base()
+BaseSqlServer = declarative_base()
 
-    class MinhaTabela(db.Model):
-        __bind_key__ = BIND_SQL   # → roteado para o SQL Server
-        ...
 
-    class OutraTabela(db.Model):
-        # sem __bind_key__  → roteado para o PostgreSQL (default)
-        ...
+@lru_cache(maxsize=1)
+def obterEnginePostgres() -> Engine:
+    opcoesEngine: dict[str, object] = {
+        "pool_pre_ping": True,
+        "echo": ConfiguracaoAtual.mostrarLogsDb,
+        "future": True,
+    }
 
-Inicialização no App:
+    schemaPostgres = (ConfiguracaoAtual.schemaPostgres or "").strip()
+    if schemaPostgres:
+        opcoesEngine["connect_args"] = {"options": f"-c search_path={schemaPostgres}"}
 
-    from Db.Connections import db
-    app.config["SQLALCHEMY_DATABASE_URI"]  = cfg.DATABASE_URL     # PostgreSQL
-    app.config["SQLALCHEMY_BINDS"]         = {"sqlserver": cfg.SQLSERVER_URL}
-    db.init_app(app)
-"""
-from flask_sqlalchemy import SQLAlchemy
+    return create_engine(
+        ConfiguracaoAtual.obterUrlPostgres(),
+        **opcoesEngine,
+        poolclass=NullPool,
+    )
 
-# -----------------------------------------------------------------------
-# Instância única — o Flask-SQLAlchemy roteia para o banco correto
-# automaticamente com base em __bind_key__ definido no modelo.
-# -----------------------------------------------------------------------
-db = SQLAlchemy()
 
-# Nome do bind para o SQL Server
-BIND_SQL: str = "sqlserver"
+@lru_cache(maxsize=1)
+def obterEngineSqlServer() -> Engine | None:
+    urlBanco = ConfiguracaoAtual.obterUrlSqlServer()
+    if not urlBanco:
+        return None
 
-# Nome do bind para o PostgreSQL (None = SQLALCHEMY_DATABASE_URI padrão)
-BIND_PG = None
+    return create_engine(
+        urlBanco,
+        poolclass=NullPool,
+        echo=ConfiguracaoAtual.mostrarLogsDb,
+        future=True,
+    )
+
+
+@lru_cache(maxsize=1)
+def obterFabricaSessaoPostgres() -> sessionmaker[Session]:
+    return sessionmaker(
+        bind=obterEnginePostgres(),
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+
+
+@lru_cache(maxsize=1)
+def obterFabricaSessaoSqlServer() -> sessionmaker[Session] | None:
+    engineSqlServer = obterEngineSqlServer()
+    if engineSqlServer is None:
+        return None
+
+    return sessionmaker(
+        bind=engineSqlServer,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
+
+
+def obterSessaoPostgres() -> Session:
+    return obterFabricaSessaoPostgres()()
+
+
+def obterSessaoSqlServer() -> Session | None:
+    fabricaSessao = obterFabricaSessaoSqlServer()
+    if fabricaSessao is None:
+        return None
+    return fabricaSessao()
+
+
+def fecharSessoesAtivas() -> None:
+    # Nao executar fechamento global de sessoes: isso invalida sessoes ativas
+    # de outras requisicoes concorrentes e pode causar "This Connection is closed".
+    return None
