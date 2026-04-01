@@ -52,8 +52,8 @@ logger.info(f"Logging inicializado. Nivel configurado: {cfg.LOG_LEVEL}")
 # ================================ APP =================================
 app = Flask(
     __name__,
-    static_folder="static",
-    static_url_path=f"{cfg.BASE_PREFIX}/static"
+    static_folder="Static"
+    #static_url_path=f"{cfg.BASE_PREFIX}/static"
 )
 
 app.secret_key = cfg.FLASK_SECRET_KEY
@@ -465,8 +465,6 @@ app.cli.add_command(InicializarBancoDados)
 # ---------------------------------------
 # Blueprints 
 # ---------------------------------------
-app.context_processor(injetarPermissoesGlobais)
-
 def AjustarPrefixoRota(sufixoRota: str) -> str:
     """
     Realiza a composicao segura entre o prefixo base e a rota pretendida,
@@ -482,20 +480,22 @@ def AjustarPrefixoRota(sufixoRota: str) -> str:
         sufixoRota = "/" + sufixoRota
     return (cfg.BASE_PREFIX + sufixoRota).replace("//", "/")
 
-app.register_blueprint(Auth_BP,         url_prefix=AjustarPrefixoRota("/auth"))
-app.register_blueprint(Inicio_BP,       url_prefix=AjustarPrefixoRota("/"))
-app.register_blueprint(Modulo_BP,       url_prefix=AjustarPrefixoRota("/modulo"))
-app.register_blueprint(Submodulo_BP,    url_prefix=AjustarPrefixoRota("/submodulo"))
-app.register_blueprint(Arquivos_BP,     url_prefix=AjustarPrefixoRota("/arquivos"))
-app.register_blueprint(Editor_BP,       url_prefix=AjustarPrefixoRota("/editor"))
-app.register_blueprint(Permissoes_BP,   url_prefix=AjustarPrefixoRota("/permissoes"))
-app.register_blueprint(Busca_BP,        url_prefix=AjustarPrefixoRota("/buscar"))
-app.register_blueprint(Api_BP,          url_prefix=AjustarPrefixoRota("/api"))
-app.register_blueprint(Lia_BP,          url_prefix=AjustarPrefixoRota("/lia"))
-app.register_blueprint(Avaliacao_BP,    url_prefix=AjustarPrefixoRota("/avaliacao"))
+app.context_processor(injetarPermissoesGlobais)
 
-@app.route(AjustarPrefixoRota("/metrics"))
-def ObterMetricas():
+app.register_blueprint(Auth_BP,         url_prefix="/auth")
+app.register_blueprint(Inicio_BP,       url_prefix="/")
+app.register_blueprint(Modulo_BP,       url_prefix="/modulo")
+app.register_blueprint(Submodulo_BP,    url_prefix="/submodulo")
+app.register_blueprint(Arquivos_BP,     url_prefix="/arquivos")
+app.register_blueprint(Editor_BP,       url_prefix="/editor")
+app.register_blueprint(Permissoes_BP,   url_prefix="/permissoes")
+app.register_blueprint(Busca_BP,        url_prefix="/buscar")
+app.register_blueprint(Api_BP,          url_prefix="/api")
+app.register_blueprint(Lia_BP,          url_prefix="/lia")
+app.register_blueprint(Avaliacao_BP,    url_prefix="/avaliacao")
+
+@app.route("/metrics")
+def obterMetricas():
     """
     Disponibiliza os dados formatados das metricas para coleta via Prometheus.
 
@@ -505,11 +505,14 @@ def ObterMetricas():
     return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 @app.route("/.well-known/appspecific/com.chrome.devtools.json")
-def IgnorarChromeDevTools():
+def ignorarChromeDevTools():
+    """
+    Ignora requisicoes padrao do Chrome DevTools para evitar logs irrelevantes.
+    """
     return "", 204
 
-@app.route(AjustarPrefixoRota("/healthz"))
-def VerificarSaude():
+@app.route("/healthz")
+def verificarSaude():
     """
     Endpoint para validacao do status operacional basico do servico.
 
