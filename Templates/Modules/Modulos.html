@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block title %}{{ modulo.Nome }} - LuftDocs{% endblock %}
 
 {% block content %}
@@ -118,7 +118,7 @@
             <h3>
                 <i class="bi bi-journal-richtext"></i> Roteiros
             </h3>
-            {% if can_edit_scripts %}
+            {% if tem_permissao('DOCS.ROTEIROS.EDITAR') %}
             <button class="btn btn-outline" id="btn-criar-roteiro" data-bs-toggle="tooltip" title="Criar novo Roteiro">
                 <i class="bi bi-plus-lg"></i> Criar
             </button>
@@ -131,7 +131,7 @@
         <script type="application/json" id="roteiros-data">
             {
                 "roteiros": {{ roteiros_data | tojson | safe }},
-                "can_edit": {{ can_edit_scripts | tojson | safe }}
+                "podeEditar": {{ tem_permissao('DOCS.ROTEIROS.EDITAR') | tojson | safe }}
             }
         </script>
     </aside>

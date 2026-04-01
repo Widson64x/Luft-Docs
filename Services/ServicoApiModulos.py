@@ -3,10 +3,13 @@ from __future__ import annotations
 import math
 import time
 
-from flask import session
-
-from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
-from Utils.data.UtilitariosModulo import CarregarMarkdown, CarregarModulosAprovados
+from Services.PermissaoService import ChavesPermissao, PermissaoService
+from Utils.data.UtilitariosModulo import (
+    CarregarMarkdown,
+    CarregarModulosAprovados,
+    FiltrarModulosRestritos,
+    ModuloPossuiDocumentacaoTecnica,
+)
 
 
 class ServicoApiModulos:
@@ -18,20 +21,21 @@ class ServicoApiModulos:
         self, consulta: str, pagina: int, token: str | None
     ) -> dict[str, object]:
         """Retorna o payload JSON da API de modulos da pagina inicial."""
-        permissao_usuario = session.get("permissions", {})
-        pode_ver_restritos = permissao_usuario.get(
-            "can_see_restricted_module",
-            False,
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
         )
-        pode_ver_tecnico = permissao_usuario.get("can_view_tecnico", False)
-        pode_criar_modulos = permissao_usuario.get("can_create_modules", False)
+        pode_ver_tecnico = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
+        )
+        pode_criar_modulos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.CRIAR_MODULOS
+        )
 
         modulos_aprovados, _ = CarregarModulosAprovados()
-        modulos_visiveis = []
-        for modulo in modulos_aprovados:
-            if modulo.get("id") in MODULOS_RESTRITOS and not pode_ver_restritos:
-                continue
-            modulos_visiveis.append(modulo)
+        modulos_visiveis = FiltrarModulosRestritos(
+            modulos_aprovados,
+            pode_ver_restritos,
+        )
 
         if consulta:
             cards_filtrados = [
@@ -48,7 +52,8 @@ class ServicoApiModulos:
             conteudo_markdown = CarregarMarkdown(modulo["id"])
             modulo["has_content"] = bool(conteudo_markdown and conteudo_markdown.strip())
             modulo["show_tecnico_button"] = (
-                modulo["id"] in MODULOS_TECNICOS_VISIVEIS or pode_ver_tecnico
+                pode_ver_tecnico
+                and ModuloPossuiDocumentacaoTecnica(modulo["id"])
             )
             cards.append(modulo)
 
@@ -70,18 +75,13 @@ class ServicoApiModulos:
 
     def obterRespostaArvoreModulos(self) -> dict[str, object]:
         """Retorna uma lista enxuta de modulos visiveis para a sidebar."""
-        permissao_usuario = session.get("permissions", {})
-        pode_ver_restritos = permissao_usuario.get(
-            "can_see_restricted_module",
-            False,
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
         )
 
         modulos_aprovados, _ = CarregarModulosAprovados()
         modulos_visiveis = []
-        for modulo in modulos_aprovados:
-            if modulo.get("id") in MODULOS_RESTRITOS and not pode_ver_restritos:
-                continue
-
+        for modulo in FiltrarModulosRestritos(modulos_aprovados, pode_ver_restritos):
             modulos_visiveis.append(
                 {
                     "id": modulo["id"],

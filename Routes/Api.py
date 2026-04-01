@@ -1,94 +1,149 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
+from flask_login import login_required
+from luftcore.extensions.flask_extension import api_error, require_ajax
 
+from Services.PermissaoService import ChavesPermissao, RequerPermissao
 from Services.ServicoApiModulos import ServicoApiModulos
 from Services.ServicoBusca import ServicoBusca
 from Services.ServicoRoteiros import ServicoRoteiros
-from Utils.auth.Autenticacao import LoginObrigatorio
 
 Api_BP = Blueprint('Api', __name__)
 servicoApiModulos = ServicoApiModulos()
 servicoBusca = ServicoBusca()
 servicoRoteiros = ServicoRoteiros()
 
+
+def _responder_json(callback, mensagem_erro: str):
+    try:
+        retorno = callback()
+        if isinstance(retorno, tuple):
+            payload, codigo = retorno
+            return jsonify(payload), codigo
+        return jsonify(retorno)
+    except Exception as exc:
+        current_app.logger.exception("[Api] %s: %s", mensagem_erro, exc)
+        return api_error("Falha interna ao processar a requisição.", status=500)
+
 @Api_BP.route('/obter-lista-modulos', methods=['GET'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
+@require_ajax
 def listarModulos():
     """
     Endpoint da API para buscar e paginar módulos.
     Aceita os parâmetros de query: ?search=... & page=...
     """
-    return jsonify(
-        servicoApiModulos.obterRespostaListaModulos(
+    return _responder_json(
+        lambda: servicoApiModulos.obterRespostaListaModulos(
             consulta=request.args.get('search', '').lower().strip(),
             pagina=request.args.get('page', 1, type=int),
             token=request.args.get('token'),
-        )
+        ),
+        'Erro ao listar módulos da página inicial',
     )
 
 
 @Api_BP.route('/arvore-modulos', methods=['GET'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
+@require_ajax
 def listarArvoreModulos():
-    return jsonify(servicoApiModulos.obterRespostaArvoreModulos())
+    return _responder_json(
+        servicoApiModulos.obterRespostaArvoreModulos,
+        'Erro ao listar árvore de módulos',
+    )
 
 
 @Api_BP.get('/buscar')
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
+@require_ajax
 def buscarNaApi():
-    return jsonify(
-        servicoBusca.obterResultadosBuscaApi(
+    return _responder_json(
+        lambda: servicoBusca.obterResultadosBuscaApi(
             consulta=request.args.get('q', '').strip(),
             filtro_modulo=request.args.get('module', '').strip(),
             token=request.args.get('token', '').strip(),
-        )
+        ),
+        'Erro ao executar busca na API',
     )
 
 
 @Api_BP.route('/listar-recomendacoes')
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
+@require_ajax
 def listarRecomendacoes():
-    return jsonify(servicoBusca.obterRecomendacoes(request.args.get('token', '')))
+    return _responder_json(
+        lambda: servicoBusca.obterRecomendacoes(request.args.get('token', '')),
+        'Erro ao listar recomendações',
+    )
 
 
 @Api_BP.route('/listar-autocomplete')
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
+@require_ajax
 def listarAutocomplete():
-    return jsonify(servicoBusca.obterAutocomplete(request.args.get('q', '')))
+    return _responder_json(
+        lambda: servicoBusca.obterAutocomplete(request.args.get('q', '')),
+        'Erro ao listar autocomplete',
+    )
 
 
 @Api_BP.route('/roteiros', methods=['POST'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.EDITAR_ROTEIROS)
+@login_required
+@require_ajax
 def criarRoteiro():
-    resposta, codigo = servicoRoteiros.criarRoteiro(request.get_json() or {})
-    return jsonify(resposta), codigo
+    return _responder_json(
+        lambda: servicoRoteiros.criarRoteiro(request.get_json() or {}),
+        'Erro ao criar roteiro',
+    )
 
 
 @Api_BP.route('/roteiros/vincular', methods=['POST'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.EDITAR_ROTEIROS)
+@login_required
+@require_ajax
 def vincularRoteiroAModulo():
-    resposta, codigo = servicoRoteiros.vincularRoteiroAModulo(request.get_json() or {})
-    return jsonify(resposta), codigo
+    return _responder_json(
+        lambda: servicoRoteiros.vincularRoteiroAModulo(request.get_json() or {}),
+        'Erro ao vincular roteiro a módulo',
+    )
 
 
 @Api_BP.route('/roteiros/<int:roteiro_id>', methods=['GET'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.EDITAR_ROTEIROS)
+@login_required
+@require_ajax
 def obterRoteiro(roteiro_id):
-    resposta, codigo = servicoRoteiros.obterRoteiro(roteiro_id)
-    return jsonify(resposta), codigo
+    return _responder_json(
+        lambda: servicoRoteiros.obterRoteiro(roteiro_id),
+        'Erro ao obter roteiro',
+    )
 
 
 @Api_BP.route('/roteiros/<int:roteiro_id>', methods=['PUT'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.EDITAR_ROTEIROS)
+@login_required
+@require_ajax
 def atualizarRoteiro(roteiro_id):
-    resposta, codigo = servicoRoteiros.atualizarRoteiro(
-        roteiro_id,
-        request.get_json() or {},
+    return _responder_json(
+        lambda: servicoRoteiros.atualizarRoteiro(
+            roteiro_id,
+            request.get_json() or {},
+        ),
+        'Erro ao atualizar roteiro',
     )
-    return jsonify(resposta), codigo
 
 
 @Api_BP.route('/roteiros/<int:roteiro_id>', methods=['DELETE'])
-@LoginObrigatorio
+@RequerPermissao(ChavesPermissao.EDITAR_ROTEIROS)
+@login_required
+@require_ajax
 def excluirRoteiro(roteiro_id):
-    resposta, codigo = servicoRoteiros.excluirRoteiro(roteiro_id)
-    return jsonify(resposta), codigo
+    return _responder_json(
+        lambda: servicoRoteiros.excluirRoteiro(roteiro_id),
+        'Erro ao excluir roteiro',
+    )

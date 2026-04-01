@@ -343,7 +343,10 @@ class ChatLia {
             
             const respostaServidor = await fetch(this.urlsApi.perguntar, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({
                     user_question: solicitacaoUsuario,
                     selected_model: modeloSeleccionado
@@ -546,7 +549,9 @@ class ChatLia {
     async buscarModulos() {
         if (this.cacheModulos.length > 0) return this.cacheModulos;
         try {
-            const resposta = await fetch(this.urlsApi.obterListaModulos);
+            const resposta = await fetch(this.urlsApi.obterListaModulos, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
             if (!resposta.ok) return [];
             const dadosProcessados = await resposta.json();
             this.cacheModulos = dadosProcessados.modules || [];
@@ -672,7 +677,10 @@ class ChatLia {
         try {
             const resposta = await fetch(this.urlsApi.registrarFeedback, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({
                     response_id: idResposta, rating: notaAvaliacao, comment: comentarioAdicional,
                     user_question: perguntaUsuario, model_used: modeloUtilizado, context_sources: fontesContexto

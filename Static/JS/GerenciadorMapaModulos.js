@@ -43,7 +43,7 @@ class GerenciadorMapaModulos {
             
             const scriptPermissoes = document.getElementById('dados-permissoes').textContent;
             const permissoes = JSON.parse(scriptPermissoes);
-            this.podeAcessarTecnico = permissoes.can_view_tecnico;
+            this.podeAcessarTecnico = permissoes.podeVisualizarTecnico;
 
             this.nosVisitados = JSON.parse(localStorage.getItem('visitedNodes')) || [];
         } catch (erro) {

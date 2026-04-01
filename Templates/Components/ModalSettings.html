@@ -12,7 +12,7 @@
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-visuais">Visuais</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link dev-feature" data-bs-toggle="tab" data-bs-target="#tab-operacoes">Operações</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-operacoes">Operações</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reportar">Reportar Problema</button>
@@ -80,8 +80,33 @@
         </div>
 
         <div class="tab-pane fade" id="tab-operacoes" role="tabpanel">
-            <div class="mt-4">
-                {{ ui.empty_state(titulo="Em Desenvolvimento", subtitulo="As ferramentas de operação avançada do sistema estarão disponíveis em breve.", icone="ph-code") }}
+            {% set token_configuracoes = request.args.get('token') or session.get('token', '') %}
+            {% set pode_acessar_permissoes = tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+
+            <div class="mt-4 d-flex flex-column gap-4">
+                {% if pode_acessar_permissoes %}
+                    <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 1rem !important; background-color: var(--luft-bg-app) !important; border: 1px solid var(--luft-border) !important; padding: 1.25rem !important; border-radius: 0.75rem !important; width: 100% !important; flex-wrap: wrap !important;">
+                        <div style="flex-grow: 1 !important; min-width: 240px !important;">
+                            <h4 style="color: var(--luft-text-main) !important; font-family: inherit !important; font-weight: 700 !important; font-size: 1.05rem !important; margin: 0 !important; opacity: 1 !important; -webkit-text-fill-color: var(--luft-text-main) !important;">
+                                Gerenciar Permissões
+                            </h4>
+                            <p style="color: var(--luft-text-main) !important; font-family: inherit !important; font-size: 0.85rem !important; margin: 0.35rem 0 0 0 !important; opacity: 0.9 !important; -webkit-text-fill-color: var(--luft-text-main) !important; line-height: 1.4 !important;">
+                                Abra a central para criar permissões e vincular usuários ou grupos ao LuftDocs.
+                            </p>
+                        </div>
+
+                        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=token_configuracoes) }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="ph-bold ph-shield-check"></i>
+                            Abrir permissões
+                        </a>
+                    </div>
+
+                    <div>
+                        {{ ui.empty_state(titulo="Mais ferramentas em breve", subtitulo="Novas ações operacionais serão adicionadas aqui conforme forem disponibilizadas.", icone="ph-code") }}
+                    </div>
+                {% else %}
+                    {{ ui.empty_state(titulo="Sem acesso disponível", subtitulo="A central de permissões só fica disponível para usuários com acesso à segurança do sistema.", icone="ph-lock") }}
+                {% endif %}
             </div>
         </div>
 

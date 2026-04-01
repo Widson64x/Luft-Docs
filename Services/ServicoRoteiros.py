@@ -3,6 +3,7 @@ from __future__ import annotations
 from flask import session
 
 from Models import LogAuditoriaRoteiro, Modulo, Roteiro, db
+from Services.PermissaoService import PermissaoService
 
 
 class ServicoRoteiros:
@@ -167,7 +168,7 @@ class ServicoRoteiros:
     def _validarPermissaoEdicao(
         self, mensagem: str = "Acesso negado."
     ) -> tuple[dict[str, object], int] | None:
-        if not session.get("permissions", {}).get("can_edit_scripts", False):
+        if not PermissaoService.usuarioPossuiPermissao("DOCS.ROTEIROS.EDITAR"):
             return self._respostaErro(mensagem, 403)
         return None
 

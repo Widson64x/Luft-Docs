@@ -44,7 +44,12 @@
       const u = new URL(urlBase, location.origin);
       if (token) params.token = token;
       Object.entries(params).forEach(([k, v]) => v != null && u.searchParams.set(k, v));
-      return fetch(u.toString(), { headers: { Accept: 'application/json' } }).then(r => r.json());
+      return fetch(u.toString(), {
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      }).then(r => r.json());
     }
 
     function escapeHtml(s) {

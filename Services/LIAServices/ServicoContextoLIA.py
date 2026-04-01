@@ -5,6 +5,8 @@ import re
 
 import google.generativeai as genai
 
+from Services.PermissaoService import ChavesPermissao
+
 from .ConfiguracaoLLM import ConfiguracaoLLM
 
 
@@ -104,12 +106,15 @@ Retorne apenas as 3 variacoes, uma por linha. Nao adicione cabecalhos ou texto e
         documentos_finais, metadados_finais = self._filtrarContextoPorPermissao(
             documentos_iniciais,
             metadados_iniciais,
-            permissoes_usuario.get("can_view_tecnico", False),
+            permissoes_usuario.get(ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS, False),
         )
         foi_bloqueado_por_permissao = bool(
             documentos_iniciais
             and not documentos_finais
-            and not permissoes_usuario.get("can_view_tecnico", False)
+            and not permissoes_usuario.get(
+                ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS,
+                False,
+            )
         )
         return documentos_finais, metadados_finais, foi_bloqueado_por_permissao
 

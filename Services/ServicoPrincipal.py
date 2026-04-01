@@ -2,33 +2,25 @@ from __future__ import annotations
 
 from typing import Any
 
-from flask import current_app, session
+from flask import current_app
 
 from Models import ReporteBug, db
-from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS, MODULOS_TECNICOS_VISIVEIS
+from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.auth.Autenticacao import AutenticarRequisicaoInicial, EncerrarSessaoUsuario
-from Utils.data.UtilitariosModulo import CarregarModulosAprovados
+from Utils.data.UtilitariosModulo import (
+    CarregarModulosAprovados,
+    FiltrarModulosRestritos,
+    ModuloPossuiDocumentacaoTecnica,
+)
 
 
 class ServicoPrincipal:
     """Centraliza a regra de negocio das rotas principais da aplicacao."""
 
     def obterPermissoesGlobais(self) -> dict[str, bool]:
-        """Retorna as permissoes globais utilizadas pelos templates base."""
-        permissoes_usuario = session.get("permissions", {})
+        """Expõe helpers globais de autorização para os templates Jinja."""
         return {
-            "can_view_tecnico": permissoes_usuario.get("can_view_tecnico", False),
-            "can_view_tools_in_development": permissoes_usuario.get(
-                "can_view_tools_in_development", False
-            ),
-            "can_access_editor": permissoes_usuario.get("can_access_editor", False),
-            "can_access_permissions_menu": permissoes_usuario.get(
-                "can_access_permissions_menu", False
-            ),
-            "can_create_modules": permissoes_usuario.get("can_create_modules", False),
-            "can_see_restricted_module": permissoes_usuario.get(
-                "can_see_restricted_module", False
-            ),
+            "tem_permissao": PermissaoService.usuarioPossuiPermissao,
         }
 
     def autenticarRequisicaoInicial(self) -> Any:
@@ -37,35 +29,24 @@ class ServicoPrincipal:
 
     def obterContextoPaginaInicial(self) -> dict[str, Any]:
         """Monta o contexto minimo necessario para a pagina inicial."""
-        permissoes_usuario = session.get("permissions", {})
         return {
-            "can_access_editor": permissoes_usuario.get("can_access_editor", False),
-            "can_access_permissions_menu": permissoes_usuario.get(
-                "can_access_permissions_menu", False
-            ),
-            "can_create_modules": permissoes_usuario.get("can_create_modules", False),
-            "can_view_tools_in_development": permissoes_usuario.get(
-                "can_view_tools_in_development", False
-            ),
             "menus": [],
         }
 
     def obterContextoMapaConhecimento(self) -> dict[str, Any]:
         """Monta os dados exibidos no mapa de conhecimento."""
-        permissoes_usuario = session.get("permissions", {})
-        pode_ver_tecnico = permissoes_usuario.get("can_view_tecnico", False)
-        pode_acessar_editor = permissoes_usuario.get("can_access_editor", False)
-        pode_acessar_menu_permissoes = permissoes_usuario.get(
-            "can_access_permissions_menu", False
+        pode_ver_tecnico = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
         )
-        pode_ver_restritos = permissoes_usuario.get("can_see_restricted_module", False)
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
+        )
 
         modulos_aprovados, _ = CarregarModulosAprovados()
-        modulos_visiveis = []
-        for modulo in modulos_aprovados:
-            if modulo.get("id") in MODULOS_RESTRITOS and not pode_ver_restritos:
-                continue
-            modulos_visiveis.append(modulo)
+        modulos_visiveis = FiltrarModulosRestritos(
+            modulos_aprovados,
+            pode_ver_restritos,
+        )
 
         identificadores_visiveis = {modulo["id"] for modulo in modulos_visiveis}
         for modulo in modulos_visiveis:
@@ -76,14 +57,12 @@ class ServicoPrincipal:
                 if identificador in identificadores_visiveis
             ]
             modulo["show_tecnico_button"] = (
-                modulo["id"] in MODULOS_TECNICOS_VISIVEIS or pode_ver_tecnico
+                pode_ver_tecnico
+                and ModuloPossuiDocumentacaoTecnica(modulo["id"])
             )
 
         return {
             "modulos": modulos_visiveis,
-            "can_access_editor": pode_acessar_editor,
-            "can_access_permissions_menu": pode_acessar_menu_permissoes,
-            "can_view_tecnico": pode_ver_tecnico,
         }
 
     def registrarReporte(

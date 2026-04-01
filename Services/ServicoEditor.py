@@ -16,6 +16,7 @@ from werkzeug.utils import secure_filename
 
 from Config import DATA_DIR, DATA_ROOT, DOCS_DOWNLOAD_DIR, ICONS_FILE, IMAGES_DIR, VIDEOS_DIR
 from Models import HistoricoEdicao, Modulo, PalavraChave, db
+from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.data.UtilitariosModulo import CarregarModulos, ObterModuloPorId
 
 
@@ -24,7 +25,7 @@ class ServicoEditor:
 
     def obterRespostaPainelEditor(self) -> dict[str, Any]:
         """Monta o contexto da pagina principal do editor."""
-        if not self._usuarioPossuiPermissao("can_access_editor"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.VISUALIZAR_EDITOR):
             return self._respostaErro(403, "Acesso negado ao editor.")
 
         modulos, _ = CarregarModulos()
@@ -33,17 +34,11 @@ class ServicoEditor:
             modulos=modulos,
             token=self._obterToken(),
             num_pendencias=self._obterQuantidadePendencias(),
-            can_delete_modules=self._usuarioPossuiPermissao("can_delete_modules"),
-            can_versioning_modules=self._usuarioPossuiPermissao(
-                "can_versioning_modules"
-            ),
-            can_module_control=self._usuarioPossuiPermissao("can_module_control"),
-            can_create_modules=self._usuarioPossuiPermissao("can_create_modules"),
         )
 
     def obterRespostaCriacaoModulo(self) -> dict[str, Any]:
         """Processa a criacao de um novo modulo."""
-        if not self._usuarioPossuiPermissao("can_create_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.CRIAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para criar novos modulos."
             )
@@ -70,6 +65,7 @@ class ServicoEditor:
                     Nome=request.form["nome"],
                     Descricao=request.form["descricao"],
                     Icone=request.form["icone"],
+                    Is_Restrito=self._obterFlagFormulario("is_restrito"),
                     Status="aprovado",
                     VersaoAtual="1.0",
                     AprovadoPor=nome_usuario,
@@ -141,7 +137,7 @@ class ServicoEditor:
 
     def obterRespostaEdicaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Processa a edicao de um modulo existente."""
-        if not self._usuarioPossuiPermissao("can_edit_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.EDITAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para editar modulos."
             )
@@ -154,6 +150,7 @@ class ServicoEditor:
                 modulo.Nome = request.form["nome"]
                 modulo.Descricao = request.form["descricao"]
                 modulo.Icone = request.form["icone"]
+                modulo.Is_Restrito = self._obterFlagFormulario("is_restrito")
                 modulo.Status = "pendente"
                 modulo.UsuarioEdicaoPendente = session.get("user_name", "Anonimo")
                 modulo.DataEdicaoPendente = datetime.now().isoformat()
@@ -220,7 +217,7 @@ class ServicoEditor:
 
     def obterRespostaExclusaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Exclui um modulo e seus arquivos associados."""
-        if not self._usuarioPossuiPermissao("can_delete_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.EXCLUIR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para deletar modulos."
             )
@@ -248,7 +245,7 @@ class ServicoEditor:
 
     def obterRespostaPendencias(self) -> dict[str, Any]:
         """Lista os modulos com alteracoes pendentes de aprovacao."""
-        if not self._usuarioPossuiPermissao("can_module_control"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.APROVAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para gerenciar pendencias."
             )
@@ -268,7 +265,7 @@ class ServicoEditor:
 
     def obterRespostaAprovacaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Aprova uma alteracao pendente de modulo."""
-        if not self._usuarioPossuiPermissao("can_module_control"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.APROVAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para aprovar alteracoes."
             )
@@ -353,7 +350,7 @@ class ServicoEditor:
 
     def obterRespostaRejeicaoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Rejeita uma alteracao pendente de modulo."""
-        if not self._usuarioPossuiPermissao("can_module_control"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.REJEITAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para rejeitar alteracoes."
             )
@@ -397,7 +394,7 @@ class ServicoEditor:
 
     def obterRespostaHistoricoModulo(self, modulo_id: str) -> dict[str, Any]:
         """Exibe ou restaura o historico de versoes de um modulo."""
-        if not self._usuarioPossuiPermissao("can_versioning_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.VERSIONAR_MODULOS):
             return self._respostaErro(
                 403, "Voce nao tem permissao para acessar o historico."
             )
@@ -713,7 +710,7 @@ class ServicoEditor:
 
     def obterRespostaDiffPendente(self) -> dict[str, Any]:
         """Retorna o diff entre a documentacao vigente e a pendente."""
-        if not self._usuarioPossuiPermissao("can_module_control"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.APROVAR_MODULOS):
             return self._respostaJsonErro("Acesso negado.", 403)
 
         modulo_id = request.args.get("mid")
@@ -743,7 +740,7 @@ class ServicoEditor:
 
     def obterRespostaDiffHistorico(self) -> dict[str, Any]:
         """Retorna o diff entre a versao atual e uma versao historica."""
-        if not self._usuarioPossuiPermissao("can_versioning_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.VERSIONAR_MODULOS):
             return self._respostaJsonErro("Acesso negado.", 403)
 
         modulo_id = request.args.get("mid")
@@ -769,7 +766,7 @@ class ServicoEditor:
 
     def obterRespostaConteudoHistorico(self) -> dict[str, Any]:
         """Retorna o HTML renderizado de um arquivo historico especifico."""
-        if not self._usuarioPossuiPermissao("can_versioning_modules"):
+        if not self._usuarioPossuiPermissao(ChavesPermissao.VERSIONAR_MODULOS):
             return self._respostaJsonErro("Acesso negado.", 403)
 
         modulo_id = request.args.get("mid")
@@ -939,8 +936,13 @@ class ServicoEditor:
         return request.args.get("token", "") or request.form.get("token", "")
 
     @staticmethod
+    def _obterFlagFormulario(nome_campo: str) -> bool:
+        valor = str(request.form.get(nome_campo, "")).strip().lower()
+        return valor in {"1", "true", "on", "yes", "sim"}
+
+    @staticmethod
     def _usuarioPossuiPermissao(nome_permissao: str) -> bool:
-        return session.get("permissions", {}).get(nome_permissao, False)
+        return PermissaoService.usuarioPossuiPermissao(nome_permissao)
 
     @staticmethod
     def _respostaRenderizacao(template: str, **contexto: Any) -> dict[str, Any]:

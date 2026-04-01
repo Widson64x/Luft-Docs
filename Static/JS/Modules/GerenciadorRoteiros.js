@@ -34,7 +34,7 @@ class GerenciadorRoteiros {
         try { dadosPermissoes = JSON.parse(dadosBrutos); } catch { dadosPermissoes = {}; }
 
         this.roteiros    = Array.isArray(dadosPermissoes.roteiros) ? dadosPermissoes.roteiros : [];
-        this.podeEditar  = Boolean(dadosPermissoes.can_edit);
+        this.podeEditar  = Boolean(dadosPermissoes.podeEditar);
         this.urlBase     = window.ROUTES?.Api?.roteiros || '';
 
         if (!this.idModulo) {
@@ -102,7 +102,13 @@ class GerenciadorRoteiros {
             const url = this._anexarToken(
                 this._comPrefixo(caminho.startsWith('/') ? caminho : `${this.urlBase}/${caminho}`)
             );
-            const opcoes = { method: metodo, headers: { 'Content-Type': 'application/json' } };
+            const opcoes = {
+                method: metodo,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            };
             if (corpo) opcoes.body = JSON.stringify(corpo);
 
             const resposta = await fetch(url, opcoes);

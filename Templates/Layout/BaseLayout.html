@@ -1,7 +1,10 @@
 {% extends "luftcore/base.html" %}
 {% import 'luftcore/components.html' as ui %}
+{% set pode_acessar_lia = tem_permissao('DOCS.LIA.VISUALIZAR') %}
 {% include 'Components/ModalSettings.html' %}
+{% if pode_acessar_lia %}
 {% include 'Components/ModalLia.html' %}
+{% endif %}
 {% include 'Components/ModalBusca.html' %}
 
 {% block titulo %}LuftDocs{% endblock %}
@@ -139,9 +142,12 @@
         </div>
     {% endcall %}
 
-    {% if can_access_editor or can_access_permissions_menu or can_create_modules %}
+    {% set pode_acessar_editor = tem_permissao('DOCS.EDITOR_MODULOS.VISUALIZAR') %}
+    {% set pode_acessar_menu_permissoes = tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+    {% set pode_criar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.CRIAR') %}
+    {% if pode_acessar_editor or pode_acessar_menu_permissoes or pode_criar_modulos %}
         {% call ui.nav_item('Gestão', icone='ph-bold ph-sliders-horizontal', ativo=ativo_gestao) %}
-            {% if can_access_editor %}
+            {% if pode_acessar_editor %}
                 {{ ui.nav_item('Painel do Editor',
                     href=url_for('Editor.exibirPainelEditor', token=token_atual),
                     ativo=(endpoint_atual.startswith('Editor.') and endpoint_atual != 'Editor.exibirPendencias' and endpoint_atual != 'Editor.criarModulo'))
@@ -152,14 +158,14 @@
                 }}
             {% endif %}
 
-            {% if can_create_modules %}
+            {% if pode_criar_modulos %}
                 {{ ui.nav_item('Novo Módulo',
                     href=url_for('Editor.criarModulo', token=token_atual),
                     ativo=(endpoint_atual == 'Editor.criarModulo'))
                 }}
             {% endif %}
 
-            {% if can_access_permissions_menu %}
+            {% if pode_acessar_menu_permissoes %}
                 {{ ui.nav_item('Permissões',
                     href=url_for('Permissoes.gerenciarPermissoes', token=token_atual),
                     ativo=endpoint_atual.startswith('Permissoes.'))
@@ -238,8 +244,10 @@
         window.__LUFT_SEARCH_BASE__ = window.ROUTES.Busca.exibir;
     </script>
     
+    {% if pode_acessar_lia %}
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/LiaProativa.js') }}"></script>
+    {% endif %}
     <script src="{{ url_for('static', filename='JS/Configs.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/SidebarMenu.js') }}"></script>
     <script src="{{ url_for('static', filename='JS/Modules/ampliarImagem.js') }}"></script>

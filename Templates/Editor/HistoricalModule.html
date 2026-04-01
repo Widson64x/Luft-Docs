@@ -1,4 +1,4 @@
-{% extends "Base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block titulo %}Histórico de Versões - {{ modulo.Nome }}{% endblock %}
 
 {% block page_styles %}
@@ -189,6 +189,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const modalComparacao = new bootstrap.Modal(document.getElementById('compareModal'));
   const modalRestauracao = new bootstrap.Modal(document.getElementById('restoreModal'));
+  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   
   const painelEsquerdo = document.getElementById('diff-left');
   const painelDireito = document.getElementById('diff-right');
@@ -245,7 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     modalComparacao.show();
 
-    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.Id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`)
+    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.Id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`, {
+      headers: AJAX_HEADERS
+    })
       .then(resposta => resposta.json())
       .then(dadosRetorno => {
         if (dadosRetorno.error) {

@@ -4,9 +4,9 @@ import os
 import re
 from urllib.parse import urlencode
 
-from flask import current_app, request, session, url_for
+from flask import current_app, request, url_for
 
-from Utils.ConfiguracaoPermissoes import MODULOS_RESTRITOS
+from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.ServicoRecomendacao import (
     ObterBuscasPopulares,
     ObterContagensAcesso,
@@ -16,7 +16,14 @@ from Utils.ServicoRecomendacao import (
     RegistrarTermoBusca,
 )
 from Utils.data.UtilitariosBusca import BuscarTodosDocumentos, ExtrairPreviaMidia
-from Utils.data.UtilitariosModulo import CarregarMarkdown, CarregarModulos
+from Utils.data.UtilitariosModulo import (
+    CarregarMarkdown,
+    CarregarModulos,
+    CriarMapaRestricaoModulos,
+    DocumentoEhRestrito,
+    DocumentoEhTecnico,
+    FiltrarModulosRestritos,
+)
 from Utils.text.ServicoFiltroConteudo import ServicoFiltroConteudo
 
 
@@ -33,11 +40,14 @@ class ServicoBusca:
         if consulta:
             RegistrarTermoBusca(consulta)
 
-        permissoes_usuario = session.get("permissions", {})
-        pode_ver_tecnico = permissoes_usuario.get("can_view_tecnico", False)
-        pode_ver_restritos = permissoes_usuario.get(
-            "can_see_restricted_module", False
+        pode_ver_tecnico = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
         )
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
+        )
+        todos_modulos, _ = CarregarModulos()
+        mapa_restricoes = CriarMapaRestricaoModulos(todos_modulos)
 
         resultados_brutos = BuscarTodosDocumentos(
             consulta,
@@ -48,6 +58,7 @@ class ServicoBusca:
         resultados_filtrados = self._filtrarRestritos(
             resultados_brutos,
             pode_ver_restritos,
+            mapa_restricoes,
         )
 
         resultados_processados = []
@@ -59,8 +70,7 @@ class ServicoBusca:
             )
             resultados_processados.append(resultado)
 
-        todos_modulos, _ = CarregarModulos()
-        modulos_dropdown = self._filtrarRestritos(todos_modulos, pode_ver_restritos, "id")
+        modulos_dropdown = FiltrarModulosRestritos(todos_modulos, pode_ver_restritos)
 
         return {
             "query": consulta,
@@ -78,11 +88,14 @@ class ServicoBusca:
         if consulta:
             RegistrarTermoBusca(consulta)
 
-        permissoes_usuario = session.get("permissions", {})
-        pode_ver_tecnico = permissoes_usuario.get("can_view_tecnico", False)
-        pode_ver_restritos = permissoes_usuario.get(
-            "can_see_restricted_module", False
+        pode_ver_tecnico = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
         )
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
+        )
+        todos_modulos, _ = CarregarModulos()
+        mapa_restricoes = CriarMapaRestricaoModulos(todos_modulos)
 
         resultados_brutos = BuscarTodosDocumentos(
             consulta,
@@ -93,9 +106,9 @@ class ServicoBusca:
         resultados_filtrados = self._filtrarRestritos(
             resultados_brutos,
             pode_ver_restritos,
+            mapa_restricoes,
         )
 
-        todos_modulos, _ = CarregarModulos()
         mapa_modulos = {modulo["id"]: modulo for modulo in todos_modulos}
         ids_documentos = [resultado["module_id"] for resultado in resultados_filtrados]
         contagens_acesso = ObterContagensAcesso(ids_documentos) if ids_documentos else {}
@@ -127,10 +140,14 @@ class ServicoBusca:
 
     def obterRecomendacoes(self, token: str) -> dict[str, object]:
         """Retorna recomendacoes hibridas, mais acessados e buscas populares."""
-        pode_ver_restritos = session.get("permissions", {}).get(
-            "can_see_restricted_module",
-            False,
+        pode_ver_tecnico = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
         )
+        pode_ver_restritos = PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
+        )
+        todos_modulos, _ = CarregarModulos()
+        mapa_restricoes = CriarMapaRestricaoModulos(todos_modulos)
 
         recomendacoes = ObterRecomendacoesHibridas(limite=10) or []
         if not recomendacoes:
@@ -140,19 +157,29 @@ class ServicoBusca:
             recomendacoes = ObterMaisAcessados(limite=10) or []
 
         mais_acessados = ObterMaisAcessados(limite=12) or []
-        if not pode_ver_restritos:
+        if not pode_ver_tecnico:
             recomendacoes = [
                 item
                 for item in recomendacoes
-                if item.get("document_id") not in MODULOS_RESTRITOS
+                if not DocumentoEhTecnico(item.get("document_id"))
             ]
             mais_acessados = [
                 item
                 for item in mais_acessados
-                if item.get("document_id") not in MODULOS_RESTRITOS
+                if not DocumentoEhTecnico(item.get("document_id"))
+            ]
+        if not pode_ver_restritos:
+            recomendacoes = [
+                item
+                for item in recomendacoes
+                if not DocumentoEhRestrito(item.get("document_id"), mapa_restricoes)
+            ]
+            mais_acessados = [
+                item
+                for item in mais_acessados
+                if not DocumentoEhRestrito(item.get("document_id"), mapa_restricoes)
             ]
 
-        todos_modulos, _ = CarregarModulos()
         mapa_modulos = {modulo["id"]: modulo for modulo in todos_modulos}
         ids_documentos = [
             item["document_id"] for item in (recomendacoes + mais_acessados)
@@ -307,11 +334,16 @@ class ServicoBusca:
     def _filtrarRestritos(
         itens: list[dict[str, object]],
         pode_ver_restritos: bool,
+        mapa_restricoes: dict[str, bool],
         chave_id: str = "module_id",
     ) -> list[dict[str, object]]:
         if pode_ver_restritos:
             return itens
-        return [item for item in itens if item.get(chave_id) not in MODULOS_RESTRITOS]
+        return [
+            item
+            for item in itens
+            if not DocumentoEhRestrito(item.get(chave_id), mapa_restricoes)
+        ]
 
     @staticmethod
     def _montarUrlComToken(caminho_base: str, token: str) -> str:

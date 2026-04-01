@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 
 {% block titulo %}LuftDocs - Mapa de Conhecimento Dinâmico{% endblock %}
 
@@ -17,13 +17,13 @@
             <i class="ph-bold ph-grid-four"></i> Ver Cards
         </a>
 
-        {% if can_access_editor %}
+        {% if tem_permissao('DOCS.EDITOR_MODULOS.VISUALIZAR') %}
         <a href="{{ url_for('Editor.exibirPainelEditor', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
             <i class="ph-bold ph-pencil-simple"></i> Acessar Editor
         </a>
         {% endif %}
         
-        {% if can_access_permissions_menu %}
+        {% if tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
         <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
             <i class="ph-bold ph-shield-check"></i> Gerenciar Permissões
         </a>
@@ -57,7 +57,7 @@
 
 <script id="dados-permissoes" type="application/json">
     {
-        "can_view_tecnico": {{ can_view_tecnico|tojson }}
+        "podeVisualizarTecnico": {{ tem_permissao('DOCS.MODULOS_TECNICOS.VISUALIZAR')|tojson }}
     }
 </script>
 

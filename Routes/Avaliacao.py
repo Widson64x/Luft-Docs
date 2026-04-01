@@ -1,7 +1,9 @@
 # Certifique-se de que 'session' está importado para pegar o token no redirecionamento
 from flask import Blueprint, redirect, render_template, url_for
+from flask_login import login_required
 
 from Forms.FormularioAvaliacao import FormularioAvaliacao
+from Services.PermissaoService import ChavesPermissao, RequerPermissao
 from Services.ServicoAvaliacao import ServicoAvaliacao
 
 Avaliacao_BP = Blueprint('Avaliacao', __name__)
@@ -9,6 +11,8 @@ servicoAvaliacao = ServicoAvaliacao()
 
 # Aplicando a sugestão de URL limpa: /avaliacao/nome-do-modulo
 @Avaliacao_BP.route('/<string:document_id>', methods=['GET', 'POST'])
+@RequerPermissao(ChavesPermissao.VISUALIZAR_MODULOS)
+@login_required
 def avaliarDocumento(document_id):
     form = FormularioAvaliacao()
     resposta_servico = servicoAvaliacao.obterRespostaAvaliacao(document_id, form)

@@ -1,4 +1,4 @@
-{% extends "Base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block titulo %}Editar Submódulo: {{ path }}{% endblock %}
 
 {% block page_styles %}
@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenUsuario = '{{ token }}';
   const prefixoBase = '/luft-docs';
   const conteudoInicial = {{ content|tojson }};
+  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   const ROUTES = {
     uploadImagemSubmodulo: "{{ url_for('Editor.enviarImagemSubmodulo') }}",
     uploadAnexoSubmodulo: "{{ url_for('Editor.enviarAnexoSubmodulo') }}",
@@ -85,7 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const formData = new FormData();
           formData.append('file', arquivoBlob);
           fetch(AdicionarPrefixo(`${ROUTES.uploadImagemSubmodulo}?token=${tokenUsuario}`), {
-            method: 'POST', body: formData
+            method: 'POST',
+            headers: AJAX_HEADERS,
+            body: formData
           })
           .then(resposta => resposta.json())
           .then(dadosResposta => callbackInsercao(AdicionarPrefixo(dadosResposta.url), AdicionarPrefixo(dadosResposta.url)))
@@ -146,7 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData();
       formData.append('file', arquivoSelecionado);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoSubmodulo}?token=${tokenUsuario}`), { method: 'POST', body: formData })
+      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoSubmodulo}?token=${tokenUsuario}`), {
+        method: 'POST',
+        headers: AJAX_HEADERS,
+        body: formData
+      })
         .then(resposta => resposta.json())
         .then(dadosResposta => editor.insertText(`\n[${arquivoSelecionado.name}](${AdicionarPrefixo(dadosResposta.url)}&token=${tokenUsuario})\n`))
         .catch(() => alert('Falha critica ao tentar processar o upload do anexo.'));
@@ -168,7 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData();
       formData.append('file', arquivoSelecionado);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoSubmodulo}?token=${tokenUsuario}`), { method: 'POST', body: formData })
+      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoSubmodulo}?token=${tokenUsuario}`), {
+        method: 'POST',
+        headers: AJAX_HEADERS,
+        body: formData
+      })
         .then(resposta => resposta.json())
         .then(dadosResposta => {
           if (dadosResposta.url) {

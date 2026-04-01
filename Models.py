@@ -1,105 +1,24 @@
 # models.py
 from datetime import datetime
+from sqlalchemy import UniqueConstraint
 
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import synonym
 from sqlalchemy.sql import func
 
-db = SQLAlchemy()
-
-permissoes_grupos = db.Table(
-    "Tb_Docs_RelacaoPermissoesGrupos",
-    db.Column("PermissaoId", db.Integer, db.ForeignKey("Tb_Docs_Permissoes.Id"), primary_key=True),
-    db.Column("GrupoId", db.Integer, db.ForeignKey("Tb_Docs_GruposPermissao.Id"), primary_key=True),
-)
-
-permissoes_usuarios = db.Table(
-    "Tb_Docs_RelacaoPermissoesUsuarios",
-    db.Column("PermissaoId", db.Integer, db.ForeignKey("Tb_Docs_Permissoes.Id"), primary_key=True),
-    db.Column("UsuarioId", db.Integer, db.ForeignKey("Tb_Docs_UsuariosPermissao.Id"), primary_key=True),
-)
+from Db.Connections import BIND_PG, db, BIND_SQL  # instância única, roteamento por BIND_SQL / BIND_PG
 
 roteiros_modulos = db.Table(
     "Tb_Docs_RelacaoRoteirosModulos",
     db.Column("RoteiroId", db.Integer, db.ForeignKey("Tb_Docs_Roteiros.Id"), primary_key=True),
     db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), primary_key=True),
+    info={"bind_key": BIND_PG},
 )
 
-
-class Permissao(db.Model):
-    __tablename__ = "Tb_Docs_Permissoes"
-
-    Id = db.Column("Id", db.Integer, primary_key=True)
-    NomePermissao = db.Column("NomePermissao", db.String(100), unique=True, nullable=False)
-    Descricao = db.Column("Descricao", db.String(255), nullable=True)
-
-    Grupos = db.relationship(
-        "Grupo",
-        secondary=permissoes_grupos,
-        lazy="subquery",
-        back_populates="Permissoes",
-    )
-    Usuarios = db.relationship(
-        "Usuario",
-        secondary=permissoes_usuarios,
-        lazy="subquery",
-        back_populates="Permissoes",
-    )
-
-    id = synonym("Id")
-    nome = synonym("NomePermissao")
-    descricao = synonym("Descricao")
-    grupos = synonym("Grupos")
-    usuarios = synonym("Usuarios")
-
-    def __repr__(self):
-        return f"<Permissao {self.NomePermissao}>"
-
-
-class Grupo(db.Model):
-    __tablename__ = "Tb_Docs_GruposPermissao"
-
-    Id = db.Column("Id", db.Integer, primary_key=True)
-    NomeGrupo = db.Column("NomeGrupo", db.String(100), unique=True, nullable=False)
-
-    Permissoes = db.relationship(
-        "Permissao",
-        secondary=permissoes_grupos,
-        lazy="subquery",
-        back_populates="Grupos",
-    )
-
-    id = synonym("Id")
-    nome = synonym("NomeGrupo")
-    permissoes = synonym("Permissoes")
-
-    def __repr__(self):
-        return f"<Grupo {self.NomeGrupo}>"
-
-
-class Usuario(db.Model):
-    __tablename__ = "Tb_Docs_UsuariosPermissao"
-
-    Id = db.Column("Id", db.Integer, primary_key=True)
-    NomeUsuario = db.Column("NomeUsuario", db.String(100), unique=True, nullable=False)
-
-    Permissoes = db.relationship(
-        "Permissao",
-        secondary=permissoes_usuarios,
-        lazy="subquery",
-        back_populates="Usuarios",
-    )
-
-    id = synonym("Id")
-    nome = synonym("NomeUsuario")
-    permissoes = synonym("Permissoes")
-
-    def __repr__(self):
-        return f"<Usuario {self.NomeUsuario}>"
 
 
 class ReporteBug(db.Model):
     __tablename__ = "Tb_Docs_ReportesBug"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     UsuarioId = db.Column("UsuarioId", db.Integer, nullable=False)
@@ -125,6 +44,7 @@ class ReporteBug(db.Model):
 
 class FeedbackIA(db.Model):
     __tablename__ = "Tb_Docs_FeedbackIA"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     RespostaId = db.Column("RespostaId", db.String, nullable=False)
@@ -152,6 +72,7 @@ class FeedbackIA(db.Model):
 
 class AcessoDocumento(db.Model):
     __tablename__ = "Tb_Docs_LogAcessosDocumentos"
+    __bind_key__ = BIND_PG
 
     DocumentoId = db.Column("DocumentoId", db.String(255), primary_key=True)
     QuantidadeAcessos = db.Column("QuantidadeAcessos", db.Integer, nullable=False, default=1)
@@ -170,6 +91,7 @@ class AcessoDocumento(db.Model):
 
 class LogBusca(db.Model):
     __tablename__ = "Tb_Docs_LogBuscas"
+    __bind_key__ = BIND_PG
 
     TermoBusca = db.Column("TermoBusca", db.String(255), primary_key=True)
     QuantidadeBuscas = db.Column("QuantidadeBuscas", db.Integer, nullable=False, default=1)
@@ -188,6 +110,7 @@ class LogBusca(db.Model):
 
 class Modulo(db.Model):
     __tablename__ = "Tb_Docs_Modulos"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.String(100), primary_key=True)
     Nome = db.Column("Nome", db.String(255), nullable=False)
@@ -201,7 +124,8 @@ class Modulo(db.Model):
     VersaoAtual = db.Column("VersaoAtual", db.String(50), nullable=True)
     AprovadoPor = db.Column("AprovadoPor", db.String(100), nullable=True)
     AprovadoEm = db.Column("AprovadoEm", db.String(100), nullable=True)
-
+    Is_Restrito = db.Column("Is_Restrito", db.Boolean, default=False)
+    
     PalavrasChave = db.relationship(
         "PalavraChave",
         back_populates="Modulo",
@@ -241,6 +165,7 @@ class Modulo(db.Model):
     current_version = synonym("VersaoAtual")
     last_approved_by = synonym("AprovadoPor")
     last_approved_on = synonym("AprovadoEm")
+    is_restrito = synonym("Is_Restrito")
     palavras_chave = synonym("PalavrasChave")
     edit_history = synonym("HistoricoEdicoes")
     roteiros = synonym("Roteiros")
@@ -257,6 +182,7 @@ class Modulo(db.Model):
 
 class PalavraChave(db.Model):
     __tablename__ = "Tb_Docs_PalavrasChave"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
@@ -272,6 +198,7 @@ class PalavraChave(db.Model):
 
 class ModuloRelacionado(db.Model):
     __tablename__ = "Tb_Docs_ModulosRelacionados"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
@@ -284,6 +211,7 @@ class ModuloRelacionado(db.Model):
 
 class HistoricoEdicao(db.Model):
     __tablename__ = "Tb_Docs_HistoricoEdicoes"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
@@ -311,6 +239,7 @@ class HistoricoEdicao(db.Model):
 
 class PalavraGlobal(db.Model):
     __tablename__ = "Tb_Docs_PalavrasGlobais"
+    __bind_key__ = BIND_PG
 
     Palavra = db.Column("Palavra", db.String(100), primary_key=True)
     Descricao = db.Column("Descricao", db.Text)
@@ -321,6 +250,7 @@ class PalavraGlobal(db.Model):
 
 class CategoriaTagMeta(db.Model):
     __tablename__ = "Tb_Docs_CategoriasTagsMeta"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True)
     Nome = db.Column("Nome", db.String(100), unique=True, nullable=False)
@@ -344,6 +274,7 @@ class CategoriaTagMeta(db.Model):
 
 class TagMeta(db.Model):
     __tablename__ = "Tb_Docs_TagsMeta"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True)
     Tag = db.Column("Tag", db.String(50), unique=True, nullable=False)
@@ -370,6 +301,7 @@ class TagMeta(db.Model):
 
 class RelacaoObjetoTagMeta(db.Model):
     __tablename__ = "Tb_Docs_RelacaoObjetosTagsMeta"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True)
     NomeObjeto = db.Column("NomeObjeto", db.String(255), nullable=False)
@@ -391,6 +323,7 @@ class RelacaoObjetoTagMeta(db.Model):
 
 class AvaliacaoDocumento(db.Model):
     __tablename__ = "Tb_Docs_AvaliacoesDocumentos"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True)
     DocumentoId = db.Column("DocumentoId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"))
@@ -411,6 +344,7 @@ class AvaliacaoDocumento(db.Model):
 
 class Roteiro(db.Model):
     __tablename__ = "Tb_Docs_Roteiros"
+    __bind_key__ = BIND_PG
 
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     Titulo = db.Column("Titulo", db.String(255), nullable=False)
@@ -474,7 +408,8 @@ class Roteiro(db.Model):
 
 class LogAuditoriaRoteiro(db.Model):
     __tablename__ = "Tb_Docs_LogAuditoriaRoteiros"
-
+    __bind_key__ = BIND_PG  # Roteado para PostgreSQL (banco principal de conteúdo)
+    
     Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
     RoteiroId = db.Column("RoteiroId", db.Integer, db.ForeignKey("Tb_Docs_Roteiros.Id"), nullable=False)
     UsuarioId = db.Column("UsuarioId", db.Integer, nullable=False)
@@ -496,6 +431,128 @@ class LogAuditoriaRoteiro(db.Model):
         return f"<LogAuditoriaRoteiro {self.Id} - Acao: {self.Acao} por {self.NomeUsuario}>"
 
 
+# =============================================================================
+# SISTEMA DE PERMISSÕES (Tb_* — SISTEMA_ID = 5)
+# As tabelas abaixo são compartilhadas entre sistemas Luft e ficam no
+# mesmo schema/search_path do banco (luftdocst).
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Modelos SQL Server  (__bind_key__ = BIND_SQL)
+# Tabelas compartilhadas entre sistemas Luft — roteadas para o SQL Server.
+# ---------------------------------------------------------------------------
+
+class UsuarioBanco(db.Model):
+    """Espelho da tabela 'usuario' do SQL Server — usado apenas para lookup de auth."""
+    __tablename__ = "usuario"
+    __bind_key__ = BIND_SQL
+
+    Codigo_Usuario       = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Login_Usuario        = db.Column(db.String(100))
+    Nome_Usuario         = db.Column(db.String(255))
+    Email_Usuario        = db.Column(db.String(255))
+    codigo_usuariogrupo  = db.Column(db.Integer, db.ForeignKey("usuariogrupo.codigo_usuariogrupo"))
+
+    GrupoRel = db.relationship("UsuarioGrupoBanco", foreign_keys=[codigo_usuariogrupo], lazy="joined")
+
+    def __repr__(self):
+        return f"<UsuarioBanco {self.Login_Usuario}>"
+
+
+class UsuarioGrupoBanco(db.Model):
+    """Espelho da tabela 'usuariogrupo' do SQL Server."""
+    __tablename__ = "usuariogrupo"
+    __bind_key__ = BIND_SQL
+
+    codigo_usuariogrupo    = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Sigla_UsuarioGrupo     = db.Column(db.String(50))
+    Descricao_UsuarioGrupo = db.Column(db.String(255))
+
+    def __repr__(self):
+        return f"<UsuarioGrupoBanco {self.Sigla_UsuarioGrupo}>"
+
+
+class Tb_Permissao(db.Model):
+    """
+    Modelo que representa a tabela de permissões no banco de dados.
+    
+    Esta classe armazena as chaves de acesso para os diferentes sistemas.
+    Possui uma restrição única composta para garantir que uma mesma chave
+    de permissão não se repita dentro de um mesmo sistema (Id_Sistema).
+    """
+    __tablename__  = "Tb_Permissao"
+    __bind_key__   = BIND_SQL
+    
+    # Define a restrição única composta no nível do ORM
+    __table_args__ = (
+        UniqueConstraint('Id_Sistema', 'Chave_Permissao', name='uq_sistema_chave_permissao'),
+    )
+
+    Id_Permissao        = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Id_Sistema          = db.Column(db.Integer, nullable=False)
+    Chave_Permissao     = db.Column(db.String(100), nullable=False)
+    Descricao_Permissao = db.Column(db.String(255))
+    Categoria_Permissao = db.Column(db.String(50))
+
+    def __repr__(self):
+        """
+        Retorna uma representação em formato de string da instância da permissão.
+
+        Retornos:
+            str: String formatada contendo a chave de permissão.
+        """
+        return f"<Tb_Permissao {self.Chave_Permissao}>"
+
+
+class Tb_PermissaoGrupo(db.Model):
+    __tablename__ = "Tb_PermissaoGrupo"
+    __bind_key__  = BIND_SQL
+
+    Id_Vinculo          = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Codigo_UsuarioGrupo = db.Column(db.Integer, nullable=False)
+    Id_Permissao        = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<Tb_PermissaoGrupo grupo={self.Codigo_UsuarioGrupo} perm={self.Id_Permissao}>"
+
+
+class Tb_PermissaoUsuario(db.Model):
+    __tablename__ = "Tb_PermissaoUsuario"
+    __bind_key__  = BIND_SQL
+
+    Id_Vinculo      = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Codigo_Usuario  = db.Column(db.Integer, nullable=False)
+    Id_Permissao    = db.Column(db.Integer, nullable=False)
+    Conceder        = db.Column(db.Boolean, default=True)
+
+    def __repr__(self):
+        return f"<Tb_PermissaoUsuario user={self.Codigo_Usuario} perm={self.Id_Permissao} conceder={self.Conceder}>"
+
+
+class Tb_LogAcesso(db.Model):
+    __tablename__ = "Tb_LogAcesso"
+    __bind_key__  = BIND_SQL
+
+    Id_Log                 = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Id_Sistema             = db.Column(db.Integer, nullable=True)
+    Id_Usuario             = db.Column(db.Integer, nullable=True)
+    Nome_Usuario           = db.Column(db.String(150))
+    Rota_Acessada          = db.Column(db.String(200))
+    Metodo_Http            = db.Column(db.String(10))
+    Ip_Origem              = db.Column(db.String(50))
+    Permissao_Exigida      = db.Column(db.String(100))
+    Acesso_Permitido       = db.Column(db.Boolean)
+    Data_Hora              = db.Column(db.DateTime, default=datetime.utcnow)
+    Parametros_Requisicao  = db.Column(db.Text, nullable=True)
+    Resposta_Acao          = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"<Tb_LogAcesso {self.Id_Log} user={self.Nome_Usuario} permitido={self.Acesso_Permitido}>"
+
+
+# =============================================================================
+# Aliases de compatibilidade
+# =============================================================================
 BugReport = ReporteBug
 IAFeedback = FeedbackIA
 DocumentAccess = AcessoDocumento

@@ -3,17 +3,17 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from flask import session
 from sqlalchemy.orm import joinedload
 
 from Models import Modulo
-from Utils.ConfiguracaoPermissoes import MODULOS_TECNICOS_VISIVEIS
+from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.ServicoRecomendacao import RegistrarAcessoDocumento
 from Utils.data.UtilitariosModulo import (
     CarregarMarkdown,
     CarregarMarkdownSubmodulo,
     CarregarMarkdownTecnico,
     CarregarModulos,
+    ModuloEhRestrito,
 )
 from Utils.text.ServicoFiltroConteudo import ServicoFiltroConteudo
 from Utils.text.UtilitariosMarkdown import ConverterWikiLinks
@@ -49,7 +49,7 @@ class ServicoModulo:
         documentacao_tecnica = bool(idModuloTecnico)
         identificador_modulo = idModuloTecnico if documentacao_tecnica else idModulo
 
-        if documentacao_tecnica and not self._usuarioPodeVerModuloTecnico(identificador_modulo):
+        if documentacao_tecnica and not self._usuarioPodeVerModuloTecnico():
             return {
                 "tipo": "template",
                 "template": "Auth/AccessDenied.html",
@@ -74,6 +74,13 @@ class ServicoModulo:
                 "mensagem": "Modulo nao encontrado.",
             }
 
+        if ModuloEhRestrito(modulo) and not self._usuarioPodeVerModuloRestrito():
+            return {
+                "tipo": "erro",
+                "codigo": 403,
+                "mensagem": "Voce nao tem permissao para acessar este modulo restrito.",
+            }
+
         conteudo_markdown = self._obterConteudoModulo(
             identificador_modulo, documentacao_tecnica, consulta
         )
@@ -90,8 +97,6 @@ class ServicoModulo:
         )
 
         conteudo_html = ConverterWikiLinks(conteudo_markdown, modulos, palavras_globais)
-        permissoes_usuario = session.get("permissions", {})
-
         return {
             "tipo": "template",
             "template": "Modules/Modulos.html",
@@ -110,7 +115,6 @@ class ServicoModulo:
                 "proactive_module_name": modulo.Nome,
                 "proactive_module_id": modulo.Id,
                 "roteiros_data": [roteiro.to_dict() for roteiro in modulo.Roteiros],
-                "can_edit_scripts": permissoes_usuario.get("can_edit_scripts", False),
             },
             "codigo": 200,
         }
@@ -150,11 +154,16 @@ class ServicoModulo:
             "codigo": 200,
         }
 
-    def _usuarioPodeVerModuloTecnico(self, identificadorModulo: str) -> bool:
+    def _usuarioPodeVerModuloTecnico(self) -> bool:
         """Valida a permissao de acesso a documentacao tecnica."""
-        permissoes_usuario = session.get("permissions", {})
-        return permissoes_usuario.get("can_view_tecnico", False) or (
-            identificadorModulo in MODULOS_TECNICOS_VISIVEIS
+        return PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_TECNICOS
+        )
+
+    def _usuarioPodeVerModuloRestrito(self) -> bool:
+        """Valida a permissao necessaria para visualizar modulos restritos."""
+        return PermissaoService.usuarioPossuiPermissao(
+            ChavesPermissao.VISUALIZAR_MODULOS_RESTRITOS
         )
 
     def _obterConteudoModulo(

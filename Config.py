@@ -48,15 +48,15 @@ BASE_PREFIX = "/luft-docs" # Prefixo da aplicação
 
 def get_database_url(env_name: str) -> str:
     """Monta a URL do banco com base nas variáveis carregadas."""
-    db_user = os.getenv("DB_USER")
-    db_pass = os.getenv("DB_PASS", "")
-    db_host = os.getenv("DB_HOST")
-    db_port = os.getenv("DB_PORT")
-    db_name = os.getenv("DB_NAME")
-    db_driver = os.getenv("DB_DRIVER", "postgresql+psycopg")
+    db_user = os.getenv("PG_USER")
+    db_pass = os.getenv("PG_PASS", "")
+    db_host = os.getenv("PG_HOST")
+    db_port = os.getenv("PG_PORT")
+    db_name = os.getenv("PG_NAME")
+    db_driver = os.getenv("PG_DRIVER", "postgresql+psycopg")
 
     _missing = [k for k, v in {
-        "DB_USER": db_user, "DB_HOST": db_host, "DB_PORT": db_port, "DB_NAME": db_name
+        "PG_USER": db_user, "PG_HOST": db_host, "PG_PORT": db_port, "PG_NAME": db_name
     }.items() if not v]
     
     if _missing:
@@ -76,8 +76,60 @@ def get_database_url(env_name: str) -> str:
 # a casa cai, o dragão acorda e 500 programadores choram.
 # NÃO MEXA POR QUE FUNCIONA.
 
-# URL de Banco de Dados ATIVA
+# URL de Banco de Dados ATIVA — PostgreSQL
 DATABASE_URL: str = get_database_url(APP_ENV)
+
+
+def get_sqlserver_url() -> str | None:
+    """
+    Monta a URL de conexão para o SQL Server (permissões + usuários).
+
+    Variáveis de ambiente esperadas (prefixo SS_):
+      SS_USER   — usuário do SQL Server
+      SS_PASS   — senha (opcional, default vazio)
+      SS_HOST   — host / IP do servidor
+      SS_PORT   — porta (default 1433)
+      SS_NAME   — nome do banco de dados
+      SS_DRIVER — driver SQLAlchemy (default mssql+pyodbc)
+
+    Retorna None (com warning) se as variáveis obrigatórias não estiverem definidas,
+    permitindo que a aplicação suba sem SQL Server em ambiente de desenvolvimento.
+    """
+    ss_user   = os.getenv("SQL_USER")
+    ss_pass   = os.getenv("SQL_PASS", "")
+    ss_host   = os.getenv("SQL_HOST")
+    ss_port   = os.getenv("SQL_PORT", "1433")
+    ss_name   = os.getenv("SQL_DB")
+    ss_driver = os.getenv("SQL_DRIVER", "mssql+pyodbc")
+
+    _missing = [k for k, v in {
+        "SQL_USER": ss_user, "SQL_HOST": ss_host, "SQL_DB": ss_name
+    }.items() if not v]
+
+    if _missing:
+        logger.warning(
+            f"SQL Server desativado — variáveis ausentes: {', '.join(_missing)}. "
+            "Permissões e lookup de usuários via AD não estarão disponíveis."
+        )
+        return None
+
+    encoded_pass = quote_plus(ss_pass)
+    # pyodbc precisa do driver no query-string; ajuste SS_DRIVER caso use outro conector
+    odbc_driver  = os.getenv("SS_ODBC_DRIVER", "ODBC Driver 17 for SQL Server")
+    url = (
+        f"{ss_driver}://{ss_user}:{encoded_pass}@{ss_host}:{ss_port}/{ss_name}"
+        f"?driver={quote_plus(odbc_driver)}"
+    )
+    logger.info(f"SQL Server URL montada: {ss_user}@{ss_host}:{ss_port}/{ss_name}")
+    return url
+
+
+# URL do SQL Server — pode ser None (tabelas de permissão ficarão indisponíveis)
+SQLSERVER_URL: str | None = get_sqlserver_url()
+SQLSERVER_DIRECTORY_DB: str = (os.getenv("SQL_DIRECTORY_DB", "LuftInforma") or "LuftInforma").strip()
+logger.info(
+    f"Banco de diretório SQL Server definido para usuários/grupos: {SQLSERVER_DIRECTORY_DB}"
+)
 
 # =============================================================================
 # 4. CAMINHOS DE DADOS (DATA_ROOT) (Nova Lógica)
@@ -147,6 +199,14 @@ TOP_MOST_SEARCHED  = 7
 # Parâmetros da API de usuário
 USER_API_CREDENTIAL_PARAMS = ["login_hash"]
 USER_API_TOKEN_PARAMS      = ["token"]
+
+# =============================================================================
+# 6. CONFIGURAÇÕES DE PERMISSÕES
+# =============================================================================
+# ID deste sistema na tabela Tb_Sistema (valor fixo provisonado no banco)
+SISTEMA_ID = os.getenv("SISTEMA_ID", "5")
+# Quando True, todos os @RequerPermissao passam sem checar o banco (só para dev)
+DEBUG_PERMISSIONS: bool = os.getenv("DEBUG_PERMISSIONS", "False").lower() == "true"
 
 # Criar pastas no startup
 def ensure_data_dirs(create_vector_dir: bool = True, allow_on_prod: bool = False) -> None:

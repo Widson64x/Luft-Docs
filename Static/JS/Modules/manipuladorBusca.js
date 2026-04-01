@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const url = new URL(rotaAutocomplete, window.location.origin);
             url.searchParams.set('q', val);
-            fetch(url.toString())
+            fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
                 .then(response => response.json())
                 .then(sugestoes => {
                     autocompleteList.innerHTML = '';

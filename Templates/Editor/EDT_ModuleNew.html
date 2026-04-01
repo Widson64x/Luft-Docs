@@ -1,4 +1,4 @@
-{% extends "Base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block titulo %}Criar Novo Módulo{% endblock %}
 
 {% block page_styles %}
@@ -41,6 +41,13 @@
           <div class="mb-3">
             <label for="inputDescricao" class="luft-form-label">Descrição Curta</label>
             <textarea class="luft-form-control" id="inputDescricao" name="descricao" placeholder="Uma breve descrição sobre a finalidade do módulo" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="inputIsRestrito" name="is_restrito">
+              <label class="form-check-label" for="inputIsRestrito">Módulo restrito</label>
+            </div>
+            <small class="luft-text-hint">Quando ativo, o módulo só fica visível para usuários com a permissão VISUALIZAR_MODULOS_RESTRITOS.</small>
           </div>
         </div>
 
@@ -149,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const token = '{{ token }}';
   const BASE_PREFIX = '/luft-docs';
+  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   let allIcons = [];
   let allModules = [];
   let selectedRel = new Set();
@@ -297,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Carrega opções ---------- */
-  fetch(withPrefix(`${ROUTES.listarOpcoes}?token=${token}`))
+  fetch(withPrefix(`${ROUTES.listarOpcoes}?token=${token}`), { headers: AJAX_HEADERS })
     .then(r => r.json())
     .then(data => {
       allIcons = data.icons || [];

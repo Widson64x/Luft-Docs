@@ -17,8 +17,11 @@ except ImportError:
     print("ERRO CRITICO: Nao foi possivel encontrar o arquivo Config.py")
     exit(1)
 
-from Models import db
+from Db.Connections import db
 
+from flask_login import LoginManager
+
+from Routes.Auth import Auth_BP
 from Routes.Lia import Lia_BP
 from Routes.Inicio import Inicio_BP, injetarPermissoesGlobais
 from Routes.Modulo import Modulo_BP
@@ -276,27 +279,68 @@ def EncerrarRequisicao(excecao: Optional[BaseException]):
 
 
 # ---------------------------------------
-# Configuracao de Banco (PostgreSQL)
+# Banco de dados (PostgreSQL + SQL Server)
 # ---------------------------------------
 logger.info(
-    "Conectando ao banco de dados PostgreSQL (Ambiente: %s) -> %s",
+    "PostgreSQL (Ambiente: %s) -> %s",
     cfg.APP_ENV,
-    cfg.DATABASE_URL.split('@')[-1]
+    cfg.DATABASE_URL.split("@")[-1],
 )
 
-app.config.update(
-    SQLALCHEMY_DATABASE_URI=cfg.DATABASE_URL,
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SQLALCHEMY_ENGINE_OPTIONS={
+_sqlalchemy_cfg: dict = {
+    "SQLALCHEMY_DATABASE_URI": cfg.DATABASE_URL,
+    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    "SQLALCHEMY_ENGINE_OPTIONS": {
         "poolclass": NullPool,
         "pool_pre_ping": True,
-        "connect_args": {
-            "options": "-c search_path=luftdocst"
-        }
-    }
-)
+        "connect_args": {"options": "-c search_path=luftdocst"},
+    },
+}
+
+# SQL Server (permissões + usuários) — opcional; desativado se SS_* não configuradas
+if cfg.SQLSERVER_URL:
+    _sqlalchemy_cfg["SQLALCHEMY_BINDS"] = {"sqlserver": cfg.SQLSERVER_URL}
+    logger.info(
+        "Bind SQL Server registrado -> %s",
+        cfg.SQLSERVER_URL.split("@")[-1].split("?")[0],
+    )
+else:
+    logger.warning(
+        "SQL Server não configurado (SS_* ausentes). "
+        "Permissões e busca de usuários no AD estarão indisponíveis."
+    )
+
+app.config.update(_sqlalchemy_cfg)
 
 db.init_app(app)
+
+# Cria as tabelas SQL Server (Tb_Permissao, Tb_PermissaoGrupo, etc.) se ainda não existirem.
+# Tabelas PostgreSQL já existentes são ignoradas (checkfirst=True por padrão).
+if cfg.SQLSERVER_URL:
+    try:
+        with app.app_context():
+            db.create_all()
+        logger.info("Tabelas SQL Server verificadas/criadas com sucesso.")
+    except Exception as _e_createall:
+        logger.warning("Não foi possível criar tabelas SQL Server: %s", _e_createall)
+
+# ---------------------------------------------------------------------------
+# flask_login
+# ---------------------------------------------------------------------------
+login_manager = LoginManager(app)
+login_manager.login_view = "Auth.login"          # redireciona para /auth/login
+login_manager.login_message = "Acesso restrito. Por favor, faça login."
+login_manager.login_message_category = "warning"
+
+@login_manager.user_loader
+def _carregar_usuario(user_id: str):
+    """
+    Reconstrói o UsuarioSistema a partir do cookie de sessão do flask_login.
+    Não faz query; usa os dados já armazenados na sessão Flask.
+    """
+    from flask import session as _session
+    from Utils.auth.UsuarioModel import UsuarioSistema
+    return UsuarioSistema.da_sessao(_session)
 
 @app.teardown_appcontext
 def EncerrarSessaoBanco(excecao=None):
@@ -346,6 +390,7 @@ def AjustarPrefixoRota(sufixoRota: str) -> str:
         sufixoRota = "/" + sufixoRota
     return (cfg.BASE_PREFIX + sufixoRota).replace("//", "/")
 
+app.register_blueprint(Auth_BP,         url_prefix=AjustarPrefixoRota("/auth"))
 app.register_blueprint(Inicio_BP,       url_prefix=AjustarPrefixoRota("/"))
 app.register_blueprint(Modulo_BP,       url_prefix=AjustarPrefixoRota("/modulo"))
 app.register_blueprint(Submodulo_BP,    url_prefix=AjustarPrefixoRota("/submodulo"))

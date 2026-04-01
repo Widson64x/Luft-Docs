@@ -77,7 +77,9 @@ class GerenciadorModulos {
                 throw new Error('Rota de listagem de modulos nao configurada.');
             }
 
-            const resposta = await fetch(`${rotaListaModulos}?${parametrosQuery}`);
+            const resposta = await fetch(`${rotaListaModulos}?${parametrosQuery}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
             
             if (!resposta.ok) {
                 throw new Error(`Erro no servidor: ${resposta.statusText}`);

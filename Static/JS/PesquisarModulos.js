@@ -97,7 +97,9 @@ class GerenciadorBusca {
             timerDebounce = setTimeout(async () => {
                 try {
                     const url = this.formatarUrl(`${this.rotasApi.listarAutocomplete}?q=${encodeURIComponent(termo)}`);
-                    const resposta = await fetch(url);
+                    const resposta = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
                     const sugestoes = await resposta.json();
 
                     if (Array.isArray(sugestoes) && sugestoes.length > 0) {
@@ -147,7 +149,9 @@ class GerenciadorBusca {
     async carregarDadosRecomendacao() {
         try {
             const url = this.formatarUrl(this.rotasApi.listarRecomendacoes);
-            const resposta = await fetch(url);
+            const resposta = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
             
             if (!resposta.ok) throw new Error();
 

@@ -1,4 +1,4 @@
-{% extends "Base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block titulo %}Pendências para Aprovação{% endblock %}
 
 {% block page_styles %}
@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROUTES = {
       obterDiffPendente: "{{ url_for('Editor.obterDiffPendente') }}",
     };
+    const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
 
   /**
    * Inicializa o modal de comparacao visual de pendencias, buscando o diff no servidor.
@@ -155,7 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
       painelTechVigente.innerHTML = painelTechPendente.innerHTML = '';
       indicadorCarregamento.style.display = 'block';
 
-        fetch(`${ROUTES.obterDiffPendente}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`)
+        fetch(`${ROUTES.obterDiffPendente}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`, {
+          headers: AJAX_HEADERS
+        })
         .then(resposta => resposta.json())
         .then(dadosResposta => {
           indicadorCarregamento.style.display = 'none';

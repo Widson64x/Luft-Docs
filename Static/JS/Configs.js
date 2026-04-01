@@ -243,7 +243,10 @@ class GerenciadorFeedback {
         try {
             const resposta = await fetch(bugReportURL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify(dadosReporte)
             });
 

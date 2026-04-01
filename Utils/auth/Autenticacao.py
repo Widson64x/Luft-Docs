@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 import requests
 from flask import current_app, redirect, render_template, request, session, url_for
+from flask_login import login_user
 
 from Config import USER_API_URL
 from Utils.auth.MapeamentoCamposUsuario import MAPA_CAMPOS_USUARIO
@@ -35,21 +35,22 @@ def PopularSessaoUsuario(dadosUsuarioApi: dict[str, Any] | None) -> bool:
         "description": grupo_api.get("Descricao_UsuarioGrupo"),
     }
 
-    from Services.ServicoPermissao import ServicoPermissao
+    from Services.PermissaoService import PermissaoService
 
-    definicoes_permissoes = ServicoPermissao().carregarPermissoes()
-    sigla_grupo = session["user_group"].get("acronym")
-    nome_usuario = session.get("user_name")
-    session["permissions"] = {}
-    for nome_permissao, informacoes in definicoes_permissoes.items():
-        session["permissions"][nome_permissao] = (
-            sigla_grupo in informacoes.get("groups", [])
-            or nome_usuario in informacoes.get("users", [])
-        )
+    id_usuario = session.get("user_id")
+    id_grupo = session.get("user_group", {}).get("group_code")
+    session["permissions"] = PermissaoService.computarPermissoesSessao(id_usuario, id_grupo)
 
     session["token"] = dadosUsuarioApi.get("token")
     session["token_expiry"] = dadosUsuarioApi.get("token_expira_em")
     session.permanent = False
+
+    # Registra com flask_login para que @login_required funcione
+    from Utils.auth.UsuarioModel import UsuarioSistema
+    usuario_obj = UsuarioSistema.da_sessao(session)
+    if usuario_obj:
+        login_user(usuario_obj, remember=False)
+
     return True
 
 
@@ -71,6 +72,8 @@ def ValidarUsuarioPorToken() -> bool:
 
 def AutenticarRequisicaoInicial() -> Any:
     """Executa o fluxo inicial de autenticacao da requisicao de entrada."""
+    if session.get("user_name") and session.get("user_id"):
+        return True
     if ValidarUsuarioPorToken():
         return True
     if ValidarUsuarioPorCredenciais():
@@ -79,18 +82,6 @@ def AutenticarRequisicaoInicial() -> Any:
             return redirect(url_for("Inicio.exibirInicio", token=token))
         return True
     return render_template("Auth/InfoLogin.html"), 403
-
-
-def LoginObrigatorio(funcao: Callable[..., Any]) -> Callable[..., Any]:
-    """Garante que a rota decorada so seja acessada por usuarios autenticados."""
-
-    @wraps(funcao)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        if "user_name" not in session or "user_id" not in session:
-            return redirect(url_for("Inicio.exibirInicio"))
-        return funcao(*args, **kwargs)
-
-    return wrapper
 
 
 def EncerrarSessaoUsuario() -> bool:

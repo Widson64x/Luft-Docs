@@ -1,4 +1,4 @@
-{% extends "Base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block titulo %}Editor de Módulos{% endblock %}
 
 {% block page_styles %}
@@ -7,6 +7,11 @@
 {% endblock %}
 {% block page_content %}
 <div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+{% set pode_aprovar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.APROVAR') %}
+{% set pode_editar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.EDITAR') %}
+{% set pode_criar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.CRIAR') %}
+{% set pode_versionar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.SINCRONIZAR') %}
+{% set pode_excluir_modulos = tem_permissao('DOCS.EDITOR_MODULOS.EXCLUIR') %}
 
 <div class="luft-editor-container animate-fade-in">
 
@@ -16,7 +21,7 @@
       Editor de Módulos
     </h1>
     <div class="luft-editor-header-actions">
-      {% if can_module_control %}
+      {% if pode_aprovar_modulos %}
         <a href="{{ url_for('Editor.exibirPendencias', token=token) }}" 
            class="luft-editor-action-btn hover-lift" 
            title="Ver pendências ({{ num_pendencias }})">
@@ -28,7 +33,7 @@
           {% endif %}
         </a>
       {% endif %}
-      {% if can_module_control %}
+      {% if pode_editar_modulos %}
         <a href="{{ url_for('Editor.listarSubmodulos', token=token) }}" 
            class="luft-editor-action-btn hover-lift" 
            title="Editar Submódulos">
@@ -43,7 +48,7 @@
   </div>
 
   <div class="luft-editor-grid" id="moduloGrid">
-    {% if can_create_modules %}   
+    {% if pode_criar_modulos %}   
     <div class="luft-editor-item" style="--delay: 0;">
       <a href="{{ url_for('Editor.criarModulo', token=token) }}" class="luft-editor-card luft-editor-card-dashed text-decoration-none">
         <div class="icon"><i class="ph-bold ph-plus-circle"></i></div>
@@ -116,15 +121,17 @@
           <p class="luft-editor-card-desc">{{ m.descricao }}</p>
 
           <div class="luft-editor-card-actions">
+            {% if pode_editar_modulos %}
             <a href="{{ url_for('Editor.editarModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-primary">
               <i class="ph-bold ph-pencil-simple"></i> Editar
             </a>
-            {% if can_versioning_modules %}
+            {% endif %}
+            {% if pode_versionar_modulos %}
               <a href="{{ url_for('Editor.exibirHistoricoModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-outline">
                 <i class="ph-bold ph-clock-counter-clockwise"></i> Versões
               </a>
             {% endif %}
-            {% if can_delete_modules %}
+            {% if pode_excluir_modulos %}
               <form method="post" action="{{ url_for('Editor.excluirModulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
                 <button type="submit" class="luft-btn luft-btn-danger">
                   <i class="ph-bold ph-trash"></i>
