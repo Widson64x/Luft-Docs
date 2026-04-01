@@ -1,104 +1,451 @@
-@import url('Themes.css');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 /* =================================================================== */
-/* === ESTILOS PARA PÁGINA DE FORMULÁRIO (CRIAÇÃO/EDIÇÃO) === */
+/* === EDITOR_NEW.CSS - ESTILOS DA PÁGINA DE CRIAÇÃO DE MÓDULO       === */
 /* =================================================================== */
 
-/* --- 1. ESTILOS GERAIS DO CORPO --- */
-body {
-    background-color: var(--theme-bg);
-    /* Ou, se quiser o gradiente: */
-    /* background: linear-gradient(135deg, var(--theme-bg-gradient-start) 0%, var(--theme-bg-gradient-end) 100%); */
-    font-family: var(--font-family-base);
+/* --- 0. PAGE WRAPPER & HEADER --- */
+.luft-new-page-wrapper {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: var(--luft-space-8) var(--luft-space-4);
+    position: relative;
+    z-index: 1;
 }
 
-/* --- 2. LAYOUT E CABEÇALHO DA PÁGINA --- */
-.page-header {
+.luft-new-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: var(--luft-space-6);
+    padding-bottom: var(--luft-space-4);
+    border-bottom: 1px solid var(--luft-border);
 }
 
-.page-title {
+.luft-new-header h1 {
+    font-size: clamp(1.4rem, 3.5vw, 1.75rem);
     font-weight: 700;
-    color: var(--theme-text); /* Ajustado para a cor de texto principal */
+    color: var(--luft-text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
 }
 
-/* --- 3. CARD PRINCIPAL DO FORMULÁRIO --- */
-.main-form-card {
-    background: var(--theme-surface);
-    border-radius: 20px;
-    box-shadow: var(--theme-shadow);
-    padding: 2.5rem;
-    border: 1px solid var(--theme-border);
+.luft-new-header h1 i {
+    color: var(--luft-primary-600);
+}
+
+/* --- 1. CARD PRINCIPAL E TÍTULOS --- */
+.luft-new-form-card {
+    background: var(--luft-bg-panel);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-sm);
+    padding: var(--luft-space-8);
+    border: 1px solid var(--luft-border);
     max-width: 800px;
     margin: 0 auto;
 }
 
-/* --- 4. ESTILOS DOS CAMPOS DO FORMULÁRIO --- */
-.form-label {
+.luft-new-section-title {
+    font-size: var(--luft-text-lg);
+    font-weight: 700;
+    color: var(--luft-primary-600);
+    margin-bottom: var(--luft-space-4);
+}
+
+.luft-new-divider {
+    border: none;
+    border-top: 1px solid var(--luft-border);
+    margin: var(--luft-space-4) 0;
+}
+
+/* --- 2. INPUTS GERAIS --- */
+.luft-form-label {
     font-weight: 600;
-    color: var(--theme-text); /* Ajustado para a cor de texto principal */
+    color: var(--luft-text-main);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
 }
 
-.form-control, .form-select {
-    border-radius: 10px;
-    border: 1px solid var(--theme-border);
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text); /* Adicionado para garantir a cor do texto no input */
-    padding: 0.8rem 1rem;
+.luft-form-control {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--luft-text-main, #212529);
+    background-color: var(--luft-bg-panel, #ffffff);
+    border: 1px solid var(--luft-border, #ced4da);
+    border-radius: var(--luft-radius-md, 8px);
     transition: all 0.2s ease-in-out;
+    font-family: inherit;
 }
 
-.form-control::placeholder, .form-select::placeholder {
-    color: var(--placeholder-color);
+.luft-form-control:focus {
+    outline: 0;
+    border-color: var(--luft-primary-400, #86b7fe);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: var(--form-focus-border-color);
-    background-color: var(--theme-surface);
-    box-shadow: var(--form-focus-shadow);
+.luft-form-control::placeholder {
+    color: var(--luft-text-muted, #6c757d);
+    opacity: 1;
 }
 
-/* --- 5. COMPONENTES DE ÍCONE --- */
-#icon-preview-box {
-    width: 60px;
-    height: 60px;
-    background: var(--theme-surface-hover);
-    border: 1px dashed var(--theme-border);
-    border-radius: 10px;
+.luft-form-control[readonly] {
+    background-color: var(--luft-bg-app, #f8f9fa);
+    cursor: pointer;
+}
+
+/* --- 3. BOTÕES --- */
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--luft-radius-md, 8px);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    line-height: 1.5;
+    background: transparent;
+    font-family: inherit;
+}
+
+.luft-btn.luft-btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.luft-btn i {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.luft-btn-primary {
+    background-color: var(--luft-primary-600, #0d6efd);
+    color: #ffffff;
+    border-color: var(--luft-primary-600, #0d6efd);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.luft-btn-primary:hover {
+    background-color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-700, #0b5ed7);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.luft-btn-outline {
+    background-color: var(--luft-bg-panel, #ffffff);
+    color: var(--luft-text-main, #333333);
+    border-color: var(--luft-border, #dee2e6);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50, #f8f9fa);
+    color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-300, #b6d4fe);
+}
+
+/* --- 4. COMPONENTES DE ÍCONE --- */
+.luft-icon-preview {
+    width: 56px;
+    height: 56px;
+    background: var(--luft-bg-app);
+    border: 1px dashed var(--luft-border);
+    border-radius: var(--luft-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    color: var(--theme-text-secondary);
+    font-size: 1.75rem;
+    color: var(--luft-text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-#icon-preview-box:hover {
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn);
+.luft-icon-preview:hover {
+    border-color: var(--luft-primary-500);
+    color: var(--luft-primary-600);
 }
 
-.icon-grid-btn {
+.luft-icon-grid-btn {
     width: 100%;
     aspect-ratio: 1 / 1;
     font-size: 1.8rem;
-    color: var(--theme-text-secondary); /* Adicionado cor base */
+    color: var(--luft-text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--luft-radius-md);
+    cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.icon-grid-btn:hover, .icon-grid-btn.selected {
-    background-color: var(--theme-accent-bg-light);
-    color: var(--theme-primary-btn);
+.luft-icon-grid-btn:hover,
+.luft-icon-grid-btn.selected {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-400);
     transform: scale(1.1);
 }
 
-.text_place {
+/* --- 5. MÓDULOS RELACIONADOS --- */
+.luft-rel-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--luft-radius-full);
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0.25rem 0.35rem 0.25rem 0;
+    border: 1px solid var(--luft-primary-200, var(--luft-border));
+}
+
+.luft-rel-pill .remove {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    color: var(--luft-primary-600);
     opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.luft-rel-pill .remove:hover { opacity: 1; }
+
+.luft-rel-counter, .luft-text-hint {
+    font-size: 0.85rem;
+    color: var(--luft-text-muted);
+}
+
+/* --- 6. MODAIS GERAIS --- */
+.luft-modal-content {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-lg);
+    overflow: hidden;
+}
+
+.luft-modal-header {
+    display: flex;
+    align-items: center;
+    gap: var(--luft-space-3);
+    padding: var(--luft-space-4) var(--luft-space-6);
+    border-bottom: 1px solid var(--luft-border);
+}
+
+.luft-modal-title {
+    font-size: var(--luft-text-lg);
+    font-weight: 700;
+    color: var(--luft-text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.luft-modal-title i { color: var(--luft-primary-600); }
+.luft-modal-body { padding: var(--luft-space-4) var(--luft-space-6); }
+
+.luft-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--luft-space-3);
+    padding: var(--luft-space-4) var(--luft-space-6);
+    border-top: 1px solid var(--luft-border);
+}
+
+.luft-modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--luft-space-3);
+    flex: 1;
+}
+
+.luft-modal-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--luft-space-2);
+}
+
+.luft-modal-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.7rem;
+    border-radius: var(--luft-radius-full);
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-700);
     font-size: 0.8rem;
-    color: var(--theme-text) !important; /* Garantindo que o texto seja visível */
+    font-weight: 600;
+    border: 1px solid var(--luft-primary-200, var(--luft-border));
+}
+
+/* --- 7. BUSCA NOS MODAIS --- */
+.luft-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.luft-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--luft-text-muted);
+    pointer-events: none;
+    z-index: 4;
+}
+
+.luft-modal-search {
+    max-width: 350px;
+    padding: 0.45rem 1.25rem 0.45rem 2.5rem;
+    border-radius: 50px;
+    background-color: var(--luft-bg-app, #f8f9fa);
+}
+
+.luft-modal-search-full {
+    width: 100%;
+    padding-left: 2.75rem;
+    background-color: var(--luft-bg-app, #f8f9fa);
+}
+
+/* --- 8. LISTA DE MÓDULOS RELACIONADOS --- */
+.luft-rel-list {
+    max-height: 55vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.luft-rel-item {
+    border-radius: var(--luft-radius-md);
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.luft-rel-item:hover {
+    background: var(--luft-primary-50);
+    border-color: var(--luft-primary-200, var(--luft-border));
+}
+
+.luft-rel-item-label {
+    display: flex;
+    align-items: center;
+    gap: var(--luft-space-3);
+    padding: var(--luft-space-3) var(--luft-space-4);
+    cursor: pointer;
+    margin: 0;
+    user-select: none;
+    width: 100%;
+}
+
+.luft-rel-check {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid var(--luft-border);
+    border-radius: 6px;
+    background: var(--luft-bg-panel);
+    cursor: pointer;
+    position: relative;
+}
+
+.luft-rel-check:checked {
+    background: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+}
+
+.luft-rel-check:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.luft-rel-item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--luft-radius-md);
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.luft-rel-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.luft-rel-item-name {
+    font-weight: 600;
+    color: var(--luft-text-main);
+    font-size: 0.95rem;
+}
+
+.luft-rel-item-id {
+    font-size: 0.8rem;
+    color: var(--luft-text-muted);
+}
+
+.luft-rel-item:has(.luft-rel-check:checked) {
+    background: var(--luft-primary-50);
+    border-color: var(--luft-primary-300);
+}
+
+/* --- 9. RESPONSIVIDADE --- */
+@media (max-width: 576px) {
+    .luft-new-page-wrapper {
+        padding: var(--luft-space-4) var(--luft-space-3);
+    }
+
+    .luft-new-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .luft-new-header .luft-btn-group {
+        width: 100%;
+    }
+
+    .luft-new-header .luft-btn-group .luft-btn {
+        flex: 1;
+    }
+
+    .luft-new-form-card, .luft-modal-body, .luft-modal-footer {
+        padding: var(--luft-space-4);
+    }
+
+    .luft-modal-header {
+        padding: var(--luft-space-3) var(--luft-space-4);
+    }
+
+    .luft-modal-search {
+        max-width: 100%;
+        margin-top: 0.5rem;
+    }
 }

@@ -1,0 +1,75 @@
+{% extends "Layout/BaseLayout.html" %}
+
+{% block titulo %}LuftDocs - Mapa de Conhecimento Dinâmico{% endblock %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Map.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-mapa-container mt-4 mb-4" style="position: relative; z-index: 2;">
+    
+    <div class="luft-mapa-actions-top d-flex justify-content-end gap-2 mb-3">
+        <a href="{{ url_for('Inicio.exibirInicio', token=request.args.get('token')) }}" id="btnVoltarCards" class="luft-btn luft-btn-primary page-transition-btn">
+            <i class="ph-bold ph-grid-four"></i> Ver Cards
+        </a>
+
+        {% if tem_permissao('DOCS.EDITOR_MODULOS.VISUALIZAR') %}
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
+            <i class="ph-bold ph-pencil-simple"></i> Acessar Editor
+        </a>
+        {% endif %}
+        
+        {% if tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=request.args.get('token')) }}" class="luft-btn luft-btn-outline page-transition-btn">
+            <i class="ph-bold ph-shield-check"></i> Gerenciar Permissões
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="luft-mapa-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-opacity-25" style="border-color: var(--luft-border) !important;">
+        <h1 class="text-main font-black text-2xl m-0">Mapa de Conhecimento</h1>
+        
+        <div class="luft-search-box shadow-sm">
+            <i class="ph-bold ph-magnifying-glass text-muted"></i>
+            <input type="text" id="inputFiltroMapa" class="luft-search-input" placeholder="Filtrar módulos no mapa...">
+        </div>
+    </div>
+
+    <div class="luft-mapa-canvas-wrapper" id="wrapperCanvasMapa">
+        <div id="containerGrafoD3" style="width: 100%; height: 100%;"></div>
+        
+        <div id="mensagemSemResultadosMapa" class="luft-mapa-empty" style="display: none;">
+            <i class="ph-thin ph-smiley-sad text-muted mb-3" style="font-size: 4rem;"></i>
+            <h4 class="font-bold text-main m-0">Nenhum módulo encontrado</h4>
+            <p class="text-muted mt-2">Ajuste os termos da sua pesquisa para visualizar os nós.</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script id="dados-permissoes" type="application/json">
+    {
+        "podeVisualizarTecnico": {{ tem_permissao('DOCS.MODULOS_TECNICOS.VISUALIZAR')|tojson }}
+    }
+</script>
+
+<script id="dados-modulos" type="application/json">{{ modulos|tojson }}</script>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/GerenciadorMapaModulos.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new AnimacaoFundo('containerAnimacaoFundo').iniciar();
+    });
+</script>
+{% endblock %}

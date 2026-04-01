@@ -1,229 +1,534 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === SEARCH_RESULTS.CSS - ESTILOS DA PÁGINA DE BUSCA === */
+/* === SEARCH_RESULTS.CSS - ESTILOS DA PÁGINA DE BUSCA (LUFTCORE)  === */
 /* =================================================================== */
 
-/* --- 1. ANIMAÇÕES E LAYOUT GERAL --- */
+/* --- 1. ANIMAÇÕES --- */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(25px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes shine {
-    0% { transform: translateX(-150%) skewX(-25deg); }
-    100% { transform: translateX(150%) skewX(-25deg); }
+@keyframes shimmer {
+    0%   { transform: translateX(-150%) skewX(-25deg); }
+    100% { transform: translateX(250%) skewX(-25deg); }
 }
 
-.search-page-container {
-    max-width: 960px;
-    margin: 3rem auto;
-    padding: 1rem;
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--luft-primary-500) 20%, transparent); }
+    50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--luft-primary-500) 0%, transparent); }
 }
 
-/* --- 2. CABEÇALHO E FORMULÁRIO DE BUSCA --- */
-.search-header h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    font-weight: 700;
-    font-size: 2.5rem;
-    color: var(--theme-text);
-    text-shadow: 0 2px 10px var(--theme-shadow);
+
+/* =================================================================== */
+/* === 2. CONTAINER PRINCIPAL DA PÁGINA === */
+/* =================================================================== */
+
+.luft-search-page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
 }
 
-.search-form-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background: var(--theme-surface);
-    padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: var(--theme-shadow);
-    border: 1.5px solid var(--theme-border);
+
+/* =================================================================== */
+/* === 3. PAINEL DO CABEÇALHO (BUSCA + FILTROS) === */
+/* =================================================================== */
+
+.luft-search-header-panel {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 16px;
+    padding: 28px;
+    padding-top: 31px;
+    box-shadow: var(--luft-shadow-sm);
     position: relative;
-    margin-bottom: 3rem;
+    overflow: visible;
 }
 
-/* Nossos componentes de formulário customizados */
-.form-input, .form-select {
-    width: 100%;
-    padding: 0.8rem 1.25rem;
-    font-size: 1.1rem; /* Fonte maior para destaque */
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text);
-    border: 1.5px solid transparent;
-    border-radius: 0.75rem;
-    transition: all 0.25s ease;
-}
-
-.form-input:focus, .form-select:focus {
-    outline: none;
-    background-color: var(--theme-surface);
-    border-color: var(--form-focus-border-color);
-    box-shadow: var(--form-focus-shadow);
-}
-
-/* Estilo específico para o select parecer com o input */
-.form-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 1.25rem center;
-    background-size: 16px 12px;
-}
-body.theme-dark .form-select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-}
-
-/* --- 3. SUMÁRIO E CARDS DE RESULTADO --- */
-.search-summary {
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    font-size: 1.2rem;
-    padding-left: 1rem;
-    border-left: 4px solid var(--theme-primary-btn);
-    color: var(--theme-text);
-}
-
-.result-card {
-    display: flex;
-    gap: 1.5rem;
-    background-color: var(--theme-surface);
-    border: 1.5px solid var(--theme-border);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--theme-shadow);
-    transition: all 0.3s ease;
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0;
-    position: relative;
-    overflow: hidden;
-}
-
-.result-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--card-hover-shadow);
-    border-color: var(--theme-primary-btn);
-}
-
-/* Efeito Shine no Hover */
-.result-card::after {
+/* Detalhe decorativo sutil no topo do painel */
+.luft-search-header-panel::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 50px;
-    height: 150%;
-    background: linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--theme-accent-glow) 20%, transparent) 50%, transparent 100%);
-    opacity: 0.3;
-    transform: translateX(-150%) skewX(-25deg);
-}
-.result-card:hover::after {
-    animation: shine 1s;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--luft-primary-500), var(--luft-primary-700));
+    border-radius: 16px 16px 0 0;
 }
 
-/* --- 4. MÍDIA E CONTEÚDO DO CARD --- */
-.result-media-preview {
+/* Grid: campo de busca + filtro de módulo lado a lado */
+.luft-search-controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 12px;
+    align-items: start;
+}
+
+/* Wrapper do input de busca (para posicionar o autocomplete) */
+.luft-search-input-wrapper {
+    position: relative;
+    z-index: 999;
+}
+
+/* Caixa de busca com ícone inline */
+.luft-search-box2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--luft-bg-app);
+    border: 1.5px solid var(--luft-border);
+    border-radius: 10px;
+    padding: 0 16px;
+    transition: all 0.25s ease;
+}
+
+.luft-search-box2 i {
+    font-size: 1.1rem;
+    color: var(--luft-text-muted);
     flex-shrink: 0;
-    width: 180px;
-    height: 120px;
-    border-radius: 0.75rem;
+}
+
+.luft-search-box2:focus-within {
+    border-color: var(--luft-primary-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--luft-primary-500) 15%, transparent);
+    background: var(--luft-bg-panel);
+}
+
+.luft-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--luft-text-main);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 12px 0;
+    font-family: inherit;
+}
+
+.luft-search-input::placeholder {
+    color: var(--luft-text-muted);
+    font-weight: 400;
+}
+
+/* Wrapper do filtro de módulo */
+.luft-search-filter-wrapper select {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background-color: var(--luft-bg-app);
+    color: var(--luft-text-main);
+    border: 1.5px solid var(--luft-border);
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 10px;
+}
+
+.luft-search-filter-wrapper select:focus {
+    outline: none;
+    border-color: var(--luft-primary-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--luft-primary-500) 15%, transparent);
+    background-color: var(--luft-bg-panel);
+}
+
+
+/* =================================================================== */
+/* === 4. DROPDOWN DE AUTOCOMPLETE === */
+/* =================================================================== */
+
+.luft-autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--luft-shadow-lg);
     overflow: hidden;
-    background-color: var(--theme-surface-hover);
-    transition: transform 0.4s ease;
-}
-.result-card:hover .result-media-preview {
-    transform: scale(1.08);
-}
-.result-media-preview img, .result-media-preview video { width: 100%; height: 100%; object-fit: cover; }
-
-.result-content { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
-.result-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
-.result-card-header .icon { font-size: 1.1rem; color: var(--theme-primary-btn); }
-.result-card-header .module-name { font-weight: 700; font-size: 1.15rem; color: var(--theme-text); }
-.doc-type-badge {
-    font-size: 0.7rem; padding: 0.25em 0.8em; border-radius: 2rem;
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-text-secondary);
-    font-weight: 600; text-transform: uppercase;
+    max-height: 320px;
+    overflow-y: auto;
 }
 
-.result-snippet { color: var(--theme-text-secondary); font-size: 0.95rem; line-height: 1.6; }
-.result-snippet mark {
-    background-color: var(--highlight-bg);
-    color: var(--highlight-text);
-    font-weight: 600; padding: 2px 4px; border-radius: 4px;
+.luft-autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: var(--luft-text-main);
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid color-mix(in srgb, var(--luft-border) 50%, transparent);
 }
 
-/* --- 5. PAGINAÇÃO CUSTOMIZADA --- */
-.custom-pagination {
+.luft-autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.luft-autocomplete-item i {
+    color: var(--luft-text-muted);
+    font-size: 0.9rem;
+}
+
+.luft-autocomplete-item:hover {
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    padding-left: 22px;
+}
+
+.luft-autocomplete-item:hover i {
+    color: var(--luft-primary-600);
+}
+
+
+/* =================================================================== */
+/* === 5. ÁREA DE RESULTADOS === */
+/* =================================================================== */
+
+.luft-results-area {
+    margin-top: 1.5rem;
+}
+
+/* Grid de resultados em lista vertical */
+.luft-results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+/* =================================================================== */
+/* === 6. CARD DE RESULTADO === */
+/* =================================================================== */
+
+.luft-result-card-link {
+    text-decoration: none;
+    color: var(--luft-text-main);
+    display: block;
+}
+
+.luft-result-card {
+    display: flex;
+    gap: 18px;
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 14px;
+    padding: 18px;
+    color: var(--luft-text-main);
+    box-shadow: var(--luft-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: fadeInUp 0.5s ease-out both;
+    position: relative;
+    overflow: hidden;
+}
+
+.luft-result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--luft-shadow-lg);
+    border-color: var(--luft-primary-400);
+}
+
+/* Efeito shimmer no hover */
+.luft-result-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        color-mix(in srgb, var(--luft-primary-500) 12%, transparent) 50%,
+        transparent 100%
+    );
+    opacity: 0;
+    transform: translateX(-150%) skewX(-25deg);
+    pointer-events: none;
+}
+
+.luft-result-card:hover::after {
+    opacity: 1;
+    animation: shimmer 0.8s ease-out;
+}
+
+
+/* =================================================================== */
+/* === 7. MÍDIA DO CARD (PREVIEW) === */
+/* =================================================================== */
+
+.luft-result-media {
+    flex-shrink: 0;
+    width: 170px;
+    height: 110px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--luft-bg-app);
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.luft-result-card:hover .luft-result-media {
+    transform: scale(1.05);
+}
+
+.luft-result-media img,
+.luft-result-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* =================================================================== */
+/* === 8. CORPO DO CARD === */
+/* =================================================================== */
+
+.luft-result-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* Linha de metadados: ícone, módulo, badge, contagem */
+.luft-result-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.92rem;
+    flex-wrap: wrap;
+}
+
+.luft-result-meta i {
+    font-size: 1.05rem;
+}
+
+/* Badge de tipo (ex: "Tutorial", "PDF") */
+.luft-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--luft-primary-500) 12%, transparent);
+    color: var(--luft-primary-700);
+}
+
+/* Snippet do resultado */
+.luft-result-snippet {
+    color: var(--luft-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.luft-result-snippet mark {
+    background: color-mix(in srgb, var(--luft-primary-500) 20%, transparent);
+    color: var(--luft-primary-700);
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+
+/* =================================================================== */
+/* === 9. PAGINAÇÃO === */
+/* =================================================================== */
+
+.luft-pagination {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    margin: 2.5rem 0;
+    gap: 6px;
+    margin: 2rem 0;
     list-style: none;
     padding: 0;
 }
-.custom-pagination a {
-    display: block;
-    padding: 0.5rem 1rem;
-    min-width: 40px;
-    text-align: center;
-    text-decoration: none;
-    color: var(--theme-primary-btn);
-    background-color: var(--theme-surface);
-    border: 1.5px solid var(--theme-border);
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-}
-.custom-pagination li.active a {
-    background-color: var(--theme-primary-btn);
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn-text);
-    box-shadow: 0 4px 10px color-mix(in srgb, var(--theme-primary-btn) 30%, transparent);
-    transform: translateY(-2px);
-}
-.custom-pagination li.disabled a {
-    color: var(--theme-text-secondary);
-    background-color: var(--theme-surface-hover);
-    pointer-events: none;
-}
-.custom-pagination li:not(.active) a:hover {
-    background-color: var(--theme-surface-hover);
-    border-color: var(--theme-primary-btn);
-}
 
-/* --- 6. RECOMENDAÇÕES E AUTOCOMPLETE --- */
-.recommendations-section { margin-top: 3rem; }
-.recommendations-section h5 { font-weight: 600; margin-bottom: 1rem; color: var(--theme-text); }
-.recommendation-list {
-    background: var(--theme-surface);
-    border: 1.5px solid var(--theme-border);
-    border-radius: 1rem;
-    overflow: hidden;
-}
-.recommendation-item {
+.luft-pagination li a {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.8rem 1.25rem;
+    justify-content: center;
+    padding: 8px 14px;
+    min-width: 40px;
     text-decoration: none;
-    color: var(--theme-text);
-    transition: all 0.25s ease;
-    border-bottom: 1px solid var(--theme-border);
-}
-.recommendation-list .recommendation-item:last-child { border-bottom: none; }
-.recommendation-item:hover {
-    background-color: var(--theme-surface-hover);
-    color: var(--theme-primary-btn);
-    padding-left: 1.75rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--luft-text-main);
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-#autocomplete-results {
-    /* Estilos existentes são bons, apenas garantindo consistência */
-    border-radius: 0 0 1rem 1rem;
-    box-shadow: 0 15px 30px var(--theme-shadow);
+.luft-pagination li.active a {
+    background: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+    color: #ffffff;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--luft-primary-600) 35%, transparent);
+    transform: translateY(-2px);
+}
+
+.luft-pagination li.disabled a {
+    color: var(--luft-text-muted);
+    background: var(--luft-bg-app);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.luft-pagination li:not(.active):not(.disabled) a:hover {
+    border-color: var(--luft-primary-500);
+    color: var(--luft-primary-600);
+    background: var(--luft-primary-50);
+}
+
+
+/* =================================================================== */
+/* === 10. ESTADO VAZIO === */
+/* =================================================================== */
+
+.luft-empty-state {
+    text-align: center;
+    padding: 56px 24px;
+    background: var(--luft-bg-panel);
+    border: 1px dashed var(--luft-border);
+    border-radius: 16px;
+}
+
+.luft-empty-state i {
+    opacity: 0.4;
+}
+
+
+/* =================================================================== */
+/* === 11. SEÇÃO DE TAGS POPULARES === */
+/* =================================================================== */
+
+.luft-popular-section {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: var(--luft-shadow-sm);
+}
+
+.luft-tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.luft-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--luft-text-main);
+    background: var(--luft-bg-app);
+    border: 1px solid var(--luft-border);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.luft-tag i {
+    font-size: 0.8rem;
+    color: var(--luft-text-muted);
+    transition: color 0.2s ease;
+}
+
+.luft-tag:hover {
+    background: var(--luft-primary-50);
+    border-color: var(--luft-primary-400);
+    color: var(--luft-primary-700);
+    transform: translateY(-2px);
+    box-shadow: var(--luft-shadow-sm);
+}
+
+.luft-tag:hover i {
+    color: var(--luft-primary-600);
+}
+
+
+/* =================================================================== */
+/* === 12. ALERTA DE ERRO === */
+/* =================================================================== */
+
+.luft-alert {
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.luft-alert-danger {
+    background: color-mix(in srgb, #ef4444 10%, var(--luft-bg-panel));
+    color: #dc2626;
+    border: 1px solid color-mix(in srgb, #ef4444 25%, transparent);
+}
+
+
+/* =================================================================== */
+/* === 13. RESPONSIVIDADE === */
+/* =================================================================== */
+
+@media (max-width: 768px) {
+    .luft-search-controls-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .luft-result-card {
+        flex-direction: column;
+    }
+
+    .luft-result-media {
+        width: 100%;
+        height: 160px;
+    }
+
+    .luft-search-header-panel {
+        padding: 20px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .luft-search-page-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .luft-result-card {
+        padding: 14px;
+    }
+    
+    .luft-tag-cloud {
+        gap: 6px;
+    }
+
+    .luft-tag {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+    }
 }

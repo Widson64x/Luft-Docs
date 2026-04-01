@@ -1,350 +1,564 @@
 # models.py
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func
 from datetime import datetime
+from sqlalchemy import UniqueConstraint
 
-db = SQLAlchemy()
+from sqlalchemy.orm import synonym
+from sqlalchemy.sql import func
 
-permissoes_grupos = db.Table('Lft_Tb_Perm_Rel_Grupos',
-    db.Column('permissao_id', db.Integer, db.ForeignKey('Lft_Tb_Perm_Permissoes.id'), primary_key=True),
-    db.Column('grupo_id', db.Integer, db.ForeignKey('Lft_Tb_Perm_Grupos.id'), primary_key=True)
+from Db.Connections import BIND_PG, db, BIND_SQL  # instância única, roteamento por BIND_SQL / BIND_PG
+
+roteiros_modulos = db.Table(
+    "Tb_Docs_RelacaoRoteirosModulos",
+    db.Column("RoteiroId", db.Integer, db.ForeignKey("Tb_Docs_Roteiros.Id"), primary_key=True),
+    db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), primary_key=True),
+    info={"bind_key": BIND_PG},
 )
 
-permissoes_usuarios = db.Table('Lft_Tb_Perm_Rel_Usuarios',
-    db.Column('permissao_id', db.Integer, db.ForeignKey('Lft_Tb_Perm_Permissoes.id'), primary_key=True),
-    db.Column('usuario_id', db.Integer, db.ForeignKey('Lft_Tb_Perm_Usuarios.id'), primary_key=True)
-)
 
-# Tabela de associação para o relacionamento N:N entre Roteiros e Módulos
-roteiros_modulos = db.Table('Lft_Tb_Doc_Rel_RoteirosModulos',
-    db.Column('roteiro_id', db.Integer, db.ForeignKey('Lft_Tb_Doc_Roteiros.id'), primary_key=True),
-    db.Column('modulo_id', db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), primary_key=True)
-)
 
-class Permissao(db.Model):
-    __tablename__ = 'Lft_Tb_Perm_Permissoes'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column('id_permissao', db.String(100), unique=True, nullable=False)
-    descricao = db.Column(db.String(255), nullable=True)
+class ReporteBug(db.Model):
+    __tablename__ = "Tb_Docs_ReportesBug"
+    __bind_key__ = BIND_PG
 
-    grupos = db.relationship('Grupo', secondary=permissoes_grupos, lazy='subquery',
-                             back_populates='permissoes')
-    usuarios = db.relationship('Usuario', secondary=permissoes_usuarios, lazy='subquery',
-                               back_populates='permissoes')
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    UsuarioId = db.Column("UsuarioId", db.Integer, nullable=False)
+    TipoReporte = db.Column("TipoReporte", db.String(50), nullable=False)
+    EntidadeAlvo = db.Column("EntidadeAlvo", db.String(100), nullable=True)
+    CategoriaErro = db.Column("CategoriaErro", db.String(100), nullable=True)
+    Descricao = db.Column("Descricao", db.Text, nullable=False)
+    Status = db.Column("Status", db.String(50), nullable=False, default="aberto")
+    CriadoEm = db.Column("CriadoEm", db.TIMESTAMP, server_default=func.now(), nullable=False)
 
-    def __repr__(self):
-        return f'<Permissao {self.nome}>'
-
-class Grupo(db.Model):
-    __tablename__ = 'Lft_Tb_Perm_Grupos'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column('nome_grupo', db.String(100), unique=True, nullable=False)
-    
-    permissoes = db.relationship('Permissao', secondary=permissoes_grupos, lazy='subquery',
-                                 back_populates='grupos')
+    id = synonym("Id")
+    user_id = synonym("UsuarioId")
+    report_type = synonym("TipoReporte")
+    target_entity = synonym("EntidadeAlvo")
+    error_category = synonym("CategoriaErro")
+    description = synonym("Descricao")
+    status = synonym("Status")
+    created_at = synonym("CriadoEm")
 
     def __repr__(self):
-        return f'<Grupo {self.nome}>'
+        return f"<ReporteBug {self.Id} por {self.UsuarioId}>"
 
-class Usuario(db.Model):
-    __tablename__ = 'Lft_Tb_Perm_Usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column('nome_usuario', db.String(100), unique=True, nullable=False)
-    
-    # O 'back_populates' agora aponta para 'usuarios', que é o nome correto 
-    # do relacionamento na classe Permissao.
-    permissoes = db.relationship('Permissao', secondary=permissoes_usuarios, lazy='subquery',
-                                 back_populates='usuarios')
 
-    def __repr__(self):
-        return f'<Usuario {self.nome}>'
-    
-class BugReport(db.Model):
-    """
-    Representa um registro de bug ou sugestão enviado por um usuário.
-    Mapeia para a tabela Lft_Tb_Fbk_BugReports.
-    """
-    __tablename__ = 'Lft_Tb_Fbk_BugReports'
-    
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    # Mantido como Integer para corresponder ao seu schema original.
-    user_id = db.Column(db.Integer, nullable=False)
-    report_type = db.Column(db.String(50), nullable=False)
-    target_entity = db.Column(db.String(100), nullable=True)
-    error_category = db.Column(db.String(100), nullable=True)
-    description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='aberto')
-    
-    # Define o valor padrão para a data/hora de criação no nível do banco de dados.
-    created_at = db.Column(db.TIMESTAMP, server_default=func.now(), nullable=False)
+class FeedbackIA(db.Model):
+    __tablename__ = "Tb_Docs_FeedbackIA"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    RespostaId = db.Column("RespostaId", db.String, nullable=False)
+    UsuarioId = db.Column("UsuarioId", db.String, nullable=False)
+    PerguntaUsuario = db.Column("PerguntaUsuario", db.Text, nullable=True)
+    ModeloUtilizado = db.Column("ModeloUtilizado", db.String(100), nullable=True)
+    FontesContexto = db.Column("FontesContexto", db.Text, nullable=True)
+    Avaliacao = db.Column("Avaliacao", db.Integer, nullable=True)
+    Comentario = db.Column("Comentario", db.Text, nullable=True)
+    RegistradoEm = db.Column("RegistradoEm", db.TIMESTAMP, nullable=False, default=datetime.utcnow)
+
+    feedback_id = synonym("Id")
+    response_id = synonym("RespostaId")
+    user_id = synonym("UsuarioId")
+    user_question = synonym("PerguntaUsuario")
+    model_used = synonym("ModeloUtilizado")
+    context_sources = synonym("FontesContexto")
+    rating = synonym("Avaliacao")
+    comment = synonym("Comentario")
+    timestamp = synonym("RegistradoEm")
 
     def __repr__(self):
-        return f'<BugReport {self.id} por {self.user_id}>'
+        return f"<FeedbackIA {self.Id} for response {self.RespostaId}>"
 
-class IAFeedback(db.Model):
-    """
-    Representa um registro de feedback de um usuário para uma resposta da IA.
-    Mapeia para a tabela Lft_Tb_Fbk_IA_Feedback.
-    """
-    #
-    # Basicamente, este é o "Livro de Reclamações" da Lia.
-    # É aqui que o usuário diz:
-    # "Eu perguntei sobre WMS e ela me respondeu sobre o jogo do Palmeiras x LDU."
-    # Que cagada do Palmeiras, viraram um 3 x 0 na cagada...
-    #
-    __tablename__ = 'Lft_Tb_Fbk_IA_Feedback'
 
-    feedback_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    response_id = db.Column(db.String, nullable=False)
-    user_id = db.Column(db.String, nullable=False)
-    user_question = db.Column(db.Text, nullable=True)
-    model_used = db.Column(db.String(100), nullable=True)
-    context_sources = db.Column(db.Text, nullable=True) # Armazenado como string JSON
-    rating = db.Column(db.Integer, nullable=True) # 1 = 👍, 0 = 👎
-    comment = db.Column(db.Text, nullable=True) # "Eu não entendi nada"
-    timestamp = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow)
+class AcessoDocumento(db.Model):
+    __tablename__ = "Tb_Docs_LogAcessosDocumentos"
+    __bind_key__ = BIND_PG
 
-    def __repr__(self):
-        return f'<IAFeedback {self.feedback_id} for response {self.response_id}>'
-    
-class DocumentAccess(db.Model):
-    """ Mapeia para a tabela de log de acesso a documentos. """
-    __tablename__ = 'Lft_Tb_Log_DocumentAccess'
-    document_id = db.Column(db.String(255), primary_key=True)
-    access_count = db.Column(db.Integer, nullable=False, default=1)
-    last_access = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    DocumentoId = db.Column("DocumentoId", db.String(255), primary_key=True)
+    QuantidadeAcessos = db.Column("QuantidadeAcessos", db.Integer, nullable=False, default=1)
+    UltimoAcessoEm = db.Column(
+        "UltimoAcessoEm",
+        db.TIMESTAMP,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
 
-class SearchLog(db.Model):
-    """ Mapeia para a tabela de log de termos de busca. """
-    __tablename__ = 'Lft_Tb_Log_SearchLog' # Usando o novo padrão
-    query_term = db.Column(db.String(255), primary_key=True)
-    search_count = db.Column(db.Integer, nullable=False, default=1)
-    last_searched = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    document_id = synonym("DocumentoId")
+    access_count = synonym("QuantidadeAcessos")
+    last_access = synonym("UltimoAcessoEm")
+
+
+class LogBusca(db.Model):
+    __tablename__ = "Tb_Docs_LogBuscas"
+    __bind_key__ = BIND_PG
+
+    TermoBusca = db.Column("TermoBusca", db.String(255), primary_key=True)
+    QuantidadeBuscas = db.Column("QuantidadeBuscas", db.Integer, nullable=False, default=1)
+    UltimaBuscaEm = db.Column(
+        "UltimaBuscaEm",
+        db.TIMESTAMP,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
+    query_term = synonym("TermoBusca")
+    search_count = synonym("QuantidadeBuscas")
+    last_searched = synonym("UltimaBuscaEm")
+
 
 class Modulo(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_Modulos'
-    id = db.Column(db.String(100), primary_key=True)
-    nome = db.Column(db.String(255), nullable=False)
-    descricao = db.Column(db.Text, nullable=True)
-    icone = db.Column(db.String(50), nullable=True)
-    status = db.Column(db.String(50), nullable=True)
-    ultima_edicao_user = db.Column(db.String(100), nullable=True)
-    ultima_edicao_data = db.Column(db.String(100), nullable=True)
-    pending_edit_user = db.Column(db.String(100), nullable=True)
-    pending_edit_data = db.Column(db.String(100), nullable=True)
-    current_version = db.Column(db.String(50), nullable=True)
-    last_approved_by = db.Column(db.String(100), nullable=True)
-    last_approved_on = db.Column(db.String(100), nullable=True)
+    __tablename__ = "Tb_Docs_Modulos"
+    __bind_key__ = BIND_PG
 
-    palavras_chave = db.relationship('PalavraChave', back_populates='modulo', cascade="all, delete-orphan", lazy='joined')
-    edit_history = db.relationship('HistoricoEdicao', back_populates='modulo', cascade="all, delete-orphan", lazy='joined')
-
-    roteiros = db.relationship('Roteiro', secondary=roteiros_modulos,
-                               back_populates='modulos', lazy='joined')
-      
-    # CORREÇÃO APLICADA AQUI: A sintaxe de 'primaryjoin' e 'secondaryjoin' foi corrigida.
-    relacionados = db.relationship(
-        'Modulo',
-        secondary='Lft_Tb_Doc_ModulosRelacionados',
-        primaryjoin=lambda: Modulo.id == ModuloRelacionado.modulo_id,
-        secondaryjoin=lambda: Modulo.id == ModuloRelacionado.relacionado_id,
-        backref='relacionado_por',
-        lazy='joined'
+    Id = db.Column("Id", db.String(100), primary_key=True)
+    Nome = db.Column("Nome", db.String(255), nullable=False)
+    Descricao = db.Column("Descricao", db.Text, nullable=True)
+    Icone = db.Column("Icone", db.String(50), nullable=True)
+    Status = db.Column("Status", db.String(50), nullable=True)
+    UsuarioUltimaEdicao = db.Column("UsuarioUltimaEdicao", db.String(100), nullable=True)
+    DataUltimaEdicao = db.Column("DataUltimaEdicao", db.String(100), nullable=True)
+    UsuarioEdicaoPendente = db.Column("UsuarioEdicaoPendente", db.String(100), nullable=True)
+    DataEdicaoPendente = db.Column("DataEdicaoPendente", db.String(100), nullable=True)
+    VersaoAtual = db.Column("VersaoAtual", db.String(50), nullable=True)
+    AprovadoPor = db.Column("AprovadoPor", db.String(100), nullable=True)
+    AprovadoEm = db.Column("AprovadoEm", db.String(100), nullable=True)
+    Is_Restrito = db.Column("Is_Restrito", db.Boolean, default=False)
+    
+    PalavrasChave = db.relationship(
+        "PalavraChave",
+        back_populates="Modulo",
+        cascade="all, delete-orphan",
+        lazy="joined",
     )
+    HistoricoEdicoes = db.relationship(
+        "HistoricoEdicao",
+        back_populates="Modulo",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+    Roteiros = db.relationship(
+        "Roteiro",
+        secondary=roteiros_modulos,
+        back_populates="Modulos",
+        lazy="joined",
+    )
+    Relacionados = db.relationship(
+        "Modulo",
+        secondary="Tb_Docs_ModulosRelacionados",
+        primaryjoin=lambda: Modulo.Id == ModuloRelacionado.ModuloId,
+        secondaryjoin=lambda: Modulo.Id == ModuloRelacionado.RelacionadoId,
+        backref="RelacionadoPor",
+        lazy="joined",
+    )
+
+    id = synonym("Id")
+    nome = synonym("Nome")
+    descricao = synonym("Descricao")
+    icone = synonym("Icone")
+    status = synonym("Status")
+    ultima_edicao_user = synonym("UsuarioUltimaEdicao")
+    ultima_edicao_data = synonym("DataUltimaEdicao")
+    pending_edit_user = synonym("UsuarioEdicaoPendente")
+    pending_edit_data = synonym("DataEdicaoPendente")
+    current_version = synonym("VersaoAtual")
+    last_approved_by = synonym("AprovadoPor")
+    last_approved_on = synonym("AprovadoEm")
+    is_restrito = synonym("Is_Restrito")
+    palavras_chave = synonym("PalavrasChave")
+    edit_history = synonym("HistoricoEdicoes")
+    roteiros = synonym("Roteiros")
+    relacionados = synonym("Relacionados")
+
+    @property
+    def InfoEdicaoPendente(self):
+        return {"data": self.DataEdicaoPendente, "user": self.UsuarioEdicaoPendente}
 
     @property
     def pending_edit_info(self):
-        """
-        Cria um dicionário para manter a compatibilidade com o template
-        que espera a estrutura 'pending_edit_info.data'.
-        """
-        return {'data': self.pending_edit_data}
+        return self.InfoEdicaoPendente
+
 
 class PalavraChave(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_PalavrasChave'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    modulo_id = db.Column(db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), nullable=False)
-    palavra = db.Column(db.String(100), nullable=False)
-    modulo = db.relationship('Modulo', back_populates='palavras_chave')
+    __tablename__ = "Tb_Docs_PalavrasChave"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
+    Palavra = db.Column("Palavra", db.String(100), nullable=False)
+
+    Modulo = db.relationship("Modulo", back_populates="PalavrasChave")
+
+    id = synonym("Id")
+    modulo_id = synonym("ModuloId")
+    palavra = synonym("Palavra")
+    modulo = synonym("Modulo")
+
 
 class ModuloRelacionado(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_ModulosRelacionados'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    modulo_id = db.Column(db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), nullable=False)
-    relacionado_id = db.Column(db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), nullable=False)
+    __tablename__ = "Tb_Docs_ModulosRelacionados"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
+    RelacionadoId = db.Column("RelacionadoId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
+
+    id = synonym("Id")
+    modulo_id = synonym("ModuloId")
+    relacionado_id = synonym("RelacionadoId")
+
 
 class HistoricoEdicao(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_HistoricoEdicao'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    modulo_id = db.Column(db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id'), nullable=False)
-    event = db.Column(db.String(100))
-    version = db.Column(db.String(50))
-    editor = db.Column(db.String(100))
-    approver = db.Column(db.String(100))
-    timestamp = db.Column(db.String(100))
-    backup_file_doc = db.Column(db.String(255))
-    backup_file_tech = db.Column(db.String(255))
-    modulo = db.relationship('Modulo', back_populates='edit_history')
+    __tablename__ = "Tb_Docs_HistoricoEdicoes"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    ModuloId = db.Column("ModuloId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"), nullable=False)
+    Evento = db.Column("Evento", db.String(100))
+    Versao = db.Column("Versao", db.String(50))
+    Editor = db.Column("Editor", db.String(100))
+    Aprovador = db.Column("Aprovador", db.String(100))
+    RegistradoEm = db.Column("RegistradoEm", db.String(100))
+    ArquivoBackupDocumentacao = db.Column("ArquivoBackupDocumentacao", db.String(255))
+    ArquivoBackupDocumentacaoTecnica = db.Column("ArquivoBackupDocumentacaoTecnica", db.String(255))
+
+    Modulo = db.relationship("Modulo", back_populates="HistoricoEdicoes")
+
+    id = synonym("Id")
+    modulo_id = synonym("ModuloId")
+    event = synonym("Evento")
+    version = synonym("Versao")
+    editor = synonym("Editor")
+    approver = synonym("Aprovador")
+    timestamp = synonym("RegistradoEm")
+    backup_file_doc = synonym("ArquivoBackupDocumentacao")
+    backup_file_tech = synonym("ArquivoBackupDocumentacaoTecnica")
+    modulo = synonym("Modulo")
+
 
 class PalavraGlobal(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_PalavrasGlobais'
-    palavra = db.Column(db.String(100), primary_key=True)
-    descricao = db.Column(db.Text)
+    __tablename__ = "Tb_Docs_PalavrasGlobais"
+    __bind_key__ = BIND_PG
+
+    Palavra = db.Column("Palavra", db.String(100), primary_key=True)
+    Descricao = db.Column("Descricao", db.Text)
+
+    palavra = synonym("Palavra")
+    descricao = synonym("Descricao")
 
 
+class CategoriaTagMeta(db.Model):
+    __tablename__ = "Tb_Docs_CategoriasTagsMeta"
+    __bind_key__ = BIND_PG
 
-# --- MÓDULO DE METADADOS ---
-# Este módulo implementa o sistema de dicionário de dados inteligente
-# para catalogar e dar funcionalidade às tags de nomenclatura do banco.
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    Nome = db.Column("Nome", db.String(100), unique=True, nullable=False)
+    Descricao = db.Column("Descricao", db.Text, nullable=True)
 
-class MetaTagCategoria(db.Model):
-    """
-    Classifica o tipo de cada tag. Ex: 'Projeto', 'Módulo', 'Tipo de Objeto'.
-    """
-    __tablename__ = 'Lft_Tb_Meta_TagCategorias'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), unique=True, nullable=False)
-    descricao = db.Column(db.Text, nullable=True)
+    Tags = db.relationship(
+        "TagMeta",
+        back_populates="Categoria",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
 
-    # Relacionamento um-para-muitos: Uma categoria pode ter várias tags.
-    tags = db.relationship('MetaTag', back_populates='categoria', cascade="all, delete-orphan", lazy='joined')
-
-    def __repr__(self):
-        return f'<MetaTagCategoria {self.nome}>'
-
-class MetaTag(db.Model):
-    """
-    Armazena cada tag (ex: 'Lft', 'Doc', 'Perm') e sua descrição.
-    """
-    __tablename__ = 'Lft_Tb_Meta_Tags'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    tag = db.Column(db.String(50), unique=True, nullable=False)
-    descricao = db.Column(db.Text, nullable=False)
-    
-    # Chave estrangeira para a categoria da tag.
-    categoria_id = db.Column(db.Integer, db.ForeignKey('Lft_Tb_Meta_TagCategorias.id'), nullable=False)
-
-    # Relacionamento muitos-para-um: Muitas tags pertencem a uma categoria.
-    categoria = db.relationship('MetaTagCategoria', back_populates='tags')
-    
-    # Relacionamento um-para-muitos com a tabela de associação.
-    objetos_associados = db.relationship('MetaObjetoRelTag', back_populates='tag', cascade="all, delete-orphan")
+    id = synonym("Id")
+    nome = synonym("Nome")
+    descricao = synonym("Descricao")
+    tags = synonym("Tags")
 
     def __repr__(self):
-        return f'<MetaTag {self.tag}>'
+        return f"<CategoriaTagMeta {self.Nome}>"
 
-class MetaObjetoRelTag(db.Model):
-    """
-    Tabela de associação que liga um objeto do banco de dados (pelo seu nome)
-    a uma ou mais tags de metadados.
-    """
-    __tablename__ = 'Lft_Tb_Meta_Rel_ObjetoTag'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    # Armazena o nome da tabela/objeto como string. Ex: 'Lft_Tb_Perm_Usuarios'
-    nome_objeto = db.Column(db.String(255), nullable=False)
-    tipo_objeto = db.Column(db.String(50), nullable=False, default='TABLE')
-    
-    # Chave estrangeira para a tag.
-    tag_id = db.Column(db.Integer, db.ForeignKey('Lft_Tb_Meta_Tags.id'), nullable=False)
 
-    # Relacionamento muitos-para-um com a tag.
-    tag = db.relationship('MetaTag', back_populates='objetos_associados')
+class TagMeta(db.Model):
+    __tablename__ = "Tb_Docs_TagsMeta"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    Tag = db.Column("Tag", db.String(50), unique=True, nullable=False)
+    Descricao = db.Column("Descricao", db.Text, nullable=False)
+    CategoriaId = db.Column("CategoriaId", db.Integer, db.ForeignKey("Tb_Docs_CategoriasTagsMeta.Id"), nullable=False)
+
+    Categoria = db.relationship("CategoriaTagMeta", back_populates="Tags")
+    ObjetosAssociados = db.relationship(
+        "RelacaoObjetoTagMeta",
+        back_populates="TagRelacionada",
+        cascade="all, delete-orphan",
+    )
+
+    id = synonym("Id")
+    tag = synonym("Tag")
+    descricao = synonym("Descricao")
+    categoria_id = synonym("CategoriaId")
+    categoria = synonym("Categoria")
+    objetos_associados = synonym("ObjetosAssociados")
 
     def __repr__(self):
-        # O 'repr' mostra a relação de forma clara para debugging.
-        tag_repr = self.tag.tag if self.tag else 'N/A'
-        return f'<MetaObjetoRelTag Objeto:{self.nome_objeto} -> Tag:{tag_repr}>'
-    
+        return f"<TagMeta {self.Tag}>"
 
-class Evaluation(db.Model):
-    __tablename__ = 'Lft_Tb_Fbk_DocumentEvaluation'
-    id = db.Column(db.Integer, primary_key=True)
-    document_id = db.Column(db.String(100), db.ForeignKey('Lft_Tb_Doc_Modulos.id')) 
-    rating = db.Column(db.Integer)
-    feedback = db.Column(db.Text)
-    suggestions = db.Column(db.Text)
-    techos = db.Column(db.Text)
-    changes = db.Column(db.Text)
 
-    def __init__(self, document_id, rating, feedback, suggestions, techos, changes):
-        self.document_id = document_id
-        self.rating = rating
-        self.feedback = feedback
-        self.suggestions = suggestions
-        self.techos = techos
-        self.changes = changes
+class RelacaoObjetoTagMeta(db.Model):
+    __tablename__ = "Tb_Docs_RelacaoObjetosTagsMeta"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    NomeObjeto = db.Column("NomeObjeto", db.String(255), nullable=False)
+    TipoObjeto = db.Column("TipoObjeto", db.String(50), nullable=False, default="TABLE")
+    TagId = db.Column("TagId", db.Integer, db.ForeignKey("Tb_Docs_TagsMeta.Id"), nullable=False)
+
+    TagRelacionada = db.relationship("TagMeta", back_populates="ObjetosAssociados")
+
+    id = synonym("Id")
+    nome_objeto = synonym("NomeObjeto")
+    tipo_objeto = synonym("TipoObjeto")
+    tag_id = synonym("TagId")
+    tag = synonym("TagRelacionada")
+
+    def __repr__(self):
+        tag_repr = self.TagRelacionada.Tag if self.TagRelacionada else "N/A"
+        return f"<RelacaoObjetoTagMeta Objeto:{self.NomeObjeto} -> Tag:{tag_repr}>"
+
+
+class AvaliacaoDocumento(db.Model):
+    __tablename__ = "Tb_Docs_AvaliacoesDocumentos"
+    __bind_key__ = BIND_PG
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    DocumentoId = db.Column("DocumentoId", db.String(100), db.ForeignKey("Tb_Docs_Modulos.Id"))
+    Avaliacao = db.Column("Avaliacao", db.Integer)
+    Comentario = db.Column("Comentario", db.Text)
+    Sugestoes = db.Column("Sugestoes", db.Text)
+    Trechos = db.Column("Trechos", db.Text)
+    MudancasSolicitadas = db.Column("MudancasSolicitadas", db.Text)
+
+    id = synonym("Id")
+    document_id = synonym("DocumentoId")
+    rating = synonym("Avaliacao")
+    feedback = synonym("Comentario")
+    suggestions = synonym("Sugestoes")
+    techos = synonym("Trechos")
+    changes = synonym("MudancasSolicitadas")
 
 
 class Roteiro(db.Model):
-    __tablename__ = 'Lft_Tb_Doc_Roteiros'
+    __tablename__ = "Tb_Docs_Roteiros"
+    __bind_key__ = BIND_PG
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    titulo = db.Column(db.String(255), nullable=False)
-    descricao = db.Column(db.Text, nullable=True)
-    tipo = db.Column(db.String(50), nullable=False, default='link')
-    conteudo = db.Column(db.Text, nullable=False)
-    icone = db.Column(db.String(50), nullable=True, default='bi-play-circle')
-    ordem = db.Column(db.Integer, default=0)
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    Titulo = db.Column("Titulo", db.String(255), nullable=False)
+    Descricao = db.Column("Descricao", db.Text, nullable=True)
+    Tipo = db.Column("Tipo", db.String(50), nullable=False, default="link")
+    Conteudo = db.Column("Conteudo", db.Text, nullable=False)
+    Icone = db.Column("Icone", db.String(50), nullable=True, default="bi-play-circle")
+    Ordem = db.Column("Ordem", db.Integer, default=0)
+    CriadoEm = db.Column("CriadoEm", db.DateTime(timezone=True))
+    AtualizadoEm = db.Column("AtualizadoEm", db.DateTime(timezone=True))
 
-    # existem no SQLite + triggers; manter no model pra mapear:
-    created_at = db.Column(db.DateTime(timezone=True))
-    updated_at = db.Column(db.DateTime(timezone=True))
-
-    modulos = db.relationship(
-        'Modulo', secondary=roteiros_modulos, back_populates='roteiros', lazy='subquery'
+    Modulos = db.relationship(
+        "Modulo",
+        secondary=roteiros_modulos,
+        back_populates="Roteiros",
+        lazy="subquery",
+    )
+    LogsAuditoria = db.relationship(
+        "LogAuditoriaRoteiro",
+        back_populates="Roteiro",
+        cascade="all, delete-orphan",
     )
 
-    audit_logs = db.relationship(
-        'RoteiroAuditLog', back_populates='roteiro', cascade="all, delete-orphan"
-    )
+    id = synonym("Id")
+    titulo = synonym("Titulo")
+    descricao = synonym("Descricao")
+    tipo = synonym("Tipo")
+    conteudo = synonym("Conteudo")
+    icone = synonym("Icone")
+    ordem = synonym("Ordem")
+    created_at = synonym("CriadoEm")
+    updated_at = synonym("AtualizadoEm")
+    modulos = synonym("Modulos")
+    audit_logs = synonym("LogsAuditoria")
 
     def __repr__(self):
-        return f'<Roteiro {self.id}: {self.titulo}>'
+        return f"<Roteiro {self.Id}: {self.Titulo}>"
 
     @staticmethod
     def _iso(dt):
-        """Converte datetime ou string do SQLite em ISO-8601 (UTC) para o front."""
         if not dt:
             return None
         if isinstance(dt, str):
-            # SQLite geralmente retorna 'YYYY-MM-DD HH:MM:SS'
-            return dt.replace(' ', 'T') + 'Z'
-        # datetime -> ISO, normalizando 'Z' se UTC
+            return dt.replace(" ", "T") + "Z"
         iso = dt.isoformat()
-        return iso.replace('+00:00', 'Z')
+        return iso.replace("+00:00", "Z")
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'titulo': self.titulo,
-            'descricao': self.descricao,
-            'tipo': self.tipo,
-            'conteudo': self.conteudo,
-            'icone': self.icone,
-            'ordem': self.ordem,
-            'created_at': self._iso(self.created_at),
-            'updated_at': self._iso(self.updated_at),
+            "id": self.Id,
+            "titulo": self.Titulo,
+            "descricao": self.Descricao,
+            "tipo": self.Tipo,
+            "conteudo": self.Conteudo,
+            "icone": self.Icone,
+            "ordem": self.Ordem,
+            "created_at": self._iso(self.CriadoEm),
+            "updated_at": self._iso(self.AtualizadoEm),
         }
+
+
+class LogAuditoriaRoteiro(db.Model):
+    __tablename__ = "Tb_Docs_LogAuditoriaRoteiros"
+    __bind_key__ = BIND_PG  # Roteado para PostgreSQL (banco principal de conteúdo)
     
-class RoteiroAuditLog(db.Model):
-    """
-    Tabela de log para registrar criações e edições na tabela de Roteiros.
-    """
-    __tablename__ = 'Lft_Tb_Log_RoteirosAudit'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    # Chave estrangeira para o roteiro que foi modificado
-    roteiro_id = db.Column(db.Integer, db.ForeignKey('Lft_Tb_Doc_Roteiros.id'), nullable=False)
-    # Informações do usuário que realizou a ação
-    user_id = db.Column(db.Integer, nullable=False)
-    user_name = db.Column(db.String(100), nullable=False)
-    # Ação realizada ('CREATE' ou 'UPDATE')
-    action = db.Column(db.String(50), nullable=False)
-    # Data e hora da ação
-    timestamp = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow)
-    roteiro = db.relationship('Roteiro', back_populates='audit_logs')
+    Id = db.Column("Id", db.Integer, primary_key=True, autoincrement=True)
+    RoteiroId = db.Column("RoteiroId", db.Integer, db.ForeignKey("Tb_Docs_Roteiros.Id"), nullable=False)
+    UsuarioId = db.Column("UsuarioId", db.Integer, nullable=False)
+    NomeUsuario = db.Column("NomeUsuario", db.String(100), nullable=False)
+    Acao = db.Column("Acao", db.String(50), nullable=False)
+    RegistradoEm = db.Column("RegistradoEm", db.TIMESTAMP, nullable=False, default=datetime.utcnow)
+
+    Roteiro = db.relationship("Roteiro", back_populates="LogsAuditoria")
+
+    id = synonym("Id")
+    roteiro_id = synonym("RoteiroId")
+    user_id = synonym("UsuarioId")
+    user_name = synonym("NomeUsuario")
+    action = synonym("Acao")
+    timestamp = synonym("RegistradoEm")
+    roteiro = synonym("Roteiro")
 
     def __repr__(self):
-        return f'<RoteiroAuditLog {self.id} - Ação: {self.action} por {self.user_name}>'
+        return f"<LogAuditoriaRoteiro {self.Id} - Acao: {self.Acao} por {self.NomeUsuario}>"
+
+
+# =============================================================================
+# SISTEMA DE PERMISSÕES (Tb_* — SISTEMA_ID = 5)
+# As tabelas abaixo são compartilhadas entre sistemas Luft e ficam no
+# mesmo schema/search_path do banco (luftdocst).
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Modelos SQL Server  (__bind_key__ = BIND_SQL)
+# Tabelas compartilhadas entre sistemas Luft — roteadas para o SQL Server.
+# ---------------------------------------------------------------------------
+
+class UsuarioBanco(db.Model):
+    """Espelho da tabela 'usuario' do SQL Server — usado apenas para lookup de auth."""
+    __tablename__ = "usuario"
+    __bind_key__ = BIND_SQL
+
+    Codigo_Usuario       = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Login_Usuario        = db.Column(db.String(100))
+    Nome_Usuario         = db.Column(db.String(255))
+    Email_Usuario        = db.Column(db.String(255))
+    codigo_usuariogrupo  = db.Column(db.Integer, db.ForeignKey("usuariogrupo.codigo_usuariogrupo"))
+
+    GrupoRel = db.relationship("UsuarioGrupoBanco", foreign_keys=[codigo_usuariogrupo], lazy="joined")
+
+    def __repr__(self):
+        return f"<UsuarioBanco {self.Login_Usuario}>"
+
+
+class UsuarioGrupoBanco(db.Model):
+    """Espelho da tabela 'usuariogrupo' do SQL Server."""
+    __tablename__ = "usuariogrupo"
+    __bind_key__ = BIND_SQL
+
+    codigo_usuariogrupo    = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Sigla_UsuarioGrupo     = db.Column(db.String(50))
+    Descricao_UsuarioGrupo = db.Column(db.String(255))
+
+    def __repr__(self):
+        return f"<UsuarioGrupoBanco {self.Sigla_UsuarioGrupo}>"
+
+
+class Tb_Permissao(db.Model):
+    """
+    Modelo que representa a tabela de permissões no banco de dados.
+    
+    Esta classe armazena as chaves de acesso para os diferentes sistemas.
+    Possui uma restrição única composta para garantir que uma mesma chave
+    de permissão não se repita dentro de um mesmo sistema (Id_Sistema).
+    """
+    __tablename__  = "Tb_Permissao"
+    __bind_key__   = BIND_SQL
+    
+    # Define a restrição única composta no nível do ORM
+    __table_args__ = (
+        UniqueConstraint('Id_Sistema', 'Chave_Permissao', name='uq_sistema_chave_permissao'),
+    )
+
+    Id_Permissao        = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Id_Sistema          = db.Column(db.Integer, nullable=False)
+    Chave_Permissao     = db.Column(db.String(100), nullable=False)
+    Descricao_Permissao = db.Column(db.String(255))
+    Categoria_Permissao = db.Column(db.String(50))
+
+    def __repr__(self):
+        """
+        Retorna uma representação em formato de string da instância da permissão.
+
+        Retornos:
+            str: String formatada contendo a chave de permissão.
+        """
+        return f"<Tb_Permissao {self.Chave_Permissao}>"
+
+
+class Tb_PermissaoGrupo(db.Model):
+    __tablename__ = "Tb_PermissaoGrupo"
+    __bind_key__  = BIND_SQL
+
+    Id_Vinculo          = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Codigo_UsuarioGrupo = db.Column(db.Integer, nullable=False)
+    Id_Permissao        = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<Tb_PermissaoGrupo grupo={self.Codigo_UsuarioGrupo} perm={self.Id_Permissao}>"
+
+
+class Tb_PermissaoUsuario(db.Model):
+    __tablename__ = "Tb_PermissaoUsuario"
+    __bind_key__  = BIND_SQL
+
+    Id_Vinculo      = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Codigo_Usuario  = db.Column(db.Integer, nullable=False)
+    Id_Permissao    = db.Column(db.Integer, nullable=False)
+    Conceder        = db.Column(db.Boolean, default=True)
+
+    def __repr__(self):
+        return f"<Tb_PermissaoUsuario user={self.Codigo_Usuario} perm={self.Id_Permissao} conceder={self.Conceder}>"
+
+
+class Tb_LogAcesso(db.Model):
+    __tablename__ = "Tb_LogAcesso"
+    __bind_key__  = BIND_SQL
+
+    Id_Log                 = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    Id_Sistema             = db.Column(db.Integer, nullable=True)
+    Id_Usuario             = db.Column(db.Integer, nullable=True)
+    Nome_Usuario           = db.Column(db.String(150))
+    Rota_Acessada          = db.Column(db.String(200))
+    Metodo_Http            = db.Column(db.String(10))
+    Ip_Origem              = db.Column(db.String(50))
+    Permissao_Exigida      = db.Column(db.String(100))
+    Acesso_Permitido       = db.Column(db.Boolean)
+    Data_Hora              = db.Column(db.DateTime, default=datetime.utcnow)
+    Parametros_Requisicao  = db.Column(db.Text, nullable=True)
+    Resposta_Acao          = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"<Tb_LogAcesso {self.Id_Log} user={self.Nome_Usuario} permitido={self.Acesso_Permitido}>"
+
+
+# =============================================================================
+# Aliases de compatibilidade
+# =============================================================================
+BugReport = ReporteBug
+IAFeedback = FeedbackIA
+DocumentAccess = AcessoDocumento
+SearchLog = LogBusca
+MetaTagCategoria = CategoriaTagMeta
+MetaTag = TagMeta
+MetaObjetoRelTag = RelacaoObjetoTagMeta
+Evaluation = AvaliacaoDocumento
+RoteiroAuditLog = LogAuditoriaRoteiro

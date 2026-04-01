@@ -1,0 +1,250 @@
+/* =================================================================== */
+/* === LIA ASSISTANT - LUFTCORE UI === */
+/* =================================================================== */
+
+.luft-lia-floating-btn {
+    position: fixed; bottom: 32px; right: 32px; width: 64px; height: 64px;
+    border-radius: 50%; background: linear-gradient(135deg, var(--luft-primary-500), var(--luft-primary-700));
+    color: #ffffff; border: none; box-shadow: 0 8px 24px color-mix(in srgb, var(--luft-primary-600) 40%, transparent);
+    display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: pointer; z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+}
+
+.luft-lia-floating-btn:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--luft-primary-600) 50%, transparent);
+}
+
+.luft-lia-floating-btn.lia-proactive::after {
+    content: ''; position: absolute; top: 4px; right: 4px; width: 14px; height: 14px;
+    background-color: var(--luft-danger-text); border: 3px solid var(--luft-bg-app); border-radius: 50%;
+    animation: pulseProactive 2s infinite;
+}
+
+.luft-lia-warning-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+
+.luft-lia-warning-overlay.show { opacity: 1; pointer-events: auto; }
+
+.luft-lia-warning-box {
+    background: var(--luft-bg-panel); border-radius: 16px; padding: 32px; max-width: 450px; text-align: center;
+    box-shadow: var(--luft-shadow-lg); border: 1px solid var(--luft-border);
+}
+
+/* =================================================================== */
+/* ESTRUTURA E RESPIRO (MUITO COLADO RESOLVIDO) */
+/* =================================================================== */
+.luft-lia-layout { display: flex; flex-direction: column; height: 65vh; min-height: 450px; max-height: 80vh; }
+
+.luft-lia-chat-history {
+    flex: 1 1 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;
+    background-color: var(--luft-bg-app); border-radius: 8px; margin-bottom: 0;
+}
+
+.luft-lia-input-area {
+    flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; 
+    padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--luft-border);
+}
+
+/* =================================================================== */
+/* BOLHAS DE MENSAGEM */
+/* =================================================================== */
+.luft-lia-message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; color: var(--luft-text-main); animation: fadeInMessage 0.3s ease-out; }
+.luft-lia-message.user-message { align-self: flex-end; background-color: var(--luft-primary-600); color: #fff; border-bottom-right-radius: 4px; }
+.luft-lia-message.ai-message { align-self: flex-start; background-color: var(--luft-bg-panel); border: 1px solid var(--luft-border); border-bottom-left-radius: 4px; }
+.luft-lia-message.error-message { align-self: center; background-color: var(--luft-danger-border); color: #fff; text-align: center; }
+
+/* =================================================================== */
+/* ESPELHO E TEXTAREA (DESTAQUE PERFEITO) */
+/* =================================================================== */
+.luft-lia-input-stack { position: relative; width: 100%; min-height: 48px; }
+
+/* O Textarea comanda a altura. Fica na frente e com fundo transparente. */
+.luft-lia-textarea {
+    position: relative; z-index: 2; resize: none; overflow-y: auto;
+    min-height: 48px; max-height: 140px;
+    background-color: transparent !important; color: var(--luft-text-main) !important;
+    border: 1px solid var(--luft-border) !important; border-radius: 8px !important;
+    padding: 10px 14px !important; line-height: 1.5 !important; font-family: inherit !important; font-size: 0.95rem !important;
+}
+
+.luft-lia-textarea:focus {
+    border-color: var(--luft-primary-500) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--luft-primary-500) 15%, transparent) !important;
+}
+
+/* O Espelho fica por trás, copiando a altura e o scroll perfeitamente. */
+.luft-lia-highlight-mirror {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: var(--luft-bg-panel); color: transparent;
+    border: 1px solid transparent; border-radius: 8px; padding: 10px 14px;
+    line-height: 1.5; font-family: inherit; font-size: 0.95rem;
+    z-index: 1; pointer-events: none; white-space: pre-wrap; word-wrap: break-word; overflow-y: hidden;
+}
+
+.luft-lia-highlight-mirror strong {
+    background-color: color-mix(in srgb, var(--luft-primary-500) 25%, transparent);
+    color: transparent; border-radius: 4px; font-weight: inherit;
+}
+
+.luft-lia-input-actions { display: flex; justify-content: space-between; align-items: center; position: relative; }
+
+#seletorModelo_modal, #seletorModelo_sidebar { background-color: var(--luft-bg-panel); color: var(--luft-text-main); border: 1px solid var(--luft-border); font-size: 0.85rem; }
+
+.luft-lia-autocomplete-list {
+    position: absolute; bottom: 100%; left: 0; margin-bottom: 8px; background: var(--luft-bg-panel); border: 1px solid var(--luft-border);
+    border-radius: 8px; box-shadow: var(--luft-shadow-md); z-index: 10; max-height: 200px; overflow-y: auto; width: 250px;
+}
+.luft-lia-autocomplete-list a { display: block; padding: 10px 16px; color: var(--luft-text-main); text-decoration: none; border-bottom: 1px solid var(--luft-border); transition: background 0.2s; }
+.luft-lia-autocomplete-list a:hover { background: var(--luft-primary-50); color: var(--luft-primary-700); }
+
+/* Sidebar LIA */
+:root { --lia-sidebar-width: 400px; }
+.luft-lia-sidebar {
+    position: fixed; top: 0; right: calc(var(--lia-sidebar-width) * -1.2); width: var(--lia-sidebar-width); height: 100vh;
+    background: var(--luft-bg-panel); box-shadow: -8px 0 32px rgba(0,0,0,0.15); z-index: 1050; transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex; flex-direction: column; border-left: 1px solid var(--luft-border); min-width: 320px; max-width: 800px;
+}
+body.lia-sidebar-open .luft-lia-sidebar { right: 0; }
+
+.luft-lia-sidebar-header { padding: 16px 24px; border-bottom: 1px solid var(--luft-border); display: flex; justify-content: space-between; align-items: center; }
+.luft-lia-sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1040; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+body.lia-sidebar-open .luft-lia-sidebar-backdrop { opacity: 1; pointer-events: auto; }
+
+.luft-lia-sidebar-resizer { position: absolute; top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; z-index: 1060; transition: background 0.2s; }
+.luft-lia-sidebar-resizer:hover, body.lia-sidebar-resizing .luft-lia-sidebar-resizer { background: var(--luft-primary-500); }
+
+@keyframes fadeInMessage { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseProactive { 0% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--luft-danger-text) 70%, transparent); } 70% { transform: scale(1); box-shadow: 0 0 0 8px transparent; } 100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; } }
+
+/* =================================================================== */
+/* MENÇÕES EM MENSAGENS DO USUÁRIO (BRANCO SOBRE AZUL) */
+/* =================================================================== */
+.luft-lia-message.user-message .lia-mention-user {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* =================================================================== */
+/* IMAGENS DENTRO DAS MENSAGENS (LIMITAR TAMANHO) */
+/* =================================================================== */
+.luft-lia-message.ai-message img {
+    max-width: 100%;
+    max-height: 280px;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+    display: block;
+    margin: 8px 0;
+}
+
+/* =================================================================== */
+/* FONTES CONTEXTO INLINE (DENTRO DA AI-MESSAGE) */
+/* =================================================================== */
+.lia-fontes-wrapper {
+    position: relative;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--luft-border);
+}
+
+.lia-fontes-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid var(--luft-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    color: var(--luft-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+.lia-fontes-toggle:hover {
+    background-color: var(--luft-bg-app);
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-400);
+}
+.lia-fontes-toggle-icon {
+    transition: transform 0.25s ease;
+}
+
+.lia-fontes-popup {
+    position: relative;
+    margin-bottom: 8px;
+    background: var(--luft-bg-app);
+    border: 1px solid var(--luft-border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.82rem;
+    animation: fadeInMessage 0.2s ease-out;
+}
+
+.lia-fonte-item {
+    border-bottom: 1px solid var(--luft-border);
+}
+.lia-fonte-item:last-child {
+    border-bottom: none;
+}
+
+.lia-fonte-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    color: var(--luft-text-main);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+a.lia-fonte-link:hover {
+    background: color-mix(in srgb, var(--luft-primary-500) 8%, transparent);
+    color: var(--luft-primary-600);
+}
+.lia-fonte-link i:first-child {
+    color: var(--luft-primary-500);
+    flex-shrink: 0;
+}
+.lia-fonte-link i:last-child {
+    color: var(--luft-text-muted);
+    flex-shrink: 0;
+    font-size: 0.75rem;
+}
+
+/* =================================================================== */
+/* TOAST PROATIVO LIA */
+/* =================================================================== */
+.luft-lia-proactive-toast {
+    position: fixed; bottom: 108px; right: 32px;
+    background: var(--luft-bg-panel); border: 1px solid var(--luft-border); border-radius: 12px;
+    padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    font-size: 0.9rem; color: var(--luft-text-main);
+    box-shadow: var(--luft-shadow-md); z-index: 999;
+    opacity: 0; transform: translateY(10px); pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 260px; cursor: pointer;
+}
+
+.luft-lia-proactive-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.luft-lia-proactive-toast:hover {
+    border-color: var(--luft-primary-400);
+    background: var(--luft-bg-app);
+}
+
+.luft-lia-proactive-toast > i {
+    color: var(--luft-primary-500);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}

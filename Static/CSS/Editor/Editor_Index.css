@@ -1,205 +1,300 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === EDITOR_INDEX.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE MÓDULOS === */
+/* === EDITOR_INDEX.CSS - ESTILOS DA PÁGINA DE EDIÇÃO DE MÓDULOS (LUFTCORE) === */
 /* =================================================================== */
 
-/* --- 1. ANIMAÇÕES GERAIS --- */
+/* --- 1. ANIMAÇÕES --- */
 @keyframes fadeIn-scaleUp {
     from { opacity: 0; transform: translateY(20px) scale(0.98); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes bgMove {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
 }
 
 @keyframes pulse {
     to { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
 }
 
-@keyframes iconRise {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.7; }
-    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+/* --- 2. ESTRUTURA DA PÁGINA E CABEÇALHO --- */
+.luft-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
 }
 
-/* --- 2. ESTILOS DE CORPO E FUNDO --- */
-body {
-    background: var(--theme-bg);
-    background-size: 200% 200%;
-    animation: bgMove 12s ease-in-out infinite;
-}
-
-/* --- 3. ESTRUTURA DA PÁGINA E CABEÇALHO --- */
-.module-editor-container {
-    padding: 2rem 0;
-}
-
-.module-header-bar {
+.luft-editor-header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--luft-border);
 }
 
-.module-header-bar h1 {
+.luft-editor-header h1 {
     font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
-    color: var(--theme-text);
+    color: var(--luft-text-main);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.8rem;
 }
 
-.modulo-filtro-box .form-control {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-    border: 1px solid var(--theme-border);
-    border-radius: 0.75rem;
+.luft-editor-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* --- 3. FILTRO / BUSCA --- */
+.luft-editor-filter {
+    margin-top: 8px;
+}
+
+.luft-editor-filter .luft-search-input {
+    width: 100%;
+    background-color: var(--luft-bg-panel);
+    color: var(--luft-text-main);
+    border: 1px solid var(--luft-border);
+    border-radius: 8px;
     padding: 0.75rem 1.25rem;
-    box-shadow: 0 4px 12px var(--theme-shadow);
+    font-size: 0.95rem;
+    box-shadow: var(--luft-shadow-sm);
     transition: all 0.2s;
 }
 
-.modulo-filtro-box .form-control::placeholder {
-    color: var(--theme-text-secondary);
+.luft-editor-filter .luft-search-input::placeholder {
+    color: var(--luft-text-muted);
 }
-.modulo-filtro-box .form-control:focus {
-    box-shadow: 0 0 0 3px var(--theme-primary-btn);
-    border-color: var(--theme-primary-btn);
+.luft-editor-filter .luft-search-input:focus {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: var(--luft-primary-500);
 }
 
 /* --- 4. GRID E CARDS DE MÓDULOS --- */
-.module-grid {
+.luft-editor-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 8px;
 }
 
-.module-item {
+.luft-editor-item {
     opacity: 0;
     animation: fadeIn-scaleUp 0.5s ease-out forwards;
     animation-delay: calc(var(--delay) * 60ms);
 }
 
-.module-card {
-    background: var(--theme-surface);
-    border: 1px solid var(--theme-border);
-    border-radius: 1.25rem;
-    box-shadow: 0 8px 32px var(--theme-shadow);
+.luft-editor-card {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 16px;
+    box-shadow: var(--luft-shadow-sm);
     height: 100%;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.module-card::before {
+.luft-editor-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: -150%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.1) 50%, transparent 80%);
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 50%, transparent 80%);
     transform: skewX(-25deg);
     transition: left 0.5s ease-in-out;
     z-index: 2;
 }
-body.theme-dark .module-card::before {
-    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.05) 50%, transparent 80%);
+[data-theme="dark"] .luft-editor-card::before {
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.03) 50%, transparent 80%);
 }
 
-.module-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 16px 48px var(--theme-shadow);
-    border-color: var(--theme-primary-btn);
+.luft-editor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--luft-shadow-lg);
+    border-color: var(--luft-primary-400);
 }
-.module-card:hover::before {
+.luft-editor-card:hover::before {
     left: 150%;
 }
 
-.module-card .card-body {
-    padding: 1.5rem;
+.luft-editor-card .card-body {
+    padding: 24px;
     display: flex;
     flex-direction: column;
     height: 100%;
     z-index: 1;
 }
 
-/* Conteúdo do Card */
-.module-icon {
+/* --- Conteúdo do Card --- */
+.luft-editor-card-icon {
     font-size: 2.25rem;
-    background: linear-gradient(135deg, var(--theme-primary-btn), #0558ca); /* Mantido gradiente específico */
-    color: var(--theme-primary-btn-text);
-    border-radius: 0.85rem;
-    padding: 0.75rem;
-    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
-    margin-bottom: 1rem;
+    color: var(--luft-primary-600);
+    margin-bottom: 16px;
     display: inline-flex;
+    transition: transform 0.3s ease;
 }
-.module-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--theme-text);
+.luft-editor-card:hover .luft-editor-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.luft-editor-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--luft-text-main);
     margin-bottom: 0.5rem;
 }
-.module-desc {
-    color: var(--theme-text-secondary);
-    font-size: 0.95rem;
+
+.luft-editor-card-desc {
+    color: var(--luft-text-muted);
+    font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
     flex-grow: 1;
 }
-.module-badge {
+
+/* --- Badges e Info --- */
+.luft-editor-badge {
     font-size: 0.8rem;
     padding: 0.25em 0.75em;
-    border-radius: 2em;
+    border-radius: var(--luft-radius-full, 2em);
     font-weight: 500;
-    border: 1px solid transparent;
+    border: 1px solid var(--luft-border);
+    background: var(--luft-bg-panel);
+    color: var(--luft-text-muted);
 }
-.module-approval-info {
+.luft-editor-badge-status {
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    border-color: var(--luft-primary-200, var(--luft-border));
+}
+.luft-editor-badge-version {
+    background: var(--luft-primary-50);
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-200, var(--luft-border));
+}
+
+.luft-editor-info-block {
+    margin-bottom: 12px;
+}
+.luft-editor-info-line {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    color: var(--theme-text-secondary);
+    font-size: 0.85rem;
+    color: var(--luft-text-muted);
 }
-.module-actions {
-    border-top: 1px solid var(--theme-border);
-    padding-top: 1rem;
+.luft-editor-info-line i {
+    font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
-/* --- 5. CARD "ADICIONAR NOVO" E BOTÕES --- */
-.add-new-card {
+/* --- Ações do Card --- */
+.luft-editor-card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--luft-border);
+    padding-top: 16px;
+    margin-top: auto;
+}
+
+.luft-editor-card-actions .luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+}
+
+.luft-editor-card-actions .luft-btn i {
+    font-size: 1rem;
+}
+
+.luft-editor-card-actions .luft-btn-primary {
+    background-color: var(--luft-primary-600);
+    color: #ffffff;
+    box-shadow: var(--luft-shadow-sm);
+}
+.luft-editor-card-actions .luft-btn-primary:hover {
+    background-color: var(--luft-primary-700);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--luft-shadow-md);
+}
+
+.luft-editor-card-actions .luft-btn-outline {
+    background-color: transparent;
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+}
+.luft-editor-card-actions .luft-btn-outline:hover {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    border-color: var(--luft-primary-700);
+    transform: translateY(-2px);
+}
+
+.luft-editor-card-actions form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.luft-editor-card-actions .luft-btn-danger {
+    color: #dc3545;
+    border-color: #dc3545;
     background: transparent;
-    border: 2px dashed var(--theme-border);
+}
+.luft-editor-card-actions .luft-btn-danger:hover {
+    background: #dc3545;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- 5. CARD "ADICIONAR NOVO" --- */
+.luft-editor-card-dashed {
+    background: transparent;
+    border: 2px dashed var(--luft-border);
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: var(--theme-text-secondary);
+    color: var(--luft-text-muted);
     min-height: 320px;
     box-shadow: none;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
-.add-new-card:hover {
-    border-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn);
-    background: var(--theme-primary-btn-bg-subtle);
-    box-shadow: 0 8px 32px var(--theme-shadow);
-    transform: translateY(-8px) scale(1.02);
+.luft-editor-card-dashed:hover {
+    border-color: var(--luft-primary-500);
+    color: var(--luft-primary-600);
+    background: var(--luft-primary-50);
+    box-shadow: var(--luft-shadow-lg);
+    transform: translateY(-6px);
 }
-.add-new-card .icon { font-size: 3rem; }
-.add-new-card .text { font-size: 1.1rem; font-weight: 500; }
+.luft-editor-card-dashed .icon { font-size: 3rem; }
+.luft-editor-card-dashed .text { font-size: 1.1rem; font-weight: 500; }
+.luft-editor-card-dashed:hover .text { color: var(--luft-primary-700); }
 
-.pending-button {
+/* --- 6. BOTÕES DE AÇÃO DO CABEÇALHO --- */
+.luft-editor-action-btn {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -207,52 +302,63 @@ body.theme-dark .module-card::before {
     width: 44px;
     height: 44px;
     font-size: 1.25rem;
-    color: var(--theme-text-secondary);
-    background-color: var(--theme-surface);
-    border: 1px solid var(--theme-border);
+    color: var(--luft-text-muted);
+    background-color: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
     border-radius: 50%;
     text-decoration: none;
     transition: all 0.2s ease-in-out;
 }
-.pending-button:hover {
-    color: var(--theme-primary-btn);
-    border-color: var(--theme-primary-btn);
-    box-shadow: 0 0 16px var(--theme-primary-btn-bg-subtle);
+.luft-editor-action-btn:hover {
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-500);
+    box-shadow: var(--luft-shadow-md);
 }
-.pending-button .notification-dot {
+.luft-editor-action-btn .notification-dot {
     position: absolute;
     top: 0;
     right: 0;
-    min-width: 20px; 
+    min-width: 20px;
     height: 20px;
-    width: auto; 
+    width: auto;
     padding: 0 6px;
-    background-color: var(--bs-danger); /* Usando variável do Bootstrap */
+    background-color: #dc3545;
     color: #fff;
     font-size: 12px;
     font-weight: 700;
     line-height: 20px;
     text-align: center;
     border-radius: 10px;
-    border: 2px solid var(--theme-surface); /* Usa a cor de fundo do botão para a borda */
+    border: 2px solid var(--luft-bg-panel);
     animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
     box-shadow: 0 0 0 rgba(220, 53, 69, 0.4);
 }
 
-/* --- 6. ÍCONES DECORATIVOS --- */
-.bg-icons {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 0;
+/* --- 7. ESTADO VAZIO --- */
+.luft-editor-empty {
+    text-align: center;
+    padding: 64px 24px;
+    background: var(--luft-bg-panel);
+    border: 1px dashed var(--luft-border);
+    border-radius: 16px;
 }
-.bg-icons .bg-icon {
-    position: absolute;
-    color: color-mix(in srgb, var(--theme-primary-btn) 13%, transparent);
-    bottom: -2rem;
-    animation-name: iconRise;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
+
+/* --- 8. RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .luft-editor-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .luft-editor-header-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    .luft-editor-card-actions {
+        flex-direction: column;
+    }
+    .luft-editor-card-actions .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }

@@ -1,0 +1,30 @@
+/* =================================================================== */
+/* === ANIMACAOFUNDO.CSS - FUNDO ANIMADO COMPARTILHADO (LUFTCORE) === */
+/* =================================================================== */
+
+/* Container fullscreen fixo para os ícones flutuantes */
+.luft-index-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    background-color: var(--luft-bg-app);
+}
+
+/* Ícones individuais gerados pelo AnimacaoFundo.js */
+.luft-index-bg i {
+    position: absolute;
+    color: var(--luft-text-muted);
+    opacity: 0.08;
+    transition: color 0.3s ease;
+}
+
+/* Opacidade reduzida em modo escuro */
+[data-theme="dark"] .luft-index-bg i,
+.theme-dark .luft-index-bg i {
+    opacity: 0.05;
+}

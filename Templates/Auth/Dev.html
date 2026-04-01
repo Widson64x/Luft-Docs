@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block title %}Página em Desenvolvimento{% endblock %}
 
 {% block content %}
@@ -139,7 +139,7 @@
     Volte em breve para ver a versão final!
   </p>
   
-  <a href="{{ url_for('index.index', user_name=session.user_name, id=session.user_id) }}" class="btn btn-primary mt-3 btn-modern">
+  <a href="{{ url_for('Inicio.exibirInicio', user_name=session.user_name, id=session.user_id) }}" class="btn btn-primary mt-3 btn-modern">
     <i class="bi bi-arrow-clockwise me-2"></i> Voltar ao Início
   </a>
 </div>

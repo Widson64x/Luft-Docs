@@ -1,28 +1,39 @@
-{% extends "base.html" %}
+{% extends "Layout/BaseLayout.html" %}
 {% block title %}{{ nome }} - Submódulo{% endblock %}
 {% block content %}
 {% block page_styles %}
-    {# Este link carrega os estilos apenas para esta página #}
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Submodule.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Modulos.css') }}">
 {% endblock %}
 
-    {# Usamos javascript:history.back() para voltar à página anterior do histórico #}
-    <a href="javascript:history.back()" class="btn btn-outline-secondary">
-        ← Voltar
+<div class="luft-index-bg modulo-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="submodule-page-header">
+    <a href="javascript:history.back()" class="btn btn-outline" style="color: var(--luft-text-main);">
+        <i class="ph-bold ph-arrow-left"></i> Voltar
     </a>
-    <div class="markdown-body">
-        <h1>{{ nome }}</h1>
-        <div class="submodulo-conteudo">
-            {# 1) Recebemos aqui o HTML bruto em “conteudo”, que contém "__TOKEN_PLACEHOLDER__" #}
-            {% set html_bruto = conteudo %}
+    <h1>{{ nome }}</h1>
+</div>
 
-            {# 2) Substituímos “__TOKEN_PLACEHOLDER__” pelo token real vindo de request.args #}
-            {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
-
-            {# 3) Renderizamos o resultado final #}
-            {{ conteudo_corrigido | safe }}
+<div class="content-wrapper">
+    <main class="main-content">
+        <div class="markdown-body">
+            <div class="submodulo-conteudo" id="imagem-viewer">
+                {% set html_bruto = conteudo %}
+                {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+                {{ conteudo_corrigido | safe }}
+            </div>
         </div>
-    </div>
-    <hr>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const animacao = new AnimacaoFundo('containerAnimacaoFundo');
+        animacao.iniciar();
+    });
+</script>
 
 {% endblock %}
+

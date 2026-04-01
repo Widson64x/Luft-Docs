@@ -1,195 +1,410 @@
-@import url('Themes.css');
-
 /* =================================================================== */
-/* === EDITORSUB_INDEX.CSS - NOVO DESIGN DE DASHBOARD === */
+/* === EDITORSUB_INDEX.CSS - DASHBOARD DE SUBMÓDULOS (LUFTCORE)    === */
 /* =================================================================== */
 
-/* --- 1. ANIMAÇÕES E FUNDO --- */
+/* --- 1. ANIMAÇÕES E LAYOUT GERAL --- */
 @keyframes fadeIn-scaleUp {
     from { opacity: 0; transform: translateY(20px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-body {
-    background-color: var(--theme-bg);
-}
-
-/* --- 2. LAYOUT DO PAINEL E CABEÇALHO --- */
-.page-container {
-    max-width: 1600px; /* Layout mais largo */
+.luft-submodule-page-wrapper {
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: var(--luft-space-8) var(--luft-space-4);
+    position: relative;
+    z-index: 1;
 }
 
-.page-header {
+.luft-submodule-header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--theme-border);
-    margin-bottom: 2.5rem;
+    padding-bottom: var(--luft-space-4);
+    border-bottom: 1px solid var(--luft-border);
+    margin-bottom: var(--luft-space-6);
 }
 
-.page-header h1 {
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
+.luft-submodule-header h1 {
+    font-size: clamp(1.4rem, 3.5vw, 1.75rem);
     font-weight: 700;
-    color: var(--theme-text);
+    color: var(--luft-text-main);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.8rem;
 }
 
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.luft-submodule-header h1 i {
+    color: var(--luft-primary-600);
 }
 
-.search-bar .form-control {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-    border: 1px solid var(--theme-border);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    box-shadow: 0 4px 12px var(--theme-shadow);
+/* --- 2. BARRA DE BUSCA --- */
+.luft-search-wrapper {
+    position: relative;
+    min-width: 300px;
+}
+
+.luft-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--luft-text-muted);
+    pointer-events: none;
+    z-index: 4;
+}
+
+.luft-submodule-search {
+    padding: 0.5rem 1.25rem 0.5rem 2.5rem !important;
+    border-radius: 50px !important;
+    background-color: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    width: 100%;
     transition: all 0.2s ease-in-out;
-    min-width: 320px;
-}
-.search-bar .form-control:focus {
-    box-shadow: var(--form-focus-shadow);
-    border-color: var(--form-focus-border-color);
 }
 
-/* --- 3. GRID E CARDS DE SUBMÓDULO (REDESIGN) --- */
-#submodulesGrid {
+.luft-submodule-search:focus {
+    background-color: var(--luft-bg-panel);
+    border-color: var(--luft-primary-400);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    outline: none;
+}
+
+/* --- 3. GRID E CARDS DE SUBMÓDULO --- */
+.luft-submodule-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-.submodule-card {
+.luft-submodule-card-wrapper {
     opacity: 0;
-    animation: fadeIn-scaleUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-    animation-delay: calc(var(--delay) * 70ms);
+    animation: fadeIn-scaleUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    animation-delay: calc(var(--delay) * 50ms);
 }
 
-.card.submodule-item-card {
-    background: var(--theme-surface);
-    border: 1px solid var(--theme-border);
-    border-radius: 1rem;
-    box-shadow: var(--theme-shadow);
+.luft-submodule-card {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-sm);
     height: 100%;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
 }
 
-.card.submodule-item-card::after {
+.luft-submodule-card::after {
     content: '';
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
-    border-radius: 1rem;
+    border-radius: var(--luft-radius-xl);
     box-shadow: 0 0 0 2px transparent;
-    transition: box-shadow 0.3s ease-in-out;
-    pointer-events: none; /* Permite clicar através do pseudo-elemento */
+    transition: box-shadow 0.25s ease-in-out;
+    pointer-events: none;
 }
 
-.card.submodule-item-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--card-hover-shadow);
-}
-.card.submodule-item-card:hover::after {
-    box-shadow: 0 0 0 2px var(--theme-primary-btn);
+.luft-submodule-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--luft-shadow-md);
+    border-color: var(--luft-primary-300);
 }
 
-.card-icon-display {
-    font-size: 2rem;
-    color: var(--theme-primary-btn);
-    background-color: var(--theme-primary-btn-bg-light);
-    width: 56px;
-    height: 56px;
-    border-radius: 0.75rem;
+.luft-submodule-card:hover::after {
+    box-shadow: 0 0 0 2px var(--luft-primary-500);
+}
+
+.luft-submodule-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.luft-submodule-icon {
+    font-size: 1.75rem;
+    color: var(--luft-primary-600);
+    background-color: var(--luft-primary-50);
+    width: 52px;
+    height: 52px;
+    border-radius: var(--luft-radius-md);
     display: grid;
     place-content: center;
     transition: transform 0.3s ease;
-}
-.card.submodule-item-card:hover .card-icon-display {
-    transform: scale(1.1);
+    margin-bottom: 1rem;
 }
 
-.card-title-path {
+.luft-submodule-card:hover .luft-submodule-icon {
+    transform: scale(1.1);
+    background-color: var(--luft-primary-100);
+}
+
+.luft-submodule-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--theme-text);
+    color: var(--luft-text-main);
     word-wrap: break-word;
     word-break: break-all;
     margin-bottom: 0.25rem;
+    line-height: 1.3;
 }
 
-.card-text.text-muted {
-    color: var(--theme-text-secondary) !important;
+.luft-submodule-meta {
+    font-size: 0.85rem;
+    color: var(--luft-text-muted);
+    margin-bottom: 0;
 }
 
-.card-actions {
-    border-top: 1px solid var(--theme-border);
+.luft-submodule-actions {
+    border-top: 1px solid var(--luft-border);
     padding-top: 1rem;
-    margin-top: auto; /* Empurra para o final do card */
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
 }
 
 /* --- 4. ESTADOS DE "NENHUM RESULTADO" --- */
-.empty-state-container {
+.luft-empty-state {
     text-align: center;
     padding: 4rem 2rem;
-    background-color: var(--theme-surface);
-    border: 2px dashed var(--theme-border);
-    border-radius: 1rem;
-    color: var(--theme-text-secondary);
-    grid-column: 1 / -1; /* Ocupa a largura total do grid */
-    display: none; /* Controlado por JS */
+    background-color: var(--luft-bg-panel);
+    border: 2px dashed var(--luft-border);
+    border-radius: var(--luft-radius-xl);
+    color: var(--luft-text-muted);
+    grid-column: 1 / -1;
 }
 
-/* --- 5. MODAL E ÁRVORE DE PASTAS (TEMÁTICO) --- */
-.modal-content {
-    background-color: var(--theme-surface);
-    color: var(--theme-text);
-}
-.modal-header { border-bottom-color: var(--theme-border); }
-.modal-footer { border-top-color: var(--theme-border); }
-.modal-header .bg-danger { background-color: var(--theme-color-danger) !important; }
-
-#folderTreeContainer {
-    background-color: var(--theme-surface-hover);
-    border: 1px solid var(--theme-border);
+.luft-empty-state i {
+    font-size: 3rem;
+    color: var(--luft-text-muted);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+    display: block;
 }
 
-.tree-view { list-style: none; padding-left: 0; }
-.tree-view ul { list-style: none; padding-left: 1.5rem; display: none; }
-.tree-view .tree-item { padding: 0.25rem 0; }
-.tree-toggle {
+.luft-empty-state h4 {
+    color: var(--luft-text-main);
+    font-weight: 600;
+}
+
+/* --- 5. ÁRVORE DE PASTAS (MODAL) --- */
+.luft-tree-container {
+    background-color: var(--luft-bg-app);
+    border: 1px solid var(--luft-border);
+    border-radius: var(--luft-radius-md);
+    padding: 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.luft-tree-view { 
+    list-style: none; 
+    padding-left: 0; 
+    margin: 0;
+}
+
+.luft-tree-view ul { 
+    list-style: none; 
+    padding-left: 1.5rem; 
+    display: none; 
+}
+
+.luft-tree-item { 
+    padding: 0.2rem 0; 
+}
+
+.luft-tree-toggle {
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
     display: inline-block;
     width: 1.5rem;
     text-align: center;
-    color: var(--theme-text-secondary);
+    color: var(--luft-text-muted);
 }
-.tree-toggle.expanded { transform: rotate(90deg); }
-.tree-node-label {
+
+.luft-tree-toggle.expanded { 
+    transform: rotate(90deg); 
+}
+
+.luft-tree-node-label {
     cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--luft-radius-md);
     transition: background-color 0.2s ease, color 0.2s ease;
     width: calc(100% - 2rem);
     display: inline-block;
+    color: var(--luft-text-main);
 }
-.tree-node-label:hover { background-color: var(--theme-surface-hover); }
-.tree-node-label.selected {
-    background-color: var(--theme-primary-btn);
-    color: var(--theme-primary-btn-text);
-    font-weight: 500;
+
+.luft-tree-node-label:hover { 
+    background-color: var(--luft-bg-panel); 
+}
+
+.luft-tree-node-label.selected {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    font-weight: 600;
+    border: 1px solid var(--luft-primary-200);
+}
+
+/* --- 6. MODAIS GERAIS (REDUNDÂNCIA DE SEGURANÇA) --- */
+.luft-modal-content {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: var(--luft-radius-xl);
+    box-shadow: var(--luft-shadow-lg);
+}
+
+.luft-modal-header {
+    border-bottom: 1px solid var(--luft-border);
+    padding: var(--luft-space-4) var(--luft-space-6);
+}
+
+.luft-modal-title {
+    color: var(--luft-text-main);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.luft-modal-body {
+    padding: var(--luft-space-4) var(--luft-space-6);
+}
+
+.luft-modal-footer {
+    border-top: 1px solid var(--luft-border);
+    padding: var(--luft-space-4) var(--luft-space-6);
+}
+
+/* --- 7. RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .luft-submodule-page-wrapper {
+        padding: var(--luft-space-4);
+    }
+
+    .luft-submodule-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .luft-search-wrapper {
+        width: 100%;
+    }
+
+    .luft-submodule-header .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =================================================================== */
+/* === ESTILOS GERAIS DE BOTÕES (.luft-btn)                        === */
+/* =================================================================== */
+
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--luft-radius-md, 8px);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none !important;
+    line-height: 1.5;
+    background: transparent;
+    font-family: inherit;
+}
+
+.luft-btn.luft-btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    gap: 0.25rem;
+}
+
+.luft-btn i {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.luft-btn.luft-btn-sm i {
+    font-size: 1rem;
+}
+
+.luft-btn-primary {
+    background-color: var(--luft-primary-600, #0d6efd);
+    color: #ffffff !important;
+    border-color: var(--luft-primary-600, #0d6efd);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.luft-btn-primary:hover {
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+}
+
+.luft-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+    filter: brightness(0.8);
+}
+
+.luft-btn-outline {
+    background-color: var(--luft-bg-panel, #ffffff);
+    color: var(--luft-text-main, #333333);
+    border-color: var(--luft-border, #dee2e6);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50, #f8f9fa);
+    color: var(--luft-primary-700, #0b5ed7);
+    border-color: var(--luft-primary-300, #b6d4fe);
+}
+
+/* =================================================================== */
+/* === ESTILOS DE INPUTS (.luft-form-control)                      === */
+/* =================================================================== */
+
+.luft-form-control {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--luft-text-main, #212529);
+    background-color: var(--luft-bg-panel, #ffffff);
+    border: 1px solid var(--luft-border, #ced4da);
+    border-radius: var(--luft-radius-md, 8px);
+    transition: all 0.2s ease-in-out;
+    font-family: inherit;
+}
+
+.luft-form-control:focus {
+    outline: 0;
+    border-color: var(--luft-primary-400, #86b7fe);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.luft-form-control::placeholder {
+    color: var(--luft-text-muted, #6c757d);
+    opacity: 1;
+}
+
+.luft-form-control[readonly] {
+    background-color: var(--luft-bg-app, #f8f9fa);
+    cursor: pointer;
 }

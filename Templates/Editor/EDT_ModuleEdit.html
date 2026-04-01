@@ -1,138 +1,126 @@
-{% extends "base.html" %}
-{% block title %}Editar Módulo: {{ modulo.nome }}{% endblock %}
+{% extends "Layout/BaseLayout.html" %}
+{% block titulo %}Editar Módulo: {{ modulo.nome }}{% endblock %}
 
 {% block page_styles %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Module.css') }}">
-  <style>
-    /* UI de relacionados */
-    .rel-pill { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .5rem; border-radius:999px; background:var(--bs-gray-200); font-size:.85rem; margin:.25rem .35rem .25rem 0 }
-    .rel-pill .remove { cursor:pointer; border:none; background:transparent; font-size:1rem; line-height:1; padding:0 }
-    .rel-select-btn { white-space:nowrap }
-    .rel-counter { font-size:.85rem; color:var(--bs-secondary) }
-    .rel-search { position:sticky; top:0; background:#fff; z-index:1; padding-bottom:.5rem }
-    .rel-list { max-height:55vh; overflow:auto }
-    .rel-item { padding:.35rem .5rem; border-radius:.5rem }
-    .rel-item:hover { background:var(--bs-gray-100) }
-    .icon-grid-btn.selected { outline:2px solid var(--bs-primary) }
-    #icon-preview-box { width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--bs-secondary); border-radius:.5rem; cursor:pointer }
-    #icon-preview-box i { font-size:22px }
-    .editor-toolbar-btns { display:flex; gap:.5rem; padding:.5rem 0 }
-    .page-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem }
-    .main-form-card { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.75rem; padding:1rem 1.25rem }
-    .text_place { color:var(--bs-secondary) }
-    .theme-dark .rel-pill { background:#2b2f33 }
-    .theme-dark .rel-item:hover { background:#1e2327 }
-    .theme-dark .rel-search { background:var(--bs-body-bg) }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Extends/toastui-editor.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Module.css', q='1') }}">
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid py-4">
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-edit-page-wrapper">
   <form method="post" id="editor-form">
     <input type="hidden" name="token" value="{{ token }}">
-    <input type="hidden" name="doc_content" id="doc_content_input">
-    <input type="hidden" name="tech_content" id="tech_content_input">
-    <!-- valor final CSV -->
+    <input type="hidden" name="doc_content" id="docContentInput">
+    <input type="hidden" name="tech_content" id="techContentInput">
     <input type="hidden" name="relacionados" id="inputRelacionados" value="{{ modulo.relacionados|join(', ') }}">
 
-    <div class="page-header">
-      <h1 class="page-title"><i class="bi bi-pencil-square"></i>Editar Módulo: {{ modulo.nome }}</h1>
-      <div class="btn-group" role="group">
-        <button type="submit" class="btn btn-primary btn-lg px-4">
-          <i class="bi bi-save me-2"></i>Salvar Alterações
+    <div class="luft-edit-header">
+      <h1><i class="bi bi-pencil-square"></i>Editar Módulo: {{ modulo.nome }}</h1>
+      <div class="luft-btn-group d-flex gap-2">
+        <button type="submit" class="luft-btn luft-btn-primary">
+          <i class="bi bi-save"></i>Salvar Alterações
         </button>
-        <a href="{{ url_for('editor.editor_index', token=token) }}" class="btn btn-outline-secondary btn-lg px-4">
-          <i class="bi bi-x-circle me-2"></i>Cancelar
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+          <i class="bi bi-x-circle"></i>Cancelar
         </a>
       </div>
     </div>
 
-    <div class="main-form-card">
+    <div class="luft-edit-form-card">
       {% if pendente %}
-        <div class="alert alert-warning d-flex align-items-center mb-4">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div class="luft-alert luft-alert-warning mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
           <div>Há uma edição pendente para a <b>documentação do usuário</b>. Salvar agora irá sobrescrever a alteração pendente.</div>
         </div>
       {% endif %}
       {% if pendente_tech %}
-        <div class="alert alert-warning d-flex align-items-center mb-4">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div class="luft-alert luft-alert-warning mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
           <div>Há uma edição pendente para a <b>documentação técnica</b>. Salvar agora irá sobrescrever a alteração pendente.</div>
         </div>
       {% endif %}
 
       <div class="row g-4">
         <div class="col-lg-4">
-          <h5 class="mb-3 text-primary">Informações Gerais</h5>
+          <h5 class="luft-section-title">Informações Gerais</h5>
           <div class="mb-3">
-            <label for="inputId" class="form-label">ID do Módulo</label>
-            <input type="text" class="form-control" id="inputId" name="id" value="{{ modulo.id }}" readonly>
+            <label for="inputId" class="luft-form-label">ID do Módulo</label>
+            <input type="text" class="luft-form-control" id="inputId" name="id" value="{{ modulo.id }}" readonly>
           </div>
           <div class="mb-3">
-            <label for="inputNome" class="form-label">Nome do Módulo</label>
-            <input type="text" class="form-control" id="inputNome" name="nome" value="{{ modulo.nome }}" required>
+            <label for="inputNome" class="luft-form-label">Nome do Módulo</label>
+            <input type="text" class="luft-form-control" id="inputNome" name="nome" value="{{ modulo.nome }}" required>
           </div>
           <div class="mb-3">
-            <label for="inputDescricao" class="form-label">Descrição Curta</label>
-            <textarea class="form-control" id="inputDescricao" name="descricao" style="height: 100px;">{{ modulo.descricao }}</textarea>
+            <label for="inputDescricao" class="luft-form-label">Descrição Curta</label>
+            <textarea class="luft-form-control" id="inputDescricao" name="descricao" rows="3">{{ modulo.descricao }}</textarea>
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="inputIsRestrito" name="is_restrito" {% if modulo.is_restrito %}checked{% endif %}>
+              <label class="form-check-label" for="inputIsRestrito">Módulo restrito</label>
+            </div>
+            <small class="luft-text-hint">Quando ativo, o módulo só fica visível para usuários com a permissão VISUALIZAR_MODULOS_RESTRITOS.</small>
           </div>
 
-          <hr class="my-4">
+          <hr class="luft-divider my-4">
 
-          <h5 class="mb-3 text-primary">Organização</h5>
+          <h5 class="luft-section-title">Organização</h5>
           <div class="mb-3">
-            <label class="form-label">Ícone</label>
+            <label class="luft-form-label">Ícone</label>
             <div class="d-flex align-items-center gap-3">
-              <div id="icon-preview-box" data-bs-toggle="modal" data-bs-target="#iconModal">
+              <div class="luft-icon-preview" id="iconPreviewBox" data-bs-toggle="modal" data-bs-target="#iconModal">
                 <i class="bi {{ modulo.icone or 'bi-app' }}"></i>
               </div>
-              <input type="text" class="form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#iconModal">
+              <input type="text" class="luft-form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly data-bs-toggle="modal" data-bs-target="#iconModal">
             </div>
           </div>
           <div class="mb-3">
-            <label for="inputPalavras" class="form-label">Palavras-chave</label>
-            <input type="text" class="form-control" id="inputPalavras" name="palavras_chave" value="{{ modulo.palavras_chave|join(', ') }}" placeholder="Separadas por vírgula">
-            <small class="form-text text-muted">Ex: cliente, cadastro, novo</small>
+            <label for="inputPalavras" class="luft-form-label">Palavras-chave</label>
+            <input type="text" class="luft-form-control" id="inputPalavras" name="palavras_chave" value="{{ modulo.palavras_chave|join(', ') }}" placeholder="Separadas por vírgula">
+            <small class="luft-text-hint">Ex: cliente, cadastro, novo</small>
           </div>
 
-          <!-- NOVO: UI Relacionados -->
           <div class="mb-2 d-flex align-items-center justify-content-between">
-            <label class="form-label m-0">Módulos Relacionados</label>
-            <span class="rel-counter" id="relCounter">0 selecionados</span>
+            <label class="luft-form-label m-0">Módulos Relacionados</label>
+            <span class="luft-rel-counter" id="relCounter">0 selecionados</span>
           </div>
           <div class="mb-2" id="relacionadosPills"></div>
-          <div class="mb-3">
-            <button type="button" class="btn btn-outline-primary rel-select-btn" data-bs-toggle="modal" data-bs-target="#relModal">
+          <div class="mb-3 d-flex gap-2">
+            <button type="button" class="luft-btn luft-btn-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#relModal">
               <i class="bi bi-diagram-3"></i> Selecionar módulos
             </button>
-            <button type="button" id="btnLimparRel" class="btn btn-outline-secondary ms-2">
-              Limpar tudo
+            <button type="button" id="btnLimparRel" class="luft-btn luft-btn-outline" title="Limpar tudo">
+              <i class="bi bi-trash"></i> Limpar
             </button>
           </div>
         </div>
 
         <div class="col-lg-8">
-          <ul class="nav nav-tabs" id="editorTabs" role="tablist">
+          <ul class="nav nav-tabs luft-nav-tabs" id="editorTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="user-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-user-pane" type="button" role="tab" aria-controls="doc-user-pane" aria-selected="true">
+              <button class="nav-link active" id="user-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-user-pane" type="button" role="tab" aria-selected="true">
                 <i class="bi bi-person me-2"></i>Conteúdo para o Usuário
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tech-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-tech-pane" type="button" role="tab" aria-controls="doc-tech-pane" aria-selected="false">
+              <button class="nav-link" id="tech-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-tech-pane" type="button" role="tab" aria-selected="false">
                 <i class="bi bi-code-slash me-2"></i>Documentação Técnica
               </button>
             </li>
           </ul>
 
-          <div class="tab-content" id="editorTabsContent">
-            <div class="tab-pane fade show active" id="doc-user-pane" role="tabpanel" aria-labelledby="user-doc-tab">
-              <div class="editor-toolbar-btns" id="toolbar-user"></div>
-              <div id="editor-user"></div>
+          <div class="tab-content luft-tab-content" id="editorTabsContent">
+            <div class="tab-pane fade show active" id="doc-user-pane" role="tabpanel">
+              <div class="luft-editor-toolbar" id="toolbarUsuario"></div>
+              <div id="editorUsuario"></div>
             </div>
-            <div class="tab-pane fade" id="doc-tech-pane" role="tabpanel" aria-labelledby="tech-doc-tab">
-              <div class="editor-toolbar-btns" id="toolbar-tech"></div>
-              <div id="editor-tech"></div>
+            <div class="tab-pane fade" id="doc-tech-pane" role="tabpanel">
+              <div class="luft-editor-toolbar" id="toolbarTecnico"></div>
+              <div id="editorTecnico"></div>
             </div>
           </div>
         </div>
@@ -141,14 +129,18 @@
   </form>
 </div>
 
-<!-- Modal Ícones -->
-<div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
+<div class="modal fade" id="iconModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="iconModalLabel">Escolha um Ícone</h5>
-        <input type="text" class="form-control ms-4" id="iconSearch" placeholder="Buscar ícone...">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header flex-wrap">
+        <h5 class="modal-title luft-modal-title">
+          <i class="bi bi-grid-3x3-gap"></i> Escolha um Ícone
+        </h5>
+        <div class="luft-search-wrapper ms-auto">
+          <i class="bi bi-search luft-search-icon"></i>
+          <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
+        </div>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <div class="modal-body">
         <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
@@ -157,299 +149,434 @@
   </div>
 </div>
 
-<!-- Modal Relacionados -->
-<div class="modal fade" id="relModal" tabindex="-1" aria-labelledby="relModalLabel" aria-hidden="true">
+<div class="modal fade" id="relModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="relModalLabel">Selecionar Módulos Relacionados</h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary ms-3" id="btnToggleAll">Selecionar tudo</button>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="rel-search mb-2">
-          <input type="text" id="relSearch" class="form-control" placeholder="Buscar por nome ou ID...">
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header flex-wrap">
+        <div class="luft-modal-header-left">
+          <h5 class="modal-title luft-modal-title">
+            <i class="bi bi-diagram-3"></i> Módulos Relacionados
+          </h5>
+          <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
         </div>
-        <div class="rel-list" id="relList"></div>
+        <div class="luft-modal-header-right">
+          <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
+            <i class="bi bi-check-all"></i> Selecionar tudo
+          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-bs-dismiss="modal">Aplicar</button>
+      <div class="modal-body luft-modal-body">
+        <div class="luft-search-wrapper mb-3">
+          <i class="bi bi-search luft-search-icon"></i>
+          <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
+        </div>
+        <div class="luft-rel-list" id="relList"></div>
+      </div>
+      <div class="modal-footer luft-modal-footer">
+        <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="luft-btn luft-btn-primary" data-bs-dismiss="modal">
+          <i class="bi bi-check-circle"></i> Aplicar seleção
+        </button>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
 
-<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+{% block scripts %}
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const token = '{{ token }}';
-  const BASE_PREFIX = '/luft-docs';
-  let allIcons = [];
-  let allModules = [];
-  let selectedRel = new Set({{ modulo.relacionados|tojson }});
+  const prefixoBase = '/luft-docs';
+  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
+  const ROUTES = {
+    uploadImagemModulo: "{{ url_for('Editor.enviarImagemModulo', modulo_id=modulo.id) }}",
+    uploadAnexoModulo: "{{ url_for('Editor.enviarAnexoModulo') }}",
+    uploadVideoModulo: "{{ url_for('Editor.enviarVideoModulo', modulo_id=modulo.id) }}",
+    listarOpcoesEditor: "{{ url_for('Editor.listarOpcoesEditor') }}",
+  };
+  
+  let todosIcones = [];
+  let todosModulos = [];
+  let modulosSelecionados = new Set({{ modulo.relacionados|tojson }});
 
-  const docInitial = {{ doc_content|tojson }};
-  const techInitial = {{ tech_content|tojson }};
+  const conteudoUsuarioInicial = {{ doc_content|tojson }};
+  const conteudoTecnicoInicial = {{ tech_content|tojson }};
+  
+  let editorUsuario, editorTecnico;
 
-  function withPrefix(path) {
-    if (/^https?:\/\//i.test(path)) return path;
-    
-    // Normaliza o caminho para garantir que comece com /
-    const safePath = path.startsWith('/') ? path : '/' + path;
-    
-    // CORREÇÃO: Se já começar com o prefixo, retorna como está para evitar duplicação
-    if (safePath.startsWith(BASE_PREFIX)) {
-      return safePath;
-    }
-    
-    return `${BASE_PREFIX}${safePath}`;
+  /**
+   * Garante a formatacao correta do caminho de rota adicionando o prefixo base do sistema.
+   * * @param {string} caminho - O caminho original da rota.
+   * @returns {string} O caminho contendo o prefixo padronizado.
+   */
+  function AdicionarPrefixo(caminho) {
+    if (/^https?:\/\//i.test(caminho)) return caminho;
+    const caminhoSeguro = caminho.startsWith('/') ? caminho : '/' + caminho;
+    if (caminhoSeguro.startsWith(prefixoBase)) return caminhoSeguro;
+    return `${prefixoBase}${caminhoSeguro}`;
   }
 
-  /* ---------- ToastUI Editors ---------- */
-  let userEditor, techEditor;
-  function initializeEditors() {
-    if (userEditor) userEditor.destroy();
-    if (techEditor) techEditor.destroy();
-    /*
-    * Por que a gente destrói e recria o editor toda vez que o tema muda?
-    * Porque o TUI Editor odeia mudanças de tema em tempo real.
-    * A gente tentou ser legal. Não deu.
-    * Na base do "desliga e liga" funciona.
-    */
+  /**
+   * Inicializa as instancias do ToastUI Editor para as documentacoes (usuario e tecnica).
+   * Lida com a destruicao de instancias previas caso seja acionada na troca de tema.
+   * * @returns {void}
+   */
+  function InicializarEditores() {
+    if (editorUsuario) editorUsuario.destroy();
+    if (editorTecnico) editorTecnico.destroy();
+
     const isDark = document.body.classList.contains('theme-dark');
-    const editorTheme = isDark ? 'dark' : 'light';
-    const commonEditorOptions = {
+    const configuracaoBase = {
       initialEditType: 'markdown',
       previewStyle: 'tab',
       height: '700px',
       usageStatistics: false,
-      theme: editorTheme,
+      theme: isDark ? 'dark' : 'light',
       markdown: { breaks: true, linkify: true, html: true },
       hooks: {
         addImageBlobHook: (blob, callback) => {
-          const fd = new FormData();
-          fd.append('file', blob);
-          fetch(withPrefix(`{{ url_for("editor.upload_image", modulo_id=modulo.id) }}?token=${token}`), { method:'POST', body:fd })
+          const formData = new FormData();
+          formData.append('file', blob);
+          fetch(AdicionarPrefixo(`${ROUTES.uploadImagemModulo}?token=${token}`), {
+            method: 'POST',
+            headers: AJAX_HEADERS,
+            body: formData
+          })
             .then(res => res.json())
-            .then(data => callback(withPrefix(data.url), withPrefix(data.url)))
-            .catch(() => alert('Erro ao enviar imagem!'));
+            .then(data => callback(AdicionarPrefixo(data.url), AdicionarPrefixo(data.url)))
+            .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
         }
       }
     };
-    userEditor = new toastui.Editor({ ...commonEditorOptions, el: document.querySelector('#editor-user'), initialValue: docInitial });
-    techEditor = new toastui.Editor({ ...commonEditorOptions, el: document.querySelector('#editor-tech'), initialValue: techInitial });
-    attachCustomButtons(userEditor, 'toolbar-user');
-    attachCustomButtons(techEditor, 'toolbar-tech');
+
+    editorUsuario = new toastui.Editor({ ...configuracaoBase, el: document.querySelector('#editorUsuario'), initialValue: conteudoUsuarioInicial });
+    editorTecnico = new toastui.Editor({ ...configuracaoBase, el: document.querySelector('#editorTecnico'), initialValue: conteudoTecnicoInicial });
+    
+    AdicionarBotoesCustomizados(editorUsuario, 'toolbarUsuario');
+    AdicionarBotoesCustomizados(editorTecnico, 'toolbarTecnico');
   }
-  function attachCustomButtons(editor, toolbarId) {
-    const toolbar = document.getElementById(toolbarId);
+
+  /**
+   * Adiciona botoes customizados (Anexo, Video, Wikilink) na barra de ferramentas do editor.
+   * * @param {toastui.Editor} editor - Instancia alvo do ToastUI Editor.
+   * @param {string} idToolbar - ID do elemento HTML da barra de ferramentas.
+   * @returns {void}
+   */
+  function AdicionarBotoesCustomizados(editor, idToolbar) {
+    const toolbar = document.getElementById(idToolbar);
     toolbar.innerHTML = '';
-    const attachBtn = document.createElement('button');
-    attachBtn.type = 'button';
-    attachBtn.className = 'btn btn-outline-secondary btn-sm';
-    attachBtn.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
-    attachBtn.onclick = () => uploadAttachment(editor);
 
-    const videoBtn = document.createElement('button');
-    videoBtn.type = 'button';
-    videoBtn.className = 'btn btn-outline-danger btn-sm';
-    videoBtn.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
-    videoBtn.onclick = () => uploadVideo(editor);
+    const btnAnexo = document.createElement('button');
+    btnAnexo.type = 'button';
+    btnAnexo.className = 'luft-btn luft-btn-outline luft-btn-sm';
+    btnAnexo.innerHTML = '<i class="bi bi-paperclip"></i> Anexar Arquivo';
+    btnAnexo.onclick = () => ProcessarUploadAnexo(editor);
 
-    const wikilinkBtn = document.createElement('button');
-    wikilinkBtn.type = 'button';
-    wikilinkBtn.className = 'btn btn-outline-info btn-sm';
-    wikilinkBtn.innerHTML = '<i class="bi bi-link-45deg"></i> Wikilink';
-    wikilinkBtn.onclick = () => {
-      let palavra = editor.getSelectedText() || prompt('Digite a palavra para criar o link:');
+    const btnVideo = document.createElement('button');
+    btnVideo.type = 'button';
+    btnVideo.className = 'luft-btn luft-btn-outline luft-btn-sm text-danger border-danger';
+    btnVideo.innerHTML = '<i class="bi bi-camera-video"></i> Inserir Vídeo';
+    btnVideo.onclick = () => ProcessarUploadVideo(editor);
+
+    const btnWikilink = document.createElement('button');
+    btnWikilink.type = 'button';
+    btnWikilink.className = 'luft-btn luft-btn-outline luft-btn-sm text-info border-info';
+    btnWikilink.innerHTML = '<i class="bi bi-link-45deg"></i> Wikilink';
+    btnWikilink.onclick = () => {
+      let palavra = editor.getSelectedText() || prompt('Informe a palavra desejada para a geracao do Wikilink:');
       if (palavra) editor.insertText(`[[${palavra}]]`);
     };
-    toolbar.appendChild(attachBtn);
-    toolbar.appendChild(videoBtn);
-    toolbar.appendChild(wikilinkBtn);
+
+    toolbar.appendChild(btnAnexo);
+    toolbar.appendChild(btnVideo);
+    toolbar.appendChild(btnWikilink);
   }
-  function uploadAttachment(editor) {
-    const inp = document.createElement('input'); inp.type = 'file';
-    inp.onchange = () => {
-      const file = inp.files[0]; const fd = new FormData(); fd.append('file', file);
-      fetch(withPrefix(`/editor/upload_anexo?token=${token}`), { method:'POST', body:fd })
+
+  /**
+   * Abre o seletor de arquivos e processa o envio de um anexo para o servidor.
+   * * @param {toastui.Editor} editor - Instancia do editor que recebera a tag do anexo.
+   * @returns {void}
+   */
+  function ProcessarUploadAnexo(editor) {
+    const inputFiles = document.createElement('input'); 
+    inputFiles.type = 'file';
+    inputFiles.onchange = () => {
+      const arquivo = inputFiles.files[0]; 
+      const formData = new FormData(); 
+      formData.append('file', arquivo);
+      
+      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoModulo}?token=${token}`), {
+        method: 'POST',
+        headers: AJAX_HEADERS,
+        body: formData
+      })
         .then(res => res.json())
-        .then(data => editor.insertText(`\n[${file.name}](${withPrefix(data.url)}&token=${token})\n`))
-        .catch(() => alert('Erro ao enviar anexo!'));
+        .then(data => editor.insertText(`\n[${arquivo.name}](${AdicionarPrefixo(data.url)}&token=${token})\n`))
+        .catch(() => alert('Falha critica ao enviar o anexo especificado.'));
     };
-    inp.click();
+    inputFiles.click();
   }
-  function uploadVideo(editor) {
-    const inp = document.createElement('input'); inp.type='file'; inp.accept='video/*';
-    inp.onchange = () => {
-      const file = inp.files[0]; const fd = new FormData(); fd.append('file', file);
-      fetch(withPrefix(`/editor/upload_video/{{ modulo.id }}?token=${token}`), { method:'POST', body:fd })
+
+  /**
+   * Abre o seletor de arquivos e processa o envio de um video para o servidor.
+   * * @param {toastui.Editor} editor - Instancia do editor que recebera a tag de video renderizada.
+   * @returns {void}
+   */
+  function ProcessarUploadVideo(editor) {
+    const inputFiles = document.createElement('input'); 
+    inputFiles.type = 'file'; 
+    inputFiles.accept = 'video/*';
+    inputFiles.onchange = () => {
+      const arquivo = inputFiles.files[0]; 
+      const formData = new FormData(); 
+      formData.append('file', arquivo);
+      
+      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoModulo}?token=${token}`), {
+        method: 'POST',
+        headers: AJAX_HEADERS,
+        body: formData
+      })
         .then(res => res.json())
         .then(data => {
           if (data.url) {
-            const tag = `<video width="100%" controls><source src="${withPrefix(data.url)}" type="${data.type}"></video>`;
-            editor.insertText(`\n${tag}\n`);
-          } else alert(data.error || 'Erro ao enviar vídeo!');
+            const tagRenderizada = `<video width="100%" controls><source src="${AdicionarPrefixo(data.url)}" type="${data.type}"></video>`;
+            editor.insertText(`\n${tagRenderizada}\n`);
+          } else {
+            alert(data.error || 'Falha critica no retorno da URL do video.');
+          }
         })
-        .catch(() => alert('Erro ao enviar vídeo!'));
+        .catch(() => alert('Falha critica ao tentar enviar o video especificado.'));
     };
-    inp.click();
+    inputFiles.click();
   }
 
-  /* ---------- Ícones ---------- */
-  function renderIconGrid(filter = '') {
-    const grid = document.getElementById('iconGrid');
-    const selectedIcon = document.getElementById('inputIcone').value;
-    grid.innerHTML = '';
-    const filteredIcons = allIcons.filter(i => i.toLowerCase().includes(filter.toLowerCase()));
-    filteredIcons.forEach(iconClass => {
-      const col = document.createElement('div');
-      col.className = 'col';
-      col.innerHTML = `<button type="button" class="btn btn-light icon-grid-btn ${iconClass === selectedIcon ? 'selected' : ''}" data-icon="${iconClass}" title="${iconClass}">
-        <i class="bi ${iconClass}"></i></button>`;
-      grid.appendChild(col);
+  /**
+   * Renderiza a grade de icones baseada em um termo de filtro especificado.
+   * * @param {string} [filtro=''] - Termo de busca para a filtragem da lista de icones.
+   * @returns {void}
+   */
+  function RenderizarGradeIcones(filtro = '') {
+    const elementoGrade = document.getElementById('iconGrid');
+    const iconeSelecionado = document.getElementById('inputIcone').value;
+    elementoGrade.innerHTML = '';
+    
+    const iconesFiltrados = todosIcones.filter(i => i.toLowerCase().includes(filtro.toLowerCase()));
+    
+    iconesFiltrados.forEach(classeIcone => {
+      const elementoColuna = document.createElement('div');
+      elementoColuna.className = 'col';
+      const estaSelecionado = classeIcone === iconeSelecionado;
+      elementoColuna.innerHTML = `<button type="button" class="luft-icon-grid-btn ${estaSelecionado ? 'selected' : ''}" data-icon="${classeIcone}" title="${classeIcone}">
+        <i class="bi ${classeIcone}"></i></button>`;
+      elementoGrade.appendChild(elementoColuna);
     });
-    grid.querySelectorAll('.icon-grid-btn').forEach(btn => {
+
+    elementoGrade.querySelectorAll('.luft-icon-grid-btn').forEach(btn => {
       btn.onclick = function() {
-        const iconClass = this.getAttribute('data-icon');
-        document.getElementById('inputIcone').value = iconClass;
-        document.querySelector('#icon-preview-box i').className = `bi ${iconClass}`;
+        const classeIcone = this.getAttribute('data-icon');
+        document.getElementById('inputIcone').value = classeIcone;
+        document.querySelector('#iconPreviewBox i').className = `bi ${classeIcone}`;
         bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
       };
     });
   }
 
-  /* ---------- Relacionados ---------- */
-  const pillsBox = document.getElementById('relacionadosPills');
-  const relCounter = document.getElementById('relCounter');
-  const relHidden = document.getElementById('inputRelacionados');
+  /**
+   * Renderiza os "pills" (etiquetas visuais) que representam os modulos relacionados ativos.
+   * * @returns {void}
+   */
+  function RenderizarPillsRelacionados() {
+    const containerPills = document.getElementById('relacionadosPills');
+    containerPills.innerHTML = '';
+    const mapeamentoIdObjeto = Object.fromEntries(todosModulos.map(m => [String(m.id), m]));
+    
+    [...modulosSelecionados].forEach(idModulo => {
+      const moduloAssociado = mapeamentoIdObjeto[String(idModulo)];
+      const rotuloExibicao = moduloAssociado ? `${moduloAssociado.nome}` : idModulo;
+      const elementoPill = document.createElement('span');
+      
+      elementoPill.className = 'luft-rel-pill';
+      elementoPill.innerHTML = `<i class="bi bi-node-plus"></i> ${rotuloExibicao} <button type="button" class="remove" title="Remover" data-id="${idModulo}">&times;</button>`;
+      containerPills.appendChild(elementoPill);
+    });
 
-  function renderRelPills() {
-    pillsBox.innerHTML = '';
-    const byId = Object.fromEntries(allModules.map(m => [String(m.id), m]));
-    [...selectedRel].forEach(id => {
-      const mod = byId[String(id)];
-      const name = mod ? `${mod.nome}` : id;
-      const pill = document.createElement('span');
-      pill.className = 'rel-pill';
-      pill.innerHTML = `<i class="bi bi-node-plus"></i> ${name} <button class="remove" title="Remover" data-id="${id}">&times;</button>`;
-      pillsBox.appendChild(pill);
+    containerPills.querySelectorAll('.remove').forEach(btn => {
+      btn.onclick = () => { 
+        modulosSelecionados.delete(btn.getAttribute('data-id')); 
+        SincronizarEstadoRelacionados(); 
+        MarcarCheckboxesVisuais(); 
+      };
     });
-    pillsBox.querySelectorAll('.remove').forEach(btn => {
-      btn.onclick = () => { selectedRel.delete(btn.getAttribute('data-id')); syncRelState(); renderRelPills(); markChecks(); };
-    });
-    updateRelHiddenAndCounter();
+    AtualizarInputOcultoEContador();
   }
-  function updateRelHiddenAndCounter() {
-    relHidden.value = [...selectedRel].join(',').trim();
-    const n = selectedRel.size;
-    relCounter.textContent = n === 0 ? '0 selecionados' : `${n} selecionado${n>1?'s':''}`;
+
+  /**
+   * Atualiza o valor do input oculto e os textos dos contadores na tela.
+   * * @returns {void}
+   */
+  function AtualizarInputOcultoEContador() {
+    const inputOculto = document.getElementById('inputRelacionados');
+    inputOculto.value = [...modulosSelecionados].join(',').trim();
+    
+    const quantidade = modulosSelecionados.size;
+    const textoInformativo = quantidade === 0 ? '0 selecionados' : `${quantidade} selecionado${quantidade > 1 ? 's' : ''}`;
+    
+    document.getElementById('relCounter').textContent = textoInformativo;
+    const contadorModal = document.getElementById('relModalCounter');
+    if (contadorModal) contadorModal.textContent = textoInformativo;
   }
-  function filteredModules(term) {
-    const t = term.trim().toLowerCase();
-    if (!t) return allModules;
-    return allModules.filter(m => String(m.id).toLowerCase().includes(t) || (m.nome || '').toLowerCase().includes(t));
+
+  /**
+   * Filtra a lista completa de modulos com base no termo de busca fornecido.
+   * * @param {string} termoBusca - Sequencia de caracteres inserida pelo usuario.
+   * @returns {Array} Array contendo os objetos de modulo que correspondem ao filtro.
+   */
+  function FiltrarModulos(termoBusca) {
+    const termoTratado = termoBusca.trim().toLowerCase();
+    if (!termoTratado) return todosModulos;
+    return todosModulos.filter(m => String(m.id).toLowerCase().includes(termoTratado) || (m.nome || '').toLowerCase().includes(termoTratado));
   }
-  function renderRelList(term='') {
-    const list = document.getElementById('relList');
-    const mods = filteredModules(term);
-    list.innerHTML = '';
-    mods.forEach(m => {
-      const id = String(m.id);
-      const checked = selectedRel.has(id) ? 'checked' : '';
-      const el = document.createElement('div');
-      el.className = 'rel-item form-check';
-      el.innerHTML = `
-        <input class="form-check-input rel-check" type="checkbox" value="${id}" id="rel_${id}" ${checked}>
-        <label class="form-check-label ms-1" for="rel_${id}">
-          <span class="fw-semibold">${m.nome}</span>
-          <span class="text-muted"> · ${id}</span>
+
+  /**
+   * Renderiza a lista de modulos dentro do modal de relacionamento, aplicando os filtros.
+   * * @param {string} [termo=''] - O termo de filtragem do input de busca do modal.
+   * @returns {void}
+   */
+  function RenderizarListaRelacionados(termo = '') {
+    const elementoLista = document.getElementById('relList');
+    const arrayModulos = FiltrarModulos(termo);
+    elementoLista.innerHTML = '';
+
+    arrayModulos.forEach(moduloContexto => {
+      const idStr = String(moduloContexto.id);
+      const atributoChecked = modulosSelecionados.has(idStr) ? 'checked' : '';
+      const containerItem = document.createElement('div');
+      
+      containerItem.className = 'luft-rel-item';
+      containerItem.innerHTML = `
+        <label class="luft-rel-item-label" for="rel_${idStr}">
+          <input class="luft-rel-check rel-check" type="checkbox" value="${idStr}" id="rel_${idStr}" ${atributoChecked}>
+          <span class="luft-rel-item-icon"><i class="bi bi-box-seam"></i></span>
+          <span class="luft-rel-item-info">
+            <span class="luft-rel-item-name">${moduloContexto.nome}</span>
+            <span class="luft-rel-item-id">${idStr}</span>
+          </span>
         </label>`;
-      list.appendChild(el);
+      elementoLista.appendChild(containerItem);
     });
-    list.querySelectorAll('.rel-check').forEach(chk => {
-      chk.onchange = () => {
-        const id = chk.value;
-        if (chk.checked) selectedRel.add(id); else selectedRel.delete(id);
-        syncRelState();
+
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => {
+      checkboxElement.onchange = () => {
+        const valorId = checkboxElement.value;
+        if (checkboxElement.checked) modulosSelecionados.add(valorId); 
+        else modulosSelecionados.delete(valorId);
+        SincronizarEstadoRelacionados();
       };
     });
   }
-  function syncRelState() {
-    updateRelHiddenAndCounter();
-    renderRelPills();
+
+  /**
+   * Centraliza a atualizacao logica e visual das estruturas de modulos relacionados.
+   * * @returns {void}
+   */
+  function SincronizarEstadoRelacionados() {
+    AtualizarInputOcultoEContador();
+    RenderizarPillsRelacionados();
   }
-  function markChecks() {
-    // re-aplicar checks conforme selectedRel após re-render
-    const list = document.getElementById('relList');
-    list.querySelectorAll('.rel-check').forEach(chk => {
-      chk.checked = selectedRel.has(chk.value);
+
+  /**
+   * Verifica a colecao (Set) logica e reaplica o estado marcado (checked) aos inputs HTML visiveis.
+   * * @returns {void}
+   */
+  function MarcarCheckboxesVisuais() {
+    const elementoLista = document.getElementById('relList');
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => { 
+      checkboxElement.checked = modulosSelecionados.has(checkboxElement.value); 
     });
   }
 
-  document.getElementById('btnLimparRel').onclick = () => { selectedRel.clear(); syncRelState(); markChecks(); };
-  document.getElementById('btnToggleAll').onclick = () => {
-    const currentTerm = document.getElementById('relSearch').value || '';
-    const mods = filteredModules(currentTerm);
-    const allOn = mods.every(m => selectedRel.has(String(m.id)));
-    if (allOn) mods.forEach(m => selectedRel.delete(String(m.id)));
-    else mods.forEach(m => selectedRel.add(String(m.id)));
-    syncRelState(); markChecks();
+  /* Manipuladores Globais de Interface */
+  document.getElementById('btnLimparRel').onclick = () => { 
+    modulosSelecionados.clear(); 
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais(); 
   };
 
-  /* ---------- Eventos Modais ---------- */
-  const iconModal = document.getElementById('iconModal');
-  iconModal.addEventListener('shown.bs.modal', () => {
+  document.getElementById('btnToggleAll').onclick = () => {
+    const termoBuscaAtual = document.getElementById('relSearch').value || '';
+    const arrayFiltrado = FiltrarModulos(termoBuscaAtual);
+    const estaoTodosMarcados = arrayFiltrado.every(m => modulosSelecionados.has(String(m.id)));
+    
+    if (estaoTodosMarcados) {
+      arrayFiltrado.forEach(m => modulosSelecionados.delete(String(m.id)));
+    } else {
+      arrayFiltrado.forEach(m => modulosSelecionados.add(String(m.id)));
+    }
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais();
+  };
+
+  /* Listeners dos Modais */
+  const domModalIcone = document.getElementById('iconModal');
+  domModalIcone.addEventListener('shown.bs.modal', () => {
     document.getElementById('iconSearch').value = '';
-    renderIconGrid();
+    RenderizarGradeIcones();
     document.getElementById('iconSearch').focus();
   });
-  document.getElementById('iconSearch').addEventListener('input', e => renderIconGrid(e.target.value.trim()));
+  document.getElementById('iconSearch').addEventListener('input', e => RenderizarGradeIcones(e.target.value.trim()));
 
-  const relModal = document.getElementById('relModal');
-  relModal.addEventListener('shown.bs.modal', () => {
-    const search = document.getElementById('relSearch');
-    search.value = '';
-    renderRelList('');
-    search.focus();
+  const domModalRelacionado = document.getElementById('relModal');
+  domModalRelacionado.addEventListener('shown.bs.modal', () => {
+    const inputBusca = document.getElementById('relSearch');
+    inputBusca.value = '';
+    RenderizarListaRelacionados('');
+    inputBusca.focus();
   });
-  document.getElementById('relSearch').addEventListener('input', e => renderRelList(e.target.value));
+  document.getElementById('relSearch').addEventListener('input', e => RenderizarListaRelacionados(e.target.value));
 
-  /* ---------- Submit ---------- */
-  document.getElementById('editor-form').addEventListener('submit', e => {
+  /* Listener de Submissao de Formulario */
+  document.getElementById('editor-form').addEventListener('submit', eventoSubmit => {
     if (!document.getElementById('inputNome').value) {
-      e.preventDefault(); alert('O campo "Nome do Módulo" é obrigatório!'); return;
+      eventoSubmit.preventDefault(); 
+      alert('O campo "Nome do Modulo" e de preenchimento obrigatorio.'); 
+      return;
     }
-    document.getElementById('doc_content_input').value = userEditor.getMarkdown();
-    document.getElementById('tech_content_input').value = techEditor.getMarkdown();
-    // garante CSV atualizado
-    relHidden.value = [...selectedRel].join(',');
+    document.getElementById('docContentInput').value = editorUsuario.getMarkdown();
+    document.getElementById('techContentInput').value = editorTecnico.getMarkdown();
   });
 
-  /* ---------- Inits ---------- */
-  initializeEditors();
-  // Recreate editors ao trocar tema
-  const observer = new MutationObserver(m => { if (m.some(x => x.attributeName === 'class')) initializeEditors(); });
-  observer.observe(document.body, { attributes:true });
+  /* Ciclo de Inicializacao Principal */
+  InicializarEditores();
+  
+  const monitorMutacaoTema = new MutationObserver(mutacoes => { 
+    if (mutacoes.some(m => m.attributeName === 'class')) InicializarEditores(); 
+  });
+  monitorMutacaoTema.observe(document.body, { attributes: true });
 
-  // Carrega opções
-  fetch(withPrefix(`/editor/options?token=${token}`))
-    .then(r => r.json())
-    .then(data => {
-      allIcons = data.icons || [];
-      allModules = data.modules || [];
-      // Não permitir relacionar consigo mesmo
-      const selfId = String({{ modulo.id|tojson }});
-      allModules = allModules.filter(m => String(m.id) !== selfId);
-      // normaliza selectedRel para string
-      selectedRel = new Set([...selectedRel].map(String));
-      syncRelState();
+  fetch(AdicionarPrefixo(`${ROUTES.listarOpcoesEditor}?token=${token}`), { headers: AJAX_HEADERS })
+    .then(resposta => resposta.json())
+    .then(payloadData => {
+      todosIcones = payloadData.icons || [];
+      const identificadorProprio = String({{ modulo.id|tojson }});
+      
+      const payloadModulos = payloadData.modules || [];
+      todosModulos = payloadModulos.filter(modulo => String(modulo.id) !== identificadorProprio);
+      
+      modulosSelecionados = new Set([...modulosSelecionados].map(String));
+      SincronizarEstadoRelacionados();
     })
-    .catch(() => { allModules=[]; allIcons=[]; syncRelState(); });
+    .catch(() => { 
+      todosModulos = []; 
+      todosIcones = []; 
+      SincronizarEstadoRelacionados(); 
+    });
+
+  const instanciaAnimacao = new AnimacaoFundo('containerAnimacaoFundo');
+  instanciaAnimacao.iniciar();
 });
 </script>
 {% endblock %}

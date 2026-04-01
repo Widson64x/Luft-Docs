@@ -1,0 +1,154 @@
+{# ==========================================================================
+   COMPONENTE: Modal de Configuracoes do Sistema
+   Dependencia: Requer a importacao previa do macro do LuftCore.
+   ========================================================================== #}
+{% import 'luftcore/components.html' as ui %}
+
+{% call ui.modal(id='modalConfiguracoes', titulo='Configurações do Sistema', tamanho='lg', icone='ph-bold ph-gear') %}
+    
+    <div class="luft-tabs-header mb-4">
+        <ul class="nav nav-tabs border-0" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-visuais">Visuais</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-operacoes">Operações</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reportar">Reportar Problema</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        
+        <div class="tab-pane fade show active" id="tab-visuais" role="tabpanel">
+            <form id="formVisuais" class="luft-settings-grid mt-3">
+                
+                <div class="form-group">
+                    <label for="selectAnimacao" class="form-label luft-settings-label">Animação de Fundo</label>
+                    <select id="selectAnimacao" class="form-control">
+                        <option value="colisao">Nova (Física)</option>
+                        <option value="original">Clássica</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectLiaMode" class="form-label luft-settings-label">Modo de Exibição da LIA</label>
+                    <select id="selectLiaMode" class="form-control">
+                        <option value="sidebar">Copiloto (Barra Lateral)</option>
+                        <option value="modal">Janela Flutuante (Modal)</option>
+                    </select>
+                </div>
+
+                <div class="form-group pt-2">
+                    <label for="rangeQuantidade" class="form-label d-flex justify-content-between align-items-center luft-settings-label">
+                        <span>Ícones de Fundo</span>
+                        <span id="labelQuantidade" class="text-primary font-black text-lg">50</span>
+                    </label>
+                    <input type="range" class="luft-range-slider mt-2" min="10" max="150" step="5" id="rangeQuantidade">
+                </div>
+
+                <div class="form-group pt-2">
+                    <label for="rangeVelocidade" class="form-label d-flex justify-content-between align-items-center luft-settings-label">
+                        <span>Velocidade da Animação</span>
+                        <span id="labelVelocidade" class="text-primary font-black text-lg">1.0x</span>
+                    </label>
+                    <input type="range" class="luft-range-slider mt-2" min="0.2" max="3.0" step="0.1" id="rangeVelocidade">
+                </div>
+                
+                <div class="form-group col-span-full" style="grid-column: 1 / -1; margin-top: 1.5rem !important;">
+                    <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; background-color: var(--luft-bg-app) !important; border: 1px solid var(--luft-border) !important; padding: 1rem !important; border-radius: 0.75rem !important; width: 100% !important;">
+                        
+                        <div style="flex-grow: 1 !important;">
+                            <h4 style="color: var(--luft-text-main) !important; font-family: inherit !important; font-weight: 700 !important; font-size: 1.05rem !important; margin: 0 !important; opacity: 1 !important; -webkit-text-fill-color: var(--luft-text-main) !important;">
+                                Ativar Modo Compacto
+                            </h4>
+                            <p style="color: var(--luft-text-main) !important; font-family: inherit !important; font-size: 0.85rem !important; margin: 0.25rem 0 0 0 !important; opacity: 0.9 !important; -webkit-text-fill-color: var(--luft-text-main) !important; line-height: 1.4 !important;">
+                                Reduz o espaçamento geral da interface para exibir uma maior densidade de informações no ecrã.
+                            </p>
+                        </div>
+
+                        <div style="flex-shrink: 0 !important; padding-left: 1rem !important;">
+                            {{ ui.switch('switchCompactMode', '') }}
+                        </div>
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="tab-pane fade" id="tab-operacoes" role="tabpanel">
+            {% set token_configuracoes = request.args.get('token') or session.get('token', '') %}
+            {% set pode_acessar_permissoes = tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+
+            <div class="mt-4 d-flex flex-column gap-4">
+                {% if pode_acessar_permissoes %}
+                    <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 1rem !important; background-color: var(--luft-bg-app) !important; border: 1px solid var(--luft-border) !important; padding: 1.25rem !important; border-radius: 0.75rem !important; width: 100% !important; flex-wrap: wrap !important;">
+                        <div style="flex-grow: 1 !important; min-width: 240px !important;">
+                            <h4 style="color: var(--luft-text-main) !important; font-family: inherit !important; font-weight: 700 !important; font-size: 1.05rem !important; margin: 0 !important; opacity: 1 !important; -webkit-text-fill-color: var(--luft-text-main) !important;">
+                                Gerenciar Permissões
+                            </h4>
+                            <p style="color: var(--luft-text-main) !important; font-family: inherit !important; font-size: 0.85rem !important; margin: 0.35rem 0 0 0 !important; opacity: 0.9 !important; -webkit-text-fill-color: var(--luft-text-main) !important; line-height: 1.4 !important;">
+                                Abra a central para criar permissões e vincular usuários ou grupos ao LuftDocs.
+                            </p>
+                        </div>
+
+                        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=token_configuracoes) }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="ph-bold ph-shield-check"></i>
+                            Abrir permissões
+                        </a>
+                    </div>
+
+                    <div>
+                        {{ ui.empty_state(titulo="Mais ferramentas em breve", subtitulo="Novas ações operacionais serão adicionadas aqui conforme forem disponibilizadas.", icone="ph-code") }}
+                    </div>
+                {% else %}
+                    {{ ui.empty_state(titulo="Sem acesso disponível", subtitulo="A central de permissões só fica disponível para usuários com acesso à segurança do sistema.", icone="ph-lock") }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-reportar" role="tabpanel">
+            <div class="mb-4 mt-3">
+                <p class="luft-settings-text text-sm m-0">A sua opinião é fundamental para a evolução da plataforma. Direcione o seu feedback para nos ajudar a identificar a raiz da situação.</p>
+            </div>
+            
+            <form id="bugReportForm">
+                <div class="form-group mb-4">
+                    <label for="reportType" class="form-label luft-settings-label">Qual o tipo de feedback?</label>
+                    <select class="form-control" id="reportType" required>
+                        <option value="" selected disabled>Selecione uma opção...</option>
+                        <option value="tela">Problema em uma Tela Específica</option>
+                        <option value="modulo">Problema em um Módulo Específico</option>
+                        <option value="geral">Problema Geral no Sistema</option>
+                        <option value="sugestao">Sugestão de Melhoria</option>
+                    </select>
+                </div>
+
+                <div id="targetEntityWrapper" class="mb-4" style="display: none;"></div>
+                <div id="errorCategoryWrapper" class="mb-4" style="display: none;"></div>
+
+                <div class="form-group mb-4">
+                    <label for="bugDescription" class="form-label luft-settings-label">Descrição Detalhada</label>
+                    <textarea class="form-control" id="bugDescription" rows="4" placeholder="Por favor, descreva a situação com o máximo de detalhes possível..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2">
+                    <i class="ph-bold ph-bug"></i> Enviar Feedback para a Equipa
+                </button>
+            </form>
+            <div id="reportStatus" class="mt-3"></div>
+        </div>
+
+    </div>
+
+    <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top" style="border-color: var(--luft-border) !important;">
+        <button class="btn btn-outline" onclick="LuftCore.fecharModal('modalConfiguracoes')">Cancelar</button>
+        <button class="btn btn-primary d-flex align-items-center gap-2" id="btnSalvarConfigs">
+            <i class="ph-bold ph-floppy-disk"></i> Salvar Alterações
+        </button>
+    </div>
+
+{% endcall %}

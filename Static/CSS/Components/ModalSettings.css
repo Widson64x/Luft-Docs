@@ -1,0 +1,169 @@
+/* =================================================================== */
+/* === MODAL DE CONFIGURAÇÕES (LUFTCORE PREMIUM UI) === */
+/* =================================================================== */
+
+/* Grid responsivo para alinhar os inputs perfeitamente */
+.luft-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.col-span-full {
+    grid-column: 1 / -1;
+}
+
+/* =================================================================== */
+/* TIPOGRAFIA BASE (FORÇANDO CONTRASTE ALTO - WHITE NO MODO DARK) */
+/* =================================================================== */
+
+/* Labels dos formulários */
+#modalConfiguracoes .luft-settings-label {
+    color: var(--luft-text-main) !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+}
+
+/* Textos descritivos e parágrafos */
+#modalConfiguracoes .luft-settings-text {
+    color: var(--luft-text-main) !important;
+}
+
+/* =================================================================== */
+/* SOBRESCRITA ABSOLUTA DO BOOTSTRAP PARA MODO DARK (INPUTS) */
+/* =================================================================== */
+#modalConfiguracoes .form-control {
+    background-color: var(--luft-bg-app) !important;
+    color: var(--luft-text-main) !important;
+    border: 1px solid var(--luft-border) !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+#modalConfiguracoes .form-control:focus {
+    background-color: var(--luft-bg-app) !important;
+    color: var(--luft-text-main) !important;
+    border-color: var(--luft-primary-500) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--luft-primary-500) 15%, transparent) !important;
+}
+
+#modalConfiguracoes .form-control option {
+    background-color: var(--luft-bg-panel) !important;
+    color: var(--luft-text-main) !important;
+}
+
+/* =================================================================== */
+/* RANGE SLIDERS CUSTOMIZADOS */
+/* =================================================================== */
+.luft-range-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background: var(--luft-border);
+    outline: none;
+    transition: background 0.2s;
+    display: block;
+}
+
+.luft-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--luft-primary-600);
+    cursor: pointer;
+    box-shadow: var(--luft-shadow-md);
+    border: 3px solid var(--luft-bg-panel);
+    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s;
+}
+
+.luft-range-slider::-webkit-slider-thumb:hover,
+.luft-range-slider::-webkit-slider-thumb:active {
+    transform: scale(1.25);
+    background: var(--luft-primary-500);
+}
+
+/* =================================================================== */
+/* NAVEGAÇÃO DE ABAS (TABS) - ISOLANDO O BOOTSTRAP DE VEZ */
+/* =================================================================== */
+#modalConfiguracoes .nav-tabs {
+    border-bottom: 2px solid var(--luft-border) !important;
+    gap: 16px;
+}
+
+/* Anulando os backgrounds e utilizando a cor principal (Branco no Dark Mode) */
+#modalConfiguracoes .nav-tabs .nav-link {
+    background-color: transparent !important;
+    border: none !important;
+    color: var(--luft-text-main) !important;
+    opacity: 0.6; /* Deixa a aba inativa um pouco mais escura, mas ainda legível */
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -2px !important;
+    transition: all 0.2s ease !important;
+}
+
+#modalConfiguracoes .nav-tabs .nav-link:hover {
+    opacity: 0.8;
+    border-bottom-color: var(--luft-border) !important;
+}
+
+/* Aba ativa recebe a cor primária do tema */
+#modalConfiguracoes .nav-tabs .nav-link.active {
+    color: var(--luft-primary-600) !important;
+    opacity: 1;
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--luft-primary-600) !important;
+}
+
+/* =================================================================== */
+/* PAINEL DE DESTAQUE (MODO COMPACTO) - COMPONENTE ISOLADO */
+/* =================================================================== */
+
+.luft-compact-panel {
+    grid-column: 1 / -1; /* Ocupa a largura total do grid */
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--luft-bg-app) !important;
+    border: 1px solid var(--luft-border) !important;
+}
+
+/* Força a cor do Título */
+.luft-compact-panel .luft-compact-panel-info h4 {
+    color: var(--luft-text-main) !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    margin: 0 !important;
+}
+
+/* Força a cor do Parágrafo */
+.luft-compact-panel .luft-compact-panel-info p {
+    color: var(--luft-text-main) !important;
+    font-size: 0.85rem !important;
+    margin: 4px 0 0 0 !important;
+    opacity: 0.8 !important; /* Cria distinção visual sem mudar a cor base */
+}
+
+/* Responsividade do Painel */
+@media (max-width: 576px) {
+    .luft-compact-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .luft-compact-panel-action {
+        align-self: flex-end;
+    }
+}
