@@ -6,9 +6,12 @@ import requests
 from flask import current_app, redirect, render_template, request, session, url_for
 from flask_login import login_user
 
-from Config import USER_API_URL
 from Utils.auth.MapeamentoCamposUsuario import MAPA_CAMPOS_USUARIO
-from Utils.auth.ProvedorUsuario import ObterUsuarioPorCredenciais, ObterUsuarioPorToken
+from Utils.auth.ProvedorUsuario import (
+    ExecutarRequisicaoApiUsuario,
+    ObterUsuarioPorCredenciais,
+    ObterUsuarioPorToken,
+)
 
 
 def MapearCamposUsuario(usuarioApi: dict[str, Any]) -> dict[str, Any]:
@@ -89,8 +92,9 @@ def EncerrarSessaoUsuario() -> bool:
     token = session.get("token")
     if token:
         try:
-            resposta = requests.post(
-                f"{USER_API_URL}/logout_token",
+            resposta = ExecutarRequisicaoApiUsuario(
+                "post",
+                "/logout_token",
                 json={"token": token},
                 timeout=3,
             )

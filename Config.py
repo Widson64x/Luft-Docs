@@ -195,6 +195,10 @@ class ConfiguracaoBase:
     topMostSearched = 7
     parametrosCredenciaisApiUsuario = ["login_hash"]
     parametrosTokenApiUsuario = ["token"]
+    chaveAcessoApiUsuario = obterEnv("API_ACCESS_KEY", "") or ""
+    nomeCabecalhoChaveApiUsuario = (
+        obterEnv("API_ACCESS_KEY_HEADER", "X-API-Key") or "X-API-Key"
+    )
     urlsApiUsuario = {
         "local": "http://127.0.0.1:9006/luft-api/api",
         "real": "http://b2bi-apps.luftfarma.com.br/luft-api/api",
@@ -297,6 +301,8 @@ DATABASE_URL = ConfiguracaoAtual.obterUrlPostgres()
 SQLSERVER_URL = ConfiguracaoAtual.obterUrlSqlServer()
 SQLSERVER_DIRECTORY_DB = ConfiguracaoAtual.sqlServerDirectoryDb
 USER_API_URL = ConfiguracaoAtual.obterUrlApiUsuario()
+USER_API_ACCESS_KEY = ConfiguracaoAtual.chaveAcessoApiUsuario
+USER_API_ACCESS_KEY_HEADER = ConfiguracaoAtual.nomeCabecalhoChaveApiUsuario
 
 DATA_ROOT = ConfiguracaoAtual.obterDataRoot()
 MODULES_DIR = DATA_ROOT / "Modules"
