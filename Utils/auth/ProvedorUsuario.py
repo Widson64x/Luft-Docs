@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import requests
@@ -11,7 +10,7 @@ from Config import (
     USER_API_URL as URL_API_USUARIO_CONFIG,
 )
 
-URL_API_USUARIO = os.environ.get("USER_API_URL", URL_API_USUARIO_CONFIG)
+URL_API_USUARIO = URL_API_USUARIO_CONFIG
 
 
 def ObterUsuarioPorCredenciais(*argumentos: str) -> dict[str, Any] | None:

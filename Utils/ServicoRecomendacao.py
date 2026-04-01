@@ -7,7 +7,8 @@ from typing import Any
 
 from sqlalchemy import func
 
-from Models import AcessoDocumento, FeedbackIA, LogBusca, db
+from Db.Connections import obterSessaoPostgres
+from Models import AcessoDocumento, FeedbackIA, LogBusca
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ def RegistrarAcessoDocumento(identificadorDocumento: str) -> None:
     if not identificadorDocumento:
         return
 
+    sessao = obterSessaoPostgres()
     try:
-        documento = db.session.get(AcessoDocumento, identificadorDocumento)
+        documento = sessao.get(AcessoDocumento, identificadorDocumento)
         if documento:
             documento.QuantidadeAcessos += 1
         else:
@@ -26,11 +28,13 @@ def RegistrarAcessoDocumento(identificadorDocumento: str) -> None:
                 DocumentoId=identificadorDocumento,
                 QuantidadeAcessos=1,
             )
-            db.session.add(documento)
-        db.session.commit()
+            sessao.add(documento)
+        sessao.commit()
     except Exception as erro:
-        db.session.rollback()
+        sessao.rollback()
         logger.exception("Erro ao registrar acesso ao documento: %s", erro)
+    finally:
+        sessao.close()
 
 
 def RegistrarTermoBusca(termoBusca: str) -> None:
@@ -39,8 +43,9 @@ def RegistrarTermoBusca(termoBusca: str) -> None:
         return
 
     termo_normalizado = termoBusca.strip().lower()
+    sessao = obterSessaoPostgres()
     try:
-        termo_existente = db.session.get(LogBusca, termo_normalizado)
+        termo_existente = sessao.get(LogBusca, termo_normalizado)
         if termo_existente:
             termo_existente.QuantidadeBuscas += 1
         else:
@@ -48,11 +53,13 @@ def RegistrarTermoBusca(termoBusca: str) -> None:
                 TermoBusca=termo_normalizado,
                 QuantidadeBuscas=1,
             )
-            db.session.add(termo_existente)
-        db.session.commit()
+            sessao.add(termo_existente)
+        sessao.commit()
     except Exception as erro:
-        db.session.rollback()
+        sessao.rollback()
         logger.exception("Erro ao registrar termo de busca: %s", erro)
+    finally:
+        sessao.close()
 
 
 def ObterContagensAcesso(identificadoresDocumentos: list[str]) -> dict[str, int]:
@@ -60,23 +67,35 @@ def ObterContagensAcesso(identificadoresDocumentos: list[str]) -> dict[str, int]
     if not identificadoresDocumentos:
         return {}
 
-    acessos = AcessoDocumento.query.filter(
-        AcessoDocumento.DocumentoId.in_(identificadoresDocumentos)
-    ).all()
-    return {acesso.DocumentoId: acesso.QuantidadeAcessos for acesso in acessos}
+    sessao = obterSessaoPostgres()
+    try:
+        acessos = sessao.query(AcessoDocumento).filter(
+            AcessoDocumento.DocumentoId.in_(identificadoresDocumentos)
+        ).all()
+        return {acesso.DocumentoId: acesso.QuantidadeAcessos for acesso in acessos}
+    finally:
+        sessao.close()
 
 
 def ObterMaisAcessados(limite: int = 5) -> list[dict[str, Any]]:
     """Retorna os documentos mais acessados em ordem decrescente."""
-    documentos = (
-        AcessoDocumento.query.order_by(AcessoDocumento.QuantidadeAcessos.desc())
-        .limit(limite)
-        .all()
-    )
-    return [
-        {"document_id": documento.DocumentoId, "access_count": documento.QuantidadeAcessos}
-        for documento in documentos
-    ]
+    sessao = obterSessaoPostgres()
+    try:
+        documentos = (
+            sessao.query(AcessoDocumento)
+            .order_by(AcessoDocumento.QuantidadeAcessos.desc())
+            .limit(limite)
+            .all()
+        )
+        return [
+            {
+                "document_id": documento.DocumentoId,
+                "access_count": documento.QuantidadeAcessos,
+            }
+            for documento in documentos
+        ]
+    finally:
+        sessao.close()
 
 
 def ObterSugestoesAutocomplete(termo: str, limite: int = 5) -> list[str]:
@@ -85,22 +104,36 @@ def ObterSugestoesAutocomplete(termo: str, limite: int = 5) -> list[str]:
         return []
 
     termo_pesquisa = f"{termo.strip().lower()}%"
-    resultados = (
-        LogBusca.query.filter(LogBusca.TermoBusca.like(termo_pesquisa))
-        .order_by(LogBusca.QuantidadeBuscas.desc())
-        .limit(limite)
-        .all()
-    )
-    return [resultado.TermoBusca for resultado in resultados]
+    sessao = obterSessaoPostgres()
+    try:
+        resultados = (
+            sessao.query(LogBusca)
+            .filter(LogBusca.TermoBusca.like(termo_pesquisa))
+            .order_by(LogBusca.QuantidadeBuscas.desc())
+            .limit(limite)
+            .all()
+        )
+        return [resultado.TermoBusca for resultado in resultados]
+    finally:
+        sessao.close()
 
 
 def ObterBuscasPopulares(limite: int = 5) -> list[dict[str, Any]]:
     """Retorna os termos de busca mais populares registrados."""
-    buscas = LogBusca.query.order_by(LogBusca.QuantidadeBuscas.desc()).limit(limite).all()
-    return [
-        {"query_term": busca.TermoBusca, "search_count": busca.QuantidadeBuscas}
-        for busca in buscas
-    ]
+    sessao = obterSessaoPostgres()
+    try:
+        buscas = (
+            sessao.query(LogBusca)
+            .order_by(LogBusca.QuantidadeBuscas.desc())
+            .limit(limite)
+            .all()
+        )
+        return [
+            {"query_term": busca.TermoBusca, "search_count": busca.QuantidadeBuscas}
+            for busca in buscas
+        ]
+    finally:
+        sessao.close()
 
 
 def ObterRecomendacoesHibridas(
@@ -109,44 +142,52 @@ def ObterRecomendacoesHibridas(
     pesoBusca: float = 0.4,
 ) -> list[dict[str, Any]]:
     """Calcula recomendacoes combinando acessos e relevancia por termos buscados."""
-    documentos = AcessoDocumento.query.all()
-    if not documentos:
-        return []
+    sessao = obterSessaoPostgres()
+    try:
+        documentos = sessao.query(AcessoDocumento).all()
+        if not documentos:
+            return []
 
-    buscas_populares = LogBusca.query.all()
-    maior_contagem_acesso = db.session.query(func.max(AcessoDocumento.QuantidadeAcessos)).scalar() or 1
-    maior_contagem_busca = db.session.query(func.max(LogBusca.QuantidadeBuscas)).scalar() or 1
+        buscas_populares = sessao.query(LogBusca).all()
+        maior_contagem_acesso = (
+            sessao.query(func.max(AcessoDocumento.QuantidadeAcessos)).scalar() or 1
+        )
+        maior_contagem_busca = (
+            sessao.query(func.max(LogBusca.QuantidadeBuscas)).scalar() or 1
+        )
 
-    pontuacoes_busca = {
-        busca.TermoBusca: busca.QuantidadeBuscas / maior_contagem_busca
-        for busca in buscas_populares
-    }
+        pontuacoes_busca = {
+            busca.TermoBusca: busca.QuantidadeBuscas / maior_contagem_busca
+            for busca in buscas_populares
+        }
 
-    pontuacoes_finais: dict[str, float] = {}
-    for documento in documentos:
-        pontuacao = (documento.QuantidadeAcessos / maior_contagem_acesso) * pesoAcesso
-        relevancia = 0.0
-        for termo, pontuacao_normalizada in pontuacoes_busca.items():
-            palavras_busca = set(re.split(r"\s|_|-", termo))
-            if any(
-                palavra in documento.DocumentoId.lower()
-                for palavra in palavras_busca
-                if len(palavra) > 2
-            ):
-                relevancia += pontuacao_normalizada
+        pontuacoes_finais: dict[str, float] = {}
+        for documento in documentos:
+            pontuacao = (documento.QuantidadeAcessos / maior_contagem_acesso) * pesoAcesso
+            relevancia = 0.0
+            for termo, pontuacao_normalizada in pontuacoes_busca.items():
+                palavras_busca = set(re.split(r"\s|_|-", termo))
+                if any(
+                    palavra in documento.DocumentoId.lower()
+                    for palavra in palavras_busca
+                    if len(palavra) > 2
+                ):
+                    relevancia += pontuacao_normalizada
 
-        if pontuacoes_busca:
-            pontuacao += (relevancia / len(pontuacoes_busca)) * pesoBusca
+            if pontuacoes_busca:
+                pontuacao += (relevancia / len(pontuacoes_busca)) * pesoBusca
 
-        pontuacoes_finais[documento.DocumentoId] = pontuacao
+            pontuacoes_finais[documento.DocumentoId] = pontuacao
 
-    documentos_ordenados = sorted(
-        pontuacoes_finais.items(), key=lambda item: item[1], reverse=True
-    )
-    return [
-        {"document_id": identificador, "score": pontuacao}
-        for identificador, pontuacao in documentos_ordenados[:limite]
-    ]
+        documentos_ordenados = sorted(
+            pontuacoes_finais.items(), key=lambda item: item[1], reverse=True
+        )
+        return [
+            {"document_id": identificador, "score": pontuacao}
+            for identificador, pontuacao in documentos_ordenados[:limite]
+        ]
+    finally:
+        sessao.close()
 
 
 def RegistrarFeedbackIA(
@@ -159,6 +200,7 @@ def RegistrarFeedbackIA(
     fontesContexto: list[str] | None = None,
 ) -> None:
     """Registra o feedback do usuario para uma resposta gerada pela IA."""
+    sessao = obterSessaoPostgres()
     try:
         contexto_serializado = json.dumps(fontesContexto) if fontesContexto else None
         novo_feedback = FeedbackIA(
@@ -170,9 +212,11 @@ def RegistrarFeedbackIA(
             Avaliacao=avaliacao,
             Comentario=comentario,
         )
-        db.session.add(novo_feedback)
-        db.session.commit()
+        sessao.add(novo_feedback)
+        sessao.commit()
     except Exception as erro:
-        db.session.rollback()
+        sessao.rollback()
         logger.exception("Erro ao registrar feedback da IA: %s", erro)
         raise
+    finally:
+        sessao.close()

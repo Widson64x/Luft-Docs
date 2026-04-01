@@ -41,7 +41,12 @@
 ```
 Luft-Docs/
 ├─ app.py / wsgi.py
-├─ Models.py
+├─ Models/
+│  ├─ __init__.py
+│  ├─ analytics.py
+│  ├─ conteudo.py
+│  ├─ roteiros.py
+│  └─ permissoes.py
 ├─ LIA_Services/
 │  └─ LIA/
 ├─ Routes/
@@ -87,41 +92,58 @@ Luft-Docs/
 
 ## ⚙️ Configuração
 
-Crie um arquivo **`.env`** na raiz. Exemplos de variáveis:
+Crie um arquivo **`.env`** na raiz. O projeto usa um unico arquivo de ambiente e controla o comportamento por `APP_ENV`, sem ` .env_LOCAL` ou ` .env_PROD`.
+
+Exemplo de variáveis:
 
 ```ini
-# Flask
-FLASK_APP=app.py
-FLASK_ENV=development
-SECRET_KEY=troque-esta-chave
+# Aplicacao
+APP_ENV=Local
+APP_NAME=LuftDocs
+APP_VERSION=1.0.0
+FLASK_SECRET_KEY=troque-esta-chave
+LOG_LEVEL=INFO
+BASE_PREFIX=/luft-docs
 
-# Banco de Dados (PostgreSQL)
-DB_USER=seu_usuario
-DB_PASS=sua_senha
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=luftdocs
+# Banco principal (PostgreSQL)
+PG_USER=seu_usuario
+PG_PASS=sua_senha
+PG_HOST=localhost
+PG_PORT=5432
+PG_NAME=luftdocs
+PG_DRIVER=postgresql+psycopg
+PG_SEARCH_PATH=luftdocst
 
-# OU (MSSQL via pymssql) — opcional
-# DB_DIALECT=mssql
-# DB_DRIVER=pymssql
+# Banco de permissoes/diretorio (SQL Server) - opcional
+SQL_USER=seu_usuario
+SQL_PASS=sua_senha
+SQL_HOST=servidor_sql
+SQL_PORT=1433
+SQL_DB=intec
+SQL_DRIVER=mssql+pyodbc
+SS_ODBC_DRIVER=ODBC Driver 17 for SQL Server
+SQL_DIRECTORY_DB=LuftInforma
 
-# Limites/Segurança
-RATELIMIT_DEFAULT=200 per hour
+# Dados locais/compartilhados
+DATA_ROOT=./DATA_LUFTDOCS
+DB_PATH=./DATA/luftdocs.db
 
-# Serviços externos
-USER_API_URL=http://172.16.200.80:8005/api
+# API de usuario
+USER_API_URL=http://127.0.0.1:9006/luft-api/api
 
 # Integrações de IA (opcionais)
 OPENAI_API_KEY=
 GROQ_API_KEY=
 GEMINI_API_KEY=
+OPEN_ROUTER_API_KEY=
 
-# Vetor/embedding (ajuste conforme sua implementação)
-VECTOR_DB_PATH=./vector-db
+# Permissoes e startup
+SISTEMA_ID=5
+DEBUG_PERMISSIONS=false
+CREATE_DATA_DIRS_ON_STARTUP=false
 ```
 
-> **Dica:** em produção, defina `FLASK_ENV=production` e uma `SECRET_KEY` forte.
+> **Dica:** em produção, defina `APP_ENV=Prod`, ajuste `DATA_ROOT` para o compartilhamento correto e use uma `FLASK_SECRET_KEY` forte.
 
 ---
 

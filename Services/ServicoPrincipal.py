@@ -4,7 +4,8 @@ from typing import Any
 
 from flask import current_app
 
-from Models import ReporteBug, db
+from Db.Connections import obterSessaoPostgres
+from Models import ReporteBug
 from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.auth.Autenticacao import AutenticarRequisicaoInicial, EncerrarSessaoUsuario
 from Utils.data.UtilitariosModulo import (
@@ -104,6 +105,7 @@ class ServicoPrincipal:
                 "message": "A descricao e obrigatoria e deve conter pelo menos 10 caracteres.",
             }, 400
 
+        sessao = obterSessaoPostgres()
         try:
             novo_reporte = ReporteBug(
                 UsuarioId=identificador_usuario,
@@ -112,14 +114,14 @@ class ServicoPrincipal:
                 CategoriaErro=categoria_erro,
                 Descricao=descricao,
             )
-            db.session.add(novo_reporte)
-            db.session.commit()
+            sessao.add(novo_reporte)
+            sessao.commit()
             return {
                 "success": True,
                 "message": "Feedback enviado com sucesso. Agradecemos sua colaboracao.",
             }, 201
         except Exception as erro:
-            db.session.rollback()
+            sessao.rollback()
             current_app.logger.error(
                 "Erro ao inserir bug report para user_id %s: %s",
                 identificador_usuario,
@@ -129,6 +131,8 @@ class ServicoPrincipal:
                 "success": False,
                 "message": "Ocorreu um erro interno ao salvar seu feedback. Tente novamente mais tarde.",
             }, 500
+        finally:
+            sessao.close()
 
     def encerrarSessaoAtual(self) -> None:
         """Executa o fluxo de encerramento da sessao do usuario atual."""

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime
+import logging
 from typing import Any
 
 from sqlalchemy.orm import joinedload
 
+from Db.Connections import obterSessaoPostgres
 from Models import Modulo
 from Services.PermissaoService import ChavesPermissao, PermissaoService
 from Utils.ServicoRecomendacao import RegistrarAcessoDocumento
@@ -23,6 +25,7 @@ class ServicoModulo:
     """Centraliza a regra de negocio de visualizacao de modulos e submodulos."""
 
     def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
         self.servicoFiltroConteudo = ServicoFiltroConteudo()
 
     def obterRespostaConteudo(
@@ -57,67 +60,90 @@ class ServicoModulo:
                 "codigo": 403,
             }
 
-        modulo = (
-            Modulo.query.options(
-                joinedload(Modulo.Roteiros),
-                joinedload(Modulo.Relacionados),
-                joinedload(Modulo.HistoricoEdicoes),
+        sessao = obterSessaoPostgres()
+        try:
+            modulo = (
+                sessao.query(Modulo)
+                .options(
+                    joinedload(Modulo.Roteiros),
+                    joinedload(Modulo.Relacionados),
+                    joinedload(Modulo.HistoricoEdicoes),
+                )
+                .filter_by(Id=identificador_modulo)
+                .first()
             )
-            .filter_by(Id=identificador_modulo)
-            .first()
-        )
 
-        if not modulo:
-            return {
-                "tipo": "erro",
-                "codigo": 404,
-                "mensagem": "Modulo nao encontrado.",
-            }
+            if not modulo:
+                self.logger.warning(
+                    "[DIAG][MODULO] Registro nao encontrado no Postgres para identificador '%s' (tecnico=%s).",
+                    identificador_modulo,
+                    documentacao_tecnica,
+                )
+                return {
+                    "tipo": "erro",
+                    "codigo": 404,
+                    "mensagem": "Modulo nao encontrado.",
+                }
 
-        if ModuloEhRestrito(modulo) and not self._usuarioPodeVerModuloRestrito():
-            return {
-                "tipo": "erro",
-                "codigo": 403,
-                "mensagem": "Voce nao tem permissao para acessar este modulo restrito.",
-            }
+            if ModuloEhRestrito(modulo) and not self._usuarioPodeVerModuloRestrito():
+                return {
+                    "tipo": "erro",
+                    "codigo": 403,
+                    "mensagem": "Voce nao tem permissao para acessar este modulo restrito.",
+                }
 
-        conteudo_markdown = self._obterConteudoModulo(
-            identificador_modulo, documentacao_tecnica, consulta
-        )
-        if not conteudo_markdown:
+            conteudo_markdown = self._obterConteudoModulo(
+                identificador_modulo,
+                documentacao_tecnica,
+                consulta,
+            )
+            if not conteudo_markdown:
+                self.logger.warning(
+                    "[DIAG][MODULO] Conteudo markdown ausente para identificador '%s' (tecnico=%s).",
+                    identificador_modulo,
+                    documentacao_tecnica,
+                )
+                return {
+                    "tipo": "template",
+                    "template": "Auth/Dev.html",
+                    "contexto": {},
+                    "codigo": 404,
+                }
+
+            RegistrarAcessoDocumento(
+                f"tech_{identificador_modulo}"
+                if documentacao_tecnica
+                else identificador_modulo
+            )
+
+            conteudo_html = ConverterWikiLinks(
+                conteudo_markdown,
+                modulos,
+                palavras_globais,
+            )
             return {
                 "tipo": "template",
-                "template": "Auth/Dev.html",
-                "contexto": {},
-                "codigo": 404,
+                "template": "Modules/Modulos.html",
+                "contexto": {
+                    "modulo": modulo,
+                    "conteudo": conteudo_html,
+                    "relacionados": modulo.Relacionados,
+                    "modulos": modulos,
+                    "query": consulta,
+                    "resultado_highlight": bool(consulta),
+                    "versao_info": self._obterInformacoesVersao(modulo),
+                    "id_do_modulo": identificador_modulo,
+                    "token": token,
+                    "modulo_icone": modulo.Icone or "bi-box",
+                    "modulo_atual": modulo,
+                    "proactive_module_name": modulo.Nome,
+                    "proactive_module_id": modulo.Id,
+                    "roteiros_data": [roteiro.to_dict() for roteiro in modulo.Roteiros],
+                },
+                "codigo": 200,
             }
-
-        RegistrarAcessoDocumento(
-            f"tech_{identificador_modulo}" if documentacao_tecnica else identificador_modulo
-        )
-
-        conteudo_html = ConverterWikiLinks(conteudo_markdown, modulos, palavras_globais)
-        return {
-            "tipo": "template",
-            "template": "Modules/Modulos.html",
-            "contexto": {
-                "modulo": modulo,
-                "conteudo": conteudo_html,
-                "relacionados": modulo.Relacionados,
-                "modulos": modulos,
-                "query": consulta,
-                "resultado_highlight": bool(consulta),
-                "versao_info": self._obterInformacoesVersao(modulo),
-                "id_do_modulo": identificador_modulo,
-                "token": token,
-                "modulo_icone": modulo.Icone or "bi-box",
-                "modulo_atual": modulo,
-                "proactive_module_name": modulo.Nome,
-                "proactive_module_id": modulo.Id,
-                "roteiros_data": [roteiro.to_dict() for roteiro in modulo.Roteiros],
-            },
-            "codigo": 200,
-        }
+        finally:
+            sessao.close()
 
     def _obterRespostaSubmodulo(
         self,
