@@ -12,7 +12,6 @@
     const modal      = document.getElementById('modalBusca');
     if (!modal) return;
 
-    const container  = modal.querySelector('.kp-modal-body');
     const input      = document.getElementById('kpModalInput');
     const results    = document.getElementById('kpModalResults');
     const chips      = document.getElementById('kpModalChips');
@@ -22,11 +21,8 @@
 
     if (!input) return;
 
-    const basePrefix = (container?.dataset.basePrefix || '/luft-docs').replace(/\/+$/, '');
     const rotas = window.ROUTES || {};
-    const searchBase = (rotas.Busca?.exibir || '').replace(/\/$/, '');
     const rotasApi = rotas.Api || {};
-    const token      = new URLSearchParams(location.search).get('token') || '';
 
     let acTimer              = null;   // debounce do autocomplete
     let searchTimer         = null;   // debounce da busca completa
@@ -40,16 +36,11 @@
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    function api(urlBase, params = {}) {
-      const u = new URL(urlBase, location.origin);
-      if (token) params.token = token;
-      Object.entries(params).forEach(([k, v]) => v != null && u.searchParams.set(k, v));
-      return fetch(u.toString(), {
-        headers: {
-          Accept: 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      }).then(r => r.json());
+    async function api(urlBase, params = {}) {
+      const { data } = await window.LuftDocs.requestJson(urlBase, {
+        query: params,
+      });
+      return data;
     }
 
     function escapeHtml(s) {
@@ -59,12 +50,7 @@
     }
 
     function buildUrl(relativeUrl) {
-      const path = relativeUrl.startsWith('/') ? relativeUrl : '/' + relativeUrl;
-      let url = basePrefix + path;
-      if (token && !url.includes('token=')) {
-        url += (url.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(token);
-      }
-      return url;
+      return window.LuftDocs.route(relativeUrl);
     }
 
     // ── Abrir modal ────────────────────────────────────────────────────────

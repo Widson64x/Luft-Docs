@@ -234,27 +234,22 @@ class GerenciadorFeedback {
         botaoSubmeter.innerHTML = '<i class="ph-bold ph-spinner-gap ph-spin"></i> A Processar...';
         this.statusFeedback.innerHTML = '';
 
-        if (typeof bugReportURL === 'undefined') {
+        const rotaFeedback = window.ROUTES?.Inicio?.reportarProblema || '';
+        if (!rotaFeedback) {
             this.statusFeedback.innerHTML = `<div class="luft-alert luft-alert-danger mt-3"><i class="ph-bold ph-warning-circle"></i> URL de sincronizacao nao definida.</div>`;
             this.restaurarBotao(botaoSubmeter);
             return;
         }
 
         try {
-            const resposta = await fetch(bugReportURL, {
+            const { response: resposta, data: dados } = await window.LuftDocs.requestJson(rotaFeedback, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(dadosReporte)
+                json: dadosReporte,
             });
 
-            const dados = await resposta.json();
+            if (!resposta.ok) throw new Error(dados?.message || "Falha na comunicacao com o servidor.");
 
-            if (!resposta.ok) throw new Error(dados.message || "Falha na comunicacao com o servidor.");
-
-            this.statusFeedback.innerHTML = `<div class="luft-alert luft-alert-success mt-3"><i class="ph-bold ph-check-circle"></i> ${dados.message}</div>`;
+            this.statusFeedback.innerHTML = `<div class="luft-alert luft-alert-success mt-3"><i class="ph-bold ph-check-circle"></i> ${dados?.message || 'Feedback enviado com sucesso.'}</div>`;
             this.formulario.reset();
             this.selectTipo.dispatchEvent(new Event('change'));
 

@@ -12,13 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 autocompleteList.style.display = 'none';
                 return;
             }
-            const url = new URL(rotaAutocomplete, window.location.origin);
-            url.searchParams.set('q', val);
-            fetch(url.toString(), {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            window.LuftDocs.requestJson(rotaAutocomplete, {
+                query: { q: val },
             })
-                .then(response => response.json())
-                .then(sugestoes => {
+                .then(({ data: sugestoes }) => {
+                    sugestoes = Array.isArray(sugestoes) ? sugestoes : [];
                     autocompleteList.innerHTML = '';
                     if (sugestoes.length === 0) {
                         autocompleteList.style.display = 'none';

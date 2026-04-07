@@ -136,18 +136,13 @@
             this.updateSummary('Sincronizando a biblioteca da sidebar.');
 
             try {
-                const resposta = await fetch(this.modulesUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                });
+                const { response: resposta, data: payload } = await window.LuftDocs.requestJson(this.modulesUrl);
 
                 if (!resposta.ok) {
                     throw new Error(`Falha ao carregar sidebar: ${resposta.status}`);
                 }
 
-                const payload = await resposta.json();
-                this.modules = Array.isArray(payload.modules) ? payload.modules : [];
+                this.modules = Array.isArray(payload?.modules) ? payload.modules : [];
                 if (this.activeModuleId) {
                     const activeModule = this.modules.find((module) => module.id === this.activeModuleId);
                     if (activeModule) {
@@ -436,9 +431,9 @@
         }
 
         buildModuleUrl(moduleId) {
-            const url = new URL(this.moduleBaseUrl, window.location.origin);
-            url.searchParams.set('modulo', moduleId);
-            return `${url.pathname}${url.search}`;
+            return window.LuftDocs.route(this.moduleBaseUrl, {
+                query: { modulo: moduleId },
+            });
         }
 
         formatIcon(iconClass) {

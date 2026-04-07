@@ -105,12 +105,16 @@ def _usuario_da_sessao() -> tuple[int | None, int | None]:
 
 
 def _ip_da_requisicao() -> str:
-    """Extrai o IP real considerando proxies reversos."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.remote_addr or "0.0.0.0"
-
+    """
+    Extrai o IP real considerando proxies reversos. Analisa os headers X-Forwarded-For 
+    e X-Real-IP. Se ambos ausentes, retorna request.remote_addr.
+    """
+    x_forwarded_for = request.headers.get('X-Forwarded-For')
+    if x_forwarded_for:
+        ip_real = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip_real = request.headers.get('X-Real-IP', request.remote_addr)
+    return ip_real
 
 def _eh_requisicao_api() -> bool:
     """True se a requisição veio via AJAX ou espera JSON."""

@@ -150,21 +150,15 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
   const ROUTES = {
     listarOpcoes: "{{ url_for('Editor.listarOpcoesEditor') }}",
   };
 
   const token = '{{ token }}';
-  const BASE_PREFIX = '/luft-docs';
-  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   let allIcons = [];
   let allModules = [];
   let selectedRel = new Set();
-
-  function withPrefix(path) {
-    if (/^https?:\/\//i.test(path)) return path;
-    return `${BASE_PREFIX}${path.startsWith('/') ? path : '/' + path}`;
-  }
 
   /* ---------- Ícones ---------- */
   function renderIconGrid(filter = '') {
@@ -305,9 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Carrega opções ---------- */
-  fetch(withPrefix(`${ROUTES.listarOpcoes}?token=${token}`), { headers: AJAX_HEADERS })
-    .then(r => r.json())
-    .then(data => {
+  app.requestJson(ROUTES.listarOpcoes, { token })
+    .then(({ response, data }) => {
+      if (!response.ok) throw new Error();
+      data = data || {};
       allIcons = data.icons || [];
       allModules = data.modules || [];
       syncRelState();

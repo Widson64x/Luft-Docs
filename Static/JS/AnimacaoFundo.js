@@ -26,6 +26,59 @@ class AnimacaoFundo {
         return { quantidade, fatorVelocidade, fatorAleatoriedade };
     }
 
+    obterIconesPadrao() {
+        return ['bi-alarm', 'bi-bag', 'bi-gear', 'bi-activity'];
+    }
+
+    normalizarClasseIcone(classeIcone) {
+        const classe = String(classeIcone || '').trim();
+
+        if (!classe) {
+            return 'ph-bold ph-cube';
+        }
+
+        if (classe.includes('ph-')) {
+            return classe;
+        }
+
+        return classe
+            .replace('fas fa-', 'ph-bold ph-')
+            .replace('bi bi-', 'ph-bold ph-')
+            .replace('bi-', 'ph-bold ph-');
+    }
+
+    renderizarIcones(iconesDisponiveis, parametros, larguraTela, alturaTela) {
+        const icones = Array.isArray(iconesDisponiveis) && iconesDisponiveis.length > 0
+            ? iconesDisponiveis
+            : this.obterIconesPadrao();
+
+        this.container.innerHTML = '';
+        this.dadosIcones = [];
+
+        for (let indice = 0; indice < parametros.quantidade; indice++) {
+            const elemento = document.createElement('i');
+            const tamanho = (Math.random() * 24 * parametros.fatorAleatoriedade + 16);
+            const iconeSorteado = this.normalizarClasseIcone(
+                icones[Math.floor(Math.random() * icones.length)]
+            );
+
+            elemento.className = `${iconeSorteado}`;
+            elemento.style.fontSize = `${tamanho}px`;
+            this.container.appendChild(elemento);
+
+            this.dadosIcones.push({
+                elemento: elemento,
+                posX: Math.random() * (larguraTela - tamanho),
+                posY: Math.random() * (alturaTela - tamanho),
+                velX: (Math.random() - 0.5) * 1.5 * parametros.fatorVelocidade,
+                velY: (Math.random() - 0.5) * 1.5 * parametros.fatorVelocidade,
+                tamanhoBase: tamanho
+            });
+        }
+
+        this.executarLoop();
+    }
+
     /**
      * Inicia a renderizacao em loop dos componentes visuais de fundo.
      */
@@ -40,32 +93,35 @@ class AnimacaoFundo {
         const alturaTela = this.container.offsetHeight;
 
         fetch(urlJSON)
-            .then(resposta => resposta.json())
-            .then(iconesDisponiveis => {
-                this.container.innerHTML = '';
-                this.dadosIcones = [];
-
-                for (let indice = 0; indice < parametros.quantidade; indice++) {
-                    const elemento = document.createElement('i');
-                    const tamanho = (Math.random() * 24 * parametros.fatorAleatoriedade + 16);
-                    const iconeSorteado = iconesDisponiveis[Math.floor(Math.random() * iconesDisponiveis.length)].replace('bi bi-', 'ph-bold ph-');
-
-                    elemento.className = `${iconeSorteado}`;
-                    elemento.style.fontSize = `${tamanho}px`;
-                    this.container.appendChild(elemento);
-
-                    this.dadosIcones.push({
-                        elemento: elemento,
-                        posX: Math.random() * (larguraTela - tamanho),
-                        posY: Math.random() * (alturaTela - tamanho),
-                        velX: (Math.random() - 0.5) * 1.5 * parametros.fatorVelocidade,
-                        velY: (Math.random() - 0.5) * 1.5 * parametros.fatorVelocidade,
-                        tamanhoBase: tamanho
-                    });
+            .then(resposta => {
+                if (!resposta.ok) {
+                    throw new Error(`Falha HTTP ${resposta.status}`);
                 }
-                this.executarLoop();
+
+                const tipoConteudo = resposta.headers.get('content-type') || '';
+                if (!tipoConteudo.includes('application/json')) {
+                    throw new Error(`Conteudo inesperado: ${tipoConteudo || 'desconhecido'}`);
+                }
+
+                return resposta.json();
             })
-            .catch(erro => console.error("Erro ao carregar mapa de icones da animacao:", erro));
+            .then(iconesDisponiveis => {
+                this.renderizarIcones(
+                    iconesDisponiveis,
+                    parametros,
+                    larguraTela,
+                    alturaTela
+                );
+            })
+            .catch(erro => {
+                console.error("Erro ao carregar mapa de icones da animacao:", erro);
+                this.renderizarIcones(
+                    this.obterIconesPadrao(),
+                    parametros,
+                    larguraTela,
+                    alturaTela
+                );
+            });
     }
 
     /**

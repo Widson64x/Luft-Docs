@@ -36,13 +36,12 @@ class GerenciadorPermissoes {
         this.prepararPainel(nome, 'Editando permissões gerais do grupo');
 
         try {
-            const resp = await fetch(`${configPermissoes.urls.buscarAcessosGrupo}?idGrupo=${id}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            const { response: resp, data: dados } = await window.LuftDocs.requestJson(configPermissoes.urls.buscarAcessosGrupo, {
+                query: { idGrupo: id },
             });
             if (!resp.ok) {
                 throw new Error('Falha ao carregar permissões do grupo.');
             }
-            const dados = await resp.json();
             const ativos = new Set(dados.ids_ativos || []);
             
             document.querySelectorAll('.check-perm').forEach(chk => {
@@ -61,13 +60,13 @@ class GerenciadorPermissoes {
         this.prepararPainel(nome, 'Editando exceções e heranças');
 
         try {
-            const resp = await fetch(`${configPermissoes.urls.buscarAcessosUsuario}?idUsuario=${id}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            const { response: resp, data } = await window.LuftDocs.requestJson(configPermissoes.urls.buscarAcessosUsuario, {
+                query: { idUsuario: id },
             });
             if (!resp.ok) {
                 throw new Error('Falha ao carregar permissões do usuário.');
             }
-            this.DADOS_ATUAIS = await resp.json();
+            this.DADOS_ATUAIS = data;
 
             const heranca = new Set(this.DADOS_ATUAIS.ids_heranca || []);
             const overrides = this.DADOS_ATUAIS.overrides || {};
@@ -155,20 +154,15 @@ class GerenciadorPermissoes {
 
     async enviarAPI(tipo, alvo, perm, conceder) {
         try {
-            const resp = await fetch(configPermissoes.urls.salvarVinculo, {
+            const { response: resp, data: d } = await window.LuftDocs.requestJson(configPermissoes.urls.salvarVinculo, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
+                json: {
                     Tipo: tipo,
                     IdAlvo: Number(alvo),
                     IdPermissao: Number(perm),
                     Conceder: conceder,
-                })
+                },
             });
-            const d = await resp.json();
             if (!resp.ok || !d.ok) {
                 throw new Error(d.erro || 'Falha ao salvar vínculo de permissão.');
             }

@@ -189,9 +189,8 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
   const token = '{{ token }}';
-  const prefixoBase = '/luft-docs';
-  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   const ROUTES = {
     uploadImagemModulo: "{{ url_for('Editor.enviarImagemModulo', modulo_id=modulo.id) }}",
     uploadAnexoModulo: "{{ url_for('Editor.enviarAnexoModulo') }}",
@@ -208,16 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let editorUsuario, editorTecnico;
 
-  /**
-   * Garante a formatacao correta do caminho de rota adicionando o prefixo base do sistema.
-   * * @param {string} caminho - O caminho original da rota.
-   * @returns {string} O caminho contendo o prefixo padronizado.
-   */
-  function AdicionarPrefixo(caminho) {
-    if (/^https?:\/\//i.test(caminho)) return caminho;
-    const caminhoSeguro = caminho.startsWith('/') ? caminho : '/' + caminho;
-    if (caminhoSeguro.startsWith(prefixoBase)) return caminhoSeguro;
-    return `${prefixoBase}${caminhoSeguro}`;
+    function MontarUrl(caminho, opcoes = {}) {
+      return app.route(caminho, { token, ...opcoes });
   }
 
   /**
@@ -241,13 +232,15 @@ document.addEventListener('DOMContentLoaded', () => {
         addImageBlobHook: (blob, callback) => {
           const formData = new FormData();
           formData.append('file', blob);
-          fetch(AdicionarPrefixo(`${ROUTES.uploadImagemModulo}?token=${token}`), {
+          app.requestJson(ROUTES.uploadImagemModulo, {
             method: 'POST',
-            headers: AJAX_HEADERS,
-            body: formData
+            formData,
+            token,
           })
-            .then(res => res.json())
-            .then(data => callback(AdicionarPrefixo(data.url), AdicionarPrefixo(data.url)))
+            .then(({ response, data }) => {
+              if (!response.ok || !data?.url) throw new Error();
+              callback(MontarUrl(data.url), MontarUrl(data.url));
+            })
             .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
         }
       }
@@ -309,13 +302,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoModulo}?token=${token}`), {
+      app.requestJson(ROUTES.uploadAnexoModulo, {
         method: 'POST',
-        headers: AJAX_HEADERS,
-        body: formData
+        formData,
+        token,
       })
-        .then(res => res.json())
-        .then(data => editor.insertText(`\n[${arquivo.name}](${AdicionarPrefixo(data.url)}&token=${token})\n`))
+        .then(({ response, data }) => {
+          if (!response.ok || !data?.url) throw new Error();
+          editor.insertText(`\n[${arquivo.name}](${MontarUrl(data.url)})\n`);
+        })
         .catch(() => alert('Falha critica ao enviar o anexo especificado.'));
     };
     inputFiles.click();
@@ -335,18 +330,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoModulo}?token=${token}`), {
+      app.requestJson(ROUTES.uploadVideoModulo, {
         method: 'POST',
-        headers: AJAX_HEADERS,
-        body: formData
+        formData,
+        token,
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.url) {
-            const tagRenderizada = `<video width="100%" controls><source src="${AdicionarPrefixo(data.url)}" type="${data.type}"></video>`;
+        .then(({ response, data }) => {
+          if (response.ok && data?.url) {
+            const tagRenderizada = `<video width="100%" controls><source src="${MontarUrl(data.url)}" type="${data.type}"></video>`;
             editor.insertText(`\n${tagRenderizada}\n`);
           } else {
-            alert(data.error || 'Falha critica no retorno da URL do video.');
+            alert(data?.error || 'Falha critica no retorno da URL do video.');
           }
         })
         .catch(() => alert('Falha critica ao tentar enviar o video especificado.'));
@@ -557,9 +551,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   monitorMutacaoTema.observe(document.body, { attributes: true });
 
-  fetch(AdicionarPrefixo(`${ROUTES.listarOpcoesEditor}?token=${token}`), { headers: AJAX_HEADERS })
-    .then(resposta => resposta.json())
-    .then(payloadData => {
+  app.requestJson(ROUTES.listarOpcoesEditor, { token })
+    .then(({ response, data: payloadData }) => {
+      if (!response.ok) throw new Error();
+      payloadData = payloadData || {};
       todosIcones = payloadData.icons || [];
       const identificadorProprio = String({{ modulo.id|tojson }});
       

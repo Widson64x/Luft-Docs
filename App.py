@@ -1,9 +1,10 @@
+import json
 import os
 import time
 import logging
 from typing import Optional
 
-from flask import Flask, g, request, Response, session
+from flask import Flask, g, request, Response, session, send_file
 from flask.cli import with_appcontext
 import click
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -61,6 +62,49 @@ app.secret_key = cfg.FLASK_SECRET_KEY
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_COOKIE_PATH"] = cfg.BASE_PREFIX
 
+_ICONES_ANIMACAO_PADRAO = (
+    "bi-alarm",
+    "bi-bag",
+    "bi-gear",
+    "bi-activity",
+)
+
+
+def _obterMapaIconesAnimacao() -> list[str]:
+    try:
+        with cfg.ICONS_FILE.open("r", encoding="utf-8") as arquivo_icones:
+            payload = json.load(arquivo_icones)
+
+        if not isinstance(payload, list):
+            raise ValueError("Mapa de icones nao esta no formato de lista JSON.")
+
+        icones = [str(icone).strip() for icone in payload if str(icone).strip()]
+        if icones:
+            return icones
+
+        raise ValueError("Mapa de icones encontrado, mas sem valores validos.")
+    except FileNotFoundError:
+        logger.warning(
+            "Mapa de icones nao encontrado em %s. Usando fallback interno.",
+            cfg.ICONS_FILE,
+        )
+    except json.JSONDecodeError as erro:
+        logger.warning(
+            "Mapa de icones invalido em %s: %s. Usando fallback interno.",
+            cfg.ICONS_FILE,
+            erro,
+        )
+    except OSError as erro:
+        logger.warning(
+            "Falha ao acessar mapa de icones em %s: %s. Usando fallback interno.",
+            cfg.ICONS_FILE,
+            erro,
+        )
+    except ValueError as erro:
+        logger.warning("%s Origem: %s", erro, cfg.ICONS_FILE)
+
+    return list(_ICONES_ANIMACAO_PADRAO)
+
 
 def _logarCaminhosDiagnosticoStartup() -> None:
     """Registra um snapshot dos caminhos efetivamente resolvidos na inicializacao."""
@@ -97,11 +141,14 @@ def _logarCaminhosDiagnosticoStartup() -> None:
             eh_diretorio,
         )
 
-    static_icons = os.path.join(app.root_path, "static", "data", "icons.json")
+    static_icons = os.path.join(app.static_folder or "", "data", "icons.json")
+    icons_source = str(cfg.ICONS_FILE)
     logger.info(
-        "[DIAG] STATIC_ICONS=%s | exists=%s",
+        "[DIAG] STATIC_ICONS=%s | exists=%s | source=%s | source_exists=%s",
         static_icons,
         os.path.exists(static_icons),
+        icons_source,
+        os.path.exists(icons_source),
     )
 
     try:
@@ -512,6 +559,32 @@ def obterMetricas():
         Tuple: Conteudo da resposta com metricas, codigo de status e definicao do content-type.
     """
     return generate_latest(REGISTRY), 200, {"Content-Type": CONTENT_TYPE_LATEST}
+
+
+@app.get("/static/data/icons.json")
+def servirMapaIconesAnimacao():
+    resposta = app.response_class(
+        response=json.dumps(_obterMapaIconesAnimacao()),
+        status=200,
+        mimetype="application/json",
+    )
+    resposta.cache_control.public = True
+    resposta.cache_control.max_age = 300
+    return resposta
+
+"""
+@app.get("/favicon.ico")
+def servirFavicon():
+    caminho_favicon = os.path.join(
+        app.static_folder or "",
+        "Assets",
+        "favicon_luftdocs.png",
+    )
+    if not os.path.exists(caminho_favicon):
+        return "", 204
+
+    return send_file(caminho_favicon, mimetype="image/png", max_age=3600)
+"""
 
 @app.route("/.well-known/appspecific/com.chrome.devtools.json")
 def ignorarChromeDevTools():

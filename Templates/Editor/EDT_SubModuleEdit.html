@@ -40,10 +40,9 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
   const tokenUsuario = '{{ token }}';
-  const prefixoBase = '/luft-docs';
   const conteudoInicial = {{ content|tojson }};
-  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   const ROUTES = {
     uploadImagemSubmodulo: "{{ url_for('Editor.enviarImagemSubmodulo') }}",
     uploadAnexoSubmodulo: "{{ url_for('Editor.enviarAnexoSubmodulo') }}",
@@ -51,14 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   let instanciaEditor;
 
-  /**
-   * Garante a formatacao correta do caminho de rota adicionando o prefixo base do sistema.
-   * @param {string} caminho - O caminho original da rota.
-   * @returns {string} O caminho contendo o prefixo padronizado.
-   */
-  function AdicionarPrefixo(caminho) {
-    if (/^https?:\/\//i.test(caminho)) return caminho;
-    return `${prefixoBase}${caminho.startsWith('/') ? caminho : '/' + caminho}`;
+  function MontarUrl(caminho, opcoes = {}) {
+    return app.route(caminho, { token: tokenUsuario, ...opcoes });
   }
 
   /**
@@ -85,13 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
         addImageBlobHook: (arquivoBlob, callbackInsercao) => {
           const formData = new FormData();
           formData.append('file', arquivoBlob);
-          fetch(AdicionarPrefixo(`${ROUTES.uploadImagemSubmodulo}?token=${tokenUsuario}`), {
+          app.requestJson(ROUTES.uploadImagemSubmodulo, {
             method: 'POST',
-            headers: AJAX_HEADERS,
-            body: formData
+            formData,
+            token: tokenUsuario,
           })
-          .then(resposta => resposta.json())
-          .then(dadosResposta => callbackInsercao(AdicionarPrefixo(dadosResposta.url), AdicionarPrefixo(dadosResposta.url)))
+          .then(({ response, data: dadosResposta }) => {
+            if (!response.ok || !dadosResposta?.url) throw new Error();
+            callbackInsercao(MontarUrl(dadosResposta.url), MontarUrl(dadosResposta.url));
+          })
           .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
         }
       }
@@ -149,13 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData();
       formData.append('file', arquivoSelecionado);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadAnexoSubmodulo}?token=${tokenUsuario}`), {
+      app.requestJson(ROUTES.uploadAnexoSubmodulo, {
         method: 'POST',
-        headers: AJAX_HEADERS,
-        body: formData
+        formData,
+        token: tokenUsuario,
       })
-        .then(resposta => resposta.json())
-        .then(dadosResposta => editor.insertText(`\n[${arquivoSelecionado.name}](${AdicionarPrefixo(dadosResposta.url)}&token=${tokenUsuario})\n`))
+        .then(({ response, data: dadosResposta }) => {
+          if (!response.ok || !dadosResposta?.url) throw new Error();
+          editor.insertText(`\n[${arquivoSelecionado.name}](${MontarUrl(dadosResposta.url)})\n`);
+        })
         .catch(() => alert('Falha critica ao tentar processar o upload do anexo.'));
     };
     seletorArquivo.click();
@@ -175,18 +172,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData();
       formData.append('file', arquivoSelecionado);
       
-      fetch(AdicionarPrefixo(`${ROUTES.uploadVideoSubmodulo}?token=${tokenUsuario}`), {
+      app.requestJson(ROUTES.uploadVideoSubmodulo, {
         method: 'POST',
-        headers: AJAX_HEADERS,
-        body: formData
+        formData,
+        token: tokenUsuario,
       })
-        .then(resposta => resposta.json())
-        .then(dadosResposta => {
-          if (dadosResposta.url) {
-            const codigoRenderizacao = `<video width="100%" controls><source src="${AdicionarPrefixo(dadosResposta.url)}" type="${dadosResposta.type}"></video>`;
+        .then(({ response, data: dadosResposta }) => {
+          if (response.ok && dadosResposta?.url) {
+            const codigoRenderizacao = `<video width="100%" controls><source src="${MontarUrl(dadosResposta.url)}" type="${dadosResposta.type}"></video>`;
             editor.insertText(`\n${codigoRenderizacao}\n`);
           } else {
-            alert(dadosResposta.error || 'Falha ao processar o caminho de destino do video.');
+            alert(dadosResposta?.error || 'Falha ao processar o caminho de destino do video.');
           }
         })
         .catch(() => alert('Falha critica ao tentar processar o upload do video.'));

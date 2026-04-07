@@ -19,7 +19,7 @@ class GerenciadorModulos {
         this.mensagemVazia = document.getElementById(idMensagemVazia);
         
         const parametrosUrl = new URLSearchParams(window.location.search);
-        this.tokenAutenticacao = parametrosUrl.get('token') || '';
+        this.tokenAutenticacao = window.LuftDocs?.token || parametrosUrl.get('token') || '';
         this.timeoutBusca = null;
 
         this.inicializarEventos();
@@ -66,26 +66,24 @@ class GerenciadorModulos {
         this.containerPaginacao.innerHTML = '';
 
         try {
-            const parametrosQuery = new URLSearchParams({
-                search: termoBusca,
-                page: String(pagina),
-                token: this.tokenAutenticacao
-            }).toString();
-
             const rotaListaModulos = window.ROUTES?.Api?.obterListaModulos;
             if (!rotaListaModulos) {
                 throw new Error('Rota de listagem de modulos nao configurada.');
             }
 
-            const resposta = await fetch(`${rotaListaModulos}?${parametrosQuery}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            const { response, data } = await window.LuftDocs.requestJson(rotaListaModulos, {
+                query: {
+                    search: termoBusca,
+                    page: pagina,
+                },
+                token: this.tokenAutenticacao,
             });
             
-            if (!resposta.ok) {
-                throw new Error(`Erro no servidor: ${resposta.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Erro no servidor: ${response.statusText}`);
             }
             
-            const dadosProcessados = await resposta.json();
+            const dadosProcessados = data || {};
             this.gridModulos.innerHTML = '';
             
             if (dadosProcessados.cards && dadosProcessados.cards.length > 0) {
@@ -106,7 +104,6 @@ class GerenciadorModulos {
      * @param {string} tokenAtual - Token ativo para injecao nas URLs de destino.
      */
     renderizarCards(modulos, tokenAtual) {
-        const prefixoBase = window.__BASE_PREFIX__ || '/luft-docs';
         const rotas = window.ROUTES || {};
         const rotaCriarModulo = rotas.Editor?.criarModulo;
         const rotaConteudoModulo = rotas.Modulo?.exibirConteudo;
@@ -117,7 +114,7 @@ class GerenciadorModulos {
             if (modulo.type === 'create_card') {
                 if (!rotaCriarModulo) return;
                 htmlCard = `
-                    <a href="${rotaCriarModulo}?token=${encodeURIComponent(tokenAtual)}" class="luft-index-card luft-index-card-dashed">
+                    <a href="${window.LuftDocs.route(rotaCriarModulo, { token: tokenAtual })}" class="luft-index-card luft-index-card-dashed">
                         <i class="ph-thin ph-plus-circle luft-index-card-icon" style="color: var(--luft-text-muted);"></i>
                         <h5 class="luft-index-card-title">Criar Novo Modulo</h5>
                     </a>
@@ -129,10 +126,10 @@ class GerenciadorModulos {
                 
                 let botoesAcao = '';
                 if (modulo.has_content) {
-                    botoesAcao += `<a class="luft-btn luft-btn-primary" href="${rotaConteudoModulo}?modulo=${modulo.id}&token=${encodeURIComponent(tokenAtual)}">Ver Conteudo</a>`;
+                    botoesAcao += `<a class="luft-btn luft-btn-primary" href="${window.LuftDocs.route(rotaConteudoModulo, { query: { modulo: modulo.id }, token: tokenAtual })}">Ver Conteudo</a>`;
                 }
                 if (modulo.show_tecnico_button) {
-                    botoesAcao += `<a class="luft-btn luft-btn-outline" href="${rotaConteudoModulo}?modulo_tecnico=${modulo.id}&token=${encodeURIComponent(tokenAtual)}"><i class="ph-bold ph-wrench"></i> Tecnico</a>`;
+                    botoesAcao += `<a class="luft-btn luft-btn-outline" href="${window.LuftDocs.route(rotaConteudoModulo, { query: { modulo_tecnico: modulo.id }, token: tokenAtual })}"><i class="ph-bold ph-wrench"></i> Tecnico</a>`;
                 }
 
                 htmlCard = `

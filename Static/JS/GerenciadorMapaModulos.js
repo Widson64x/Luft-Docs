@@ -272,11 +272,19 @@ class GerenciadorMapaModulos {
             .style('top', `${evento.pageY}px`);
             
         const listaHtml = menuD3.append('ul');
-        const prefixoGlobal = window.__BASE_PREFIX__ || "/luft-docs";
+        const rotaConteudoModulo = window.ROUTES?.Modulo?.exibirConteudo || '';
         
         const itensMenu = [
-            { href: `${prefixoGlobal}/modulo/?modulo=${dadosNo.id}&token=${this.tokenUsuario}`, html: `<i class="ph-bold ph-book-open"></i> Acessar Módulo`, exibir: true },
-            { href: `${prefixoGlobal}/modulo/?modulo_tecnico=${dadosNo.id}&token=${this.tokenUsuario}`, html: `<i class="ph-bold ph-wrench"></i> Especificações Técnicas`, exibir: dadosNo.show_tecnico_button }
+            {
+                href: window.LuftDocs.route(rotaConteudoModulo, { query: { modulo: dadosNo.id }, token: this.tokenUsuario }),
+                html: `<i class="ph-bold ph-book-open"></i> Acessar Módulo`,
+                exibir: true,
+            },
+            {
+                href: window.LuftDocs.route(rotaConteudoModulo, { query: { modulo_tecnico: dadosNo.id }, token: this.tokenUsuario }),
+                html: `<i class="ph-bold ph-wrench"></i> Especificações Técnicas`,
+                exibir: dadosNo.show_tecnico_button,
+            }
         ];
 
         itensMenu.forEach(item => {

@@ -187,9 +187,10 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
+  const token = '{{ token }}';
   const modalComparacao = new bootstrap.Modal(document.getElementById('compareModal'));
   const modalRestauracao = new bootstrap.Modal(document.getElementById('restoreModal'));
-  const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
   
   const painelEsquerdo = document.getElementById('diff-left');
   const painelDireito = document.getElementById('diff-right');
@@ -246,11 +247,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     modalComparacao.show();
 
-    fetch(`${ROUTES.obterDiffHistorico}?mid={{ modulo.Id }}&token={{ token }}&file1=${nomeArquivo}&tipo=${tipoArquivo}`, {
-      headers: AJAX_HEADERS
+    app.requestJson(ROUTES.obterDiffHistorico, {
+      query: {
+        mid: '{{ modulo.Id }}',
+        file1: nomeArquivo,
+        tipo: tipoArquivo,
+      },
+      token,
     })
-      .then(resposta => resposta.json())
-      .then(dadosRetorno => {
+      .then(({ data: dadosRetorno }) => {
+        dadosRetorno = dadosRetorno || {};
         if (dadosRetorno.error) {
           painelEsquerdo.innerHTML = painelDireito.innerHTML = `<div class="luft-alert luft-alert-warning">${dadosRetorno.error}</div>`;
         } else {

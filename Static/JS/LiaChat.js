@@ -341,22 +341,18 @@ class ChatLia {
         try {
             const modeloSeleccionado = componentes.seletorModelo ? componentes.seletorModelo.value : 'groq-70b';
             
-            const respostaServidor = await fetch(this.urlsApi.perguntar, {
+            const { response: respostaServidor, data: dadosProcessados } = await window.LuftDocs.requestJson(this.urlsApi.perguntar, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
+                json: {
                     user_question: solicitacaoUsuario,
                     selected_model: modeloSeleccionado
-                }),
+                },
             });
 
             this.pararAnimacaoPensamento();
-            const dadosProcessados = await respostaServidor.json();
 
             if (respostaServidor.ok) {
+                dadosProcessados = dadosProcessados || {};
                 this.renderizarMensagem(dadosProcessados.answer || '', 'ai-message');
                 this.atualizarEstadoUltimaResposta(dadosProcessados, solicitacaoUsuario);
                 this.renderizarContexto(dadosProcessados.context_sources_objects || dadosProcessados.context_files || []);
@@ -549,12 +545,9 @@ class ChatLia {
     async buscarModulos() {
         if (this.cacheModulos.length > 0) return this.cacheModulos;
         try {
-            const resposta = await fetch(this.urlsApi.obterListaModulos, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
+            const { response: resposta, data: dadosProcessados } = await window.LuftDocs.requestJson(this.urlsApi.obterListaModulos);
             if (!resposta.ok) return [];
-            const dadosProcessados = await resposta.json();
-            this.cacheModulos = dadosProcessados.modules || [];
+            this.cacheModulos = dadosProcessados?.modules || [];
             return this.cacheModulos;
         } catch (erro) {
             return [];
@@ -675,18 +668,13 @@ class ChatLia {
         secaoReferencia.querySelectorAll('button, textarea').forEach(el => el.disabled = true);
 
         try {
-            const resposta = await fetch(this.urlsApi.registrarFeedback, {
+            const { response: resposta } = await window.LuftDocs.requestJson(this.urlsApi.registrarFeedback, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
+                json: {
                     response_id: idResposta, rating: notaAvaliacao, comment: comentarioAdicional,
                     user_question: perguntaUsuario, model_used: modeloUtilizado, context_sources: fontesContexto
-                }),
+                },
             });
-            const dadosProcessados = await resposta.json();
             
             if (resposta.ok) {
                 divMensagem.innerHTML = `<span class="text-success"><i class="ph-bold ph-check-circle"></i> Registrado.</span>`;

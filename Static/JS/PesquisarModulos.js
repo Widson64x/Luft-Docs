@@ -12,8 +12,6 @@ class GerenciadorBusca {
         this.containerPrincipal = document.querySelector('.luft-search-page-container');
         if (!this.containerPrincipal) return;
 
-        this.token = this.containerPrincipal.dataset.token || '';
-        this.prefixoBase = (this.containerPrincipal.dataset.basePrefix || '/luft-docs').replace(/\/+$/, '');
         this.rotas = window.ROUTES || {};
         this.rotasApi = this.rotas.Api || {};
         this.rotaBusca = this.rotas.Busca?.exibir || '';
@@ -52,31 +50,7 @@ class GerenciadorBusca {
      * @returns {string} URL formatada.
      */
     formatarUrl(caminho) {
-        if (!caminho) {
-            return '';
-        }
-
-        if (/^https?:\/\//i.test(caminho)) {
-            return caminho;
-        }
-
-        if (caminho.startsWith(this.prefixoBase)) {
-            let urlFinal = caminho;
-            if (this.token && !urlFinal.includes('token=')) {
-                const separador = urlFinal.includes('?') ? '&' : '?';
-                urlFinal += `${separador}token=${encodeURIComponent(this.token)}`;
-            }
-            return urlFinal;
-        }
-
-        const pathSaneado = caminho.startsWith('/') ? caminho : `/${caminho}`;
-        let urlFinal = `${this.prefixoBase}${pathSaneado}`;
-        
-        if (this.token) {
-            const separador = urlFinal.includes('?') ? '&' : '?';
-            urlFinal += `${separador}token=${encodeURIComponent(this.token)}`;
-        }
-        return urlFinal;
+        return window.LuftDocs.route(caminho);
     }
 
     /**
@@ -96,11 +70,9 @@ class GerenciadorBusca {
 
             timerDebounce = setTimeout(async () => {
                 try {
-                    const url = this.formatarUrl(`${this.rotasApi.listarAutocomplete}?q=${encodeURIComponent(termo)}`);
-                    const resposta = await fetch(url, {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    const { data: sugestoes } = await window.LuftDocs.requestJson(this.rotasApi.listarAutocomplete, {
+                        query: { q: termo },
                     });
-                    const sugestoes = await resposta.json();
 
                     if (Array.isArray(sugestoes) && sugestoes.length > 0) {
                         this.renderizarAutocomplete(sugestoes);
@@ -148,14 +120,9 @@ class GerenciadorBusca {
      */
     async carregarDadosRecomendacao() {
         try {
-            const url = this.formatarUrl(this.rotasApi.listarRecomendacoes);
-            const resposta = await fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            
-            if (!resposta.ok) throw new Error();
+            const { response, data: dados } = await window.LuftDocs.requestJson(this.rotasApi.listarRecomendacoes);
+            if (!response.ok) throw new Error();
 
-            const dados = await resposta.json();
             this.estado.recomendacoes = dados.hybrid_recommendations || [];
             this.estado.buscasPopulares = (dados.popular_searches || []).slice(0, 10);
             
@@ -208,7 +175,7 @@ class GerenciadorBusca {
                     </h5>
                     <div class="luft-tag-cloud">
                         ${this.estado.buscasPopulares.map(b => {
-                            const urlBusca = this.formatarUrl(`${this.rotaBusca}?q=${encodeURIComponent(b.query_term)}`);
+                            const urlBusca = window.LuftDocs.route(this.rotaBusca, { query: { q: b.query_term } });
                             return `<a href="${urlBusca}" class="luft-tag"><i class="ph ph-magnifying-glass me-1"></i>${b.query_term}</a>`;
                         }).join('')}
                     </div>
@@ -237,7 +204,7 @@ class GerenciadorBusca {
         const iconeNo = (dado.module_icon || 'ph-bold ph-file-text').replace('fas fa-', 'ph-bold ph-').replace('bi bi-', 'ph-bold ph-');
 
         return `
-            <a href="${this.prefixoBase}${dado.url}" class="luft-result-card-link">
+            <a href="${this.formatarUrl(dado.url)}" class="luft-result-card-link">
                 <div class="luft-result-card" style="animation-delay: ${delay}ms">
                     ${mediaHtml}
                     <div class="luft-result-body">

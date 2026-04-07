@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block page_content %}
-{% set PREFIXO_BASE = BASE_PREFIX if BASE_PREFIX is defined else '/luft-docs' %}
+{% set PREFIXO_BASE = request.script_root or '/' %}
 
 <div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 

@@ -207,7 +207,10 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
-        window.ROUTES = {
+        window.__LUFTDOCS_CONFIG__ = {
+            basePrefix: {{ (request.script_root or '/') | tojson }},
+            token: {{ token_atual | tojson }},
+            routes: {
             Inicio: {
                 exibirInicio: "{{ url_for('Inicio.exibirInicio') }}",
                 exibirMapaConhecimento: "{{ url_for('Inicio.exibirMapaConhecimento') }}",
@@ -238,11 +241,14 @@
                 criarModulo: "{{ url_for('Editor.criarModulo') }}",
                 listarOpcoes: "{{ url_for('Editor.listarOpcoesEditor') }}",
             },
+            },
         };
+        window.ROUTES = window.__LUFTDOCS_CONFIG__.routes;
+        window.__BASE_PREFIX__ = window.__LUFTDOCS_CONFIG__.basePrefix;
         const allModulesForReport = JSON.parse('{{ modules_for_report|default([])|tojson|safe }}');
-        const bugReportURL = window.ROUTES.Inicio.reportarProblema;
         window.__LUFT_SEARCH_BASE__ = window.ROUTES.Busca.exibir;
     </script>
+    <script src="{{ url_for('static', filename='JS/main.js') }}"></script>
     
     {% if pode_acessar_lia %}
     <script src="{{ url_for('static', filename='JS/LiaChat.js') }}"></script>

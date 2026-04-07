@@ -46,35 +46,6 @@ class GerenciadorRoteiros {
     }
 
     // ======================================================
-    // HELPERS — URL / TOKEN
-    // ======================================================
-
-    _obterPrefixoBase() {
-        return (window.__BASE_PREFIX__ || '').replace(/\/+$/, '') || '/luft-docs';
-    }
-
-    _comPrefixo(caminho) {
-        if (/^https?:\/\//i.test(caminho)) return caminho;
-        const base = this._obterPrefixoBase();
-        const p = caminho.startsWith('/') ? caminho : `/${caminho}`;
-        return (p === base || p.startsWith(`${base}/`)) ? p : `${base}${p}`;
-    }
-
-    _obterToken() {
-        const doBody = document.body?.dataset?.token;
-        if (doBody) return doBody;
-        return new URLSearchParams(window.location.search).get('token') || '';
-    }
-
-    _anexarToken(url) {
-        const token = this._obterToken();
-        if (!token) return url;
-        const u = new URL(url, window.location.origin);
-        if (!u.searchParams.get('token')) u.searchParams.set('token', token);
-        return u.pathname + (u.search || '');
-    }
-
-    // ======================================================
     // HELPERS — DATA
     // ======================================================
 
@@ -99,29 +70,21 @@ class GerenciadorRoteiros {
 
     async _chamarApi(caminho, metodo = 'GET', corpo = null) {
         try {
-            const url = this._anexarToken(
-                this._comPrefixo(caminho.startsWith('/') ? caminho : `${this.urlBase}/${caminho}`)
-            );
+            const endpoint = caminho.startsWith('/') ? caminho : `${this.urlBase}/${caminho}`;
             const opcoes = {
                 method: metodo,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
             };
-            if (corpo) opcoes.body = JSON.stringify(corpo);
+            if (corpo) {
+                opcoes.json = corpo;
+            }
 
-            const resposta = await fetch(url, opcoes);
+            const { response: resposta, data: dados } = await window.LuftDocs.requestJson(endpoint, opcoes);
             if (!resposta.ok) {
                 let msg = `Erro na requisição (${resposta.status})`;
-                try {
-                    const dados = await resposta.json();
-                    if (dados?.message) msg = dados.message;
-                } catch {}
+                if (dados?.message) msg = dados.message;
                 throw new Error(msg);
             }
-            const tipoConteudo = resposta.headers.get('content-type') || '';
-            return tipoConteudo.includes('application/json') ? resposta.json() : {};
+            return dados || {};
         } catch (erro) {
             console.error('GerenciadorRoteiros: Erro na API:', erro);
             alert('Erro: ' + (erro?.message || 'Falha de rede.'));

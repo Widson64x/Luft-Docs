@@ -128,10 +128,11 @@
 <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const app = window.LuftDocs;
+    const token = '{{ token }}';
     const ROUTES = {
       obterDiffPendente: "{{ url_for('Editor.obterDiffPendente') }}",
     };
-    const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
 
   /**
    * Inicializa o modal de comparacao visual de pendencias, buscando o diff no servidor.
@@ -156,11 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
       painelTechVigente.innerHTML = painelTechPendente.innerHTML = '';
       indicadorCarregamento.style.display = 'block';
 
-        fetch(`${ROUTES.obterDiffPendente}?mid=${encodeURIComponent(idModulo)}&token={{ token }}`, {
-          headers: AJAX_HEADERS
+        app.requestJson(ROUTES.obterDiffPendente, {
+          query: { mid: idModulo },
+          token,
         })
-        .then(resposta => resposta.json())
-        .then(dadosResposta => {
+        .then(({ data: dadosResposta }) => {
+          dadosResposta = dadosResposta || {};
           indicadorCarregamento.style.display = 'none';
           painelDocVigente.innerHTML = dadosResposta.doc_html_left || "<em>Registro indisponivel</em>";
           painelDocPendente.innerHTML = dadosResposta.doc_html_right || "<em>Registro indisponivel</em>";

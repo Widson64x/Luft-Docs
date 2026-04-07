@@ -7,7 +7,7 @@
 
 {% call ui.modal(id='modalBusca', titulo='Busca na Documentação', tamanho='lg', icone='ph-bold ph-magnifying-glass') %}
 
-    <div class="kp-modal-body" data-base-prefix="{{ BASE_PREFIX if BASE_PREFIX is defined else (base_prefix if base_prefix is defined else '/luft-docs') }}">
+    <div class="kp-modal-body" data-base-prefix="{{ request.script_root or '/' }}">
 
         {# Campo de busca com autocomplete #}
         <div class="kp-modal-input-wrap">
