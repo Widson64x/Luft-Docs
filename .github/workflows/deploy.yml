@@ -77,13 +77,20 @@ jobs:
         # Entra na pasta do projeto
         Set-Location $AppPath
 
+        # Evita que avisos do pip no stderr quebrem a execução do script
+        $PreviousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+
         if (Test-Path $VenvPath) {
-            cmd /c "$VenvPath\Scripts\python.exe -m pip install -r requirements.txt"
+            cmd /c "$VenvPath\Scripts\python.exe -m pip install -r requirements.txt 2>&1"
         } else {
             Write-Warning "Criando venv..."
-            cmd /c "python -m venv $VenvPath"
-            cmd /c "$VenvPath\Scripts\python.exe -m pip install -r requirements.txt"
+            cmd /c "python -m venv $VenvPath 2>&1"
+            cmd /c "$VenvPath\Scripts\python.exe -m pip install -r requirements.txt 2>&1"
         }
+
+        # Restaura a preferência de erro estrita para o restante do script
+        $ErrorActionPreference = $PreviousErrorAction
 
         # -----------------------------------------------------------
         # 4. INICIAR SERVIÇO
