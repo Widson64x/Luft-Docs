@@ -88,7 +88,7 @@ class Tb_LogAcesso(BaseSqlServer):
     Ip_Origem = Column(String(50))
     Permissao_Exigida = Column(String(100))
     Acesso_Permitido = Column(Boolean)
-    Data_Hora = Column(DateTime, default=datetime.utcnow)
+    Data_Hora = Column(DateTime, default=datetime.now)
     Parametros_Requisicao = Column(Text, nullable=True)
     Resposta_Acao = Column(Text, nullable=True)
 
