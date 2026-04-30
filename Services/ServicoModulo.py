@@ -97,12 +97,37 @@ class ServicoModulo:
                 documentacao_tecnica,
                 consulta,
             )
+            
             if not conteudo_markdown:
                 self.logger.warning(
                     "[DIAG][MODULO] Conteudo markdown ausente para identificador '%s' (tecnico=%s).",
                     identificador_modulo,
                     documentacao_tecnica,
                 )
+
+                # Fallback: Se nao for uma requisicao tecnica, verifica se existe apenas o modulo tecnico
+                if not documentacao_tecnica:
+                    conteudo_fallback_tecnico = CarregarMarkdownTecnico(identificador_modulo)
+                    if conteudo_fallback_tecnico:
+                        self.logger.info(
+                            "[DIAG][MODULO] Fallback ativado. Redirecionando modulo '%s' para versao tecnica.",
+                            identificador_modulo
+                        )
+                        
+                        parametros_redirecionamento = {
+                            "modulo_tecnico": identificador_modulo,
+                            "token": token
+                        }
+                        
+                        if consulta:
+                            parametros_redirecionamento["q"] = consulta
+
+                        return {
+                            "tipo": "redirecionar",
+                            "endpoint": "Modulo.exibirConteudoModulo",
+                            "parametros": parametros_redirecionamento
+                        }
+
                 return {
                     "tipo": "template",
                     "template": "Auth/Dev.html",

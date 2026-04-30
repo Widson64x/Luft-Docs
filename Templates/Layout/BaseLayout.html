@@ -82,33 +82,21 @@
         ativo=ativo_mapa)
     }}
 
-    {% call ui.nav_item('Módulos', icone='ph-bold ph-squares-four', ativo=ativo_modulos) %}
+{% call ui.nav_item('Módulos', icone='ph-bold ph-squares-four', ativo=ativo_modulos) %}
         <div class="luftdocs-sidebar-panel"
              data-sidebar-modules-root
              data-modules-url="{{ url_for('Api.listarArvoreModulos') }}"
              data-module-base-url="{{ url_for('Modulo.exibirConteudoModulo', token=token_atual) }}"
              data-active-module-id="{{ modulo_ativo_id }}"
              data-open-on-load="{{ 'true' if ativo_modulos else 'false' }}">
-            <div class="luftdocs-sidebar-panel-head">
-                <div class="luftdocs-sidebar-panel-copy">
-                    <span class="luftdocs-sidebar-chip">Explorer</span>
-                    <div class="luftdocs-sidebar-heading-row">
-                        <p class="luftdocs-sidebar-panel-title">Biblioteca de módulos</p>
-                        <span class="luftdocs-sidebar-count" data-modules-count>...</span>
-                    </div>
-                    <p class="luftdocs-sidebar-panel-subtitle">Filtre por nome ou ID e mantenha os últimos acessos sempre à mão.</p>
-                </div>
-                <button type="button"
-                        class="luftdocs-sidebar-icon-action"
-                        title="Abrir busca rápida"
-                        aria-label="Abrir busca rápida"
-                        data-modules-quick-search>
-                    <i class="ph-bold ph-magnifying-glass"></i>
-                </button>
-            </div>
+
+            <label class="luftdocs-sidebar-search">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="search" placeholder="Buscar módulos..." data-modules-search>
+            </label>
 
             <div class="luftdocs-sidebar-toolbar">
-                <div class="luftdocs-sidebar-segments" role="tablist" aria-label="Visões do explorer">
+                <div class="luftdocs-sidebar-segments" role="tablist">
                     <button type="button" class="is-active" data-modules-view-trigger="all">Todos</button>
                     <button type="button" data-modules-view-trigger="recent">Recentes</button>
                 </div>
@@ -116,26 +104,15 @@
                     <button type="button" class="luftdocs-sidebar-inline-action" data-modules-expand-all>
                         Expandir
                     </button>
-                    <button type="button" class="luftdocs-sidebar-inline-action" data-modules-clear hidden>
+                    <button type="button" class="luftdocs-sidebar-inline-action text-danger" data-modules-clear hidden>
                         Limpar
                     </button>
                 </div>
             </div>
 
-            <label class="luftdocs-sidebar-search">
-                <i class="ph-bold ph-magnifying-glass"></i>
-                <input type="search" placeholder="Filtrar módulos..." data-modules-search>
-            </label>
-
-            <div class="luftdocs-sidebar-meta-row">
-                <span class="luftdocs-sidebar-meta" data-modules-summary>
-                    Abra o menu para carregar a árvore completa.
-                </span>
-            </div>
-
             <div class="luftdocs-sidebar-tree">
                 <div class="luftdocs-sidebar-state" data-modules-state>
-                    Abra o menu para carregar a árvore completa.
+                    Carregando módulos...
                 </div>
                 <div class="luftdocs-sidebar-groups" data-modules-groups hidden></div>
             </div>

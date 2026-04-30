@@ -6,7 +6,7 @@
 
 {% call ui.modal(id='modalConfiguracoes', titulo='Configurações do Sistema', tamanho='lg', icone='ph-bold ph-gear') %}
     
-    <div class="luft-tabs-header mb-4">
+    <div class="luft-tabs-header mb-1">
         <ul class="nav nav-tabs border-0" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-visuais">Visuais</button>
@@ -99,10 +99,6 @@
                             <i class="ph-bold ph-shield-check"></i>
                             Abrir permissões
                         </a>
-                    </div>
-
-                    <div>
-                        {{ ui.empty_state(titulo="Mais ferramentas em breve", subtitulo="Novas ações operacionais serão adicionadas aqui conforme forem disponibilizadas.", icone="ph-code") }}
                     </div>
                 {% else %}
                     {{ ui.empty_state(titulo="Sem acesso disponível", subtitulo="A central de permissões só fica disponível para usuários com acesso à segurança do sistema.", icone="ph-lock") }}

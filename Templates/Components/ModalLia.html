@@ -1,5 +1,5 @@
 {# ==========================================================================
-   COMPONENTE: Assistente LIA (Botão Flutuante, Modal e Sidebar)
+   COMPONENTE: Assistente LIA (Botao Flutuante, Modal e Sidebar)
    Dependencia: Requer a importacao previa do macro do LuftCore.
    ========================================================================== #}
 {% import 'luftcore/components.html' as ui %}
@@ -17,14 +17,14 @@
     <div class="luft-lia-warning-box">
         <i class="ph-fill ph-warning-circle text-warning mb-3" style="font-size: 3rem;"></i>
         <h3 class="font-bold text-main mb-2">Aviso de Privacidade e IA</h3>
-        <p class="text-muted text-sm mb-4">A LIA é uma inteligência artificial baseada em Modelos de Linguagem (LLMs). As informações geradas podem conter imprecisões. Por favor, valide os dados críticos nas fontes originais sugeridas.</p>
-        <div class="form-group mb-4 text-start">
+        <p class="text-muted text-sm mb-4">A LIA e uma inteligencia artificial baseada em Modelos de Linguagem (LLMs). As informacoes geradas podem conter imprecisoes. Por favor, valide os dados criticos nas fontes originais sugeridas.</p>
+        <div class="form-group mb-4 text-start w-100">
             <label class="luft-switch-wrapper">
                 <div class="luft-switch">
                     <input type="checkbox" id="checkboxNaoMostrarNovamente">
                     <span class="luft-slider"></span>
                 </div>
-                <span class="luft-switch-label text-sm text-muted">Não mostrar este aviso novamente</span>
+                <span class="luft-switch-label text-sm text-muted">Nao mostrar este aviso novamente</span>
             </label>
         </div>
         <button class="btn btn-primary w-100" id="btnConfirmarAvisoLia">Compreendi e quero prosseguir</button>
@@ -35,22 +35,24 @@
     <div class="luft-lia-layout">
         <div class="luft-lia-chat-history" id="containerResposta_modal"></div>
 
-        <div class="luft-lia-input-area">
+        <div class="luft-lia-input-wrapper">
             <div class="luft-lia-input-stack" id="pilhaTextarea_modal">
                 <div class="luft-lia-highlight-mirror" id="espelhoDestaque_modal" aria-hidden="true"></div>
-                <textarea class="form-control luft-lia-textarea" id="inputPergunta_modal" rows="1" placeholder="Pergunte à LIA ou use @ para citar um módulo..."></textarea>
+                <textarea class="form-control luft-lia-textarea" id="inputPergunta_modal" rows="1" placeholder="Como posso ajudar voce hoje? Use @ para citar um modulo..."></textarea>
             </div>
             
-            <div class="luft-lia-input-actions mt-2">
+            <div class="luft-lia-input-actions">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_modal" title="Mencionar Módulo"><i class="ph-bold ph-at"></i></button>
-                    <select class="form-control form-control-sm" id="seletorModelo_modal" style="max-width: 160px; height: 36px;">
+                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_modal" title="Mencionar Modulo">
+                        <i class="ph-bold ph-at"></i>
+                    </button>
+                    <select class="form-control form-control-sm luft-lia-model-select" id="seletorModelo_modal">
                         <option value="groq-70b">Llama 3 70B (Ideal)</option>
-                        <option value="groq-8b">Llama 3 8B (Rápido)</option>
+                        <option value="groq-8b">Llama 3 8B (Rapido)</option>
                     </select>
                     <div id="listaModulos_modal" class="luft-lia-autocomplete-list" style="display: none;"></div>
                 </div>
-                <button class="btn btn-primary px-4" id="botaoPerguntar_modal" style="height: 36px;">
+                <button class="btn btn-primary px-3" id="botaoPerguntar_modal" style="height: 36px;">
                     <i class="ph-bold ph-paper-plane-right"></i> Enviar
                 </button>
             </div>
@@ -66,28 +68,34 @@
         <h3 class="font-bold text-main d-flex align-items-center gap-2 m-0 text-lg">
             <i class="ph-fill ph-robot text-primary"></i> LIA Copiloto
         </h3>
-        <button class="luft-btn-action" id="btnFecharSidebarLia"><i class="ph-bold ph-x"></i></button>
+        <div class="d-flex align-items-center gap-2">
+            <button class="luft-modal-close" id="btnFecharSidebarLia" title="Fechar Copiloto">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
     </div>
 
     <div class="luft-lia-layout" style="height: calc(100% - 64px); padding: 16px 20px 20px 20px;">
         <div class="luft-lia-chat-history" id="containerResposta_sidebar"></div>
 
-        <div class="luft-lia-input-area">
+        <div class="luft-lia-input-wrapper">
             <div class="luft-lia-input-stack" id="pilhaTextarea_sidebar">
                 <div class="luft-lia-highlight-mirror" id="espelhoDestaque_sidebar" aria-hidden="true"></div>
-                <textarea class="form-control luft-lia-textarea" id="inputPergunta_sidebar" rows="1" placeholder="Pergunte à LIA..."></textarea>
+                <textarea class="form-control luft-lia-textarea" id="inputPergunta_sidebar" rows="1" placeholder="Pergunte a LIA..."></textarea>
             </div>
             
-            <div class="luft-lia-input-actions mt-2">
+            <div class="luft-lia-input-actions">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_sidebar" title="Mencionar Módulo"><i class="ph-bold ph-at"></i></button>
-                    <select class="form-control form-control-sm" id="seletorModelo_sidebar" style="max-width: 140px; height: 36px;">
+                    <button class="btn btn-outline btn-sm p-2" id="botaoAjudaModulos_sidebar" title="Mencionar Modulo">
+                        <i class="ph-bold ph-at"></i>
+                    </button>
+                    <select class="form-control form-control-sm luft-lia-model-select" id="seletorModelo_sidebar">
                         <option value="groq-70b">Llama 3 70B</option>
                         <option value="groq-8b">Llama 3 8B</option>
                     </select>
                     <div id="listaModulos_sidebar" class="luft-lia-autocomplete-list" style="display: none;"></div>
                 </div>
-                <button class="btn btn-primary p-2 px-3" id="botaoPerguntar_sidebar" title="Enviar Mensagem" style="height: 36px;">
+                <button class="btn btn-primary px-3" id="botaoPerguntar_sidebar" title="Enviar Mensagem" style="height: 36px;">
                     <i class="ph-bold ph-paper-plane-right"></i>
                 </button>
             </div>

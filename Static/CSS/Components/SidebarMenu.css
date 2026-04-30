@@ -1,348 +1,235 @@
+/* Container Principal */
 .luftdocs-sidebar-panel {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin: 8px 0 12px;
-    padding: 16px;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 74%, var(--luft-primary-300) 26%);
-    border-radius: 20px;
-    background:
-        radial-gradient(circle at top right, color-mix(in srgb, var(--luft-primary-200) 26%, transparent) 0, transparent 38%),
-        linear-gradient(180deg, color-mix(in srgb, var(--luft-bg-panel) 88%, white 12%), color-mix(in srgb, var(--luft-bg-app) 40%, var(--luft-bg-panel) 60%));
-    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
-    overflow: hidden;
+    margin: 8px 0;
+    padding: 12px;
+    border: 1px solid var(--luft-border, #e2e8f0);
+    border-radius: 8px;
+    background-color: var(--luft-bg-panel, #ffffff);
+    box-sizing: border-box;
+    width: 100%;
 }
 
-.luftdocs-sidebar-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 58px;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--luft-primary-400) 18%, transparent), transparent 72%);
-    pointer-events: none;
-    opacity: 0.9;
+.luft-sidebar.collapsed .luftdocs-sidebar-panel {
+    display: none;
 }
 
-.luftdocs-sidebar-panel > * {
-    position: relative;
-    z-index: 1;
-}
-
-.luftdocs-sidebar-panel-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
-    align-items: start;
-}
-
-.luftdocs-sidebar-panel-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-}
-
-.luftdocs-sidebar-chip {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--luft-primary-200) 55%, transparent);
-    background: color-mix(in srgb, var(--luft-primary-50) 84%, white 16%);
-    color: var(--luft-primary-700);
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.luftdocs-sidebar-heading-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.luftdocs-sidebar-panel-title {
-    margin: 0;
-    font-size: 0.93rem;
-    font-weight: 800;
-    color: var(--luft-text-main);
-    letter-spacing: -0.01em;
-}
-
-.luftdocs-sidebar-panel-subtitle {
-    margin: 0;
-    color: var(--luft-text-muted);
-    font-size: 0.76rem;
-    line-height: 1.55;
-}
-
-.luftdocs-sidebar-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 30px;
-    padding: 0 11px;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 82%, white 18%);
-    background: color-mix(in srgb, var(--luft-bg-app) 72%, white 28%);
-    color: var(--luft-text-main);
-    font-size: 0.71rem;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.luftdocs-sidebar-icon-action,
-.luftdocs-sidebar-inline-action,
-.luftdocs-sidebar-segments button {
-    border: none;
-    outline: none;
-    font: inherit;
-    cursor: pointer;
-}
-
-.luftdocs-sidebar-icon-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 72%, var(--luft-primary-200) 28%);
-    background: color-mix(in srgb, var(--luft-bg-app) 78%, white 22%);
-    color: var(--luft-text-main);
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.luftdocs-sidebar-icon-action:hover,
-.luftdocs-sidebar-icon-action:focus-visible {
-    color: var(--luft-primary-700);
-    border-color: var(--luft-primary-300);
-    background: color-mix(in srgb, var(--luft-primary-50) 70%, white 30%);
-    transform: translateY(-1px);
-}
-
-.luftdocs-sidebar-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.luftdocs-sidebar-toolbar-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.luftdocs-sidebar-segments {
-    display: inline-grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 72%, white 28%);
-    background: color-mix(in srgb, var(--luft-bg-app) 78%, white 22%);
-}
-
-.luftdocs-sidebar-segments button {
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--luft-text-muted);
-    font-size: 0.71rem;
-    font-weight: 800;
-    transition: background 0.2s ease, color 0.2s ease;
-}
-
-.luftdocs-sidebar-segments button.is-active {
-    background: var(--luft-primary-600);
-    color: white;
-    box-shadow: 0 8px 18px color-mix(in srgb, var(--luft-primary-500) 30%, transparent);
-}
-
-.luftdocs-sidebar-inline-action {
-    padding: 0;
-    background: transparent;
-    color: var(--luft-primary-700);
-    font-size: 0.71rem;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-}
-
-.luftdocs-sidebar-inline-action:hover,
-.luftdocs-sidebar-inline-action:focus-visible {
-    color: var(--luft-primary-500);
-}
-
+/* Campo de Busca */
 .luftdocs-sidebar-search {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 11px 12px;
-    border-radius: 15px;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 78%, white 22%);
-    background: color-mix(in srgb, var(--luft-bg-app) 84%, white 16%);
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--luft-border, #cbd5e1);
+    background-color: var(--luft-bg-app, #f8fafc);
+    box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: text;
 }
 
 .luftdocs-sidebar-search:focus-within {
-    border-color: var(--luft-primary-300);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--luft-primary-200) 24%, transparent);
+    border-color: var(--luft-primary-400, #60a5fa);
+    box-shadow: 0 0 0 2px var(--luft-primary-100, #dbeafe);
 }
 
 .luftdocs-sidebar-search i {
+    font-size: 1rem;
+    color: var(--luft-text-muted, #64748b);
     flex-shrink: 0;
-    font-size: 0.98rem;
-    color: var(--luft-text-muted);
 }
 
 .luftdocs-sidebar-search input {
     width: 100%;
-    padding: 0;
     border: none;
     outline: none;
     background: transparent;
-    color: var(--luft-text-main);
-    font-size: 0.8rem;
+    color: var(--luft-text-main, #0f172a);
+    font-size: 0.85rem;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .luftdocs-sidebar-search input::placeholder {
-    color: var(--luft-text-muted);
+    color: var(--luft-text-muted, #94a3b8);
 }
 
-.luftdocs-sidebar-meta-row {
+/* Barra de Ferramentas (Abas e Ações) */
+.luftdocs-sidebar-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
+    width: 100%;
 }
 
-.luftdocs-sidebar-meta {
-    min-width: 0;
-    font-size: 0.72rem;
-    color: var(--luft-text-muted);
-    line-height: 1.45;
+.luftdocs-sidebar-segments {
+    display: inline-flex;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 6px;
+    background-color: var(--luft-bg-app, #f8fafc);
+    border: 1px solid var(--luft-border, #e2e8f0);
 }
 
+.luftdocs-sidebar-segments button {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--luft-text-muted, #64748b);
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.luftdocs-sidebar-segments button.is-active {
+    background-color: var(--luft-primary-600, #2563eb);
+    color: #ffffff;
+}
+
+.luftdocs-sidebar-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.luftdocs-sidebar-inline-action {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--luft-primary-600, #2563eb);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.luftdocs-sidebar-inline-action:hover {
+    color: var(--luft-primary-700, #1d4ed8);
+    text-decoration: underline;
+}
+
+.luftdocs-sidebar-inline-action.text-danger {
+    color: #ef4444;
+}
+
+/* Árvore de Módulos (Containers) */
 .luftdocs-sidebar-tree {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-height: 88px;
+    gap: 8px;
+    width: 100%;
 }
 
 .luftdocs-sidebar-state {
-    padding: 15px;
-    border-radius: 16px;
-    border: 1px dashed color-mix(in srgb, var(--luft-border) 58%, var(--luft-primary-300) 42%);
-    background: color-mix(in srgb, var(--luft-bg-app) 84%, white 16%);
-    color: var(--luft-text-muted);
-    font-size: 0.76rem;
-    line-height: 1.55;
+    text-align: center;
+    padding: 16px;
+    font-size: 0.8rem;
+    color: var(--luft-text-muted, #64748b);
+    border: 1px dashed var(--luft-border, #cbd5e1);
+    border-radius: 6px;
+    background-color: var(--luft-bg-app, #f8fafc);
 }
 
 .luftdocs-sidebar-groups {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 332px;
+    max-height: 350px;
     overflow-y: auto;
     padding-right: 4px;
 }
 
+.luftdocs-sidebar-groups::-webkit-scrollbar {
+    width: 4px;
+}
+
+.luftdocs-sidebar-groups::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: var(--luft-border, #cbd5e1);
+}
+
+.luftdocs-sidebar-groups::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Grupos (Categorias) */
 .luftdocs-sidebar-group {
-    overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--luft-border) 80%, white 20%);
-    border-radius: 16px;
-    background: color-mix(in srgb, var(--luft-bg-panel) 90%, white 10%);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    border: 1px solid var(--luft-border, #e2e8f0);
+    border-radius: 6px;
+    background-color: var(--luft-bg-panel, #ffffff);
 }
 
 .luftdocs-sidebar-group summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 11px 14px;
+    justify-content: space-between;
+    padding: 8px 10px;
     cursor: pointer;
     list-style: none;
-    color: var(--luft-text-main);
-    font-size: 0.78rem;
-    font-weight: 800;
+    color: var(--luft-text-main, #0f172a);
+    font-size: 0.8rem;
+    font-weight: 600;
+    user-select: none;
 }
 
 .luftdocs-sidebar-group summary::-webkit-details-marker {
     display: none;
 }
 
-.luftdocs-sidebar-group summary::after {
-    content: '›';
-    color: var(--luft-text-muted);
-    font-size: 1rem;
-    line-height: 1;
-    transform: rotate(90deg);
-    transition: transform 0.2s ease;
-}
-
-.luftdocs-sidebar-group[open] summary::after {
-    transform: rotate(270deg);
-}
-
 .luftdocs-sidebar-group-title {
+    flex: 1;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .luftdocs-sidebar-group-meta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    padding: 0 8px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--luft-primary-100) 80%, white 20%);
-    color: var(--luft-primary-700);
-    font-size: 0.69rem;
-    font-weight: 800;
+    font-size: 0.7rem;
+    color: var(--luft-text-muted, #64748b);
+    background-color: var(--luft-bg-app, #f1f5f9);
+    padding: 2px 6px;
+    border-radius: 12px;
+    border: 1px solid var(--luft-border, #e2e8f0);
+    margin-left: 8px;
 }
 
 .luftdocs-sidebar-group-items {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 0 8px 8px;
+    gap: 4px;
+    padding: 0 8px 8px 8px;
 }
 
+/* Links dos Módulos */
 .luftdocs-sidebar-module-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 10px 11px;
-    border-radius: 14px;
-    color: var(--luft-text-main);
+    padding: 8px;
+    border-radius: 6px;
+    color: var(--luft-text-main, #0f172a);
     text-decoration: none;
-    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
-.luftdocs-sidebar-module-link:hover,
-.luftdocs-sidebar-module-link:focus-visible {
-    transform: translateX(2px);
-    color: var(--luft-primary-700);
-    background: color-mix(in srgb, var(--luft-primary-50) 74%, white 26%);
+.luftdocs-sidebar-module-link:hover {
+    background-color: var(--luft-bg-app, #f8fafc);
 }
 
 .luftdocs-sidebar-module-link.is-active {
-    background: color-mix(in srgb, var(--luft-primary-100) 82%, white 18%);
-    color: var(--luft-primary-700);
-    box-shadow: inset 3px 0 0 var(--luft-primary-600);
+    background-color: var(--luft-primary-50, #eff6ff);
+    color: var(--luft-primary-700, #1d4ed8);
+    border-left: 3px solid var(--luft-primary-600, #2563eb);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .luftdocs-sidebar-module-main {
@@ -352,83 +239,47 @@
     min-width: 0;
 }
 
-.luftdocs-sidebar-module-main > i {
+.luftdocs-sidebar-module-main i {
+    font-size: 1.1rem;
+    color: var(--luft-text-muted, #64748b);
     flex-shrink: 0;
-    font-size: 1rem;
-    color: inherit;
+}
+
+.luftdocs-sidebar-module-link.is-active .luftdocs-sidebar-module-main i {
+    color: var(--luft-primary-600, #2563eb);
 }
 
 .luftdocs-sidebar-module-copy {
     display: flex;
     flex-direction: column;
-    gap: 2px;
     min-width: 0;
 }
 
-.luftdocs-sidebar-module-copy strong,
-.luftdocs-sidebar-module-copy small {
-    display: block;
+.luftdocs-sidebar-module-copy strong {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.luftdocs-sidebar-module-copy strong {
-    font-size: 0.79rem;
-    font-weight: 800;
-    color: inherit;
 }
 
 .luftdocs-sidebar-module-copy small {
-    font-size: 0.69rem;
-    color: var(--luft-text-muted);
-}
-
-.luftdocs-sidebar-module-link.is-active .luftdocs-sidebar-module-copy small {
-    color: color-mix(in srgb, var(--luft-primary-700) 72%, var(--luft-text-muted) 28%);
+    font-size: 0.7rem;
+    color: var(--luft-text-muted, #64748b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .luftdocs-sidebar-module-arrow {
-    flex-shrink: 0;
-    font-size: 0.92rem;
-    color: var(--luft-text-muted);
+    font-size: 0.9rem;
+    color: var(--luft-text-muted, #94a3b8);
     opacity: 0;
     transform: translateX(-4px);
-    transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-.luftdocs-sidebar-module-link:hover .luftdocs-sidebar-module-arrow,
-.luftdocs-sidebar-module-link:focus-visible .luftdocs-sidebar-module-arrow,
-.luftdocs-sidebar-module-link.is-active .luftdocs-sidebar-module-arrow {
+.luftdocs-sidebar-module-link:hover .luftdocs-sidebar-module-arrow {
     opacity: 1;
     transform: translateX(0);
-    color: currentColor;
-}
-
-.luftdocs-sidebar-groups::-webkit-scrollbar {
-    width: 6px;
-}
-
-.luftdocs-sidebar-groups::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--luft-primary-200) 50%, var(--luft-border) 50%);
-}
-
-.luftdocs-sidebar-groups::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.luft-sidebar.collapsed .luftdocs-sidebar-panel {
-    display: none;
-}
-
-@media (max-width: 1360px) {
-    .luftdocs-sidebar-toolbar {
-        align-items: stretch;
-    }
-
-    .luftdocs-sidebar-toolbar-actions {
-        width: 100%;
-        justify-content: space-between;
-    }
 }

@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_New.css') }}">
 {% endblock %}
 
+{% import 'luftcore/components.html' as ui %}
+
 {% block page_content %}
 <div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 
@@ -59,10 +61,10 @@
             <div class="col-md-6 mb-3">
               <label class="luft-form-label">Ícone</label>
               <div class="d-flex align-items-center gap-3">
-                <div class="luft-icon-preview" id="icon-preview-box" data-bs-toggle="modal" data-bs-target="#iconModal">
+                <div class="luft-icon-preview" id="iconPreviewBox" style="cursor: pointer;">
                   <i class="bi bi-app"></i>
                 </div>
-                <input type="text" class="luft-form-control" id="inputIcone" name="icone" placeholder="Clique para escolher" readonly data-bs-toggle="modal" data-bs-target="#iconModal">
+                <input type="text" class="luft-form-control" id="inputIcone" name="icone" placeholder="Clique para escolher" readonly style="cursor: pointer;">
               </div>
             </div>
             <div class="col-md-6 mb-3">
@@ -78,7 +80,7 @@
           </div>
           <div class="mb-2" id="relacionadosPills"></div>
           <div class="mb-3 d-flex gap-2">
-            <button type="button" class="luft-btn luft-btn-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#relModal">
+            <button type="button" id="btnOpenRelModal" class="luft-btn luft-btn-outline text-nowrap">
               <i class="bi bi-diagram-3"></i> Selecionar módulos
             </button>
             <button type="button" id="btnLimparRel" class="luft-btn luft-btn-outline" title="Limpar tudo">
@@ -91,59 +93,35 @@
   </form>
 </div>
 
-<div class="modal fade" id="iconModal" tabindex="-1" aria-labelledby="iconModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content luft-modal-content">
-      <div class="modal-header luft-modal-header flex-wrap">
-        <h5 class="modal-title luft-modal-title" id="iconModalLabel">
-          <i class="bi bi-grid-3x3-gap"></i> Escolha um Ícone
-        </h5>
-        <div class="luft-search-wrapper ms-auto">
-          <i class="bi bi-search luft-search-icon"></i>
-          <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
-        </div>
-        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
-      </div>
-    </div>
+{% call ui.modal(id='iconModal', titulo='Escolha um Ícone', tamanho='xl', icone='bi bi-grid-3x3-gap') %}
+  <div class="luft-search-wrapper mb-4">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
   </div>
-</div>
+  <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
+{% endcall %}
 
-<div class="modal fade" id="relModal" tabindex="-1" aria-labelledby="relModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content luft-modal-content">
-      <div class="modal-header luft-modal-header flex-wrap">
-        <div class="luft-modal-header-left">
-          <h5 class="modal-title luft-modal-title" id="relModalLabel">
-            <i class="bi bi-diagram-3"></i> Módulos Relacionados
-          </h5>
-          <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
-        </div>
-        <div class="luft-modal-header-right">
-          <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
-            <i class="bi bi-check-all"></i> Selecionar tudo
-          </button>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-      </div>
-      <div class="modal-body luft-modal-body">
-        <div class="luft-search-wrapper mb-3">
-          <i class="bi bi-search luft-search-icon"></i>
-          <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
-        </div>
-        <div class="luft-rel-list" id="relList"></div>
-      </div>
-      <div class="modal-footer luft-modal-footer">
-        <button class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-        <button class="luft-btn luft-btn-primary" data-bs-dismiss="modal">
-          <i class="bi bi-check-circle"></i> Aplicar seleção
-        </button>
-      </div>
-    </div>
+{% call ui.modal(id='relModal', titulo='Módulos Relacionados', tamanho='lg', icone='bi bi-diagram-3') %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
+    <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
+      <i class="bi bi-check-all"></i> Selecionar tudo
+    </button>
   </div>
-</div>
+  <div class="luft-search-wrapper mb-3">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
+  </div>
+  <div class="luft-rel-list" id="relList"></div>
+  
+  <div class="d-flex justify-content-end gap-3 mt-4 pt-4 border-top" style="border-color: var(--luft-border) !important;">
+    <button type="button" class="btn btn-outline" onclick="LuftCore.fecharModal('relModal')">Cancelar</button>
+    <button type="button" class="btn btn-primary" onclick="LuftCore.fecharModal('relModal')">
+      <i class="bi bi-check-circle"></i> Aplicar seleção
+    </button>
+  </div>
+{% endcall %}
+
 {% endblock %}
 
 {% block scripts %}
@@ -156,161 +134,225 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const token = '{{ token }}';
-  let allIcons = [];
-  let allModules = [];
-  let selectedRel = new Set();
+  let todosIcones = [];
+  let todosModulos = [];
+  let modulosSelecionados = new Set();
 
-  /* ---------- Ícones ---------- */
-  function renderIconGrid(filter = '') {
-    const grid = document.getElementById('iconGrid');
-    const selectedIcon = document.getElementById('inputIcone').value;
-    grid.innerHTML = '';
-    const filteredIcons = allIcons.filter(i => i.toLowerCase().includes(filter.toLowerCase()));
-    filteredIcons.forEach(iconClass => {
-      const col = document.createElement('div');
-      col.className = 'col';
-      const isSelected = iconClass === selectedIcon;
-      col.innerHTML = `<button type="button" class="luft-icon-grid-btn ${isSelected ? 'selected' : ''}" data-icon="${iconClass}" title="${iconClass}">
-        <i class="bi ${iconClass}"></i></button>`;
-      grid.appendChild(col);
+  /**
+   * Prepara o contexto e aciona a abertura do Modal de Icones padrao do LuftCore.
+   */
+  function AbrirModalIcone() {
+    document.getElementById('iconSearch').value = '';
+    RenderizarGradeIcones('');
+    LuftCore.abrirModal('iconModal');
+    setTimeout(() => document.getElementById('iconSearch').focus(), 200);
+  }
+
+  /**
+   * Prepara o contexto e aciona a abertura do Modal de Modulos Relacionados padrao do LuftCore.
+   */
+  function AbrirModalRelacionados() {
+    const inputBusca = document.getElementById('relSearch');
+    inputBusca.value = '';
+    RenderizarListaRelacionados('');
+    LuftCore.abrirModal('relModal');
+    setTimeout(() => inputBusca.focus(), 200);
+  }
+
+  /**
+   * Renderiza a grade de icones baseada em um termo de filtro especificado.
+   * @param {string} filtro - Termo de busca para a filtragem da lista de icones.
+   */
+  function RenderizarGradeIcones(filtro = '') {
+    const elementoGrade = document.getElementById('iconGrid');
+    const iconeSelecionado = document.getElementById('inputIcone').value;
+    elementoGrade.innerHTML = '';
+    
+    const iconesFiltrados = todosIcones.filter(i => i.toLowerCase().includes(filtro.toLowerCase()));
+    
+    iconesFiltrados.forEach(classeIcone => {
+      const elementoColuna = document.createElement('div');
+      elementoColuna.className = 'col';
+      const estaSelecionado = classeIcone === iconeSelecionado;
+      elementoColuna.innerHTML = `<button type="button" class="luft-icon-grid-btn ${estaSelecionado ? 'selected' : ''}" data-icon="${classeIcone}" title="${classeIcone}">
+        <i class="bi ${classeIcone}"></i></button>`;
+      elementoGrade.appendChild(elementoColuna);
     });
-    grid.querySelectorAll('.luft-icon-grid-btn').forEach(btn => {
+
+    elementoGrade.querySelectorAll('.luft-icon-grid-btn').forEach(btn => {
       btn.onclick = function() {
-        const iconClass = this.getAttribute('data-icon');
-        document.getElementById('inputIcone').value = iconClass;
-        document.querySelector('#icon-preview-box i').className = `bi ${iconClass}`;
-        bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
+        const classeIcone = this.getAttribute('data-icon');
+        document.getElementById('inputIcone').value = classeIcone;
+        document.querySelector('#iconPreviewBox i').className = `bi ${classeIcone}`;
+        LuftCore.fecharModal('iconModal');
       };
     });
   }
-  
-  const iconModal = document.getElementById('iconModal');
-  iconModal.addEventListener('shown.bs.modal', () => {
-    document.getElementById('iconSearch').value = '';
-    renderIconGrid();
-    document.getElementById('iconSearch').focus();
-  });
-  document.getElementById('iconSearch').addEventListener('input', e => renderIconGrid(e.target.value.trim()));
 
-  /* ---------- Relacionados ---------- */
-  const pillsBox = document.getElementById('relacionadosPills');
-  const relCounter = document.getElementById('relCounter');
-  const relHidden = document.getElementById('inputRelacionados');
+  /**
+   * Renderiza os "pills" (etiquetas visuais) que representam os modulos relacionados ativos.
+   */
+  function RenderizarPillsRelacionados() {
+    const containerPills = document.getElementById('relacionadosPills');
+    containerPills.innerHTML = '';
+    const mapeamentoIdObjeto = Object.fromEntries(todosModulos.map(m => [String(m.id), m]));
+    
+    [...modulosSelecionados].forEach(idModulo => {
+      const moduloAssociado = mapeamentoIdObjeto[String(idModulo)];
+      const rotuloExibicao = moduloAssociado ? `${moduloAssociado.nome}` : idModulo;
+      const elementoPill = document.createElement('span');
+      
+      elementoPill.className = 'luft-rel-pill';
+      elementoPill.innerHTML = `<i class="bi bi-node-plus"></i> ${rotuloExibicao} <button type="button" class="remove" title="Remover" data-id="${idModulo}">&times;</button>`;
+      containerPills.appendChild(elementoPill);
+    });
 
-  function renderRelPills() {
-    pillsBox.innerHTML = '';
-    const byId = Object.fromEntries(allModules.map(m => [String(m.id), m]));
-    [...selectedRel].forEach(id => {
-      const mod = byId[String(id)];
-      const name = mod ? `${mod.nome}` : id;
-      const pill = document.createElement('span');
-      pill.className = 'luft-rel-pill';
-      pill.innerHTML = `<i class="bi bi-node-plus"></i> ${name} <button class="remove" title="Remover" data-id="${id}">&times;</button>`;
-      pillsBox.appendChild(pill);
+    containerPills.querySelectorAll('.remove').forEach(btn => {
+      btn.onclick = () => { 
+        modulosSelecionados.delete(btn.getAttribute('data-id')); 
+        SincronizarEstadoRelacionados(); 
+        MarcarCheckboxesVisuais(); 
+      };
     });
-    pillsBox.querySelectorAll('.remove').forEach(btn => {
-      btn.onclick = () => { selectedRel.delete(btn.getAttribute('data-id')); syncRelState(); markChecks(); };
-    });
-    updateRelHiddenAndCounter();
+    AtualizarInputOcultoEContador();
   }
-  
-  function updateRelHiddenAndCounter() {
-    relHidden.value = [...selectedRel].join(',').trim();
-    const n = selectedRel.size;
-    const text = n === 0 ? '0 selecionados' : `${n} selecionado${n>1?'s':''}`;
-    relCounter.textContent = text;
-    const modalCounter = document.getElementById('relModalCounter');
-    if (modalCounter) modalCounter.textContent = text;
+
+  /**
+   * Atualiza o valor do input oculto e os textos dos contadores na tela.
+   */
+  function AtualizarInputOcultoEContador() {
+    const inputOculto = document.getElementById('inputRelacionados');
+    inputOculto.value = [...modulosSelecionados].join(',').trim();
+    
+    const quantidade = modulosSelecionados.size;
+    const textoInformativo = quantidade === 0 ? '0 selecionados' : `${quantidade} selecionado${quantidade > 1 ? 's' : ''}`;
+    
+    document.getElementById('relCounter').textContent = textoInformativo;
+    const contadorModal = document.getElementById('relModalCounter');
+    if (contadorModal) contadorModal.textContent = textoInformativo;
   }
-  
-  function filteredModules(term) {
-    const t = term.trim().toLowerCase();
-    if (!t) return allModules;
-    return allModules.filter(m => String(m.id).toLowerCase().includes(t) || (m.nome || '').toLowerCase().includes(t));
+
+  /**
+   * Filtra a lista completa de modulos com base no termo de busca fornecido.
+   * @param {string} termoBusca - Sequencia de caracteres inserida pelo usuario.
+   * @returns {Array} Array contendo os objetos de modulo que correspondem ao filtro.
+   */
+  function FiltrarModulos(termoBusca) {
+    const termoTratado = termoBusca.trim().toLowerCase();
+    if (!termoTratado) return todosModulos;
+    return todosModulos.filter(m => String(m.id).toLowerCase().includes(termoTratado) || (m.nome || '').toLowerCase().includes(termoTratado));
   }
-  
-  function renderRelList(term='') {
-    const list = document.getElementById('relList');
-    const mods = filteredModules(term);
-    list.innerHTML = '';
-    mods.forEach(m => {
-      const id = String(m.id);
-      const checked = selectedRel.has(id) ? 'checked' : '';
-      const el = document.createElement('div');
-      el.className = 'luft-rel-item';
-      el.innerHTML = `
-        <label class="luft-rel-item-label" for="rel_${id}">
-          <input class="luft-rel-check rel-check" type="checkbox" value="${id}" id="rel_${id}" ${checked}>
+
+  /**
+   * Renderiza a lista de modulos dentro do modal de relacionamento, aplicando os filtros.
+   * @param {string} termo - O termo de filtragem do input de busca do modal.
+   */
+  function RenderizarListaRelacionados(termo = '') {
+    const elementoLista = document.getElementById('relList');
+    const arrayModulos = FiltrarModulos(termo);
+    elementoLista.innerHTML = '';
+
+    arrayModulos.forEach(moduloContexto => {
+      const idStr = String(moduloContexto.id);
+      const atributoChecked = modulosSelecionados.has(idStr) ? 'checked' : '';
+      const containerItem = document.createElement('div');
+      
+      containerItem.className = 'luft-rel-item';
+      containerItem.innerHTML = `
+        <label class="luft-rel-item-label" for="rel_${idStr}">
+          <input class="luft-rel-check rel-check" type="checkbox" value="${idStr}" id="rel_${idStr}" ${atributoChecked}>
           <span class="luft-rel-item-icon"><i class="bi bi-box-seam"></i></span>
           <span class="luft-rel-item-info">
-            <span class="luft-rel-item-name">${m.nome}</span>
-            <span class="luft-rel-item-id">${id}</span>
+            <span class="luft-rel-item-name">${moduloContexto.nome}</span>
+            <span class="luft-rel-item-id">${idStr}</span>
           </span>
         </label>`;
-      list.appendChild(el);
+      elementoLista.appendChild(containerItem);
     });
-    list.querySelectorAll('.rel-check').forEach(chk => {
-      chk.onchange = () => {
-        const id = chk.value;
-        if (chk.checked) selectedRel.add(id); else selectedRel.delete(id);
-        syncRelState();
+
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => {
+      checkboxElement.onchange = () => {
+        const valorId = checkboxElement.value;
+        if (checkboxElement.checked) modulosSelecionados.add(valorId); 
+        else modulosSelecionados.delete(valorId);
+        SincronizarEstadoRelacionados();
       };
     });
   }
-  
-  function syncRelState() {
-    updateRelHiddenAndCounter();
-    renderRelPills();
-  }
-  
-  function markChecks() {
-    const list = document.getElementById('relList');
-    list.querySelectorAll('.rel-check').forEach(chk => { chk.checked = selectedRel.has(chk.value); });
+
+  /**
+   * Centraliza a atualizacao logica e visual das estruturas de modulos relacionados.
+   */
+  function SincronizarEstadoRelacionados() {
+    AtualizarInputOcultoEContador();
+    RenderizarPillsRelacionados();
   }
 
-  document.getElementById('btnLimparRel').onclick = () => { selectedRel.clear(); syncRelState(); markChecks(); };
-  
-  document.getElementById('btnToggleAll').onclick = () => {
-    const currentTerm = document.getElementById('relSearch').value || '';
-    const mods = filteredModules(currentTerm);
-    const allOn = mods.every(m => selectedRel.has(String(m.id)));
-    if (allOn) mods.forEach(m => selectedRel.delete(String(m.id)));
-    else mods.forEach(m => selectedRel.add(String(m.id)));
-    syncRelState(); markChecks();
+  /**
+   * Verifica a colecao logica e reaplica o estado marcado aos inputs HTML visiveis.
+   */
+  function MarcarCheckboxesVisuais() {
+    const elementoLista = document.getElementById('relList');
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => { 
+      checkboxElement.checked = modulosSelecionados.has(checkboxElement.value); 
+    });
+  }
+
+  /* Manipuladores Globais de Interface */
+  document.getElementById('iconPreviewBox').addEventListener('click', AbrirModalIcone);
+  document.getElementById('inputIcone').addEventListener('click', AbrirModalIcone);
+  document.getElementById('btnOpenRelModal').addEventListener('click', AbrirModalRelacionados);
+
+  document.getElementById('iconSearch').addEventListener('input', e => RenderizarGradeIcones(e.target.value.trim()));
+  document.getElementById('relSearch').addEventListener('input', e => RenderizarListaRelacionados(e.target.value));
+
+  document.getElementById('btnLimparRel').onclick = () => { 
+    modulosSelecionados.clear(); 
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais(); 
   };
 
-  const relModal = document.getElementById('relModal');
-  relModal.addEventListener('shown.bs.modal', () => {
-    const search = document.getElementById('relSearch');
-    search.value = '';
-    renderRelList('');
-    search.focus();
-  });
-  document.getElementById('relSearch').addEventListener('input', e => renderRelList(e.target.value));
+  document.getElementById('btnToggleAll').onclick = () => {
+    const termoBuscaAtual = document.getElementById('relSearch').value || '';
+    const arrayFiltrado = FiltrarModulos(termoBuscaAtual);
+    const estaoTodosMarcados = arrayFiltrado.every(m => modulosSelecionados.has(String(m.id)));
+    
+    if (estaoTodosMarcados) {
+      arrayFiltrado.forEach(m => modulosSelecionados.delete(String(m.id)));
+    } else {
+      arrayFiltrado.forEach(m => modulosSelecionados.add(String(m.id)));
+    }
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais();
+  };
 
-  /* ---------- Submit ---------- */
-  document.getElementById('create-module-form').addEventListener('submit', e => {
+  /* Listener de Submissao de Formulario */
+  document.getElementById('create-module-form').addEventListener('submit', eventoSubmit => {
     if (!document.getElementById('inputId').value || !document.getElementById('inputNome').value) {
-      e.preventDefault(); 
+      eventoSubmit.preventDefault(); 
       alert('Os campos "ID do Módulo" e "Nome do Módulo" são obrigatórios!'); 
       return;
     }
-    relHidden.value = [...selectedRel].join(',');
+    document.getElementById('inputRelacionados').value = [...modulosSelecionados].join(',');
   });
 
-  /* ---------- Carrega opções ---------- */
+  /* Ciclo de Inicializacao Principal */
   app.requestJson(ROUTES.listarOpcoes, { token })
-    .then(({ response, data }) => {
+    .then(({ response, data: payloadData }) => {
       if (!response.ok) throw new Error();
-      data = data || {};
-      allIcons = data.icons || [];
-      allModules = data.modules || [];
-      syncRelState();
+      payloadData = payloadData || {};
+      todosIcones = payloadData.icons || [];
+      todosModulos = payloadData.modules || [];
+      SincronizarEstadoRelacionados();
     })
-    .catch(() => { allModules=[]; allIcons=[]; syncRelState(); });
+    .catch(() => { 
+      todosModulos = []; 
+      todosIcones = []; 
+      SincronizarEstadoRelacionados(); 
+    });
 
-  const animacao = new AnimacaoFundo('containerAnimacaoFundo');
-  animacao.iniciar();
+  const instanciaAnimacao = new AnimacaoFundo('containerAnimacaoFundo');
+  instanciaAnimacao.iniciar();
 });
 </script>
 {% endblock %}

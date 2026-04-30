@@ -10,7 +10,7 @@
     opacity: 0.05 !important;
 }
 
-/* --- 1. LAYOUT DE DUAS COLUNAS (ÍNDICE + CONTEÚDO) --- */
+/* --- 1. LAYOUT DE COLUNAS (ÍNDICE + CONTEÚDO + ROTEIROS) --- */
 .content-wrapper {
     display: flex;
     gap: var(--luft-space-8);
@@ -21,9 +21,18 @@
     z-index: 1;
 }
 
-.main-content {
+/* --- Nova coluna central para agrupar o cabecalho e o conteudo --- */
+.center-column {
     flex: 1;
     min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--luft-space-6);
+    max-width: 100%;
+}
+
+.main-content {
+    width: 100%;
     background: color-mix(in srgb, var(--luft-bg-panel) 92%, transparent);
     backdrop-filter: blur(8px);
     border: 1px solid var(--luft-border);
@@ -148,7 +157,6 @@
     background-color: var(--luft-bg-panel-hover);
 }
 
-
 /* --- Níveis e Indentação --- */
 #toc-list ul {
     list-style: none;
@@ -183,59 +191,169 @@
     background-color: var(--luft-slate-600);
 }
 
-/* --- 3. CABEÇALHO DO MÓDULO --- */
-.module-container {
-    background: color-mix(in srgb, var(--luft-bg-panel) 92%, transparent);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--luft-border);
+/* =================================================================== */
+/* COMPONENTE: HERO HEADER DO MÓDULO                                   */
+/* =================================================================== */
+
+.luft-module-hero-card {
+    background-color: var(--luft-bg-panel);
     border-radius: var(--luft-radius-xl);
-    padding: var(--luft-space-8);
+    padding: 32px 40px;
     box-shadow: var(--luft-shadow-sm);
+    border: 1px solid var(--luft-border);
+    width: 100%; 
+    margin: 0;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
-.module-header {
-    text-align: center;
-    padding-bottom: var(--luft-space-8);
-    border-bottom: 1px solid var(--luft-border);
-    margin-bottom: 0;
-    position: relative;
+.luft-module-hero-title-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
 }
-.header-back-button {
-    position: absolute;
-    top: 0;
-    left: 0;
+
+.luft-module-hero-icon {
+    font-size: 2.2rem;
+    color: var(--luft-primary-500);
 }
-.header-title-container {
+
+.luft-module-hero-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--luft-text-main);
+    margin: 0;
+}
+
+.luft-module-hero-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.luft-module-hero-search {
+    width: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: var(--luft-space-4);
+    margin-top: 24px;
 }
-.header-title-container h1 {
-    margin-bottom: 0;
-    color: var(--luft-text-main);
+
+.luft-search-form {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
 }
-.module-header h1 .icon-title {
-    color: var(--luft-primary-600);
-    margin-right: var(--luft-space-2);
-}
-.btn-evaluate-icon {
+
+.luft-action-btn {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
-    padding: 0;
+    font-size: 1.3rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
-.module-description {
-    font-size: var(--luft-text-lg);
+
+.luft-action-btn.primary {
+    background-color: var(--luft-primary-500);
+    color: #ffffff;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--luft-primary-500) 40%, transparent);
+}
+
+.luft-action-btn.primary:hover {
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--luft-primary-500) 60%, transparent);
+    color: #ffffff;
+}
+
+.luft-action-btn.outline {
+    background-color: transparent;
     color: var(--luft-text-muted);
-    max-width: 700px;
-    margin: var(--luft-space-2) auto var(--luft-space-6) auto;
+    border: 1px solid var(--luft-border);
+}
+
+.luft-action-btn.outline:hover {
+    background-color: var(--luft-bg-app);
+    color: var(--luft-primary-500);
+    border-color: var(--luft-primary-400);
+}
+
+.luft-module-hero-description {
+    font-size: 1.1rem;
+    color: var(--luft-text-muted);
+    margin-bottom: 24px;
+    margin-top: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* --- Barra de Pesquisa Integrada --- */
+
+.luft-search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.luft-search-input {
+    width: 100%;
+    height: 54px;
+    padding: 0 56px 0 24px;
+    border-radius: 28px;
+    border: 1px solid var(--luft-border);
+    background-color: var(--luft-bg-app);
+    font-size: 1.05rem;
+    color: var(--luft-text-main);
+    transition: all 0.2s ease;
+}
+
+.luft-search-input:focus {
+    outline: none;
+    border-color: var(--luft-primary-400);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--luft-primary-500) 15%, transparent);
+}
+
+.luft-search-submit {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--luft-text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+}
+
+.luft-search-submit:hover {
+    background-color: var(--luft-bg-panel);
+    color: var(--luft-primary-500);
+}
+
+.luft-module-hero-divider {
+    height: 1px;
+    background-color: var(--luft-border);
+    margin-top: 32px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.6;
 }
 
 /* --- Sub-módulo: Header simplificado (sem card, sem busca) --- */
@@ -319,7 +437,6 @@
     background-color: var(--luft-bg-panel-hover);
     color: var(--luft-primary-400);
 }
-
 
 /* --- 5. CONTEÚDO MARKDOWN --- */
 .markdown-body {
@@ -532,13 +649,10 @@
 #videoModal .modal-dialog { max-width: 800px; }
 #videoModal .modal-content { background-color: #000; }
 
-
 /* =====================================================================
    STEP READER – THEMED + ANIMADO + ALTURA FIXA (LUFTCORE)
-   Namespace: #sr-toggle-icon.step-reader-toggle | #sr-resume | #step-reader .sr-*
    ===================================================================== */
 
-/* --------- Tokens locais e z-index seguros --------- */
 :root{ --z-step-reader: 1040; }
 :root, [data-theme="dark"] {
   --sr-surface: var(--luft-bg-panel);
@@ -559,9 +673,6 @@
     0 0 0 6px color-mix(in srgb, var(--sr-primary) 15%, transparent);
 }
 
-/* ============================== */
-/* ÍCONE GATILHO (canto superior) */
-/* ============================== */
 .module-header { position: relative; }
 #sr-toggle-icon.step-reader-toggle{
   position: absolute; top: 12px; right: 12px;
@@ -580,7 +691,6 @@
 #sr-toggle-icon.step-reader-toggle:focus-visible{ outline: none; box-shadow: var(--sr-focus); }
 #sr-toggle-icon.step-reader-toggle i{ font-size: 1.15rem; pointer-events: none; }
 
-/* Badge de retomada (opcional) */
 #sr-resume { display: none; }
 #sr-resume[hidden]{ display: none !important; }
 #sr-resume:not([hidden]){
@@ -607,9 +717,6 @@
 }
 #sr-resume-btn:focus-visible{ outline:none; box-shadow: var(--sr-focus); }
 
-/* ================ */
-/* OVERLAY + BACKDROP*/
-/* ================ */
 #step-reader[hidden]{ display:none; }
 #step-reader{
   position: fixed; inset: 0; z-index: var(--z-step-reader);
@@ -626,9 +733,6 @@
     radial-gradient(100% 100% at 50% 50%, #000 55%, rgba(0,0,0,.75) 100%);
 }
 
-/* ========== */
-/* PAINEL FIXO */
-/* ========== */
 #step-reader .sr-panel{
   position:relative; z-index:1;
   width:min(100% - 24px, var(--sr-width));
@@ -650,9 +754,6 @@
   to{ transform: translateY(0) scale(1); opacity:1; }
 }
 
-/* ====== */
-/* HEADER */
-/* ====== */
 .sr-header{
   display:grid; grid-template-columns: 1fr auto auto auto;
   align-items:center; gap: var(--luft-space-3);
@@ -665,7 +766,6 @@
 }
 #sr-title{ margin:0; font:700 1rem/1 'Inter', system-ui, sans-serif; color: var(--sr-text); }
 
-/* Progresso com animação "shimmer" */
 .sr-progress{
   height: 10px; border-radius: var(--luft-radius-full); overflow:hidden;
   background: color-mix(in srgb, var(--sr-surface) 85%, transparent);
@@ -684,7 +784,6 @@
 }
 @keyframes sr-shimmer{ to{ transform: translateX(100%); } }
 
-/* Contador + Fechar */
 .sr-count{
   font:600 .85rem/1 'Inter', system-ui, sans-serif; color: var(--sr-muted);
   padding: var(--luft-space-1) var(--luft-space-2); border-radius: var(--luft-radius-full);
@@ -701,9 +800,6 @@
 .sr-close:hover{ transform: translateY(-1px) rotate(2deg); }
 .sr-close:focus-visible{ outline:none; box-shadow: var(--sr-focus); }
 
-/* ==== */
-/* BODY */
-/* ==== */
 .sr-body{
   flex:1 1 auto; min-height:0; overflow:auto;
   padding: 20px 24px; scroll-behavior: smooth;
@@ -729,9 +825,6 @@
 }
 .sr-body img:hover{ transform: translateY(-2px); box-shadow: var(--luft-shadow-xl); }
 
-/* ====== */
-/* FOOTER */
-/* ====== */
 .sr-footer{
   flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
   gap: var(--luft-space-3); padding: 12px 16px;
@@ -742,7 +835,6 @@
       color-mix(in srgb, var(--sr-surface) 92%, transparent));
 }
 
-/* Checkbox "Entendi" com microanimação */
 .sr-checkbox{ display:inline-flex; align-items:center; gap:.6rem; color:var(--sr-muted); user-select:none; }
 .sr-checkbox input{
   appearance:none; position:relative; width:20px; height:20px; border-radius: var(--luft-radius-md);
@@ -765,7 +857,6 @@
 }
 @keyframes sr-pop{ from{ transform: scale(.4); opacity:.4 } to{ transform: scale(.7); opacity:1 } }
 
-/* Botões + ripple */
 .sr-actions{ display:inline-flex; gap:.5rem; }
 .sr-actions button{
   position:relative; overflow:hidden;
@@ -778,7 +869,6 @@
 .sr-actions button:hover{ transform: translateY(-1px); border-color: color-mix(in srgb, var(--sr-primary) 35%, var(--sr-border)); }
 .sr-actions button:active{ transform: translateY(0); }
 .sr-actions button:focus-visible{ outline:none; box-shadow: var(--sr-focus); }
-/* Ripple sem JS extra */
 .sr-actions button::after{
   content:""; position:absolute; inset:auto; left:50%; top:50%; width:0; height:0;
   background: color-mix(in srgb, var(--sr-info) 30%, transparent);
@@ -802,7 +892,6 @@
     color-mix(in srgb, var(--sr-success) 10%, transparent));
 }
 
-/* Preferências de movimento */
 @media (prefers-reduced-motion: reduce){
   .sr-step,.sr-panel{ animation: none !important; }
   .sr-actions button, .sr-close, #sr-toggle-icon.step-reader-toggle{ transition: none !important; }

@@ -1,107 +1,54 @@
-(function () {
-    const viewers = new WeakMap();
-    const observadores = new WeakMap();
+/**
+ * Arquivo: ampliarImagem.js
+ * Descricao: Identifica cliques em imagens no corpo da documentacao (markdown)
+ * e aciona a visualizacao ampliada utilizando o modal padronizado do LuftCore.
+ */
 
-    function criarConfiguracaoViewer(filtroImagem) {
-        return {
-            url: 'src',
-            toolbar: {
-                zoomIn: 1,
-                zoomOut: 1,
-                oneToOne: 1,
-                reset: 1,
-                prev: 0,
-                play: { show: 0, size: 'large' },
-                next: 0,
-                rotateLeft: 1,
-                rotateRight: 1,
-                flipHorizontal: 1,
-                flipVertical: 1,
-            },
-            title: true,
-            navbar: false,
-            tooltip: true,
-            movable: true,
-            zoomable: true,
-            transition: true,
-            filter(imagem) {
-                return typeof filtroImagem === 'function' ? filtroImagem(imagem) : true;
-            },
-        };
+class VisualizadorImagem {
+    /**
+     * Configura o ouvinte global para capturar eventos de clique em imagens.
+     */
+    constructor() {
+        this.containerImagens = document.getElementById('imagem-viewer');
+        this.imagemExpandida = document.getElementById('imagemExpandida');
+
+        if (this.containerImagens && this.imagemExpandida) {
+            this.inicializarOuvinteDeImagens();
+        }
     }
 
-    function inicializarViewer(container, filtroImagem) {
-        if (!container || typeof Viewer === 'undefined') {
-            return null;
-        }
+    /**
+     * Adiciona funcionalidade de expansao a todas as imagens validas na documentacao.
+     */
+    inicializarOuvinteDeImagens() {
+        const imagensDocumento = this.containerImagens.querySelectorAll('img');
 
-        const viewerExistente = viewers.get(container);
-        if (viewerExistente) {
-            viewerExistente.update();
-            return viewerExistente;
-        }
+        imagensDocumento.forEach(imagemElemento => {
+            // Aplica estilos indicativos para orientar o usuario
+            imagemElemento.style.cursor = 'pointer';
+            imagemElemento.title = 'Clique para ampliar';
 
-        const viewer = new Viewer(container, criarConfiguracaoViewer(filtroImagem));
-        viewers.set(container, viewer);
-        return viewer;
-    }
+            imagemElemento.addEventListener('click', (evento) => {
+                const urlOrigem = evento.target.src;
+                
+                // Evita acoes em icones pequenos ou emojis
+                if (!urlOrigem || urlOrigem.includes('data:image')) return;
 
-    function observarAlteracoes(container, filtroImagem) {
-        if (!container || observadores.has(container) || typeof MutationObserver === 'undefined') {
-            return;
-        }
-
-        const observador = new MutationObserver(() => {
-            const viewer = viewers.get(container);
-            if (viewer) {
-                viewer.update();
-                return;
-            }
-            inicializarViewer(container, filtroImagem);
-        });
-
-        observador.observe(container, { childList: true, subtree: true });
-        observadores.set(container, observador);
-    }
-
-    function inicializarGaleriasMarkdown() {
-        document.querySelectorAll('.markdown-body').forEach((container) => {
-            inicializarViewer(container, (imagem) => Boolean(imagem.closest('.modulo-conteudo, .submodulo-conteudo')));
+                this.abrirImagem(urlOrigem);
+            });
         });
     }
 
-    function inicializarGaleriasLia() {
-        document.querySelectorAll('.luft-lia-chat-history').forEach((container) => {
-            const filtroLia = (imagem) => Boolean(imagem.closest('.luft-lia-message.ai-message'));
-            inicializarViewer(container, filtroLia);
-            observarAlteracoes(container, filtroLia);
-        });
+    /**
+     * Direciona a URL da imagem clicada para o componente do modal e o exibe.
+     * @param {string} urlImagem - Caminho absoluto ou relativo da imagem a ser aberta.
+     */
+    abrirImagem(urlImagem) {
+        this.imagemExpandida.src = urlImagem;
+        LuftCore.abrirModal('imagemModal');
     }
+}
 
-    function inicializar() {
-        inicializarGaleriasMarkdown();
-        inicializarGaleriasLia();
-    }
-
-    document.addEventListener('DOMContentLoaded', inicializar);
-
-    window.LuftAmpliadorImagem = {
-        inicializar,
-        atualizar(container) {
-            if (!container) {
-                return;
-            }
-
-            if (container.matches('.luft-lia-chat-history')) {
-                const filtroLia = (imagem) => Boolean(imagem.closest('.luft-lia-message.ai-message'));
-                inicializarViewer(container, filtroLia);
-                observarAlteracoes(container, filtroLia);
-                return;
-            }
-
-            if (container.matches('.markdown-body')) {
-                inicializarViewer(container, (imagem) => Boolean(imagem.closest('.modulo-conteudo, .submodulo-conteudo')));
-            }
-        },
-    };
-})();
+document.addEventListener('DOMContentLoaded', () => {
+    new VisualizadorImagem();
+});

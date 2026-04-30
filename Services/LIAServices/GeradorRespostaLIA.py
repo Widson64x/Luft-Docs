@@ -125,9 +125,12 @@ DOCUMENTOS:
             cliente = ConfiguracaoLLM.obterCliente("groq_client")
             resposta = cliente.chat.completions.create(
                 messages=self._montarMensagens(prompt_humano),
-                model="llama3-8b-8192",
+                model="llama-3.1-8b-instant",
+                temperature=0.3, # Ajuda a evitar falhas de contexto vazio no Llama 3.1
+                max_tokens=1500
             )
             conteudo = resposta.choices[0].message.content
+            print(f"\n[DEBUG LIA-8B] Conteudo gerado pela IA: {repr(conteudo)}\n")
         elif nome_modelo == "openai" and ConfiguracaoLLM.obterCliente("openai_client"):
             cliente = ConfiguracaoLLM.obterCliente("openai_client")
             resposta = cliente.chat.completions.create(
