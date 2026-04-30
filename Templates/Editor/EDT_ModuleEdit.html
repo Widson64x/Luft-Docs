@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Module.css', q='1') }}">
 {% endblock %}
 
+{% import 'luftcore/components.html' as ui %}
+
 {% block page_content %}
 <div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
 
@@ -72,10 +74,10 @@
           <div class="mb-3">
             <label class="luft-form-label">Ícone</label>
             <div class="d-flex align-items-center gap-3">
-              <div class="luft-icon-preview" id="iconPreviewBox" data-bs-toggle="modal" data-bs-target="#iconModal">
+              <div class="luft-icon-preview" id="iconPreviewBox" style="cursor: pointer;">
                 <i class="bi {{ modulo.icone or 'bi-app' }}"></i>
               </div>
-              <input type="text" class="luft-form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly data-bs-toggle="modal" data-bs-target="#iconModal">
+              <input type="text" class="luft-form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly style="cursor: pointer;">
             </div>
           </div>
           <div class="mb-3">
@@ -90,7 +92,7 @@
           </div>
           <div class="mb-2" id="relacionadosPills"></div>
           <div class="mb-3 d-flex gap-2">
-            <button type="button" class="luft-btn luft-btn-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#relModal">
+            <button type="button" id="btnOpenRelModal" class="luft-btn luft-btn-outline text-nowrap">
               <i class="bi bi-diagram-3"></i> Selecionar módulos
             </button>
             <button type="button" id="btnLimparRel" class="luft-btn luft-btn-outline" title="Limpar tudo">
@@ -129,59 +131,35 @@
   </form>
 </div>
 
-<div class="modal fade" id="iconModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content luft-modal-content">
-      <div class="modal-header luft-modal-header flex-wrap">
-        <h5 class="modal-title luft-modal-title">
-          <i class="bi bi-grid-3x3-gap"></i> Escolha um Ícone
-        </h5>
-        <div class="luft-search-wrapper ms-auto">
-          <i class="bi bi-search luft-search-icon"></i>
-          <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
-        </div>
-        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
-      </div>
-    </div>
+{% call ui.modal(id='iconModal', titulo='Escolha um Ícone', tamanho='xl', icone='bi bi-grid-3x3-gap') %}
+  <div class="luft-search-wrapper mb-4">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
   </div>
-</div>
+  <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
+{% endcall %}
 
-<div class="modal fade" id="relModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content luft-modal-content">
-      <div class="modal-header luft-modal-header flex-wrap">
-        <div class="luft-modal-header-left">
-          <h5 class="modal-title luft-modal-title">
-            <i class="bi bi-diagram-3"></i> Módulos Relacionados
-          </h5>
-          <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
-        </div>
-        <div class="luft-modal-header-right">
-          <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
-            <i class="bi bi-check-all"></i> Selecionar tudo
-          </button>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-      </div>
-      <div class="modal-body luft-modal-body">
-        <div class="luft-search-wrapper mb-3">
-          <i class="bi bi-search luft-search-icon"></i>
-          <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
-        </div>
-        <div class="luft-rel-list" id="relList"></div>
-      </div>
-      <div class="modal-footer luft-modal-footer">
-        <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="luft-btn luft-btn-primary" data-bs-dismiss="modal">
-          <i class="bi bi-check-circle"></i> Aplicar seleção
-        </button>
-      </div>
-    </div>
+{% call ui.modal(id='relModal', titulo='Módulos Relacionados', tamanho='lg', icone='bi bi-diagram-3') %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
+    <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
+      <i class="bi bi-check-all"></i> Selecionar tudo
+    </button>
   </div>
-</div>
+  <div class="luft-search-wrapper mb-3">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
+  </div>
+  <div class="luft-rel-list" id="relList"></div>
+  
+  <div class="d-flex justify-content-end gap-3 mt-4 pt-4 border-top" style="border-color: var(--luft-border) !important;">
+    <button type="button" class="btn btn-outline" onclick="LuftCore.fecharModal('relModal')">Cancelar</button>
+    <button type="button" class="btn btn-primary" onclick="LuftCore.fecharModal('relModal')">
+      <i class="bi bi-check-circle"></i> Aplicar seleção
+    </button>
+  </div>
+{% endcall %}
+
 {% endblock %}
 
 {% block scripts %}
@@ -207,14 +185,19 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let editorUsuario, editorTecnico;
 
-    function MontarUrl(caminho, opcoes = {}) {
-      return app.route(caminho, { token, ...opcoes });
+  /**
+   * Monta a URL de requisicao incluindo o token de acesso.
+   * @param {string} caminho - Rota base.
+   * @param {object} opcoes - Parametros adicionais.
+   * @returns {string} URL formatada.
+   */
+  function MontarUrl(caminho, opcoes = {}) {
+    return app.route(caminho, { token, ...opcoes });
   }
 
   /**
    * Inicializa as instancias do ToastUI Editor para as documentacoes (usuario e tecnica).
    * Lida com a destruicao de instancias previas caso seja acionada na troca de tema.
-   * * @returns {void}
    */
   function InicializarEditores() {
     if (editorUsuario) editorUsuario.destroy();
@@ -232,11 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addImageBlobHook: (blob, callback) => {
           const formData = new FormData();
           formData.append('file', blob);
-          app.requestJson(ROUTES.uploadImagemModulo, {
-            method: 'POST',
-            formData,
-            token,
-          })
+          app.requestJson(ROUTES.uploadImagemModulo, { method: 'POST', formData, token })
             .then(({ response, data }) => {
               if (!response.ok || !data?.url) throw new Error();
               callback(MontarUrl(data.url), MontarUrl(data.url));
@@ -255,9 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Adiciona botoes customizados (Anexo, Video, Wikilink) na barra de ferramentas do editor.
-   * * @param {toastui.Editor} editor - Instancia alvo do ToastUI Editor.
+   * @param {toastui.Editor} editor - Instancia alvo do ToastUI Editor.
    * @param {string} idToolbar - ID do elemento HTML da barra de ferramentas.
-   * @returns {void}
    */
   function AdicionarBotoesCustomizados(editor, idToolbar) {
     const toolbar = document.getElementById(idToolbar);
@@ -291,8 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Abre o seletor de arquivos e processa o envio de um anexo para o servidor.
-   * * @param {toastui.Editor} editor - Instancia do editor que recebera a tag do anexo.
-   * @returns {void}
+   * @param {toastui.Editor} editor - Instancia do editor que recebera a tag do anexo.
    */
   function ProcessarUploadAnexo(editor) {
     const inputFiles = document.createElement('input'); 
@@ -302,11 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      app.requestJson(ROUTES.uploadAnexoModulo, {
-        method: 'POST',
-        formData,
-        token,
-      })
+      app.requestJson(ROUTES.uploadAnexoModulo, { method: 'POST', formData, token })
         .then(({ response, data }) => {
           if (!response.ok || !data?.url) throw new Error();
           editor.insertText(`\n[${arquivo.name}](${MontarUrl(data.url)})\n`);
@@ -318,8 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Abre o seletor de arquivos e processa o envio de um video para o servidor.
-   * * @param {toastui.Editor} editor - Instancia do editor que recebera a tag de video renderizada.
-   * @returns {void}
+   * @param {toastui.Editor} editor - Instancia do editor que recebera a tag de video renderizada.
    */
   function ProcessarUploadVideo(editor) {
     const inputFiles = document.createElement('input'); 
@@ -330,11 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(); 
       formData.append('file', arquivo);
       
-      app.requestJson(ROUTES.uploadVideoModulo, {
-        method: 'POST',
-        formData,
-        token,
-      })
+      app.requestJson(ROUTES.uploadVideoModulo, { method: 'POST', formData, token })
         .then(({ response, data }) => {
           if (response.ok && data?.url) {
             const tagRenderizada = `<video width="100%" controls><source src="${MontarUrl(data.url)}" type="${data.type}"></video>`;
@@ -349,9 +317,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
+   * Prepara o contexto e aciona a abertura do Modal de Icones padrao do LuftCore.
+   */
+  function AbrirModalIcone() {
+    document.getElementById('iconSearch').value = '';
+    RenderizarGradeIcones('');
+    LuftCore.abrirModal('iconModal');
+    setTimeout(() => document.getElementById('iconSearch').focus(), 200);
+  }
+
+  /**
+   * Prepara o contexto e aciona a abertura do Modal de Modulos Relacionados padrao do LuftCore.
+   */
+  function AbrirModalRelacionados() {
+    const inputBusca = document.getElementById('relSearch');
+    inputBusca.value = '';
+    RenderizarListaRelacionados('');
+    LuftCore.abrirModal('relModal');
+    setTimeout(() => inputBusca.focus(), 200);
+  }
+
+  /**
    * Renderiza a grade de icones baseada em um termo de filtro especificado.
-   * * @param {string} [filtro=''] - Termo de busca para a filtragem da lista de icones.
-   * @returns {void}
+   * @param {string} filtro - Termo de busca para a filtragem da lista de icones.
    */
   function RenderizarGradeIcones(filtro = '') {
     const elementoGrade = document.getElementById('iconGrid');
@@ -374,14 +362,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const classeIcone = this.getAttribute('data-icon');
         document.getElementById('inputIcone').value = classeIcone;
         document.querySelector('#iconPreviewBox i').className = `bi ${classeIcone}`;
-        bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
+        LuftCore.fecharModal('iconModal');
       };
     });
   }
 
   /**
    * Renderiza os "pills" (etiquetas visuais) que representam os modulos relacionados ativos.
-   * * @returns {void}
    */
   function RenderizarPillsRelacionados() {
     const containerPills = document.getElementById('relacionadosPills');
@@ -410,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Atualiza o valor do input oculto e os textos dos contadores na tela.
-   * * @returns {void}
    */
   function AtualizarInputOcultoEContador() {
     const inputOculto = document.getElementById('inputRelacionados');
@@ -426,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Filtra a lista completa de modulos com base no termo de busca fornecido.
-   * * @param {string} termoBusca - Sequencia de caracteres inserida pelo usuario.
+   * @param {string} termoBusca - Sequencia de caracteres inserida pelo usuario.
    * @returns {Array} Array contendo os objetos de modulo que correspondem ao filtro.
    */
   function FiltrarModulos(termoBusca) {
@@ -437,8 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Renderiza a lista de modulos dentro do modal de relacionamento, aplicando os filtros.
-   * * @param {string} [termo=''] - O termo de filtragem do input de busca do modal.
-   * @returns {void}
+   * @param {string} termo - O termo de filtragem do input de busca do modal.
    */
   function RenderizarListaRelacionados(termo = '') {
     const elementoLista = document.getElementById('relList');
@@ -475,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Centraliza a atualizacao logica e visual das estruturas de modulos relacionados.
-   * * @returns {void}
    */
   function SincronizarEstadoRelacionados() {
     AtualizarInputOcultoEContador();
@@ -483,8 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Verifica a colecao (Set) logica e reaplica o estado marcado (checked) aos inputs HTML visiveis.
-   * * @returns {void}
+   * Verifica a colecao logica e reaplica o estado marcado aos inputs HTML visiveis.
    */
   function MarcarCheckboxesVisuais() {
     const elementoLista = document.getElementById('relList');
@@ -494,6 +477,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* Manipuladores Globais de Interface */
+  document.getElementById('iconPreviewBox').addEventListener('click', AbrirModalIcone);
+  document.getElementById('inputIcone').addEventListener('click', AbrirModalIcone);
+  document.getElementById('btnOpenRelModal').addEventListener('click', AbrirModalRelacionados);
+
+  document.getElementById('iconSearch').addEventListener('input', e => RenderizarGradeIcones(e.target.value.trim()));
+  document.getElementById('relSearch').addEventListener('input', e => RenderizarListaRelacionados(e.target.value));
+
   document.getElementById('btnLimparRel').onclick = () => { 
     modulosSelecionados.clear(); 
     SincronizarEstadoRelacionados(); 
@@ -514,29 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
     MarcarCheckboxesVisuais();
   };
 
-  /* Listeners dos Modais */
-  const domModalIcone = document.getElementById('iconModal');
-  domModalIcone.addEventListener('shown.bs.modal', () => {
-    document.getElementById('iconSearch').value = '';
-    RenderizarGradeIcones();
-    document.getElementById('iconSearch').focus();
-  });
-  document.getElementById('iconSearch').addEventListener('input', e => RenderizarGradeIcones(e.target.value.trim()));
-
-  const domModalRelacionado = document.getElementById('relModal');
-  domModalRelacionado.addEventListener('shown.bs.modal', () => {
-    const inputBusca = document.getElementById('relSearch');
-    inputBusca.value = '';
-    RenderizarListaRelacionados('');
-    inputBusca.focus();
-  });
-  document.getElementById('relSearch').addEventListener('input', e => RenderizarListaRelacionados(e.target.value));
-
   /* Listener de Submissao de Formulario */
   document.getElementById('editor-form').addEventListener('submit', eventoSubmit => {
     if (!document.getElementById('inputNome').value) {
       eventoSubmit.preventDefault(); 
-      alert('O campo "Nome do Modulo" e de preenchimento obrigatorio.'); 
+      alert('O campo "Nome do Módulo" é de preenchimento obrigatório.'); 
       return;
     }
     document.getElementById('docContentInput').value = editorUsuario.getMarkdown();

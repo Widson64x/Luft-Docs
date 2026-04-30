@@ -129,7 +129,6 @@ class ChatLia {
                 componentes.inputPergunta.addEventListener('keypress', (e) => this.manipularTeclaPressionada(e));
                 componentes.inputPergunta.addEventListener('input', () => this.manipularEntradaTexto());
                 
-                // Sincroniza o scroll para que o destaque nunca fique desalinhado
                 componentes.inputPergunta.addEventListener('scroll', (e) => {
                     if (componentes.espelhoDestaque) {
                         componentes.espelhoDestaque.scrollTop = e.target.scrollTop;
@@ -144,6 +143,13 @@ class ChatLia {
             }
             if (componentes.containerResposta) {
                 componentes.containerResposta.addEventListener('click', (e) => this.manipularCliqueFeedback(e));
+            }
+            if (componentes.seletorModelo) {
+                // Sincroniza a escolha de IA entre o modal e o sidebar
+                componentes.seletorModelo.addEventListener('change', (e) => {
+                    if (this.elementosModal.seletorModelo) this.elementosModal.seletorModelo.value = e.target.value;
+                    if (this.elementosSidebar.seletorModelo) this.elementosSidebar.seletorModelo.value = e.target.value;
+                });
             }
         };
 
@@ -287,8 +293,6 @@ class ChatLia {
         if (!componentes || !componentes.inputPergunta) return;
 
         const elementoTextarea = componentes.inputPergunta;
-        
-        // Redefine para calcular a altura real (com limites de 48px e 140px configurados no CSS)
         elementoTextarea.style.height = '48px'; 
         const alturaRequisitada = elementoTextarea.scrollHeight;
         const novaAltura = Math.min(Math.max(alturaRequisitada, 48), 140);
@@ -341,7 +345,7 @@ class ChatLia {
         try {
             const modeloSeleccionado = componentes.seletorModelo ? componentes.seletorModelo.value : 'groq-70b';
             
-            const { response: respostaServidor, data: dadosProcessados } = await window.LuftDocs.requestJson(this.urlsApi.perguntar, {
+            let { response: respostaServidor, data: dadosProcessados } = await window.LuftDocs.requestJson(this.urlsApi.perguntar, {
                 method: 'POST',
                 json: {
                     user_question: solicitacaoUsuario,
@@ -383,40 +387,38 @@ class ChatLia {
         }
     }
 
+    /**
+     * Sincroniza e renderiza a mensagem simultaneamente no Sidebar e Modal
+     */
     renderizarMensagem(conteudo, classeRemetente) {
-        const componentes = this.estadoAtual.elementosAtivos;
-        if (!componentes || !componentes.containerResposta) return;
-
-        const envelopeMensagem = document.createElement('div');
-        envelopeMensagem.className = `luft-lia-message ${classeRemetente}`;
-
+        let htmlConteudo = '';
+        
         if (classeRemetente === 'user-message') {
-            envelopeMensagem.innerHTML = this.destacarMencoes(conteudo, true);
+            htmlConteudo = this.destacarMencoes(conteudo, true);
         } else if (classeRemetente === 'ai-message') {
-            envelopeMensagem.innerHTML = typeof marked !== 'undefined' ? marked.parse(conteudo) : conteudo;
-            envelopeMensagem.innerHTML += this.criarHtmlFeedback();
+            htmlConteudo = typeof marked !== 'undefined' ? marked.parse(conteudo) : conteudo;
+            htmlConteudo += this.criarHtmlFeedback();
         } else {
-            envelopeMensagem.innerHTML = conteudo;
+            htmlConteudo = conteudo;
         }
 
-        componentes.containerResposta.appendChild(envelopeMensagem);
-        componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
-        return envelopeMensagem;
+        [this.elementosModal, this.elementosSidebar].forEach(componentes => {
+            if (!componentes || !componentes.containerResposta) return;
+
+            const envelopeMensagem = document.createElement('div');
+            envelopeMensagem.className = `luft-lia-message ${classeRemetente}`;
+            envelopeMensagem.innerHTML = htmlConteudo;
+
+            componentes.containerResposta.appendChild(envelopeMensagem);
+            componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
+        });
     }
 
     /**
-     * Injeta a caixa de contexto DENTRO do fluxo do chat (abaixo da ultima mensagem).
+     * Renderiza o painel de contexto em todos os fluxos de chat abertos
      */
     renderizarContexto(arquivosBase) {
-        const componentes = this.estadoAtual.elementosAtivos;
-        if (!componentes || !componentes.containerResposta) return;
-
         if (!Array.isArray(arquivosBase) || arquivosBase.length === 0) return;
-
-        // Encontrar a última mensagem AI no chat para injetar as fontes dentro dela
-        const mensagensAi = componentes.containerResposta.querySelectorAll('.luft-lia-message.ai-message');
-        const ultimaMensagemAi = mensagensAi[mensagensAi.length - 1];
-        if (!ultimaMensagemAi) return;
 
         const extratoHtml = arquivosBase.map(arquivo => {
             const eObjeto = typeof arquivo === 'object' && arquivo !== null;
@@ -446,9 +448,7 @@ class ChatLia {
             }
         }).join('');
 
-        const wrapperFontes = document.createElement('div');
-        wrapperFontes.className = 'lia-fontes-wrapper';
-        wrapperFontes.innerHTML = `
+        const templateWrapper = `
             <div class="lia-fontes-popup" style="display: none;">
                 <ul class="list-unstyled m-0">
                     ${extratoHtml}
@@ -461,37 +461,45 @@ class ChatLia {
             </button>
         `;
 
-        // Inserir antes da seção de feedback (se existir), ou no final
-        const secaoFeedback = ultimaMensagemAi.querySelector('.feedback-section');
-        if (secaoFeedback) {
-            ultimaMensagemAi.insertBefore(wrapperFontes, secaoFeedback);
-        } else {
-            ultimaMensagemAi.appendChild(wrapperFontes);
-        }
+        [this.elementosModal, this.elementosSidebar].forEach(componentes => {
+            if (!componentes || !componentes.containerResposta) return;
 
-        const botaoToggle = wrapperFontes.querySelector('.lia-fontes-toggle');
-        const popupFontes = wrapperFontes.querySelector('.lia-fontes-popup');
-        const iconeToggle = wrapperFontes.querySelector('.lia-fontes-toggle-icon');
+            const mensagensAi = componentes.containerResposta.querySelectorAll('.luft-lia-message.ai-message');
+            const ultimaMensagemAi = mensagensAi[mensagensAi.length - 1];
+            if (!ultimaMensagemAi) return;
 
-        botaoToggle.addEventListener('click', () => {
-            const estaOculto = popupFontes.style.display === 'none';
-            if (estaOculto) {
-                popupFontes.style.display = 'block';
-                iconeToggle.style.transform = 'rotate(180deg)';
+            const wrapperFontes = document.createElement('div');
+            wrapperFontes.className = 'lia-fontes-wrapper';
+            wrapperFontes.innerHTML = templateWrapper;
+
+            const secaoFeedback = ultimaMensagemAi.querySelector('.feedback-section');
+            if (secaoFeedback) {
+                ultimaMensagemAi.insertBefore(wrapperFontes, secaoFeedback);
             } else {
-                popupFontes.style.display = 'none';
-                iconeToggle.style.transform = 'rotate(0deg)';
+                ultimaMensagemAi.appendChild(wrapperFontes);
             }
+
+            const botaoToggle = wrapperFontes.querySelector('.lia-fontes-toggle');
+            const popupFontes = wrapperFontes.querySelector('.lia-fontes-popup');
+            const iconeToggle = wrapperFontes.querySelector('.lia-fontes-toggle-icon');
+
+            botaoToggle.addEventListener('click', () => {
+                const estaOculto = popupFontes.style.display === 'none';
+                if (estaOculto) {
+                    popupFontes.style.display = 'block';
+                    iconeToggle.style.transform = 'rotate(180deg)';
+                } else {
+                    popupFontes.style.display = 'none';
+                    iconeToggle.style.transform = 'rotate(0deg)';
+                }
+                componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
+            });
+
             componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
         });
-
-        componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
     }
 
     renderizarMensagemPensamento() {
-        const componentes = this.estadoAtual.elementosAtivos;
-        if (!componentes) return;
-
         const passosProcessamento = [
             "A interpretar a sua questão...",
             "A procurar nos manuais de procedimentos...",
@@ -499,35 +507,42 @@ class ChatLia {
             "A redigir a resposta..."
         ];
 
-        const htmlPensamento = `
-            <div class="luft-lia-message ai-message" id="indicadorPensamento-${this.estadoAtual.modoInterface}">
-                <div class="d-flex align-items-center gap-3 text-muted text-sm font-semibold">
-                    <i class="ph-bold ph-spinner-gap ph-spin text-primary"></i>
-                    <span id="textoPassoPensamento-${this.estadoAtual.modoInterface}">${passosProcessamento[0]}</span>
+        [this.elementosModal, this.elementosSidebar].forEach(comp => {
+            if (!comp || !comp.containerResposta) return;
+            const modo = comp === this.elementosModal ? 'modal' : 'sidebar';
+            const htmlPensamento = `
+                <div class="luft-lia-message ai-message" id="indicadorPensamento-${modo}">
+                    <div class="d-flex align-items-center gap-3 text-muted text-sm font-semibold">
+                        <i class="ph-bold ph-spinner-gap ph-spin text-primary"></i>
+                        <span id="textoPassoPensamento-${modo}">${passosProcessamento[0]}</span>
+                    </div>
                 </div>
-            </div>
-        `;
-        
-        componentes.containerResposta.insertAdjacentHTML('beforeend', htmlPensamento);
-        componentes.containerResposta.scrollTop = componentes.containerResposta.scrollHeight;
+            `;
+            comp.containerResposta.insertAdjacentHTML('beforeend', htmlPensamento);
+            comp.containerResposta.scrollTop = comp.containerResposta.scrollHeight;
+        });
         
         this.estadoAtual.indicePensamento = 0;
         this.animarPensamentos(passosProcessamento);
     }
 
     animarPensamentos(passos) {
-        const componentePasso = document.getElementById(`textoPassoPensamento-${this.estadoAtual.modoInterface}`);
-        if (!componentePasso) return;
-
         this.estadoAtual.indicePensamento = (this.estadoAtual.indicePensamento + 1) % passos.length;
-        componentePasso.style.opacity = 0;
         
-        setTimeout(() => {
-            componentePasso.textContent = passos[this.estadoAtual.indicePensamento];
-            componentePasso.style.opacity = 1;
-            componentePasso.style.transition = 'opacity 0.3s';
-            this.estadoAtual.idTimeoutPensamento = setTimeout(() => this.animarPensamentos(passos), 2500);
-        }, 300);
+        ['modal', 'sidebar'].forEach(modo => {
+            const componentePasso = document.getElementById(`textoPassoPensamento-${modo}`);
+            if (componentePasso) {
+                componentePasso.style.opacity = 0;
+                setTimeout(() => {
+                    componentePasso.textContent = passos[this.estadoAtual.indicePensamento];
+                    componentePasso.style.opacity = 1;
+                    componentePasso.style.transition = 'opacity 0.3s';
+                }, 300);
+            }
+        });
+
+        if (this.estadoAtual.idTimeoutPensamento) clearTimeout(this.estadoAtual.idTimeoutPensamento);
+        this.estadoAtual.idTimeoutPensamento = setTimeout(() => this.animarPensamentos(passos), 2500);
     }
 
     pararAnimacaoPensamento() {

@@ -624,4 +624,4 @@ if __name__ == "__main__":
     else:
         print("Execucao iniciada em modo local de desenvolvimento.") 
         
-    app.run(host="127.0.0.1", port=portaExecucao, debug=modoDepuracao)
+    app.run(host="127.0.0.1", port=portaExecucao, debug=True)
