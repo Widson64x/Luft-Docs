@@ -1,0 +1,258 @@
+/* =================================================================== */
+/* === INDEX.CSS - ESTILOS ESTRUTURAIS DA PÁGINA INICIAL === */
+/* =================================================================== */
+
+/* --- Layout Principal --- */
+.luft-index-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    width: 100%;
+}
+
+.luft-index-actions-top {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.luft-index-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--luft-border);
+}
+
+
+/* --- Grid de Módulos --- */
+.luft-index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+}
+
+/* =================================================================== */
+/* === BOTÕES PADRÃO LUFTCORE (BASEADOS EM VARIÁVEIS) === */
+/* =================================================================== */
+
+/* Classe base para todos os botões Luft */
+.luft-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px; /* Arredondamento suave padrão LuftCore */
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-family: var(--font-family-base, 'Inter', sans-serif);
+    border: 1px solid transparent;
+}
+
+/* Ícones dentro dos botões */
+.luft-btn i {
+    font-size: 1.15rem;
+}
+
+/* Variante: Botão Primário (Ação Principal) */
+.luft-btn-primary {
+    background-color: var(--luft-primary-600);
+    color: #ffffff;
+    box-shadow: var(--luft-shadow-sm);
+}
+
+.luft-btn-primary:hover {
+    background-color: var(--luft-primary-700);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--luft-shadow-md);
+}
+
+/* Variante: Botão Outline (Ação Secundária) */
+.luft-btn-outline {
+    background-color: transparent;
+    color: var(--luft-primary-600);
+    border-color: var(--luft-primary-600);
+}
+
+.luft-btn-outline:hover {
+    background-color: var(--luft-primary-50);
+    color: var(--luft-primary-700);
+    border-color: var(--luft-primary-700);
+    transform: translateY(-2px);
+}
+
+/* =================================================================== */
+/* === AJUSTES DE BOTÕES DENTRO DOS CONTENTORES === */
+/* =================================================================== */
+
+/* Garantir que os botões nas ações do topo não fiquem esmagados */
+.luft-index-actions-top .luft-btn {
+    white-space: nowrap;
+}
+
+/* Ajustes para os botões dentro dos Cards (rodapé do módulo) */
+.luft-index-card-actions .luft-btn {
+    flex: 1; /* Faz os botões dividirem o espaço igualmente */
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Responsividade adicional para os botões do topo em telas pequenas */
+@media (max-width: 576px) {
+    .luft-index-actions-top {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .luft-index-actions-top .luft-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .luft-index-card-actions {
+        flex-direction: column;
+    }
+}
+
+/* --- Estilo Base dos Cards (LuftCore Padrão) --- */
+.luft-index-card {
+    background: var(--luft-bg-panel);
+    border: 1px solid var(--luft-border);
+    border-radius: 16px;
+    padding: 24px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--luft-shadow-sm);
+    text-decoration: none;
+}
+
+.luft-index-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--luft-primary-400);
+    box-shadow: var(--luft-shadow-lg);
+}
+
+/* Componentes internos do Card */
+.luft-index-card-icon {
+    font-size: 3.5rem;
+    color: var(--luft-primary-600);
+    margin-bottom: 16px;
+    transition: transform 0.3s ease;
+}
+
+.luft-index-card:hover .luft-index-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.luft-index-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--luft-text-main);
+    margin-bottom: 8px;
+}
+
+.luft-index-card-desc {
+    font-size: 0.9rem;
+    color: var(--luft-text-muted);
+    flex-grow: 1;
+    margin-bottom: 24px;
+}
+
+.luft-index-card-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Variante de Card: Adicionar Novo */
+.luft-index-card-dashed {
+    background: transparent;
+    border: 2px dashed var(--luft-border);
+    justify-content: center;
+    cursor: pointer;
+}
+
+.luft-index-card-dashed:hover {
+    border-color: var(--luft-primary-500);
+    background: var(--luft-primary-50);
+}
+
+.luft-index-card-dashed .luft-index-card-title {
+    color: var(--luft-text-muted);
+}
+
+.luft-index-card-dashed:hover .luft-index-card-title {
+    color: var(--luft-primary-700);
+}
+
+/* --- Estado Vazio e Paginação --- */
+.luft-index-empty {
+    text-align: center;
+    padding: 64px 24px;
+    background: var(--luft-bg-panel);
+    border: 1px dashed var(--luft-border);
+    border-radius: 16px;
+}
+
+.luft-index-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.luft-page-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--luft-border);
+    background: var(--luft-bg-panel);
+    color: var(--luft-text-main);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.luft-page-btn:hover:not(.disabled) {
+    border-color: var(--luft-primary-500);
+    color: var(--luft-primary-600);
+}
+
+.luft-page-btn.active {
+    background: var(--luft-primary-600);
+    color: #ffffff;
+    border-color: var(--luft-primary-600);
+}
+
+.luft-page-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--luft-bg-app);
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .luft-index-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .luft-search-box {
+        width: 100%;
+    }
+    .luft-index-actions-top {
+        flex-direction: column;
+    }
+}

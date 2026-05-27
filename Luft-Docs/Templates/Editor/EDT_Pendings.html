@@ -1,0 +1,187 @@
+{% extends "Layout/BaseLayout.html" %}
+{% block titulo %}Pendências para Aprovação{% endblock %}
+
+{% block page_styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Pending.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/External/diff2html.min.css') }}" />
+{% endblock %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-pending-page-wrapper">
+  <div class="luft-pending-header mb-4">
+    <h1>
+      <i class="bi bi-inbox-fill"></i>
+      Caixa de Aprovação
+      <span class="luft-modal-badge ms-2">{{ pendentes|length }}</span>
+    </h1>
+    <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+      <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+  </div>
+
+  {% if pendentes %}
+    <div class="luft-pending-list">
+      {% for item in pendentes %}
+        {% set m = item.modulo %}
+        <div class="luft-pending-item" style="--delay: {{ loop.index0 }};">
+          <div class="user-avatar" title="{{ item.editor }}" style="--initial: '{{ item.editor[0]|upper }}';"></div>
+          
+          <div class="item-info">
+            <div class="module-name">{{ m.Nome }}</div>
+            <div class="module-meta">
+              <span>ID: {{ m.Id }}</span> &middot;
+              <span><i class="bi bi-clock"></i> {{ m.InfoEdicaoPendente.data.split('T')[0] }}</span>
+            </div>
+          </div>
+          <div class="item-actions d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="luft-btn luft-btn-outline" 
+                    data-bs-toggle="modal" data-bs-target="#diffModal" data-mid="{{ m.Id }}"
+                    title="Comparar Versões">
+              <i class="bi bi-arrow-left-right"></i> Comparar
+            </button>
+            <form method="post" action="{{ url_for('Editor.aprovarModulo', mid=m.Id, token=token) }}" class="d-inline">
+              <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-success-600); border-color: var(--luft-success-600);" title="Aprovar">
+                <i class="bi bi-check-lg"></i>
+              </button>
+            </form>
+            <form method="post" action="{{ url_for('Editor.rejeitarModulo', mid=m.Id, token=token) }}" class="d-inline">
+              <button type="submit" class="luft-btn luft-btn-primary" style="background-color: var(--luft-danger-600); border-color: var(--luft-danger-600);" title="Rejeitar">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-pending-state mt-4">
+      <div class="fs-1"><i class="bi bi-check2-circle text-success"></i></div>
+      <h4 class="mt-3">Tudo em ordem!</h4>
+      <p>Você não possui nenhuma pendência para aprovação no momento.</p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal fade" id="diffModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+    <div class="modal-content luft-modal-content">
+      <div class="modal-header luft-modal-header">
+        <h5 class="modal-title luft-modal-title">
+          <i class="bi bi-arrow-left-right"></i> Comparação de Pendência
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body luft-modal-body">
+        <div class="row mb-3">
+          <div class="col">
+            <span class="ms-2 text-muted small">
+              Legenda: 
+              <span class="diff-add px-1 rounded">Adicionado (Novo)</span> &bull; 
+              <span class="diff-rem px-1 rounded">Removido (Antigo)</span>
+            </span>
+          </div>
+        </div>
+        
+        <div class="row mb-5">
+          <div class="col-12"><h5 class="luft-section-title mb-3"><i class="bi bi-file-text"></i> Documentação do Usuário</h5></div>
+          <div class="col-lg-6 mb-3 mb-lg-0">
+            <div class="panel-header">Vigente (Atual)</div>
+            <div class="comparison-panel" id="doc-vigente"></div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel-header panel-header-destaque">Pendente (Novo)</div>
+            <div class="comparison-panel" id="doc-pendente"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12"><h5 class="luft-section-title mb-3"><i class="bi bi-code-slash"></i> Documentação Técnica</h5></div>
+          <div class="col-lg-6 mb-3 mb-lg-0">
+            <div class="panel-header">Vigente (Atual)</div>
+            <div class="comparison-panel" id="tech-vigente"></div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel-header panel-header-destaque">Pendente (Novo)</div>
+            <div class="comparison-panel" id="tech-pendente"></div>
+          </div>
+        </div>
+
+        <div id="diffLoader" class="text-center my-4" style="display:none;">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div class="mt-2 text-muted">Carregando comparação e processando diferenças...</div>
+        </div>
+      </div>
+      <div class="modal-footer luft-modal-footer">
+        <button type="button" class="luft-btn luft-btn-outline" data-bs-dismiss="modal">Fechar Visualização</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/External/diff2html.min.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/External/diff2html-ui.min.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const app = window.LuftDocs;
+    const token = '{{ token }}';
+    const ROUTES = {
+      obterDiffPendente: "{{ url_for('Editor.obterDiffPendente') }}",
+    };
+
+  /**
+   * Inicializa o modal de comparacao visual de pendencias, buscando o diff no servidor.
+   * Limpa o conteudo previo e apresenta um indicador de carregamento durante a transacao.
+   * @returns {void}
+   */
+  function InicializarModalComparacao() {
+    const modalDiferenca = document.getElementById('diffModal');
+    if (!modalDiferenca) return;
+
+    modalDiferenca.addEventListener('show.bs.modal', function (evento) {
+      const botaoDisparador = evento.relatedTarget;
+      const idModulo = botaoDisparador.getAttribute('data-mid');
+      
+      const painelDocVigente = document.getElementById('doc-vigente');
+      const painelDocPendente = document.getElementById('doc-pendente');
+      const painelTechVigente = document.getElementById('tech-vigente');
+      const painelTechPendente = document.getElementById('tech-pendente');
+      const indicadorCarregamento = document.getElementById('diffLoader');
+      
+      painelDocVigente.innerHTML = painelDocPendente.innerHTML = '';
+      painelTechVigente.innerHTML = painelTechPendente.innerHTML = '';
+      indicadorCarregamento.style.display = 'block';
+
+        app.requestJson(ROUTES.obterDiffPendente, {
+          query: { mid: idModulo },
+          token,
+        })
+        .then(({ data: dadosResposta }) => {
+          dadosResposta = dadosResposta || {};
+          indicadorCarregamento.style.display = 'none';
+          painelDocVigente.innerHTML = dadosResposta.doc_html_left || "<em>Registro indisponivel</em>";
+          painelDocPendente.innerHTML = dadosResposta.doc_html_right || "<em>Registro indisponivel</em>";
+          painelTechVigente.innerHTML = dadosResposta.tech_html_left || "<em>Registro indisponivel</em>";
+          painelTechPendente.innerHTML = dadosResposta.tech_html_right || "<em>Registro indisponivel</em>";
+        })
+        .catch(() => {
+          indicadorCarregamento.style.display = 'none';
+          const alertaErro = '<div class="luft-alert luft-alert-warning">Falha critica ao carregar a comparacao de versoes.</div>';
+          painelDocVigente.innerHTML = painelDocPendente.innerHTML = alertaErro;
+          painelTechVigente.innerHTML = painelTechPendente.innerHTML = alertaErro;
+        });
+    });
+  }
+
+  InicializarModalComparacao();
+
+  const animacaoInstancia = new AnimacaoFundo('containerAnimacaoFundo');
+  animacaoInstancia.iniciar();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+/* =================================================================== */
+/* === BUSCARPALETA.CSS – MODAL DE BUSCA RÁPIDA (CTRL+K) LUFTCORE === */
+/* =================================================================== */
+
+/* ── Corpo do modal (altura fixa — não cresce nem diminui com o conteúdo) ── */
+.kp-modal-body { height: 520px; overflow: hidden; }
+
+/* ── Input wrapper (relativo ao dropdown de autocomplete) ── */
+.kp-modal-input-wrap { position: relative; }
+
+/* ── Chips de buscas populares ── */
+.kp-chips       { display: flex; flex-wrap: wrap; gap: 8px; }
+.kp-chip        { border: 1px solid var(--luft-border); border-radius: var(--luft-radius-full); padding: 5px 12px; cursor: pointer; font-size: .82rem; opacity: .9; transition: background .15s, color .15s; }
+.kp-chip:hover  { background: var(--luft-bg-panel-hover); }
+
+/* ── Grid de seções (dois painéis lado a lado) ── */
+.kp-sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 580px) { .kp-sections-grid { grid-template-columns: 1fr; } }
+
+.kp-section     { border: 1px solid var(--luft-border); border-radius: var(--luft-radius-lg); overflow: hidden; }
+.kp-section h4  { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--luft-border); font-size: .88rem; font-weight: 600; opacity: .85; }
+
+/* ── Lista dentro das seções ── */
+.kp-list             { max-height: 26vh; overflow: auto; margin: 0; padding: 6px 8px; list-style: none; }
+.kp-list li a        { display: flex; gap: 10px; align-items: center; padding: 8px 10px; text-decoration: none; color: inherit; border-radius: var(--luft-radius-md, 8px); transition: background .15s; }
+.kp-list li a:hover  { background: var(--luft-bg-panel-hover); }
+.kp-ico              { width: 22px; text-align: center; opacity: .8; flex-shrink: 0; }
+
+/* ── Lista de resultados da busca ── */
+.kp-results                          { list-style: none; margin: 0; padding: 2px 0; max-height: 45vh; overflow: auto; }
+.kp-results li                       { border-radius: var(--luft-radius-lg); margin: 2px 0; }
+.kp-results a                        { display: block; padding: 10px 14px; text-decoration: none; color: inherit; border-radius: var(--luft-radius-lg); transition: background .15s; }
+.kp-results li[aria-selected="true"] a,
+.kp-results li:hover a               { background: var(--luft-bg-panel-hover); }
+
+.kp-result-meta    { display: flex; align-items: center; gap: 8px; font-size: .93rem; }
+.kp-result-icon    { font-size: 1rem; flex-shrink: 0; }
+.kp-result-snippet { margin-top: 4px; opacity: .65; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Estado vazio ── */
+.kp-empty { opacity: .75; font-size: .9rem; color: var(--luft-text-muted); }
+
+/* ── Loader ── */
+.kp-section-loading { color: var(--luft-text-muted); font-size: .9rem; }
+@keyframes kp-spin  { to { transform: rotate(360deg); } }
+.kp-spin            { display: inline-block; animation: kp-spin .8s linear infinite; }
+
+/* ── Buscando (loading) ── */
+.kp-searching           { list-style: none; padding: 28px 0; text-align: center; }
+
+/* ── Autocomplete dropdown (global — usado dentro do modal) ── */
+.luft-autocomplete-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 10;
+  background: var(--luft-bg-panel);
+  border: 1px solid var(--luft-border);
+  border-radius: var(--luft-radius-lg);
+  box-shadow: var(--luft-shadow-lg);
+  overflow: hidden;
+  animation: kp-fade-in .1s ease;
+}
+.luft-autocomplete-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  color: var(--luft-text-main); font-size: .9rem;
+  transition: background .15s;
+}
+.luft-autocomplete-item i        { opacity: .6; flex-shrink: 0; }
+.luft-autocomplete-item:hover    { background: var(--luft-bg-panel-hover); }
+
+@keyframes kp-fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

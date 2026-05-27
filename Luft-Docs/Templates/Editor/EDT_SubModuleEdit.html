@@ -1,0 +1,264 @@
+{% extends "Layout/BaseLayout.html" %}
+{% block titulo %}Editar Submódulo: {{ path }}{% endblock %}
+
+{% block page_styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/External/easymde.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/EditorSub.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/MarkdownEditor.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-submodule-edit-wrapper">
+  <form method="post" id="formularioEdicao">
+    <input type="hidden" name="token" value="{{ token }}">
+    <input type="hidden" name="content" id="inputConteudoOculto">
+
+    <div class="luft-edit-header">
+      <h1><i class="bi bi-pencil-square"></i> Editar Submódulo: <span class="text-muted fw-normal fs-5 ms-2">{{ path }}</span></h1>
+      <div class="d-flex gap-2">
+        <button type="submit" class="luft-btn luft-btn-primary">
+          <i class="bi bi-save"></i> Salvar Alterações
+        </button>
+        <a href="{{ url_for('Editor.listarSubmodulos', token=token) }}" class="luft-btn luft-btn-outline">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </a>
+      </div>
+    </div>
+
+    <div class="luft-edit-form-card">
+      <div class="luft-markdown-workspace">
+        <div class="luft-editor-toolbar" id="toolbarPrincipal"></div>
+        <div class="luft-markdown-grid">
+          <section class="luft-markdown-pane">
+            <div class="luft-markdown-pane-header">
+              <span class="luft-markdown-pane-title"><i class="bi bi-file-earmark-text"></i> Markdown</span>
+              <span class="luft-markdown-pane-subtitle">O conteudo salvo continua em Markdown.</span>
+            </div>
+            <textarea id="editorPrincipal"></textarea>
+          </section>
+          <section class="luft-markdown-pane">
+            <div class="luft-markdown-pane-header">
+              <span class="luft-markdown-pane-title"><i class="bi bi-eye"></i> Preview final</span>
+              <span class="luft-preview-status" id="previewStatusPrincipal">Preview final</span>
+            </div>
+            <div class="luft-markdown-preview markdown-body" id="previewPrincipal"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/External/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/MarkdownEditor.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
+  const tokenUsuario = '{{ token }}';
+  const conteudoInicial = {{ content|tojson }};
+  const ROUTES = {
+    uploadImagemSubmodulo: "{{ url_for('Editor.enviarImagemSubmodulo') }}",
+    uploadAnexoSubmodulo: "{{ url_for('Editor.enviarAnexoSubmodulo') }}",
+    uploadVideoSubmodulo: "{{ url_for('Editor.enviarVideoSubmodulo') }}",
+    listarSubmodulos: "{{ url_for('Editor.listarSubmodulos') }}",
+    previewMarkdown: "{{ url_for('Editor.previewMarkdown') }}",
+  };
+  let instanciaEditor;
+
+  /**
+   * Inicializa a instancia compartilhada do editor com preview final.
+   * @returns {void}
+   */
+  function InicializarEditor() {
+    if (!instanciaEditor) {
+      instanciaEditor = window.LuftMarkdownEditor.create({
+        textarea: '#editorPrincipal',
+        previewElement: '#previewPrincipal',
+        statusElement: '#previewStatusPrincipal',
+        previewEndpoint: ROUTES.previewMarkdown,
+        token: tokenUsuario,
+        initialValue: conteudoInicial,
+        placeholder: 'Escreva o submodulo com o mesmo resultado que sera exibido na tela final.',
+      });
+      AnexarBotoesCustomizados(instanciaEditor, 'toolbarPrincipal');
+    }
+
+    instanciaEditor.refresh();
+  }
+
+  /**
+   * Adiciona botoes customizados na barra de ferramentas externa do editor.
+   * @param {object} editor - Instancia alvo do editor.
+   * @param {string} idToolbar - ID do elemento HTML que recebera os botoes.
+   * @returns {void}
+   */
+  function AnexarBotoesCustomizados(editor, idToolbar) {
+    window.LuftMarkdownEditor.mountToolbar(`#${idToolbar}`, [
+      { icon: 'bi bi-type-h2', label: 'Titulo', onClick: () => editor.toggleHeading() },
+      { icon: 'bi bi-type-bold', label: 'Negrito', onClick: () => editor.toggleBold() },
+      { icon: 'bi bi-type-italic', label: 'Italico', onClick: () => editor.toggleItalic() },
+      { type: 'separator' },
+      { icon: 'bi bi-chat-square-quote', label: 'Citar', onClick: () => InserirCitacao(editor) },
+      { icon: 'bi bi-list-ul', label: 'Lista', onClick: () => editor.toggleBulletList() },
+      { icon: 'bi bi-list-ol', label: 'Ordem', onClick: () => editor.toggleOrderedList() },
+      { icon: 'bi bi-code-square', label: 'Codigo', onClick: () => editor.toggleCodeBlock() },
+      { icon: 'bi bi-table', label: 'Tabela', onClick: () => editor.insertTable() },
+      { type: 'separator' },
+      { icon: 'bi bi-link-45deg', label: 'Link', onClick: () => editor.insertLink() },
+      { icon: 'bi bi-image', label: 'Imagem', onClick: () => ProcessarUploadImagem(editor) },
+      { icon: 'bi bi-paperclip', label: 'Anexo', onClick: () => ProcessarUploadAnexo(editor) },
+      {
+        icon: 'bi bi-camera-video',
+        label: 'Video',
+        className: 'luft-btn luft-btn-outline luft-btn-sm luft-editor-tool text-danger border-danger',
+        onClick: () => ProcessarUploadVideo(editor),
+      },
+      {
+        icon: 'bi bi-diagram-2',
+        label: 'Wikilink',
+        className: 'luft-btn luft-btn-outline luft-btn-sm luft-editor-tool text-info border-info',
+        onClick: () => InserirWikilink(editor),
+      },
+    ]);
+  }
+
+  /**
+   * Processa o upload de imagens e insere a sintaxe Markdown correspondente.
+   * @param {object} editor - Instancia do editor.
+   * @returns {void}
+   */
+  function ProcessarUploadImagem(editor) {
+    const seletorArquivo = document.createElement('input');
+    seletorArquivo.type = 'file';
+    seletorArquivo.accept = 'image/*';
+    seletorArquivo.onchange = () => {
+      const arquivoSelecionado = seletorArquivo.files[0];
+      if (!arquivoSelecionado) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivoSelecionado);
+
+      app.requestJson(ROUTES.uploadImagemSubmodulo, {
+        method: 'POST',
+        formData,
+        token: tokenUsuario,
+      })
+        .then(({ response, data: dadosResposta }) => {
+          if (!response.ok || !dadosResposta?.url) throw new Error();
+          editor.insertText(`\n![${arquivoSelecionado.name}](${dadosResposta.url})\n`);
+        })
+        .catch(() => alert('Falha critica ao tentar realizar o upload da imagem.'));
+    };
+    seletorArquivo.click();
+  }
+
+  /**
+   * Processa o upload de arquivos de anexo e insere o padrao de link Markdown no editor.
+   * @param {object} editor - Instancia do editor que recebera o texto inserido.
+   * @returns {void}
+   */
+  function ProcessarUploadAnexo(editor) {
+    const seletorArquivo = document.createElement('input');
+    seletorArquivo.type = 'file';
+    seletorArquivo.onchange = () => {
+      const arquivoSelecionado = seletorArquivo.files[0];
+      if (!arquivoSelecionado) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivoSelecionado);
+      
+      app.requestJson(ROUTES.uploadAnexoSubmodulo, {
+        method: 'POST',
+        formData,
+        token: tokenUsuario,
+      })
+        .then(({ response, data: dadosResposta }) => {
+          if (!response.ok || !dadosResposta?.url) throw new Error();
+          editor.insertText(`\n[${arquivoSelecionado.name}](${dadosResposta.url})\n`);
+        })
+        .catch(() => alert('Falha critica ao tentar processar o upload do anexo.'));
+    };
+    seletorArquivo.click();
+  }
+
+  /**
+   * Processa o upload de um arquivo de video e renderiza a tag HTML compativel no editor.
+   * @param {toastui.Editor} editor - Instancia do editor que recebera o codigo inserido.
+   * @returns {void}
+   */
+  function ProcessarUploadVideo(editor) {
+    const seletorVideo = document.createElement('input');
+    seletorVideo.type = 'file';
+    seletorVideo.accept = 'video/*';
+    seletorVideo.onchange = () => {
+      const arquivoSelecionado = seletorVideo.files[0];
+      if (!arquivoSelecionado) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivoSelecionado);
+      
+      app.requestJson(ROUTES.uploadVideoSubmodulo, {
+        method: 'POST',
+        formData,
+        token: tokenUsuario,
+      })
+        .then(({ response, data: dadosResposta }) => {
+          if (response.ok && dadosResposta?.url) {
+            const codigoRenderizacao = `<video width="100%" controls><source src="${dadosResposta.url}" type="${dadosResposta.type}"></video>`;
+            editor.insertText(`\n${codigoRenderizacao}\n`);
+          } else {
+            alert(dadosResposta?.error || 'Falha ao processar o caminho de destino do video.');
+          }
+        })
+        .catch(() => alert('Falha critica ao tentar processar o upload do video.'));
+    };
+    seletorVideo.click();
+  }
+
+  /**
+   * Abre a combobox de submodulos globais e insere a citacao em formato wikilink.
+   * @param {object} editor - Instancia do editor.
+   * @returns {void}
+   */
+  function InserirCitacao(editor) {
+    editor.insertSubmoduleCitation({
+      listEndpoint: ROUTES.listarSubmodulos,
+      token: tokenUsuario,
+    });
+  }
+
+  /**
+   * Insere um wikilink para modulo, submodulo ou palavra global.
+   * @param {object} editor - Instancia do editor.
+   * @returns {void}
+   */
+  function InserirWikilink(editor) {
+    const palavraChave = editor.getSelectedText() || prompt('Informe a palavra para a geracao do link:');
+    if (palavraChave) editor.insertText(`[[${palavraChave}]]`);
+  }
+
+  /* Fluxo de Inicializacao e Listeners */
+  InicializarEditor();
+
+  const monitorDeMutacao = new MutationObserver(mutacoes => {
+    if (mutacoes.some(m => m.attributeName === 'class')) {
+      window.requestAnimationFrame(() => instanciaEditor?.refresh());
+    }
+  });
+  monitorDeMutacao.observe(document.body, { attributes: true });
+
+  document.getElementById('formularioEdicao').addEventListener('submit', () => {
+    document.getElementById('inputConteudoOculto').value = instanciaEditor.getValue();
+  });
+
+  const instanciaAnimacao = new AnimacaoFundo('containerAnimacaoFundo');
+  instanciaAnimacao.iniciar();
+});
+</script>
+{% endblock %}

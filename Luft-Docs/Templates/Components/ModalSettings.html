@@ -1,0 +1,147 @@
+{# ==========================================================================
+   COMPONENTE: Modal de Configuracoes do Sistema
+   Dependencia: Requer a importacao previa do macro do LuftCore.
+   ========================================================================== #}
+{% import 'luftcore/components.html' as ui %}
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/ModalSettings.css') }}">
+
+{% call ui.modal(id='modalConfiguracoes', titulo='Configurações do Sistema', tamanho='lg', icone='ph-bold ph-gear') %}
+    
+    <div class="luft-tabs-header mb-1">
+        <ul class="nav nav-tabs border-0" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-visuais">
+                    <i class="ph-bold ph-palette"></i> Visuais
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-operacoes">
+                    <i class="ph-bold ph-sliders-horizontal"></i> Operações
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reportar">
+                    <i class="ph-bold ph-chat-circle-dots"></i> Reportar Problema
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        
+        {# ---- TAB: VISUAIS ---- #}
+        <div class="tab-pane fade show active" id="tab-visuais" role="tabpanel">
+            <form id="formVisuais" class="luft-settings-grid mt-3">
+                
+                <div class="form-group">
+                    <label for="selectAnimacao" class="form-label luft-settings-label">Animação de Fundo</label>
+                    <select id="selectAnimacao" class="form-control">
+                        <option value="colisao">Nova (Física)</option>
+                        <option value="original">Clássica</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectLiaMode" class="form-label luft-settings-label">Modo de Exibição da LIA</label>
+                    <select id="selectLiaMode" class="form-control">
+                        <option value="sidebar">Copiloto (Barra Lateral)</option>
+                        <option value="modal">Janela Flutuante (Modal)</option>
+                    </select>
+                </div>
+
+                <div class="form-group pt-2">
+                    <label for="rangeQuantidade" class="form-label d-flex justify-content-between align-items-center luft-settings-label">
+                        <span>Ícones de Fundo</span>
+                        <span id="labelQuantidade" class="text-primary font-black text-lg">50</span>
+                    </label>
+                    <input type="range" class="luft-range-slider mt-2" min="10" max="150" step="5" id="rangeQuantidade">
+                </div>
+
+                <div class="form-group pt-2">
+                    <label for="rangeVelocidade" class="form-label d-flex justify-content-between align-items-center luft-settings-label">
+                        <span>Velocidade da Animação</span>
+                        <span id="labelVelocidade" class="text-primary font-black text-lg">1.0x</span>
+                    </label>
+                    <input type="range" class="luft-range-slider mt-2" min="0.2" max="3.0" step="0.1" id="rangeVelocidade">
+                </div>
+                
+                <div class="luft-compact-panel">
+                    <div class="luft-compact-panel-info">
+                        <h4>Ativar Modo Compacto</h4>
+                        <p>Reduz o espaçamento geral da interface para exibir uma maior densidade de informações no ecrã.</p>
+                    </div>
+                    <div class="luft-compact-panel-action">
+                        {{ ui.switch('switchCompactMode', '') }}
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        {# ---- TAB: OPERAÇÕES ---- #}
+        <div class="tab-pane fade" id="tab-operacoes" role="tabpanel">
+            {% set token_configuracoes = request.args.get('token') or session.get('token', '') %}
+            {% set pode_acessar_permissoes = tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+
+            <div class="mt-4 d-flex flex-column gap-4">
+                {% if pode_acessar_permissoes %}
+                    <div class="luft-settings-card">
+                        <div class="luft-settings-card__info">
+                            <h4>Gerenciar Permissões</h4>
+                            <p>Abra a central para criar permissões e vincular usuários ou grupos ao LuftDocs.</p>
+                        </div>
+                        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=token_configuracoes) }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="ph-bold ph-shield-check"></i>
+                            Abrir permissões
+                        </a>
+                    </div>
+                {% else %}
+                    {{ ui.empty_state(titulo="Sem acesso disponível", subtitulo="A central de permissões só fica disponível para usuários com acesso à segurança do sistema.", icone="ph-lock") }}
+                {% endif %}
+            </div>
+        </div>
+
+        {# ---- TAB: REPORTAR PROBLEMA ---- #}
+        <div class="tab-pane fade" id="tab-reportar" role="tabpanel">
+            <div class="luft-settings-banner mt-3">
+                <i class="ph-bold ph-info"></i>
+                <p>A sua opinião é fundamental para a evolução da plataforma. Direcione o seu feedback para nos ajudar a identificar a raiz da situação.</p>
+            </div>
+            
+            <form id="bugReportForm">
+                <div class="form-group mb-4">
+                    <label for="reportType" class="form-label luft-settings-label">Qual o tipo de feedback?</label>
+                    <select class="form-control" id="reportType" required>
+                        <option value="" selected disabled>Selecione uma opção...</option>
+                        <option value="tela">Problema em uma Tela Específica</option>
+                        <option value="modulo">Problema em um Módulo Específico</option>
+                        <option value="geral">Problema Geral no Sistema</option>
+                        <option value="sugestao">Sugestão de Melhoria</option>
+                    </select>
+                </div>
+
+                <div id="targetEntityWrapper" class="mb-4" style="display: none;"></div>
+                <div id="errorCategoryWrapper" class="mb-4" style="display: none;"></div>
+
+                <div class="form-group mb-4">
+                    <label for="bugDescription" class="form-label luft-settings-label">Descrição Detalhada</label>
+                    <textarea class="form-control" id="bugDescription" rows="4" placeholder="Por favor, descreva a situação com o máximo de detalhes possível..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2">
+                    <i class="ph-bold ph-paper-plane-tilt"></i> Enviar Feedback para a Equipa
+                </button>
+            </form>
+            <div id="reportStatus" class="mt-3"></div>
+        </div>
+
+    </div>
+
+    <div class="luft-settings-footer">
+        <button class="btn btn-outline" onclick="LuftCore.fecharModal('modalConfiguracoes')">Cancelar</button>
+        <button class="btn btn-primary d-flex align-items-center gap-2" id="btnSalvarConfigs">
+            <i class="ph-bold ph-floppy-disk"></i> Salvar Alterações
+        </button>
+    </div>
+
+{% endcall %}

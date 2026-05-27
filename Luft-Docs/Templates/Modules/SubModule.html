@@ -1,0 +1,39 @@
+{% extends "Layout/BaseLayout.html" %}
+{% block title %}{{ nome }} - Submódulo{% endblock %}
+{% block content %}
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Modules/Modulos.css') }}">
+{% endblock %}
+
+<div class="luft-index-bg modulo-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="submodule-page-header">
+    <a href="javascript:history.back()" class="btn btn-outline" style="color: var(--luft-text-main);">
+        <i class="ph-bold ph-arrow-left"></i> Voltar
+    </a>
+    <h1>{{ nome }}</h1>
+</div>
+
+<div class="content-wrapper">
+    <main class="main-content">
+        <div class="markdown-body">
+            <div class="submodulo-conteudo" id="imagem-viewer">
+                {% set html_bruto = conteudo %}
+                {% set conteudo_corrigido = html_bruto.replace("__TOKEN_PLACEHOLDER__", request.args.get('token', '')) %}
+                {{ conteudo_corrigido | safe }}
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const animacao = new AnimacaoFundo('containerAnimacaoFundo');
+        animacao.iniciar();
+    });
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+while read local_ref local_sha remote_ref remote_sha
+do
+    case "$remote_ref" in
+        refs/heads/main|refs/heads/master)
+            echo "Push direto para ${remote_ref#refs/heads/} bloqueado. Use uma branch e abra um pull request."
+            exit 1
+            ;;
+    esac
+done
+
+exit 0
