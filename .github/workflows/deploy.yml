@@ -106,7 +106,7 @@ jobs:
           $pythonExe = Join-Path $env:SHARED_VENV_PATH "Scripts\python.exe"
           cmd /c "$pythonExe -m pip install --upgrade pip 2>&1"
           cmd /c "$pythonExe -m pip install -r requirements.txt 2>&1"
-          cmd /c "$pythonExe -m pip install -r LuftDocs_API\requirements.txt 2>&1"
+          cmd /c "$pythonExe -m pip install -r requirements.txt 2>&1"
           cmd /c "$pythonExe -m compileall _version.py scripts Luft-Docs LuftDocs_API 2>&1"
 
           Iniciar-ServicoComValidacao -NomeServico $env:WEB_SERVICE_NAME
