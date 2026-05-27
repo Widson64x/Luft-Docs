@@ -1,0 +1,653 @@
+{% extends "Layout/BaseLayout.html" %}
+{% block titulo %}Editar Módulo: {{ modulo.nome }}{% endblock %}
+
+{% block page_styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/External/easymde.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Module.css', q='1') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/MarkdownEditor.css') }}">
+{% endblock %}
+
+{% import 'luftcore/components.html' as ui %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-edit-page-wrapper">
+  <form method="post" id="editor-form">
+    <input type="hidden" name="token" value="{{ token }}">
+    <input type="hidden" name="doc_content" id="docContentInput">
+    <input type="hidden" name="tech_content" id="techContentInput">
+    <input type="hidden" name="relacionados" id="inputRelacionados" value="{{ modulo.relacionados|join(', ') }}">
+
+    <div class="luft-edit-header">
+      <h1><i class="bi bi-pencil-square"></i>Editar Módulo: {{ modulo.nome }}</h1>
+      <div class="luft-btn-group d-flex gap-2">
+        <button type="submit" class="luft-btn luft-btn-primary">
+          <i class="bi bi-save"></i>Salvar Alterações
+        </button>
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=token) }}" class="luft-btn luft-btn-outline">
+          <i class="bi bi-x-circle"></i>Cancelar
+        </a>
+      </div>
+    </div>
+
+    <div class="luft-edit-form-card">
+      {% if pendente %}
+        <div class="luft-alert luft-alert-warning mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>Há uma edição pendente para a <b>documentação do usuário</b>. Salvar agora irá sobrescrever a alteração pendente.</div>
+        </div>
+      {% endif %}
+      {% if pendente_tech %}
+        <div class="luft-alert luft-alert-warning mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>Há uma edição pendente para a <b>documentação técnica</b>. Salvar agora irá sobrescrever a alteração pendente.</div>
+        </div>
+      {% endif %}
+
+      <div class="luft-edit-card-header">
+        <div class="luft-edit-card-header-copy">
+          <div>
+            <h5 class="luft-section-title mb-2">Informações do módulo</h5>
+            <p class="luft-edit-card-header-text">Os metadados ficam neste cabeçalho para liberar toda a largura do editor e do preview.</p>
+          </div>
+        </div>
+
+        <details class="luft-edit-card-meta-shell">
+          <summary class="luft-edit-card-meta-toggle">
+            <span class="luft-edit-card-meta-toggle-copy">
+              <i class="bi bi-sliders"></i>
+              <span>
+                <strong>Metadados do módulo</strong>
+                <small>Abra somente quando precisar editar nome, descrição, ícone, restrição e relacionados.</small>
+              </span>
+            </span>
+            <i class="bi bi-chevron-down luft-edit-card-meta-toggle-icon"></i>
+          </summary>
+
+          <div class="luft-edit-card-meta">
+            <div class="luft-edit-field luft-edit-field--id">
+              <label for="inputId" class="luft-form-label">ID do Módulo</label>
+              <input type="text" class="luft-form-control" id="inputId" name="id" value="{{ modulo.id }}" readonly>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--name">
+              <label for="inputNome" class="luft-form-label">Nome do Módulo</label>
+              <input type="text" class="luft-form-control" id="inputNome" name="nome" value="{{ modulo.nome }}" required>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--icon">
+              <label class="luft-form-label">Ícone</label>
+              <div class="luft-edit-icon-input">
+                <div class="luft-icon-preview" id="iconPreviewBox" style="cursor: pointer;">
+                  <i class="bi {{ modulo.icone or 'bi-app' }}"></i>
+                </div>
+                <input type="text" class="luft-form-control" id="inputIcone" name="icone" value="{{ modulo.icone }}" readonly style="cursor: pointer;">
+              </div>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--restricted">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="inputIsRestrito" name="is_restrito" {% if modulo.is_restrito %}checked{% endif %}>
+                <label class="form-check-label" for="inputIsRestrito">Módulo restrito</label>
+              </div>
+              <small class="luft-text-hint">Quando ativo, o módulo só fica visível para usuários com a permissão VISUALIZAR_MODULOS_RESTRITOS.</small>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--description">
+              <label for="inputDescricao" class="luft-form-label">Descrição Curta</label>
+              <textarea class="luft-form-control" id="inputDescricao" name="descricao" rows="3">{{ modulo.descricao }}</textarea>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--keywords">
+              <label for="inputPalavras" class="luft-form-label">Palavras-chave</label>
+              <input type="text" class="luft-form-control" id="inputPalavras" name="palavras_chave" value="{{ modulo.palavras_chave|join(', ') }}" placeholder="Separadas por vírgula">
+              <small class="luft-text-hint">Ex: cliente, cadastro, novo</small>
+            </div>
+
+            <div class="luft-edit-field luft-edit-field--related">
+              <div class="mb-2 d-flex align-items-center justify-content-between">
+                <label class="luft-form-label m-0">Módulos Relacionados</label>
+                <span class="luft-rel-counter" id="relCounter">0 selecionados</span>
+              </div>
+              <div class="mb-2" id="relacionadosPills"></div>
+              <div class="luft-rel-actions">
+                <button type="button" id="btnOpenRelModal" class="luft-btn luft-btn-outline luft-btn-sm text-nowrap">
+                  <i class="bi bi-diagram-3"></i> Selecionar módulos
+                </button>
+                <button type="button" id="btnLimparRel" class="luft-btn luft-btn-outline luft-btn-sm" title="Limpar tudo">
+                  <i class="bi bi-trash"></i> Limpar
+                </button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="luft-edit-card-body">
+          <ul class="nav nav-tabs luft-nav-tabs" id="editorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="user-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-user-pane" type="button" role="tab" aria-selected="true">
+                <i class="bi bi-person me-2"></i>Conteúdo para o Usuário
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tech-doc-tab" data-bs-toggle="tab" data-bs-target="#doc-tech-pane" type="button" role="tab" aria-selected="false">
+                <i class="bi bi-code-slash me-2"></i>Documentação Técnica
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content luft-tab-content" id="editorTabsContent">
+            <div class="tab-pane fade show active" id="doc-user-pane" role="tabpanel">
+              <div class="luft-markdown-workspace">
+                <div class="luft-editor-toolbar" id="toolbarUsuario"></div>
+                <div class="luft-markdown-grid">
+                  <section class="luft-markdown-pane">
+                    <div class="luft-markdown-pane-header">
+                      <span class="luft-markdown-pane-title"><i class="bi bi-file-earmark-text"></i> Markdown</span>
+                      <span class="luft-markdown-pane-subtitle">O conteudo salvo continua em Markdown.</span>
+                    </div>
+                    <textarea id="editorUsuario"></textarea>
+                  </section>
+                  <section class="luft-markdown-pane">
+                    <div class="luft-markdown-pane-header">
+                      <span class="luft-markdown-pane-title"><i class="bi bi-eye"></i> Preview final</span>
+                      <span class="luft-preview-status" id="previewStatusUsuario">Preview final</span>
+                    </div>
+                    <div class="luft-markdown-preview markdown-body" id="previewUsuario"></div>
+                  </section>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="doc-tech-pane" role="tabpanel">
+              <div class="luft-markdown-workspace">
+                <div class="luft-editor-toolbar" id="toolbarTecnico"></div>
+                <div class="luft-markdown-grid">
+                  <section class="luft-markdown-pane">
+                    <div class="luft-markdown-pane-header">
+                      <span class="luft-markdown-pane-title"><i class="bi bi-file-earmark-code"></i> Markdown tecnico</span>
+                      <span class="luft-markdown-pane-subtitle">O preview abaixo replica a tela final.</span>
+                    </div>
+                    <textarea id="editorTecnico"></textarea>
+                  </section>
+                  <section class="luft-markdown-pane">
+                    <div class="luft-markdown-pane-header">
+                      <span class="luft-markdown-pane-title"><i class="bi bi-eye"></i> Preview final</span>
+                      <span class="luft-preview-status" id="previewStatusTecnico">Preview final</span>
+                    </div>
+                    <div class="luft-markdown-preview markdown-body" id="previewTecnico"></div>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% call ui.modal(id='iconModal', titulo='Escolha um Ícone', tamanho='xl', icone='bi bi-grid-3x3-gap') %}
+  <div class="luft-search-wrapper mb-4">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" class="luft-form-control luft-modal-search" id="iconSearch" placeholder="Buscar ícone...">
+  </div>
+  <div id="iconGrid" class="row row-cols-4 row-cols-sm-6 row-cols-md-8 row-cols-lg-10 g-3"></div>
+{% endcall %}
+
+{% call ui.modal(id='relModal', titulo='Módulos Relacionados', tamanho='lg', icone='bi bi-diagram-3') %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="luft-modal-badge" id="relModalCounter">0 selecionados</span>
+    <button type="button" class="luft-btn luft-btn-outline luft-btn-sm" id="btnToggleAll">
+      <i class="bi bi-check-all"></i> Selecionar tudo
+    </button>
+  </div>
+  <div class="luft-search-wrapper mb-3">
+    <i class="bi bi-search luft-search-icon"></i>
+    <input type="text" id="relSearch" class="luft-form-control luft-modal-search-full" placeholder="Buscar por nome ou ID...">
+  </div>
+  <div class="luft-rel-list" id="relList"></div>
+  
+  <div class="d-flex justify-content-end gap-3 mt-4 pt-4 border-top" style="border-color: var(--luft-border) !important;">
+    <button type="button" class="btn btn-outline" onclick="LuftCore.fecharModal('relModal')">Cancelar</button>
+    <button type="button" class="btn btn-primary" onclick="LuftCore.fecharModal('relModal')">
+      <i class="bi bi-check-circle"></i> Aplicar seleção
+    </button>
+  </div>
+{% endcall %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/External/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/MarkdownEditor.js') }}"></script>
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const app = window.LuftDocs;
+  const token = '{{ token }}';
+  const ROUTES = {
+    uploadImagemModulo: "{{ url_for('Editor.enviarImagemModulo', modulo_id=modulo.id) }}",
+    uploadAnexoModulo: "{{ url_for('Editor.enviarAnexoModulo') }}",
+    uploadVideoModulo: "{{ url_for('Editor.enviarVideoModulo', modulo_id=modulo.id) }}",
+    listarOpcoesEditor: "{{ url_for('Editor.listarOpcoesEditor') }}",
+    listarSubmodulos: "{{ url_for('Editor.listarSubmodulos') }}",
+    previewMarkdown: "{{ url_for('Editor.previewMarkdown') }}",
+  };
+  
+  let todosIcones = [];
+  let todosModulos = [];
+  let modulosSelecionados = new Set({{ modulo.relacionados|tojson }});
+
+  const conteudoUsuarioInicial = {{ doc_content|tojson }};
+  const conteudoTecnicoInicial = {{ tech_content|tojson }};
+  
+  let editorUsuario, editorTecnico;
+
+  /**
+   * Inicializa o editor compartilhado com preview final sincronizado.
+   */
+  function InicializarEditores() {
+    if (!editorUsuario) {
+      editorUsuario = window.LuftMarkdownEditor.create({
+        textarea: '#editorUsuario',
+        previewElement: '#previewUsuario',
+        statusElement: '#previewStatusUsuario',
+        previewEndpoint: ROUTES.previewMarkdown,
+        token,
+        initialValue: conteudoUsuarioInicial,
+        placeholder: 'Descreva o fluxo do modulo para o usuario final.',
+      });
+      MontarBarraFerramentas(editorUsuario, 'toolbarUsuario');
+    }
+
+    if (!editorTecnico) {
+      editorTecnico = window.LuftMarkdownEditor.create({
+        textarea: '#editorTecnico',
+        previewElement: '#previewTecnico',
+        statusElement: '#previewStatusTecnico',
+        previewEndpoint: ROUTES.previewMarkdown,
+        token,
+        initialValue: conteudoTecnicoInicial,
+        placeholder: 'Documente detalhes tecnicos, integrações e observacoes internas.',
+      });
+      MontarBarraFerramentas(editorTecnico, 'toolbarTecnico');
+    }
+
+    editorUsuario.refresh();
+    editorTecnico.refresh();
+  }
+
+  /**
+   * Monta a barra de ferramentas unificada do editor.
+   */
+  function MontarBarraFerramentas(editor, idToolbar) {
+    window.LuftMarkdownEditor.mountToolbar(`#${idToolbar}`, [
+      { icon: 'bi bi-type-h2', label: 'Titulo', onClick: () => editor.toggleHeading() },
+      { icon: 'bi bi-type-bold', label: 'Negrito', onClick: () => editor.toggleBold() },
+      { icon: 'bi bi-type-italic', label: 'Italico', onClick: () => editor.toggleItalic() },
+      { type: 'separator' },
+      { icon: 'bi bi-chat-square-quote', label: 'Citar', onClick: () => InserirCitacao(editor) },
+      { icon: 'bi bi-list-ul', label: 'Lista', onClick: () => editor.toggleBulletList() },
+      { icon: 'bi bi-list-ol', label: 'Ordem', onClick: () => editor.toggleOrderedList() },
+      { icon: 'bi bi-code-square', label: 'Codigo', onClick: () => editor.toggleCodeBlock() },
+      { icon: 'bi bi-table', label: 'Tabela', onClick: () => editor.insertTable() },
+      { type: 'separator' },
+      { icon: 'bi bi-link-45deg', label: 'Link', onClick: () => editor.insertLink() },
+      { icon: 'bi bi-image', label: 'Imagem', onClick: () => ProcessarUploadImagem(editor) },
+      { icon: 'bi bi-paperclip', label: 'Anexo', onClick: () => ProcessarUploadAnexo(editor) },
+      {
+        icon: 'bi bi-camera-video',
+        label: 'Video',
+        className: 'luft-btn luft-btn-outline luft-btn-sm luft-editor-tool text-danger border-danger',
+        onClick: () => ProcessarUploadVideo(editor),
+      },
+      {
+        icon: 'bi bi-diagram-2',
+        label: 'Wikilink',
+        className: 'luft-btn luft-btn-outline luft-btn-sm luft-editor-tool text-info border-info',
+        onClick: () => InserirWikilink(editor),
+      },
+    ]);
+  }
+
+  /**
+   * Dispara o upload de imagem e insere a sintaxe Markdown correspondente.
+   */
+  function ProcessarUploadImagem(editor) {
+    const inputFiles = document.createElement('input');
+    inputFiles.type = 'file';
+    inputFiles.accept = 'image/*';
+    inputFiles.onchange = () => {
+      const arquivo = inputFiles.files[0];
+      if (!arquivo) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivo);
+
+      app.requestJson(ROUTES.uploadImagemModulo, { method: 'POST', formData, token })
+        .then(({ response, data }) => {
+          if (!response.ok || !data?.url) throw new Error();
+          editor.insertText(`\n![${arquivo.name}](${data.url})\n`);
+        })
+        .catch(() => alert('Falha critica ao enviar a imagem especificada.'));
+    };
+    inputFiles.click();
+  }
+
+  /**
+   * Abre o seletor de arquivos e processa o envio de um anexo para o servidor.
+   */
+  function ProcessarUploadAnexo(editor) {
+    const inputFiles = document.createElement('input');
+    inputFiles.type = 'file';
+    inputFiles.onchange = () => {
+      const arquivo = inputFiles.files[0];
+      if (!arquivo) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivo);
+      
+      app.requestJson(ROUTES.uploadAnexoModulo, { method: 'POST', formData, token })
+        .then(({ response, data }) => {
+          if (!response.ok || !data?.url) throw new Error();
+          editor.insertText(`\n[${arquivo.name}](${data.url})\n`);
+        })
+        .catch(() => alert('Falha critica ao enviar o anexo especificado.'));
+    };
+    inputFiles.click();
+  }
+
+  /**
+   * Abre o seletor de arquivos e processa o envio de um video para o servidor.
+   */
+  function ProcessarUploadVideo(editor) {
+    const inputFiles = document.createElement('input');
+    inputFiles.type = 'file';
+    inputFiles.accept = 'video/*';
+    inputFiles.onchange = () => {
+      const arquivo = inputFiles.files[0];
+      if (!arquivo) return;
+
+      const formData = new FormData();
+      formData.append('file', arquivo);
+      
+      app.requestJson(ROUTES.uploadVideoModulo, { method: 'POST', formData, token })
+        .then(({ response, data }) => {
+          if (response.ok && data?.url) {
+            const tagRenderizada = `<video width="100%" controls><source src="${data.url}" type="${data.type}"></video>`;
+            editor.insertText(`\n${tagRenderizada}\n`);
+          } else {
+            alert(data?.error || 'Falha critica no retorno da URL do video.');
+          }
+        })
+        .catch(() => alert('Falha critica ao tentar enviar o video especificado.'));
+    };
+    inputFiles.click();
+  }
+
+  /**
+   * Abre a combobox de submodulos globais e insere a citacao no padrao wikilink.
+   */
+  function InserirCitacao(editor) {
+    editor.insertSubmoduleCitation({
+      listEndpoint: ROUTES.listarSubmodulos,
+      token,
+    });
+  }
+
+  /**
+   * Insere um wikilink para modulo, submodulo ou palavra global.
+   */
+  function InserirWikilink(editor) {
+    const palavra = editor.getSelectedText() || prompt('Informe a palavra desejada para a geracao do Wikilink:');
+    if (palavra) {
+      editor.insertText(`[[${palavra}]]`);
+    }
+  }
+
+  /**
+   * Prepara o contexto e aciona a abertura do Modal de Icones padrao do LuftCore.
+   */
+  function AbrirModalIcone() {
+    document.getElementById('iconSearch').value = '';
+    RenderizarGradeIcones('');
+    LuftCore.abrirModal('iconModal');
+    setTimeout(() => document.getElementById('iconSearch').focus(), 200);
+  }
+
+  /**
+   * Prepara o contexto e aciona a abertura do Modal de Modulos Relacionados padrao do LuftCore.
+   */
+  function AbrirModalRelacionados() {
+    const inputBusca = document.getElementById('relSearch');
+    inputBusca.value = '';
+    RenderizarListaRelacionados('');
+    LuftCore.abrirModal('relModal');
+    setTimeout(() => inputBusca.focus(), 200);
+  }
+
+  /**
+   * Renderiza a grade de icones baseada em um termo de filtro especificado.
+   * @param {string} filtro - Termo de busca para a filtragem da lista de icones.
+   */
+  function RenderizarGradeIcones(filtro = '') {
+    const elementoGrade = document.getElementById('iconGrid');
+    const iconeSelecionado = document.getElementById('inputIcone').value;
+    elementoGrade.innerHTML = '';
+    
+    const iconesFiltrados = todosIcones.filter(i => i.toLowerCase().includes(filtro.toLowerCase()));
+    
+    iconesFiltrados.forEach(classeIcone => {
+      const elementoColuna = document.createElement('div');
+      elementoColuna.className = 'col';
+      const estaSelecionado = classeIcone === iconeSelecionado;
+      elementoColuna.innerHTML = `<button type="button" class="luft-icon-grid-btn ${estaSelecionado ? 'selected' : ''}" data-icon="${classeIcone}" title="${classeIcone}">
+        <i class="bi ${classeIcone}"></i></button>`;
+      elementoGrade.appendChild(elementoColuna);
+    });
+
+    elementoGrade.querySelectorAll('.luft-icon-grid-btn').forEach(btn => {
+      btn.onclick = function() {
+        const classeIcone = this.getAttribute('data-icon');
+        document.getElementById('inputIcone').value = classeIcone;
+        document.querySelector('#iconPreviewBox i').className = `bi ${classeIcone}`;
+        LuftCore.fecharModal('iconModal');
+      };
+    });
+  }
+
+  /**
+   * Renderiza os "pills" (etiquetas visuais) que representam os modulos relacionados ativos.
+   */
+  function RenderizarPillsRelacionados() {
+    const containerPills = document.getElementById('relacionadosPills');
+    containerPills.innerHTML = '';
+    const mapeamentoIdObjeto = Object.fromEntries(todosModulos.map(m => [String(m.id), m]));
+    
+    [...modulosSelecionados].forEach(idModulo => {
+      const moduloAssociado = mapeamentoIdObjeto[String(idModulo)];
+      const rotuloExibicao = moduloAssociado ? `${moduloAssociado.nome}` : idModulo;
+      const elementoPill = document.createElement('span');
+      
+      elementoPill.className = 'luft-rel-pill';
+      elementoPill.innerHTML = `<i class="bi bi-node-plus"></i> ${rotuloExibicao} <button type="button" class="remove" title="Remover" data-id="${idModulo}">&times;</button>`;
+      containerPills.appendChild(elementoPill);
+    });
+
+    containerPills.querySelectorAll('.remove').forEach(btn => {
+      btn.onclick = () => { 
+        modulosSelecionados.delete(btn.getAttribute('data-id')); 
+        SincronizarEstadoRelacionados(); 
+        MarcarCheckboxesVisuais(); 
+      };
+    });
+    AtualizarInputOcultoEContador();
+  }
+
+  /**
+   * Atualiza o valor do input oculto e os textos dos contadores na tela.
+   */
+  function AtualizarInputOcultoEContador() {
+    const inputOculto = document.getElementById('inputRelacionados');
+    inputOculto.value = [...modulosSelecionados].join(',').trim();
+    
+    const quantidade = modulosSelecionados.size;
+    const textoInformativo = quantidade === 0 ? '0 selecionados' : `${quantidade} selecionado${quantidade > 1 ? 's' : ''}`;
+    
+    document.getElementById('relCounter').textContent = textoInformativo;
+    const contadorModal = document.getElementById('relModalCounter');
+    if (contadorModal) contadorModal.textContent = textoInformativo;
+  }
+
+  /**
+   * Filtra a lista completa de modulos com base no termo de busca fornecido.
+   * @param {string} termoBusca - Sequencia de caracteres inserida pelo usuario.
+   * @returns {Array} Array contendo os objetos de modulo que correspondem ao filtro.
+   */
+  function FiltrarModulos(termoBusca) {
+    const termoTratado = termoBusca.trim().toLowerCase();
+    if (!termoTratado) return todosModulos;
+    return todosModulos.filter(m => String(m.id).toLowerCase().includes(termoTratado) || (m.nome || '').toLowerCase().includes(termoTratado));
+  }
+
+  /**
+   * Renderiza a lista de modulos dentro do modal de relacionamento, aplicando os filtros.
+   * @param {string} termo - O termo de filtragem do input de busca do modal.
+   */
+  function RenderizarListaRelacionados(termo = '') {
+    const elementoLista = document.getElementById('relList');
+    const arrayModulos = FiltrarModulos(termo);
+    elementoLista.innerHTML = '';
+
+    arrayModulos.forEach(moduloContexto => {
+      const idStr = String(moduloContexto.id);
+      const atributoChecked = modulosSelecionados.has(idStr) ? 'checked' : '';
+      const containerItem = document.createElement('div');
+      
+      containerItem.className = 'luft-rel-item';
+      containerItem.innerHTML = `
+        <label class="luft-rel-item-label" for="rel_${idStr}">
+          <input class="luft-rel-check rel-check" type="checkbox" value="${idStr}" id="rel_${idStr}" ${atributoChecked}>
+          <span class="luft-rel-item-icon"><i class="bi bi-box-seam"></i></span>
+          <span class="luft-rel-item-info">
+            <span class="luft-rel-item-name">${moduloContexto.nome}</span>
+            <span class="luft-rel-item-id">${idStr}</span>
+          </span>
+        </label>`;
+      elementoLista.appendChild(containerItem);
+    });
+
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => {
+      checkboxElement.onchange = () => {
+        const valorId = checkboxElement.value;
+        if (checkboxElement.checked) modulosSelecionados.add(valorId); 
+        else modulosSelecionados.delete(valorId);
+        SincronizarEstadoRelacionados();
+      };
+    });
+  }
+
+  /**
+   * Centraliza a atualizacao logica e visual das estruturas de modulos relacionados.
+   */
+  function SincronizarEstadoRelacionados() {
+    AtualizarInputOcultoEContador();
+    RenderizarPillsRelacionados();
+  }
+
+  /**
+   * Verifica a colecao logica e reaplica o estado marcado aos inputs HTML visiveis.
+   */
+  function MarcarCheckboxesVisuais() {
+    const elementoLista = document.getElementById('relList');
+    elementoLista.querySelectorAll('.rel-check').forEach(checkboxElement => { 
+      checkboxElement.checked = modulosSelecionados.has(checkboxElement.value); 
+    });
+  }
+
+  /* Manipuladores Globais de Interface */
+  document.getElementById('iconPreviewBox').addEventListener('click', AbrirModalIcone);
+  document.getElementById('inputIcone').addEventListener('click', AbrirModalIcone);
+  document.getElementById('btnOpenRelModal').addEventListener('click', AbrirModalRelacionados);
+
+  document.getElementById('iconSearch').addEventListener('input', e => RenderizarGradeIcones(e.target.value.trim()));
+  document.getElementById('relSearch').addEventListener('input', e => RenderizarListaRelacionados(e.target.value));
+
+  document.getElementById('btnLimparRel').onclick = () => { 
+    modulosSelecionados.clear(); 
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais(); 
+  };
+
+  document.getElementById('btnToggleAll').onclick = () => {
+    const termoBuscaAtual = document.getElementById('relSearch').value || '';
+    const arrayFiltrado = FiltrarModulos(termoBuscaAtual);
+    const estaoTodosMarcados = arrayFiltrado.every(m => modulosSelecionados.has(String(m.id)));
+    
+    if (estaoTodosMarcados) {
+      arrayFiltrado.forEach(m => modulosSelecionados.delete(String(m.id)));
+    } else {
+      arrayFiltrado.forEach(m => modulosSelecionados.add(String(m.id)));
+    }
+    SincronizarEstadoRelacionados(); 
+    MarcarCheckboxesVisuais();
+  };
+
+  /* Listener de Submissao de Formulario */
+  document.getElementById('editor-form').addEventListener('submit', eventoSubmit => {
+    if (!document.getElementById('inputNome').value) {
+      eventoSubmit.preventDefault(); 
+      alert('O campo "Nome do Módulo" é de preenchimento obrigatório.'); 
+      return;
+    }
+    document.getElementById('docContentInput').value = editorUsuario.getValue();
+    document.getElementById('techContentInput').value = editorTecnico.getValue();
+  });
+
+  /* Ciclo de Inicializacao Principal */
+  InicializarEditores();
+  
+  const atualizarLayoutEditores = () => {
+    editorUsuario?.refresh();
+    editorTecnico?.refresh();
+  };
+
+  const monitorMutacaoTema = new MutationObserver(mutacoes => { 
+    if (mutacoes.some(m => m.attributeName === 'class')) {
+      window.requestAnimationFrame(atualizarLayoutEditores);
+    }
+  });
+  monitorMutacaoTema.observe(document.body, { attributes: true });
+
+  document.querySelectorAll('#editorTabs [data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', () => {
+      window.requestAnimationFrame(atualizarLayoutEditores);
+    });
+  });
+
+  app.requestJson(ROUTES.listarOpcoesEditor, { token })
+    .then(({ response, data: payloadData }) => {
+      if (!response.ok) throw new Error();
+      payloadData = payloadData || {};
+      todosIcones = payloadData.icons || [];
+      const identificadorProprio = String({{ modulo.id|tojson }});
+      
+      const payloadModulos = payloadData.modules || [];
+      todosModulos = payloadModulos.filter(modulo => String(modulo.id) !== identificadorProprio);
+      
+      modulosSelecionados = new Set([...modulosSelecionados].map(String));
+      SincronizarEstadoRelacionados();
+    })
+    .catch(() => { 
+      todosModulos = []; 
+      todosIcones = []; 
+      SincronizarEstadoRelacionados(); 
+    });
+
+  const instanciaAnimacao = new AnimacaoFundo('containerAnimacaoFundo');
+  instanciaAnimacao.iniciar();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "Layout/BaseLayout.html" %}
+{% block titulo %}Editor de Módulos{% endblock %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Editor/Editor_Index.css') }}">
+{% endblock %}
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+{% set pode_aprovar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.APROVAR') %}
+{% set pode_editar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.EDITAR') %}
+{% set pode_criar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.CRIAR') %}
+{% set pode_versionar_modulos = tem_permissao('DOCS.EDITOR_MODULOS.SINCRONIZAR') %}
+{% set pode_excluir_modulos = tem_permissao('DOCS.EDITOR_MODULOS.EXCLUIR') %}
+
+<div class="luft-editor-container animate-fade-in">
+
+  <div class="luft-editor-header">
+    <h1 class="text-main font-black text-2xl m-0">
+      <i class="ph-fill ph-star-four" style="color: var(--luft-primary-600);"></i>
+      Editor de Módulos
+    </h1>
+    <div class="luft-editor-header-actions">
+      {% if pode_aprovar_modulos %}
+        <a href="{{ url_for('Editor.exibirPendencias', token=token) }}" 
+           class="luft-editor-action-btn hover-lift" 
+           title="Ver pendências ({{ num_pendencias }})">
+          <i class="ph-bold ph-hourglass-medium"></i>
+          {% if num_pendencias > 0 %}
+            <span class="notification-dot">
+              {{ '99+' if num_pendencias > 99 else num_pendencias }}
+            </span>
+          {% endif %}
+        </a>
+      {% endif %}
+      {% if pode_editar_modulos %}
+        <a href="{{ url_for('Editor.listarSubmodulos', token=token) }}" 
+           class="luft-editor-action-btn hover-lift" 
+           title="Editar Submódulos">
+          <i class="ph-bold ph-stack"></i>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="luft-editor-filter">
+    <input type="text" id="moduloFiltro" class="luft-search-input" placeholder="Filtrar módulos...">
+  </div>
+
+  <div class="luft-editor-grid" id="moduloGrid">
+    {% if pode_criar_modulos %}   
+    <div class="luft-editor-item" style="--delay: 0;">
+      <a href="{{ url_for('Editor.criarModulo', token=token) }}" class="luft-editor-card luft-editor-card-dashed text-decoration-none">
+        <div class="icon"><i class="ph-bold ph-plus-circle"></i></div>
+        <div class="text mt-3">Criar Novo Módulo</div>
+      </a>
+    </div>
+    {% endif %}
+    {% for m in modulos %}
+    <div class="luft-editor-item" style="--delay: {{ loop.index }};" data-nome="{{ m.nome|lower }}" data-id="{{ m.id }}" data-desc="{{ m.descricao|lower }}">
+      <div class="luft-editor-card">
+        <div class="card-body">
+          <div class="luft-editor-card-icon">
+            <i class="{{ m.icone }}"></i>
+          </div>
+          <h5 class="luft-editor-card-title">{{ m.nome }}</h5>
+
+          <div class="luft-editor-info-block">
+            
+            {# Pega o último evento do histórico para análise #}
+            {% set last_event = m.edit_history | sort(attribute='timestamp') | last %}
+
+            {# Bloco 1: Mostra os badges de ID e status/versão #}
+            <div class="d-flex align-items-center gap-2">
+              <span class="luft-editor-badge">ID: {{ m.id }}</span>
+              
+              {% if m.status == 'pendente' %}
+                <span class="luft-editor-badge luft-editor-badge-status">Pendente</span>
+              
+              {% elif m.current_version %}
+                <span class="luft-editor-badge luft-editor-badge-version">
+                  <i class="ph-bold ph-tag"></i> v{{ m.current_version }}
+                </span>
+              {% endif %}
+            </div>
+
+            {# Bloco 2: Mostra os detalhes da última ação (edição, aprovação, criação) #}
+            <div class="d-flex flex-column gap-1 mt-2">
+              {% if m.status == 'pendente' %}
+                <div class="luft-editor-info-line">
+                  <i class="ph-fill ph-pencil-simple text-warning"></i>
+                  <span>Editado por <strong>{{ m.pending_edit_info.user }}</strong></span>
+                </div>
+                <div class="luft-editor-info-line">
+                  <i class="ph-bold ph-clock"></i>
+                  <span>Em {{ m.pending_edit_info.data.split('T')[0] }}</span>
+                </div>
+              {% elif last_event %}
+                {% if last_event.event == 'aprovado' %}
+                  <div class="luft-editor-info-line">
+                    <i class="ph-fill ph-pencil-simple"></i>
+                    <span>Editado por <strong>{{ last_event.editor }}</strong></span>
+                  </div>
+                  <div class="luft-editor-info-line">
+                      <i class="ph-fill ph-check-circle text-success"></i>
+                      <span>Aprovado por <strong>{{ last_event.approver }}</strong></span>
+                  </div>
+                {% elif last_event.event == 'criado' %}
+                  <div class="luft-editor-info-line">
+                    <i class="ph-fill ph-user-plus"></i>
+                    <span>Criado por <strong>{{ last_event.editor }}</strong></span>
+                  </div>
+                {% endif %}
+                <div class="luft-editor-info-line">
+                    <i class="ph-bold ph-clock-counter-clockwise"></i>
+                    <span>Em {{ last_event.timestamp.split('T')[0] }}</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <p class="luft-editor-card-desc">{{ m.descricao }}</p>
+
+          <div class="luft-editor-card-actions">
+            {% if pode_editar_modulos %}
+            <a href="{{ url_for('Editor.editarModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-primary">
+              <i class="ph-bold ph-pencil-simple"></i> Editar
+            </a>
+            {% endif %}
+            {% if pode_versionar_modulos %}
+              <a href="{{ url_for('Editor.exibirHistoricoModulo', mid=m.id, token=token) }}" class="luft-btn luft-btn-outline">
+                <i class="ph-bold ph-clock-counter-clockwise"></i> Versões
+              </a>
+            {% endif %}
+            {% if pode_excluir_modulos %}
+              <form method="post" action="{{ url_for('Editor.excluirModulo', mid=m.id, token=token) }}" onsubmit="return confirm('Tem certeza que deseja deletar o módulo \'{{ m.nome }}\'? Esta ação é irreversível.');">
+                <button type="submit" class="luft-btn luft-btn-danger">
+                  <i class="ph-bold ph-trash"></i>
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+      {% if loop.length == 1 %} 
+        <div class="luft-editor-empty col-12">
+          <i class="ph-thin ph-notebook" style="font-size:3rem; color: var(--luft-text-muted);"></i>
+          <h4 class="mt-3 font-bold text-main">Nenhum módulo encontrado</h4>
+          <p class="text-muted">Comece criando seu primeiro módulo!</p>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Inicializa animação de fundo reutilizável do LuftCore
+    const animacao = new AnimacaoFundo('containerAnimacaoFundo');
+    animacao.iniciar();
+
+    // Filtro simples de módulos
+    document.getElementById('moduloFiltro').addEventListener('input', function() {
+      const termo = this.value.trim().toLowerCase();
+      document.querySelectorAll('.luft-editor-grid .luft-editor-item').forEach(function(item) {
+        if (item.querySelector('.luft-editor-card-dashed')) {
+          item.style.display = 'block';
+          return;
+        }
+        const nome = item.getAttribute('data-nome') || '';
+        const id = item.getAttribute('data-id') || '';
+        const desc = item.getAttribute('data-desc') || '';
+        
+        if (nome.includes(termo) || id.includes(termo) || desc.includes(termo)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

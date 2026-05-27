@@ -1,0 +1,220 @@
+{% extends "Layout/BaseLayout.html" %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/Evaluation.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-evaluation-wrapper">
+    <div class="luft-evaluation-card">
+        <h1 class="luft-evaluation-title"><i class="bi bi-clipboard-check"></i> Avaliação do Documento</h1>
+
+        <div class="luft-purpose-selector" id="seletorProposito">
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="feedback">
+                <i class="bi bi-star"></i> Avaliação Geral
+            </button>
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="suggestions">
+                <i class="bi bi-lightbulb"></i> Sugerir Melhoria
+            </button>
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="techos">
+                <i class="bi bi-code-slash"></i> Detalhe Técnico
+            </button>
+            <button type="button" class="luft-btn luft-btn-outline purpose-button" data-purpose="changes">
+                <i class="bi bi-pencil-square"></i> Solicitar Mudança
+            </button>
+        </div>
+
+        <form method="POST" action="" id="formularioAvaliacao">
+            {{ form.hidden_tag() }}
+
+            <div class="luft-rating-group mb-4">
+                <span class="luft-form-label d-block text-center mb-2" style="color: var(--luft-text-main);">Sua avaliação sobre a utilidade deste documento:</span>
+                <div class="luft-star-rating" id="seletorEstrelas">
+                    <span class="star" data-value="1"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="2"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="3"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="4"><i class="bi bi-star-fill"></i></span>
+                    <span class="star" data-value="5"><i class="bi bi-star-fill"></i></span>
+                </div>
+                {{ form.rating(class="d-none", id="inputRating") }} 
+                <span id="textoAvaliacao" class="luft-rating-text"></span>
+
+                {% if form.rating.errors %}
+                    <div class="luft-alert luft-alert-danger mt-3 d-inline-flex mx-auto" style="animation: animacaoTremor 0.4s;">
+                        {% for error in form.rating.errors %}
+                            <span><i class="bi bi-exclamation-triangle-fill"></i> {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="luft-form-section" data-section="feedback">
+                <div class="luft-floating-group">
+                    {{ form.feedback(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorFeedback'}) }}
+                    <label class="luft-floating-label">Deixe seu feedback geral</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorFeedback">0 / 50</span></div>
+            </div>
+            
+            <div class="luft-form-section" data-section="suggestions">
+                <div class="luft-floating-group">
+                    {{ form.suggestions(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorSugestoes'}) }}
+                    <label class="luft-floating-label">Qual a sua sugestão de melhoria?</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorSugestoes">0 / 50</span></div>
+            </div>
+
+            <div class="luft-form-section" data-section="techos">
+                <div class="luft-floating-group">
+                    {{ form.techos(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorTecnico'}) }}
+                    <label class="luft-floating-label">Detalhes Técnicos ou Trechos com erro</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorTecnico">0 / 50</span></div>
+            </div>
+            
+            <div class="luft-form-section" data-section="changes">
+                <div class="luft-floating-group">
+                    {{ form.changes(class="luft-form-control", placeholder=" ", **{'data-counter': 'contadorMudancas'}) }}
+                    <label class="luft-floating-label">O que precisa ser alterado?</label>
+                </div>
+                <div class="luft-char-counter"><span id="contadorMudancas">0 / 50</span></div>
+            </div>
+
+            <button type="submit" class="luft-btn luft-btn-primary w-100 mt-4" id="botaoEnviar" style="height: 3rem;">
+                <span class="btn-text"><i class="bi bi-send"></i> Enviar Avaliação</span>
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    /** @type {NodeListOf<HTMLButtonElement>} */
+    const botoesProposito = document.querySelectorAll('.purpose-button');
+    const secoesFormulario = document.querySelectorAll('.luft-form-section');
+    const inputAvaliacao = document.getElementById('inputRating');
+    const textoAvaliacao = document.getElementById('textoAvaliacao');
+    const estrelas = document.querySelectorAll('.luft-star-rating .star');
+    const significadosAvaliacao = ["", "Ruim", "Regular", "Bom", "Ótimo", "Excelente!"];
+
+    /**
+     * Alterna a visibilidade dos blocos de texto com base no botao de proposito selecionado.
+     * @param {HTMLButtonElement} botaoAtivo - O botao que recebeu o clique.
+     * @returns {void}
+     */
+    function SelecionarProposito(botaoAtivo) {
+        const propositoSelecionado = botaoAtivo.dataset.purpose;
+        
+        botoesProposito.forEach(btn => {
+            btn.classList.remove('luft-btn-primary');
+            btn.classList.add('luft-btn-outline');
+            btn.style.opacity = '0.6';
+        });
+
+        botaoAtivo.classList.remove('luft-btn-outline');
+        botaoAtivo.classList.add('luft-btn-primary');
+        botaoAtivo.style.opacity = '1';
+
+        secoesFormulario.forEach(secao => {
+            if (secao.dataset.section === propositoSelecionado) {
+                secao.classList.add('visible');
+            } else {
+                secao.classList.remove('visible');
+            }
+        });
+    }
+
+    botoesProposito.forEach(botao => {
+        botao.addEventListener('click', () => SelecionarProposito(botao));
+    });
+
+    /**
+     * Atualiza a renderizacao visual (cor/estado) das estrelas baseado no valor informado.
+     * @param {number|string} valorReferencia - O numero de estrelas a serem destacadas.
+     * @param {boolean} [ehHover=false] - Indica se a renderizacao é apenas uma visualizacao temporaria de hover.
+     * @returns {void}
+     */
+    function AtualizarEstrelas(valorReferencia, ehHover = false) {
+        estrelas.forEach(estrela => {
+            const valorEstrela = parseInt(estrela.dataset.value);
+            
+            if (ehHover) {
+                estrela.classList.toggle('hover', valorEstrela <= valorReferencia);
+            } else {
+                estrela.classList.remove('hover');
+                estrela.classList.toggle('selected', valorEstrela <= valorReferencia);
+            }
+        });
+    }
+
+    estrelas.forEach(estrela => {
+        estrela.addEventListener('click', function() {
+            const valorSelecionado = this.dataset.value;
+            inputAvaliacao.value = valorSelecionado;
+            AtualizarEstrelas(valorSelecionado);
+            textoAvaliacao.textContent = significadosAvaliacao[valorSelecionado];
+            textoAvaliacao.classList.add('active');
+        });
+
+        estrela.addEventListener('mouseover', function() {
+            const valorHover = this.dataset.value;
+            AtualizarEstrelas(valorHover, true);
+            textoAvaliacao.textContent = significadosAvaliacao[valorHover];
+        });
+
+        estrela.addEventListener('mouseout', () => {
+            AtualizarEstrelas(inputAvaliacao.value);
+            textoAvaliacao.textContent = significadosAvaliacao[inputAvaliacao.value] || "";
+        });
+    });
+
+    /**
+     * Atualiza os contadores de limite de caracteres dos textareas na interface.
+     * @param {HTMLTextAreaElement} campoTexto - O input do usuario.
+     * @param {HTMLElement} elementoContador - O span HTML que exibe o limite.
+     * @returns {void}
+     */
+    function AtualizarContadorDeCaracteres(campoTexto, elementoContador) {
+        const quantidade = campoTexto.value.length;
+        elementoContador.textContent = `${quantidade} / 50`;
+        
+        if (quantidade >= 50) {
+            elementoContador.classList.add('text-success', 'fw-bold');
+            elementoContador.classList.remove('text-danger');
+        } else {
+            elementoContador.classList.add('text-danger');
+            elementoContador.classList.remove('text-success', 'fw-bold');
+        }
+    }
+
+    document.querySelectorAll('textarea[data-counter]').forEach(textarea => {
+        const idContador = textarea.dataset.counter;
+        const domContador = document.getElementById(idContador);
+
+        if (domContador) {
+            AtualizarContadorDeCaracteres(textarea, domContador);
+            textarea.addEventListener('input', () => AtualizarContadorDeCaracteres(textarea, domContador));
+        }
+    });
+
+    const formulario = document.getElementById('formularioAvaliacao');
+    const botaoEnvio = document.getElementById('botaoEnviar');
+
+    formulario.addEventListener('submit', () => {
+        botaoEnvio.disabled = true;
+        botaoEnvio.querySelector('.btn-text').classList.add('d-none');
+        botaoEnvio.querySelector('.spinner-border').classList.remove('d-none');
+    });
+
+    const animacaoFundo = new AnimacaoFundo('containerAnimacaoFundo');
+    animacaoFundo.iniciar();
+});
+</script>
+{% endblock %}

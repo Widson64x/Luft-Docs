@@ -1,0 +1,1 @@
+"""Configuracoes fixas auxiliares utilizadas pelas rotas e servicos."""

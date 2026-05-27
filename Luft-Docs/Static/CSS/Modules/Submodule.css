@@ -1,0 +1,10 @@
+/*
+ * Submodule.css — MIGRADO PARA LUFTCORE
+ *
+ * Os estilos desta pagina foram consolidados em Modulos.css,
+ * que ja cobre .markdown-body, tabelas, marks e listas aninhadas
+ * com as variaveis corretas do LuftCore (--luft-*).
+ *
+ * Este arquivo pode ser removido com seguranca quando nenhuma
+ * outra referencia existir.
+ */

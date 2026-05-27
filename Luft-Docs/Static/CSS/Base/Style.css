@@ -1,0 +1,41 @@
+/* =================================================================== */
+/* === OVERRIDE: BREADCRUMB (TOPO) === */
+/* =================================================================== */
+
+/* Força o breadcrumb e seus ícones a ficarem em branco */
+.luft-breadcrumb,
+.luft-breadcrumb .luft-breadcrumb-item,
+.luft-breadcrumb i {
+    color: var(--luft-text-main) !important;
+}
+
+/* * NOTA TÉCNICA: 
+ * Se o seu sistema for alternar entre Modo Claro e Escuro com frequência, 
+ * o ideal é usar a variável de texto principal do framework em vez de branco fixo:
+ *
+ * .luft-breadcrumb,
+ * .luft-breadcrumb .luft-breadcrumb-item,
+ * .luft-breadcrumb i {
+ * color: var(--luft-text-main) !important;
+ * }
+ */
+
+ /* Quando a classe é ativada no body pelo Configs.js, reduz margens e paddings */
+body.luft-compact-mode .luft-card,
+body.luft-compact-mode .luft-index-card {
+    padding: 12px;
+}
+body.luft-compact-mode .form-group {
+    margin-bottom: 0.8rem;
+}
+
+.luft-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 350px;
+    padding: 8px 12px;
+    /*border: 1px solid var(--luft-border);
+    border-radius: 8px;*/
+    background: var(--luft-bg-panel);
+}

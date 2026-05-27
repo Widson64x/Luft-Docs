@@ -1,0 +1,94 @@
+[
+    {
+        "usuario": {"Codigo_Usuario": 2001, "Login_Usuario": "aloir.jesus", "Nome_Usuario": "Aloir Brito de Jesus", "Email_Usuario": "aloir.jesus@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2002, "Login_Usuario": "fabio.carvalho", "Nome_Usuario": "Fábio Carvalho", "Email_Usuario": "fabio.carvalho@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2003, "Login_Usuario": "tamires.andrade", "Nome_Usuario": "Tamires Andrade", "Email_Usuario": "tamires.andrade@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2004, "Login_Usuario": "cristiano.silva", "Nome_Usuario": "Cristiano Silva", "Email_Usuario": "cristiano.silva@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2005, "Login_Usuario": "cleyton.silva", "Nome_Usuario": "Cleyton Tomé", "Email_Usuario": "cleyton.silva@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2006, "Login_Usuario": "cleber.souza", "Nome_Usuario": "Cleber Souza", "Email_Usuario": "cleber.souza@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2007, "Login_Usuario": "robinson.carvalho", "Nome_Usuario": "Robinson Carvalho", "Email_Usuario": "robinson.carvalho@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2008, "Login_Usuario": "willian.goncalves", "Nome_Usuario": "Willian Gonçalves da Silva", "Email_Usuario": "willian.goncalves@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2009, "Login_Usuario": "henrique.reina", "Nome_Usuario": "Henrique Reina", "Email_Usuario": "henrique.reina@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2010, "Login_Usuario": "renato.silva", "Nome_Usuario": "Renato (Prestador Servico)", "Email_Usuario": "renato.silva@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2011, "Login_Usuario": "wilians.pedroso", "Nome_Usuario": "Wilians Pedroso", "Email_Usuario": "wilians.pedroso@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2012, "Login_Usuario": "teste.ti", "Nome_Usuario": "Teste TI", "Email_Usuario": "teste.ti@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2013, "Login_Usuario": "claudio.silva", "Nome_Usuario": "Claudio Antonio da Silva", "Email_Usuario": "claudio.silva@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2014, "Login_Usuario": "fabio.rosa", "Nome_Usuario": "Fabio Pereira Rosa", "Email_Usuario": "fabio.rosa@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2015, "Login_Usuario": "mateus.sousa", "Nome_Usuario": "Mateus Sousa", "Email_Usuario": "mateus.sousa@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2016, "Login_Usuario": "exemplo.cadastro", "Nome_Usuario": "Exemplo de Cadastro", "Email_Usuario": "exemplo.cadastro@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2017, "Login_Usuario": "mariana.santoss", "Nome_Usuario": "Mariana Santos", "Email_Usuario": "mariana.santoss@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2018, "Login_Usuario": "marianaa.sanchez", "Nome_Usuario": "Mariana Sanchez", "Email_Usuario": "marianaa.sanchez@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2019, "Login_Usuario": "marianas.santos", "Nome_Usuario": "Mariana S dos Santos", "Email_Usuario": "marianas.santos@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2020, "Login_Usuario": "chatbot", "Nome_Usuario": "Chatbot luftlogistics", "Email_Usuario": "chatbot@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2021, "Login_Usuario": "carlos.mendonca", "Nome_Usuario": "Carlos Persio de Mendonca", "Email_Usuario": "carlos.mendonca@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": {"Codigo_Usuario": 2022, "Login_Usuario": "widson.araujo", "Nome_Usuario": "Widson Araujo", "Email_Usuario": "widson.araujo@luftlogistics.com", "codigo_usuariogrupo": 6},
+        "grupo": {"codigo_usuariogrupo": 6, "Sigla_UsuarioGrupo": "GRUPO TI", "Descricao_UsuarioGrupo": "Grupo de Desenvolvedores do TI", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true}
+    },
+    {
+        "usuario": { "Codigo_Usuario": 2, "Login_Usuario": "francisco.miranda", "Nome_Usuario": "Francisco Cotrim Miranda", "Email_Usuario": "francisco.miranda@luftlogistics.com", "codigo_usuariogrupo": 2 },
+        "grupo": { "codigo_usuariogrupo": 2, "Sigla_UsuarioGrupo": "GRUPO ADMIN", "Descricao_UsuarioGrupo": "Grupo de Administradores deste Sistema", "Permite_Cadastrar": true, "Permite_Alterar": true, "Permite_Excluir": true }
+    }
+]

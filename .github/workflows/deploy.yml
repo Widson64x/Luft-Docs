@@ -1,0 +1,116 @@
+name: deploy
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MONOREPO_PATH: C:\ProjetosPython\LuftDocs
+  SHARED_VENV_PATH: C:\ProjetosPython\LuftDocs\.LUFTDOCS_PACKAGES
+  DEPLOY_LOG_FILE: C:\GitHubRunners\LuftDocs\deploy-log.txt
+  NSSM_EXE: C:\nssm-2.24\win64\nssm.exe
+  WEB_SERVICE_NAME: LuftDocs
+  API_SERVICE_NAME: LuftDocsAPI
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'published' }}
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout manual ref
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+
+      - name: Checkout released tag
+        if: github.event_name == 'release'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ github.event.release.tag_name }}
+
+      - name: Atualizar monorepo no servidor
+        shell: powershell
+        env:
+          COMMIT_MSG: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.release.tag_name }}
+          COMMIT_AUTHOR: ${{ github.actor }}
+          PYTHONUTF8: "1"
+          PYTHONIOENCODING: "utf-8"
+        run: |
+          function Obter-Servico {
+              param([string]$NomeServico)
+
+              $servico = Get-Service $NomeServico -ErrorAction SilentlyContinue
+              if (-not $servico) {
+                  throw "Servico NSSM nao encontrado: $NomeServico"
+              }
+
+              return $servico
+          }
+
+          function Parar-ServicoComSeguranca {
+              param([string]$NomeServico)
+
+              $servico = Obter-Servico -NomeServico $NomeServico
+              if ($servico.Status -ne "Running") {
+                  Write-Host "Servico $NomeServico ja esta parado."
+                  return
+              }
+
+              Write-Host "Parando servico $NomeServico..."
+              cmd /c "$env:NSSM_EXE stop $NomeServico" 2>&1 | Out-Null
+              Start-Sleep -Seconds 5
+          }
+
+          function Iniciar-ServicoComValidacao {
+              param([string]$NomeServico)
+
+              Write-Host "Iniciando servico $NomeServico..."
+              cmd /c "$env:NSSM_EXE start $NomeServico" 2>&1 | Out-Null
+              Start-Sleep -Seconds 5
+
+              $servico = Obter-Servico -NomeServico $NomeServico
+              if ($servico.Status -ne "Running") {
+                  throw "Servico $NomeServico nao subiu corretamente."
+              }
+
+              Write-Host "Servico $NomeServico em execucao."
+          }
+
+          Start-Transcript -Path $env:DEPLOY_LOG_FILE -Append
+          Write-Host "--- DEPLOY INICIADO: $(Get-Date) por $env:COMMIT_AUTHOR ---"
+          Write-Host "Origem: $env:COMMIT_MSG"
+          $ErrorActionPreference = "Stop"
+
+          if (-not (Test-Path $env:MONOREPO_PATH)) {
+              New-Item -Path $env:MONOREPO_PATH -ItemType Directory -Force | Out-Null
+          }
+
+          Parar-ServicoComSeguranca -NomeServico $env:WEB_SERVICE_NAME
+          Parar-ServicoComSeguranca -NomeServico $env:API_SERVICE_NAME
+
+          Write-Host "Copiando arquivos do runner para $env:MONOREPO_PATH..."
+          Copy-Item -Path ".\*" -Destination $env:MONOREPO_PATH -Recurse -Force -Exclude ".git", ".venv", ".LUFTDOCS_PACKAGES", "__pycache__", "dist", "build"
+
+          Set-Location $env:MONOREPO_PATH
+
+          if (-not (Test-Path $env:SHARED_VENV_PATH)) {
+              Write-Warning "Ambiente compartilhado nao encontrado. Criando venv em $env:SHARED_VENV_PATH..."
+              cmd /c "python -m venv $env:SHARED_VENV_PATH" 2>&1 | Out-Null
+          }
+
+          $pythonExe = Join-Path $env:SHARED_VENV_PATH "Scripts\python.exe"
+          cmd /c "$pythonExe -m pip install --upgrade pip 2>&1"
+          cmd /c "$pythonExe -m pip install -r requirements.txt 2>&1"
+          cmd /c "$pythonExe -m pip install -r LuftDocs_API\requirements.txt 2>&1"
+          cmd /c "$pythonExe -m compileall _version.py scripts Luft-Docs LuftDocs_API 2>&1"
+
+          Iniciar-ServicoComValidacao -NomeServico $env:WEB_SERVICE_NAME
+          Iniciar-ServicoComValidacao -NomeServico $env:API_SERVICE_NAME
+
+          Write-Host "--- DEPLOY FINALIZADO COM SUCESSO ---"
+          Stop-Transcript

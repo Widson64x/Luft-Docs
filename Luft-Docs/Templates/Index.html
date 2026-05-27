@@ -1,0 +1,66 @@
+{% extends "Layout/BaseLayout.html" %}
+
+{% block titulo %}LuftDocs - Início{% endblock %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Components/AnimacaoFundo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Base/Index.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="luft-index-bg" id="containerAnimacaoFundo" data-icons-url="{{ url_for('static', filename='data/icons.json') }}"></div>
+
+<div class="luft-index-container animate-fade-in" style="z-index: 2;">
+
+    <div class="luft-index-actions-top">
+        <a href="{{ url_for('Inicio.exibirMapaConhecimento', token=request.args.get('token')) }}" 
+           class="luft-btn luft-btn-primary page-transition-btn">
+           <i class="ph-bold ph-tree-structure"></i>
+           <span>Ver Mapa</span>
+        </a>
+
+        {% if tem_permissao('DOCS.EDITOR_MODULOS.VISUALIZAR') %}
+        <a href="{{ url_for('Editor.exibirPainelEditor', token=request.args.get('token')) }}" 
+           class="luft-btn luft-btn-outline page-transition-btn">
+           <i class="ph-bold ph-pencil-simple"></i>
+           <span>Acessar Editor</span>
+        </a>
+        {% endif %}
+
+          {% if tem_permissao('SISTEMA.SEGURANCA.VISUALIZAR') %}
+        <a href="{{ url_for('Permissoes.gerenciarPermissoes', token=request.args.get('token')) }}" 
+           class="luft-btn luft-btn-outline page-transition-btn">
+           <i class="ph-bold ph-shield-check"></i>
+           <span>Gerenciar Permissões</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="luft-index-header">
+        <h1 class="text-main font-black text-2xl m-0">Módulos do LuftDocs</h1>
+        
+        <div class="luft-search-box shadow-sm">
+            <i class="ph-bold ph-magnifying-glass text-muted"></i>
+            <input type="text" id="inputFiltroModulos" class="luft-search-input" placeholder="Filtrar módulos...">
+        </div>
+    </div>
+
+    <div class="luft-index-grid" id="gridModulos">
+        </div>
+    
+    <div id="mensagemSemResultados" class="luft-index-empty" style="display: none;">
+        <i class="ph-thin ph-smiley-sad text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 font-bold text-main">Nenhum módulo encontrado</h4>
+        <p class="text-muted">Tente ajustar os termos da sua busca para encontrar o que procura.</p>
+    </div>
+
+    <div id="containerPaginacao" class="luft-index-pagination mt-4">
+        </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='JS/AnimacaoFundo.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/Index.js') }}"></script>
+{% endblock %}

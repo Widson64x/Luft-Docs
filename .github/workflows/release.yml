@@ -1,0 +1,77 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
+jobs:
+  release:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Prepare release files
+        id: prepare
+        run: python scripts/prepare_release.py --github-output "$GITHUB_OUTPUT"
+
+      - name: Stop when there is nothing new to release
+        if: steps.prepare.outputs.created != 'true'
+        run: echo "Sem novos commits desde a ultima release."
+
+      - name: Validate updated files
+        if: steps.prepare.outputs.created == 'true'
+        run: |
+          python -m compileall _version.py scripts
+          python -m py_compile Luft-Docs/App.py Luft-Docs/Wsgi.py LuftDocs_API/Wsgi.py LuftDocs_API/App/Main.py
+
+      - name: Configure git author
+        if: steps.prepare.outputs.created == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and tag release
+        if: steps.prepare.outputs.created == 'true'
+        run: |
+          git add _version.py CHANGELOG.md
+          git commit -m "build(release): ${{ steps.prepare.outputs.tag }} [skip ci]"
+          git tag -a "${{ steps.prepare.outputs.tag }}" -m "build(release): ${{ steps.prepare.outputs.tag }}"
+          git push origin HEAD:main --follow-tags
+
+      - name: Create release bundle
+        if: steps.prepare.outputs.created == 'true'
+        shell: bash
+        run: |
+          mkdir -p dist
+          git archive --format=zip --output "dist/luftdocs-${{ steps.prepare.outputs.tag }}.zip" HEAD
+
+      - name: Publish GitHub release
+        if: steps.prepare.outputs.created == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          tag_name: ${{ steps.prepare.outputs.tag }}
+          files: dist/*.zip
