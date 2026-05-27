@@ -82,7 +82,7 @@ profile_default/
 ipython_config.py
 
 # Data and backups
-DATA/
+/DATA/
 DATA_LUFTDOCS/
 LUFTDOCS_VECTOR_STORAGE/
 BACKUP/
