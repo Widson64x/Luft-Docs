@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 env:
-  MONOREPO_PATH: C:\ProjetosPython\LuftDocs
-  SHARED_VENV_PATH: C:\ProjetosPython\LuftDocs\.LUFTDOCS_PACKAGES
-  DEPLOY_LOG_FILE: C:\GitHubRunners\LuftDocs\deploy-log.txt
+  MONOREPO_PATH: C:\ProjetosPython\Luft-Docs
+  SHARED_VENV_PATH: C:\ProjetosPython\Luft-Docs\.LUFTDOCS_PACKAGES
+  DEPLOY_LOG_FILE: C:\GitHubRunners\Luft-Docs\deploy-log.txt
   NSSM_EXE: C:\nssm-2.24\win64\nssm.exe
   WEB_SERVICE_NAME: LuftDocs
   API_SERVICE_NAME: LuftDocsAPI
