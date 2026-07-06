@@ -30,7 +30,8 @@ def PopularSessaoUsuario(dadosUsuarioApi: dict[str, Any] | None) -> bool:
 
     usuario_api = dadosUsuarioApi["usuario"]
     usuario = MapearCamposUsuario(usuario_api)
-    session["user_name"] = usuario.get("name")
+    # Prioriza login; se indisponivel, utiliza nome completo para manter auditoria consistente.
+    session["user_name"] = usuario.get("name") or usuario.get("full_name")
     session["user_id"] = usuario.get("id")
     session["email"] = usuario.get("email")
     session["full_name"] = usuario.get("full_name")

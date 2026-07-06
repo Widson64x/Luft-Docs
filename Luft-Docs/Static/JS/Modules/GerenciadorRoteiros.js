@@ -16,10 +16,13 @@ class GerenciadorRoteiros {
             const configuracao = JSON.parse(this.dadosEmbutidos.textContent);
             this.roteiros = configuracao.roteiros || [];
             this.podeEditar = configuracao.podeEditar || false;
-            this.moduloId = document.querySelector('.module-container').dataset.moduleId;
+            const containerModulo = document.querySelector('.module-container') || document.querySelector('.luft-module-hero-card');
+            this.moduloId = containerModulo?.dataset?.moduleId || null;
         } catch (erro) {
+            console.error('[GerenciadorRoteiros] Falha ao inicializar dados embutidos.', erro);
             this.roteiros = [];
             this.podeEditar = false;
+            this.moduloId = null;
         }
 
         this.elementos = {
@@ -54,6 +57,10 @@ class GerenciadorRoteiros {
             this.elementos.botaoCriar.addEventListener('click', () => this.abrirModalCriacao());
             this.elementos.formulario.addEventListener('submit', (e) => this.salvarRoteiro(e));
             this.elementos.botaoConfirmarExclusao.addEventListener('click', () => this.executarExclusao());
+        } else if (this.elementos.botaoCriar && !this.podeEditar) {
+            console.warn('[GerenciadorRoteiros] Botão de criação existe, mas a permissão de edição está desabilitada.');
+        } else if (!this.elementos.botaoCriar) {
+            console.warn('[GerenciadorRoteiros] Botão de criação não encontrado no DOM.');
         }
     }
 
@@ -183,6 +190,11 @@ class GerenciadorRoteiros {
      * @param {number} roteiroId - Identificador do roteiro gerado.
      */
     async vincularRoteiroAoModuloAtual(roteiroId) {
+        if (!this.moduloId) {
+            console.warn('[GerenciadorRoteiros] moduloId ausente. Vinculação com módulo foi ignorada.');
+            return;
+        }
+
         await fetch(`/api/roteiros/vincular?token=${this.tokenApi}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

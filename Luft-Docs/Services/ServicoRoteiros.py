@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from flask import session
+from flask_login import current_user
 
 from Db.Connections import obterSessaoPostgres
 from Models import LogAuditoriaRoteiro, Modulo, Roteiro
@@ -15,6 +16,14 @@ class ServicoRoteiros:
         resposta_permissao = self._validarPermissaoEdicao()
         if resposta_permissao is not None:
             return resposta_permissao
+
+        dados_auditoria = self._obterDadosAuditoria()
+        if dados_auditoria is None:
+            return self._respostaErro(
+                "Nao foi possivel identificar o usuario autenticado.", 401
+            )
+
+        usuario_id, nome_usuario = dados_auditoria
 
         if not dados.get("titulo") or not dados.get("conteudo"):
             return self._respostaErro(
@@ -35,8 +44,8 @@ class ServicoRoteiros:
             sessao.add(
                 LogAuditoriaRoteiro(
                     Roteiro=novo_roteiro,
-                    UsuarioId=session.get("user_id"),
-                    NomeUsuario=session.get("user_name"),
+                    UsuarioId=usuario_id,
+                    NomeUsuario=nome_usuario,
                     Acao="CREATE",
                 )
             )
@@ -119,6 +128,14 @@ class ServicoRoteiros:
         if resposta_permissao is not None:
             return resposta_permissao
 
+        dados_auditoria = self._obterDadosAuditoria()
+        if dados_auditoria is None:
+            return self._respostaErro(
+                "Nao foi possivel identificar o usuario autenticado.", 401
+            )
+
+        usuario_id, nome_usuario = dados_auditoria
+
         sessao = obterSessaoPostgres()
         try:
             roteiro = sessao.get(Roteiro, roteiro_id)
@@ -135,8 +152,8 @@ class ServicoRoteiros:
             sessao.add(
                 LogAuditoriaRoteiro(
                     RoteiroId=roteiro.Id,
-                    UsuarioId=session.get("user_id"),
-                    NomeUsuario=session.get("user_name"),
+                    UsuarioId=usuario_id,
+                    NomeUsuario=nome_usuario,
                     Acao="UPDATE",
                 )
             )
@@ -164,6 +181,14 @@ class ServicoRoteiros:
         if resposta_permissao is not None:
             return resposta_permissao
 
+        dados_auditoria = self._obterDadosAuditoria()
+        if dados_auditoria is None:
+            return self._respostaErro(
+                "Nao foi possivel identificar o usuario autenticado.", 401
+            )
+
+        usuario_id, nome_usuario = dados_auditoria
+
         sessao = obterSessaoPostgres()
         try:
             roteiro = sessao.get(Roteiro, roteiro_id)
@@ -173,8 +198,8 @@ class ServicoRoteiros:
             sessao.add(
                 LogAuditoriaRoteiro(
                     RoteiroId=roteiro.Id,
-                    UsuarioId=session.get("user_id"),
-                    NomeUsuario=session.get("user_name"),
+                    UsuarioId=usuario_id,
+                    NomeUsuario=nome_usuario,
                     Acao="DELETE",
                 )
             )
@@ -202,6 +227,30 @@ class ServicoRoteiros:
         if not PermissaoService.usuarioPossuiPermissao("DOCS.ROTEIROS.EDITAR"):
             return self._respostaErro(mensagem, 403)
         return None
+
+    def _obterDadosAuditoria(self) -> tuple[int, str] | None:
+        """Resolve dados obrigatorios de auditoria a partir da sessao ou current_user."""
+        usuario_id = session.get("user_id")
+        nome_usuario = session.get("user_name")
+
+        if usuario_id is None and current_user.is_authenticated:
+            usuario_id = getattr(current_user, "id_banco", None) or current_user.get_id()
+
+        if not nome_usuario and current_user.is_authenticated:
+            nome_usuario = (
+                getattr(current_user, "nome", None)
+                or getattr(current_user, "login", None)
+            )
+
+        try:
+            usuario_id = int(usuario_id)
+        except (TypeError, ValueError):
+            return None
+
+        if not nome_usuario:
+            return None
+
+        return usuario_id, str(nome_usuario)
 
     @staticmethod
     def _respostaErro(mensagem: str, codigo: int) -> tuple[dict[str, object], int]:

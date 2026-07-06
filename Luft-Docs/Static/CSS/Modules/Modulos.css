@@ -635,16 +635,20 @@
 /* Ações de edição do roteiro */
 .roteiro-actions {
     margin-left: auto;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s ease-in-out;
 }
-.roteiro-item-wrapper:hover .roteiro-actions {
-    opacity: 1;
-}
-.roteiro-item-wrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
+
+/* Em dispositivos com hover, exibe ações ao passar o mouse no item real */
+@media (hover: hover) {
+    .roteiro-actions {
+        opacity: 0;
+    }
+
+    .roteiro-item:hover .roteiro-actions,
+    .roteiro-item:focus-within .roteiro-actions {
+        opacity: 1;
+    }
 }
 #videoModal .modal-dialog { max-width: 800px; }
 #videoModal .modal-content { background-color: #000; }
